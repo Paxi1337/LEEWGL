@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+        <script type="text/javascript" src="js/gl-matrix/common.js"></script> 
+        <script type="text/javascript" src="js/gl-matrix/mat4.js"></script> 
+        <script type="text/javascript" src="js/gl-matrix/vec3.js"></script> 
+        <script type="text/javascript" src="js/gl-matrix/vec2.js"></script> 
+        <script type="text/javascript" src="js/engine/Core.js"></script> 
+        <script type="text/javascript" src="js/engine/VertexDeclarations.js"></script> 
+        <script type="text/javascript" src="js/engine/Buffer.js"></script> 
+        <script type="text/javascript" src="js/engine/Shader.js"></script> 
+        <script type="text/javascript" src="js/engine/EventDispatcher.js"></script> 
+        <script type="text/javascript" src="js/engine/Object3D.js"></script> 
+        <script type="text/javascript" src="js/engine/Geometry.js"></script> 
+        <script type="text/javascript" src="js/engine/Camera.js"></script> 
+        <script type="text/javascript" src="js/engine/PerspectiveCamera.js"></script> 
+        <script type="text/javascript" src="js/engine/App.js"></script> 
+        <script type="text/javascript" src="js/engine/TestApp.js"></script> 
+        
+        <script id="shader-fs" type="x-shader/x-fragment">
+            precision mediump float;
+
+            void main(void) {
+                gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+            }
+        </script>
+
+        <script id="shader-vs" type="x-shader/x-vertex">
+            attribute vec3 aVertexPosition;
+
+            uniform mat4 uMVP;
+            uniform mat4 uProjection;
+
+            void main(void) {
+                gl_Position = uProjection * uMVP * vec4(aVertexPosition, 1.0);
+            }
+        </script>
+        
+    </head>
+    <body>
+        <canvas id="canvas" width="500" height="500"></canvas>
+        <script>
+            var init = function() {
+                var _canvas = document.querySelector('#canvas');
+                
+                var LEEWGL = new window.LEEWGL.Core({'canvas' : _canvas});
+                var testapp = new window.LEEWGL.TestApp({'core' : LEEWGL});
+                
+                LEEWGL.attachApp(testapp);
+                LEEWGL.init();
+                window.requestAnimationFrame(LEEWGL.run);
+            };
+            init();
+        </script>
+    </body>
+</html>
