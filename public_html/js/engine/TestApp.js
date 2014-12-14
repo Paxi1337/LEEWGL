@@ -43,12 +43,50 @@ LEEWGL.TestApp.prototype.onCreate = function () {
 
 LEEWGL.TestApp.prototype.onMouseDown = function (event) {
     this.triangle.dispatchEvent(event);
+    
+     this.castRay();
 };
 
 LEEWGL.TestApp.prototype.onMouseMove = function (event) {
+    var size = this.core.getRenderSize();
+    /// get mousevec to range [-1, 1] in both axes
+//    vec3.set(this.mouseVector, 2 * (event.clientX / size.width) - 1, 1 - 2 * (event.clientY / size.height), 0);
+    vec3.set(this.mouseVector,event.clientX, event.clientY, 0);
+    
+    var x = this.mouseVector[0];
+    var y = size.height - this.mouseVector[1];
+    
+    var vec = vec2.fromValues(x, y);
+};
+
+LEEWGL.TestApp.prototype.castRay = function() {
+    var size = this.core.getRenderSize();
+    var ray = LEEWGL.Math.Ray;
+    var mouse = this.mouseVector;
+    
+    var x = mouse[0];
+    var y = size.height - mouse[1];
+    
+    var depth;
+    
+    var pixels = new Uint8Array(4);
+    this.gl.readPixels(x, y, 1, 1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, pixels);
+    
+    var viewPort = vec4.fromValues(0.0, 0.0, size.width, size.height);
+    
+    var coordsObject = vec3.unproject(vec3.fromValues(x, y, pixels), this.camera.mvMatrix, this.camera.projMatrix, viewPort);
+    
+    ray.direction = coordsObject - ray.origin;
+    ray.direction = vec3.normalize(vec3.create(), ray.direction);
+    
+    console.log(pixels);
 };
 
 LEEWGL.TestApp.prototype.onMouseUp = function (event) {
+};
+
+LEEWGL.TestApp.prototype.onKeyPressed = function(event) {
+    
 };
 
 LEEWGL.TestApp.prototype.onRender = function () {

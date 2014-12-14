@@ -66,6 +66,13 @@ LEEWGL.Core = function (options) {
             _canvas.style.height = height + 'px';
         }
     };
+    
+    this.getRenderSize = function() {
+        return {
+            'width' : _canvas.width,
+            'height' : _canvas.height
+        };
+    };
 
     this.setViewport = function (x, y, width, height) {
         _viewportX = x;
