@@ -120,21 +120,21 @@ LEEWGL.Core = function (options) {
         _app = app;
     };
 
-    this.initTexture = function(texture, img) {
+    this.initTexture = function (texture, img) {
         var image = new Image();
         image.src = img;
-        
+
         texture = texture instanceof LEEWGL.Texture ? texture : new LEEWGL.Texture(image);
-        
+        texture.img = image;
         texture.webglTexture = _gl.createTexture();
-        
+
         var that = this;
-        
-        image.onload = function() {
+
+        texture.img.onload = function () {
             that.setTexture(texture, 0);
-            that.setTextureParameters(texture, _gl.TEXTURE_2D, false);
+            that.setTextureParameters(texture, _gl.TEXTURE_2D, true);
         };
-        
+
     };
 
     this.setTexture = function (texture, number) {
@@ -143,16 +143,14 @@ LEEWGL.Core = function (options) {
     };
 
     this.setTextureParameters = function (texture, type, isPowerOfTwo) {
+        _gl.texImage2D(type, 0, _gl.RGBA, _gl.RGBA, _gl.UNSIGNED_BYTE, texture.img);
+        _gl.texParameteri(type, _gl.TEXTURE_MIN_FILTER, this.paramToGL(texture.minFilter));
         if (isPowerOfTwo) {
-            
-            console.log(texture);
-            
             _gl.texParameteri(type, _gl.TEXTURE_WRAP_S, this.paramToGL(texture.wrapS));
             _gl.texParameteri(type, _gl.TEXTURE_WRAP_T, this.paramToGL(texture.wrapT));
 
             _gl.texParameteri(type, _gl.TEXTURE_MAG_FILTER, this.paramToGL(texture.magFilter));
             _gl.texParameteri(type, _gl.TEXTURE_MIN_FILTER, this.paramToGL(texture.minFilter));
-
         } else {
             _gl.texParameteri(type, _gl.TEXTURE_WRAP_S, _gl.CLAMP_TO_EDGE);
             _gl.texParameteri(type, _gl.TEXTURE_WRAP_T, _gl.CLAMP_TO_EDGE);
@@ -160,6 +158,9 @@ LEEWGL.Core = function (options) {
             _gl.texParameteri(type, _gl.TEXTURE_MAG_FILTER, this.paramToGL(texture.magFilter));
             _gl.texParameteri(type, _gl.TEXTURE_MIN_FILTER, this.paramToGL(texture.minFilter));
         }
+        
+        if(texture.genMipmaps === true)
+            _gl.generateMipmap(type);
     };
 
     this.paramToGL = function (param) {

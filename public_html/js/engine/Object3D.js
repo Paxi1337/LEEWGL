@@ -47,6 +47,14 @@ LEEWGL.Object3D.DefaultUp = vec3.fromValues(0.0, 1.0, 0.0);
 LEEWGL.Object3D.prototype = {
     constructor: LEEWGL.Object3D,
     
+    setPosition: function(x, y, z) {
+        vec3.set(this.position, x, y, z);
+    },
+    
+    offsetPosition: function(vector) {
+        vec3.add(this.position, this.position, vector);
+    },
+    
     add: function (object) {
         if (arguments.length > 1) {
             for (var i = 0; i < arguments.length; ++i) {

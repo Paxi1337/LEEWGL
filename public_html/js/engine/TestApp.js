@@ -104,7 +104,8 @@ LEEWGL.TestApp.prototype.onCreate = function () {
         this.translate(translation);
     });
 
-    this.camera.position.z = 1000;
+    this.camera.offsetPosition(vec3.fromValues(0.0, 0.0, 10.0));
+
     this.shader.init(this.gl, 'canvas');
     
     this.cubeBuffer.setData(this.gl, this.cube.vertices, new LEEWGL.BufferInformation.VertexTypePos3());
@@ -151,12 +152,12 @@ LEEWGL.TestApp.prototype.castRay = function () {
 
     var viewPort = vec4.fromValues(0.0, 0.0, size.width, size.height);
 
-    var coordsObject = vec3.unproject(vec3.fromValues(x, y, pixels), this.camera.mvMatrix, this.camera.projMatrix, viewPort);
+    var coordsObject = vec3.unproject(vec3.fromValues(x, y, pixels), this.camera.viewProjMatrix, this.camera.projMatrix, viewPort);
 
     ray.direction = coordsObject - ray.origin;
     ray.direction = vec3.normalize(vec3.create(), ray.direction);
 
-    console.log(pixels);
+//    console.log(pixels);
 };
 
 LEEWGL.TestApp.prototype.onMouseUp = function (event) {
@@ -164,6 +165,10 @@ LEEWGL.TestApp.prototype.onMouseUp = function (event) {
 
 LEEWGL.TestApp.prototype.onKeyPressed = function (event) {
 
+};
+
+LEEWGL.TestApp.prototype.onUpdate = function () {
+    this.camera.update();
 };
 
 LEEWGL.TestApp.prototype.onRender = function () {
@@ -174,9 +179,10 @@ LEEWGL.TestApp.prototype.onRender = function () {
     this.gl.vertexAttribPointer(_shaderProgram.vertexPositionAttribute, this.cubeBuffer.getBuffer().itemSize, this.gl.FLOAT, false, 0, 0);
     
     this.textureBuffer.bind(this.gl);
+    
     this.gl.vertexAttribPointer(_shaderProgram.textureCoordAttribute, this.textureBuffer.getBuffer().itemSize, this.gl.FLOAT, false, 0, 0);
     
-    this.shader.setMatrixUniform(this.gl, _shaderProgram.projection, this.camera.projMatrix);
+    this.shader.setMatrixUniform(this.gl, _shaderProgram.projection, this.camera.viewProjMatrix);
     this.shader.setIntegerUniform(this.gl, _shaderProgram.sampler, 0);
     this.shader.setMatrixUniform(this.gl, _shaderProgram.mvp, this.cube.matrix);
 
