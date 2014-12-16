@@ -22,9 +22,12 @@ LEEWGL.Shader = function () {
 
         _program.vertexPositionAttribute = gl.getAttribLocation(_program, "aVertexPosition");
         gl.enableVertexAttribArray(_program.vertexPositionAttribute);
+        _program.textureCoordAttribute = gl.getAttribLocation(_program, "aTextureCoord");
+        gl.enableVertexAttribArray(_program.vertexPositionAttribute);
 
         _program.projection = gl.getUniformLocation(_program, "uProjection");
         _program.mvp = gl.getUniformLocation(_program, "uMVP");
+        _program.sampler = gl.getUniformLocation(_program, "uSampler");
     };
 
     this.getShaderDOM = function (gl, selector) {
@@ -80,5 +83,9 @@ LEEWGL.Shader = function () {
     
     this.setMatrixUniform = function(gl, loc, mat) {
         gl.uniformMatrix4fv(loc, false, mat);
+    };
+    
+    this.setIntegerUniform = function(gl, loc, integer) {
+        gl.uniform1i(loc, integer);
     };
 };

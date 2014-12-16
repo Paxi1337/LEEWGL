@@ -14,9 +14,11 @@
         <script type="text/javascript" src="../js/engine/Math.js"></script> 
         <script type="text/javascript" src="../js/engine/VertexDeclarations.js"></script> 
         <script type="text/javascript" src="../js/engine/Buffer.js"></script> 
+        <script type="text/javascript" src="../js/engine/IndexBuffer.js"></script> 
         <script type="text/javascript" src="../js/engine/Shader.js"></script> 
         <script type="text/javascript" src="../js/engine/EventDispatcher.js"></script> 
         <script type="text/javascript" src="../js/engine/Object3D.js"></script> 
+        <script type="text/javascript" src="../js/engine/Texture.js"></script> 
         <script type="text/javascript" src="../js/engine/Geometry.js"></script> 
         <script type="text/javascript" src="../js/engine/Camera.js"></script> 
         <script type="text/javascript" src="../js/engine/PerspectiveCamera.js"></script> 
@@ -25,20 +27,28 @@
 
         <script id="shader-fs" type="x-shader/x-fragment">
             precision mediump float;
-
+            
+            varying highp vec2 vTextureCoord;
+            
+            uniform sampler2D uSampler;
+            
             void main(void) {
-            gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+                gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
             }
         </script>
 
         <script id="shader-vs" type="x-shader/x-vertex">
             attribute vec3 aVertexPosition;
+            attribute vec2 aTextureCoord;
 
             uniform mat4 uMVP;
             uniform mat4 uProjection;
+            
+            varying highp vec2 vTextureCoord;
 
             void main(void) {
             gl_Position = uProjection * uMVP * vec4(aVertexPosition, 1.0);
+            vTextureCoord = aTextureCoord;
             }
         </script>
     </head>

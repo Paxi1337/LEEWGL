@@ -1,13 +1,11 @@
-LEEWGL.Buffer = function () {
+LEEWGL.IndexBuffer = function () {
     var _buffer = null;
 
-    this.setData = function (gl, vertices, type) {
+    this.setData = function (gl, indices) {
         _buffer = _buffer !== null ? _buffer : this.create(gl);
         this.bind(gl, _buffer);
         
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-        _buffer.itemSize = type.size;
-        _buffer.numItems = vertices.length / type.size;
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
     };
 
     this.create = function (gl) {
@@ -15,7 +13,7 @@ LEEWGL.Buffer = function () {
     };
 
     this.bind = function (gl) {
-        gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, _buffer);
     };
 
     this.getBuffer = function () {

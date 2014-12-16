@@ -1,24 +1,27 @@
-LEEWGL.Texture = function (img, wrapS, wrapT, mapping, mag, min, format, type, anisotropy) {
+LEEWGL.Texture = function (img, wrapS, wrapT, mapping, magFilter, minFilter, format, type, anisotropy) {
     Object.defineProperty(this, 'id', {value: LEEWGL.TextureCount++});
 
-    this.image = image !== undefined ? image : LEEWGL.Texture.IMG_DEFAULT;
+    this.img = img !== undefined ? img : LEEWGL.Texture.IMG_DEFAULT;
+    
+    this.webglTexture = null;
+    
     this.mipmaps = [];
 
-    this.wrapS = wrapS !== undefined ? wrapS : LEEWGL.Texture.WrappingClampToEdge;
-    this.wrapT = wrapT !== undefined ? wrapT : LEEWGL.Texture.WrappingClampToEdge;
+    this.wrapS = wrapS !== undefined ? wrapS : LEEWGL.WrappingClampToEdge;
+    this.wrapT = wrapT !== undefined ? wrapT : LEEWGL.WrappingClampToEdge;
 
     this.mapping = mapping !== undefined ? mapping : LEEWGL.Texture.MAPPING_DEFAULT;
    
-    this.mag = mag !== undefined ? mag : LEEWGL.Texture.FilterLinear;
-    this.min = min !== undefined ? min : LEEWGL.Texture.FilterLinearMipmapLinear;
+    this.magFilter = magFilter !== undefined ? magFilter : LEEWGL.FilterLinear;
+    this.minFilter = minFilter !== undefined ? minFilter : LEEWGL.FilterNearestMipMapLinear;
 
     this.anisotropy = anisotropy !== undefined ? anisotropy : 1;
 
     this.format = format !== undefined ? format : LEEWGL.FormatRGBA;
     this.type = type !== undefined ? type : LEEWGL.TypeUnsignedByte;
 
-    this.offset = vec2.set(this.offset, 0, 0);
-    this.repeat = vec2.set(this.repeat, 1, 1);
+    this.offset = vec2.set(vec2.create(), 0, 0);
+    this.repeat = vec2.set(vec2.create(), 1, 1);
 
     this.genMipmaps = true;
     this.flipY = true;
@@ -30,11 +33,12 @@ LEEWGL.Texture.MAPPING_DEFAULT = undefined;
 
 LEEWGL.Texture.prototype = {
     constructor: LEEWGL.Texture,
+    
     clone: function (texture) {
         if (texture === undefined)
             texture = new LEEWGL.Texture();
 
-        texture.image = this.image;
+        texture.imagFiltere = this.imagFiltere;
         texture.mipmaps = this.mipmaps.slice(0);
 
         texture.wrapS = this.wrapS;
@@ -42,8 +46,8 @@ LEEWGL.Texture.prototype = {
         
         texture.mapping = this.mapping;
 
-        texture.mag = this.mag;
-        texture.min = this.min;
+        texture.magFilter = this.magFilter;
+        texture.minFilter = this.minFilter;
 
         texture.anisotropy = this.anisotropy;
 

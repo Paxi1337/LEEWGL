@@ -10,10 +10,42 @@ if (typeof module === 'object') {
 // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent.button
 LEEWGL.MOUSE = {left: 0, middle: 1, right: 2};
 
+// wrapping modes
+
+LEEWGL.WrappingRepeat = 1000;
+LEEWGL.WrappingClampToEdge = 1001;
+LEEWGL.WrappingMirroredRepeat = 1002;
+
+// filters
+
+LEEWGL.FilterNearest = 1003;
+LEEWGL.FilterNearestMipMapNearest = 1004;
+LEEWGL.FilterNearestMipMapLinear = 1005;
+LEEWGL.FilterLinear = 1006;
+LEEWGL.FilterLinearMipMapNearest = 1007;
+LEEWGL.FilterLinearMipmapLinear = 1008;
+
+// data types
+
+LEEWGL.TypeUnsignedByte = 1009;
+LEEWGL.TypeByte = 1010;
+LEEWGL.TypeShort = 1011;
+LEEWGL.TypeUnsignedShort = 1012;
+LEEWGL.TypeInt = 1013;
+LEEWGL.TypeUnsignedInt = 1014;
+LEEWGL.TypeFloat = 1015;
+
+// pixel formats
+
+LEEWGL.FormatAlpha = 1016;
+LEEWGL.FormatRGB = 1017;
+LEEWGL.FormatRGBA = 1018;
+LEEWGL.FormatLuminance = 1019;
+LEEWGL.FormatLuminanceAlpha = 1020;
 
 LEEWGL.Core = function (options) {
     var _canvas = options.canvas !== undefined ? options.canvas : document.createElement('canvas'),
-            _context = options.context !== undefined ? options.context : null;
+        _context = options.context !== undefined ? options.context : null;
 
     var _app = null;
 
@@ -22,15 +54,15 @@ LEEWGL.Core = function (options) {
     this.context = null;
 
     var _this = this,
-            _programs = [],
-            _currentProgram = null,
-            _currentFramebuffer = null,
-            _currentCamera = null,
-            _viewportX = 0,
-            _viewportY = 0,
-            _viewportWidth = _canvas.width,
-            _viewportHeight = _canvas.height,
-            _quit = false;
+        _programs = [],
+        _currentProgram = null,
+        _currentFramebuffer = null,
+        _currentCamera = null,
+        _viewportX = 0,
+        _viewportY = 0,
+        _viewportWidth = _canvas.width,
+        _viewportHeight = _canvas.height,
+        _quit = false;
 
     // initialize webGL
     var _gl;
@@ -66,11 +98,11 @@ LEEWGL.Core = function (options) {
             _canvas.style.height = height + 'px';
         }
     };
-    
-    this.getRenderSize = function() {
+
+    this.getRenderSize = function () {
         return {
-            'width' : _canvas.width,
-            'height' : _canvas.height
+            'width': _canvas.width,
+            'height': _canvas.height
         };
     };
 
@@ -86,6 +118,97 @@ LEEWGL.Core = function (options) {
 
     this.attachApp = function (app) {
         _app = app;
+    };
+
+    this.initTexture = function(texture, img) {
+        var image = new Image();
+        image.src = img;
+        
+        texture = texture instanceof LEEWGL.Texture ? texture : new LEEWGL.Texture(image);
+        
+        texture.webglTexture = _gl.createTexture();
+        
+        var that = this;
+        
+        image.onload = function() {
+            that.setTexture(texture, 0);
+            that.setTextureParameters(texture, _gl.TEXTURE_2D, false);
+        };
+        
+    };
+
+    this.setTexture = function (texture, number) {
+        _gl.activeTexture(_gl.TEXTURE0);
+        _gl.bindTexture(_gl.TEXTURE_2D, texture.webglTexture);
+    };
+
+    this.setTextureParameters = function (texture, type, isPowerOfTwo) {
+        if (isPowerOfTwo) {
+            
+            console.log(texture);
+            
+            _gl.texParameteri(type, _gl.TEXTURE_WRAP_S, this.paramToGL(texture.wrapS));
+            _gl.texParameteri(type, _gl.TEXTURE_WRAP_T, this.paramToGL(texture.wrapT));
+
+            _gl.texParameteri(type, _gl.TEXTURE_MAG_FILTER, this.paramToGL(texture.magFilter));
+            _gl.texParameteri(type, _gl.TEXTURE_MIN_FILTER, this.paramToGL(texture.minFilter));
+
+        } else {
+            _gl.texParameteri(type, _gl.TEXTURE_WRAP_S, _gl.CLAMP_TO_EDGE);
+            _gl.texParameteri(type, _gl.TEXTURE_WRAP_T, _gl.CLAMP_TO_EDGE);
+
+            _gl.texParameteri(type, _gl.TEXTURE_MAG_FILTER, this.paramToGL(texture.magFilter));
+            _gl.texParameteri(type, _gl.TEXTURE_MIN_FILTER, this.paramToGL(texture.minFilter));
+        }
+    };
+
+    this.paramToGL = function (param) {
+        if (param === LEEWGL.WrappingRepeat)
+            return _gl.REPEAT;
+        if (param === LEEWGL.WrappingClampToEdge)
+            return _gl.CLAMP_TO_EDGE;
+        if (param === LEEWGL.WrappingMirroredRepeat)
+            return _gl.MIRRORED_REPEAT;
+
+        if (param === LEEWGL.FilterNearest)
+            return _gl.NEAREST;
+        if (param === LEEWGL.FilterNearestMipMapNearest)
+            return _gl.NEAREST_MIPMAP_NEAREST;
+        if (param === LEEWGL.FilterNearestMipMapLinear)
+            return _gl.NEAREST_MIPMAP_LINEAR;
+
+        if (param === LEEWGL.FilterLinear)
+            return _gl.LINEAR;
+        if (param === LEEWGL.FilterLinearMipMapNearest)
+            return _gl.LINEAR_MIPMAP_NEAREST;
+        if (param === LEEWGL.FilterLinearMipmapLinear)
+            return _gl.LINEAR_MIPMAP_LINEAR;
+
+        if (param === LEEWGL.TypeUnsignedByte)
+            return _gl.UNSIGNED_BYTE;
+        if (param === LEEWGL.TypeByte)
+            return _gl.BYTE;
+        if (param === LEEWGL.TypeShort)
+            return _gl.SHORT;
+        if (param === LEEWGL.TypeUnsignedShort)
+            return _gl.UNSIGNED_SHORT;
+        if (param === LEEWGL.TypeInt)
+            return _gl.INT;
+        if (param === LEEWGL.TypeUnsignedInt)
+            return _gl.UNSIGNED_INT;
+        if (param === LEEWGL.TypeFloat)
+            return _gl.FLOAT;
+
+        if (param === LEEWGL.FormatAlpha)
+            return _gl.ALPHA;
+        if (param === LEEWGL.FormatRGB)
+            return _gl.RGB;
+        if (param === LEEWGL.FormatRGBA)
+            return _gl.RGBA;
+        if (param === LEEWGL.FormatLuminance)
+            return _gl.LUMINANCE;
+        if (param === LEEWGL.FormatLuminanceAlpha)
+            return _gl.LUMINANCE_ALPHA;
     };
 
     this.initMouse = function () {
