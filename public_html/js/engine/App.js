@@ -22,7 +22,10 @@ LEEWGL.App.prototype = {
     onRender : function() {
     },
     
-    onKeyPressed : function(event) {
+    onKeyUp : function(event) {
+    },
+    
+    onKeyDown : function(event) {
     },
     
     onMouseDown : function(event) {

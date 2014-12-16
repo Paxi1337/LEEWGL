@@ -9,10 +9,12 @@ LEEWGL.TestApp = function (options) {
     this.matrix = mat4.create();
     this.proj = mat4.create();
 
-    this.camera = new LEEWGL.PerspectiveCamera(75, this.gl.drawingBufferWidth / this.gl.drawingBufferHeight, 1, 1000);
+    this.camera = new LEEWGL.PerspectiveCamera(90, this.gl.drawingBufferWidth / this.gl.drawingBufferHeight, 1, 1000);
 
     this.cube = new LEEWGL.Geometry();
     this.texture = new LEEWGL.Texture();
+
+    this.activeKeys = [];
 };
 
 
@@ -107,7 +109,7 @@ LEEWGL.TestApp.prototype.onCreate = function () {
     this.camera.offsetPosition(vec3.fromValues(0.0, 0.0, 10.0));
 
     this.shader.init(this.gl, 'canvas');
-    
+
     this.cubeBuffer.setData(this.gl, this.cube.vertices, new LEEWGL.BufferInformation.VertexTypePos3());
     this.cubeIndexBuffer.setData(this.gl, cubeVertexIndices);
     this.textureBuffer.setData(this.gl, textureCoordinates, new LEEWGL.BufferInformation.VertexTypePos2());
@@ -115,7 +117,7 @@ LEEWGL.TestApp.prototype.onCreate = function () {
     this.gl.clearColor(0.0, 1.0, 0.0, 1.0);
     this.gl.enable(this.gl.DEPTH_TEST);
     this.gl.depthFunc(this.gl.LEQUAL);
-    
+
     this.core.initTexture(this.texture, '../texture/texture1.jpg');
 };
 
@@ -163,12 +165,43 @@ LEEWGL.TestApp.prototype.castRay = function () {
 LEEWGL.TestApp.prototype.onMouseUp = function (event) {
 };
 
-LEEWGL.TestApp.prototype.onKeyPressed = function (event) {
+LEEWGL.TestApp.prototype.onKeyUp = function (event) {
+    this.activeKeys[event.keyCode] = false;
+};
 
+LEEWGL.TestApp.prototype.onKeyDown = function (event) {
+    this.activeKeys[event.keyCode] = true;
 };
 
 LEEWGL.TestApp.prototype.onUpdate = function () {
     this.camera.update();
+    this.handleKeyInput();
+};
+
+LEEWGL.TestApp.prototype.handleKeyInput = function () {
+    var pitch = 0.0;
+
+    if (this.activeKeys[LEEWGL.KEYS.PAGE_UP]) {
+        this.camera.offsetOrientation(0.01, 0.0);
+    } else if (this.activeKeys[LEEWGL.KEYS.PAGE_DOWN]) {
+        this.camera.offsetOrientation(-0.01, 0.0);
+    }
+
+    if (this.activeKeys[LEEWGL.KEYS.LEFT_CURSOR]) {
+        var vec = vec3.negate(vec3.create(), this.camera.right());
+        this.camera.offsetPosition(vec);
+    } else if (this.activeKeys[LEEWGL.KEYS.RIGHT_CURSOR]) {
+        var vec = this.camera.right();
+        this.camera.offsetPosition(vec);
+    }
+
+    if (this.activeKeys[LEEWGL.KEYS.UP_CURSOR]) {
+        var vec = this.camera.forward();
+        this.camera.offsetPosition(vec);
+    } else if (this.activeKeys[LEEWGL.KEYS.DOWN_CURSOR]) {
+        var vec = vec3.negate(vec3.create(), this.camera.forward());
+        this.camera.offsetPosition(vec);
+    }
 };
 
 LEEWGL.TestApp.prototype.onRender = function () {
@@ -177,11 +210,11 @@ LEEWGL.TestApp.prototype.onRender = function () {
 
     this.cubeBuffer.bind(this.gl);
     this.gl.vertexAttribPointer(_shaderProgram.vertexPositionAttribute, this.cubeBuffer.getBuffer().itemSize, this.gl.FLOAT, false, 0, 0);
-    
+
     this.textureBuffer.bind(this.gl);
-    
+
     this.gl.vertexAttribPointer(_shaderProgram.textureCoordAttribute, this.textureBuffer.getBuffer().itemSize, this.gl.FLOAT, false, 0, 0);
-    
+
     this.shader.setMatrixUniform(this.gl, _shaderProgram.projection, this.camera.viewProjMatrix);
     this.shader.setIntegerUniform(this.gl, _shaderProgram.sampler, 0);
     this.shader.setMatrixUniform(this.gl, _shaderProgram.mvp, this.cube.matrix);

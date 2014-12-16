@@ -10,8 +10,8 @@ LEEWGL.PerspectiveCamera = function (fov, aspect, near, far) {
 
     this._horizontalAngle = 0.0;
     this._verticalAngle = 0.0;
-
-    this.orientMat = mat4.create();
+    
+    this.invertY = true;
 };
 
 LEEWGL.PerspectiveCamera.prototype = Object.create(LEEWGL.Camera.prototype);
@@ -25,7 +25,12 @@ LEEWGL.PerspectiveCamera.prototype.orientation = function () {
 
 LEEWGL.PerspectiveCamera.prototype.offsetOrientation = function (upAngle, rightAngle) {
     this._horizontalAngle += rightAngle;
-    this._verticalAngle += upAngle;
+    
+    if(this.invertY === true)
+        this._verticalAngle -= upAngle;
+    else
+        this._verticalAngle += upAngle;
+    
     this.normalizeAngles();
 };
 
@@ -49,10 +54,24 @@ LEEWGL.PerspectiveCamera.prototype.normalizeAngles = function () {
 };
 
 LEEWGL.PerspectiveCamera.prototype.update = function () {
-//    console.log(this.position);
     this.view();
     this.projection();
     this.viewProjMatrix = mat4.multiply(mat4.create(), this.projMatrix, this.viewMatrix);
+};
+
+LEEWGL.PerspectiveCamera.prototype.forward = function () {
+    var forward = vec4.transformMat4(vec4.create(), vec4.fromValues(0.0, 0.0, -1.0, 1.0), mat4.invert(mat4.create(), this.orientation()));
+    return vec3.fromValues(forward[0], forward[1], forward[2]);
+};
+
+LEEWGL.PerspectiveCamera.prototype.right = function () {
+    var right = vec4.transformMat4(vec4.create(), vec4.fromValues(1.0, 0.0, 0.0, 1.0), mat4.invert(mat4.create(), this.orientation()));
+    return vec3.fromValues(right[0], right[1], right[2]);
+};
+
+LEEWGL.PerspectiveCamera.prototype.up = function () {
+    var up = vec4.transformMat4(vec4.create(), vec4.fromValues(0.0, 1.0, 0.0, 1.0), mat4.invert(mat4.create(), this.orientation()));
+    return vec3.fromValues(up[0], up[1], up[2]);
 };
 
 LEEWGL.PerspectiveCamera.prototype.clone = function () {

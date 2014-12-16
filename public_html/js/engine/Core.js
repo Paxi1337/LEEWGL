@@ -10,6 +10,20 @@ if (typeof module === 'object') {
 // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent.button
 LEEWGL.MOUSE = {left: 0, middle: 1, right: 2};
 
+LEEWGL.KEYS = {};
+
+LEEWGL.KEYS.PAGE_UP = 33;
+LEEWGL.KEYS.PAGE_DOWN = 34;
+LEEWGL.KEYS.LEFT_CURSOR = 37;
+LEEWGL.KEYS.UP_CURSOR = 38;
+LEEWGL.KEYS.RIGHT_CURSOR = 39;
+LEEWGL.KEYS.DOWN_CURSOR = 40;
+LEEWGL.KEYS.A = 65;
+LEEWGL.KEYS.D = 68;
+LEEWGL.KEYS.S = 83;
+LEEWGL.KEYS.W = 87;
+
+
 // wrapping modes
 
 LEEWGL.WrappingRepeat = 1000;
@@ -220,6 +234,8 @@ LEEWGL.Core = function (options) {
         _canvas.onmousedown = _app.onMouseDown.bind(_app);
         document.onmouseup = _app.onMouseUp.bind(_app);
         document.onmousemove = _app.onMouseMove.bind(_app);
+        document.onkeydown = _app.onKeyDown.bind(_app);
+        document.onkeyup = _app.onKeyUp.bind(_app);
     };
 
     this.init = function () {
