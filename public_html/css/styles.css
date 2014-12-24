@@ -64,7 +64,8 @@ div#content {
 }
 
 div#render-container {
-    width: 48%;
+    width: 32%;
+    min-width: 500px;
     float: left;
     padding-top: 5px;
     margin-right: 10px;
@@ -72,7 +73,17 @@ div#render-container {
 }
 
 div#outline-container {
-    width: 47%;
+    width: 31%;
+    float: left;
+    padding-left: 19px;
+    padding-top: 5px;
+    border-left: 1px solid #565453;
+    background-color: #565656;
+    border: solid 1px #A9A9A9;
+}
+
+div#inspector-container {
+    width: 31%;
     float: left;
     padding-left: 19px;
     padding-top: 5px;

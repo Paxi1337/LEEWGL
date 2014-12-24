@@ -11,7 +11,7 @@ LEEWGL.TestApp = function (options) {
 
     this.camera = new LEEWGL.PerspectiveCamera(90, this.gl.drawingBufferWidth / this.gl.drawingBufferHeight, 1, 1000);
 
-    this.cube = new LEEWGL.Geometry();
+    this.cube = new LEEWGL.Geometry.Cube();
     this.texture = new LEEWGL.Texture();
 
     this.activeKeys = [];
@@ -22,41 +22,6 @@ LEEWGL.TestApp.prototype = Object.create(LEEWGL.App.prototype);
 
 LEEWGL.TestApp.prototype.onCreate = function () {
     this.cube.name = 'Cube';
-
-    var vertices = [
-        // Front face
-        -1.0, -1.0, 1.0,
-        1.0, -1.0, 1.0,
-        1.0, 1.0, 1.0,
-        -1.0, 1.0, 1.0,
-        // Back face
-        -1.0, -1.0, -1.0,
-        -1.0, 1.0, -1.0,
-        1.0, 1.0, -1.0,
-        1.0, -1.0, -1.0,
-        // Top face
-        -1.0, 1.0, -1.0,
-        -1.0, 1.0, 1.0,
-        1.0, 1.0, 1.0,
-        1.0, 1.0, -1.0,
-        // Bottom face
-        -1.0, -1.0, -1.0,
-        1.0, -1.0, -1.0,
-        1.0, -1.0, 1.0,
-        -1.0, -1.0, 1.0,
-        // Right face
-        1.0, -1.0, -1.0,
-        1.0, 1.0, -1.0,
-        1.0, 1.0, 1.0,
-        1.0, -1.0, 1.0,
-        // Left face
-        -1.0, -1.0, -1.0,
-        -1.0, -1.0, 1.0,
-        -1.0, 1.0, 1.0,
-        -1.0, 1.0, -1.0
-    ];
-
-    this.cube.setVertices(vertices);
 
     var textureCoordinates = [
         // Front
