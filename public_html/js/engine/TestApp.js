@@ -135,31 +135,15 @@ LEEWGL.TestApp.prototype.onMouseDown = function (event) {
 
     this.frameBuffer.bind(this.gl);
 
-    this.gl.clearColor(1.0, 0.0, 0.0, 1.0);
-//    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-
-    this.gl.viewport(0, 0, this.frameBuffer.width, this.frameBuffer.height);
-
     var pixelColor = new Uint8Array(4);
-    var size = this.core.getRenderSize();
-    var mouse = this.mouseVector;
 
-    // FIXME : get relative mouse components
-    
     var mouseCords = this.core.getRelativeMouseCoordinates(event);
-    
-    var x = mouse[0];
-    var y = size.height - mouse[1];
 
     this.gl.readPixels(mouseCords.x, mouseCords.y, 1, 1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, pixelColor);
 
-
     console.log(pixelColor);
-
-    this.gl.clearColor(0.0, 1.0, 0.0, 1.0);
+    
     this.frameBuffer.unbind(this.gl);
-
-//    this.castRay();
 };
 
 LEEWGL.TestApp.prototype.onMouseMove = function (event) {
@@ -239,7 +223,6 @@ LEEWGL.TestApp.prototype.handleKeyInput = function () {
 
 LEEWGL.TestApp.prototype.onRender = function () {
     var _shaderProgram = this.shader.getProgram();
-
     this.frameBuffer.bind(this.gl);
     this.shader.setIntegerUniform(this.gl, _shaderProgram.offscreen, true);
     this.draw();
