@@ -34,6 +34,26 @@ LEEWGL.Texture.MAPPING_DEFAULT = undefined;
 LEEWGL.Texture.prototype = {
     constructor: LEEWGL.Texture,
     
+    create : function(gl) {
+        this.webglTexture = gl.createTexture();
+    },
+    
+    bind : function(gl) {
+        gl.bindTexture(gl.TEXTURE_2D, this.webglTexture);
+    },
+    
+    unbind : function(gl) {
+        gl.bindTexture(gl.TEXTURE_2D, null);
+    },
+    
+    setParameteri : function(gl, name, param) {
+        gl.texParameteri(gl.TEXTURE_2D, name, param);
+    },
+    
+    generateMipmap : function(gl) {
+        gl.generateMipmap(gl.TEXTURE_2D);
+    },
+    
     clone: function (texture) {
         if (texture === undefined)
             texture = new LEEWGL.Texture();
@@ -68,7 +88,6 @@ LEEWGL.Texture.prototype = {
     },
     dispose: function () {
         this.dispatchEvent({type: 'dispose'});
-
     }
 };
 

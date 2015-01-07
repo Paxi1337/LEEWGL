@@ -624,6 +624,17 @@ vec3.forEach = (function () {
     };
 })();
 
+/**
+ * 
+ * Unproject a 3d vector from object space to world space
+ * 
+ * @param {type} vec
+ * @param {type} view
+ * @param {type} proj
+ * @param {type} viewport
+ * @returns {vec3.unproject.tv|vec4|Number|Float32Array|Array|type|vec3}
+ */
+
 vec3.unproject = function (vec, view, proj, viewport) {
     var dest = vec3.create();  //output
     var m = mat4.create();  //view * proj

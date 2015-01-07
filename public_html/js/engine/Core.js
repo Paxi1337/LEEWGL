@@ -226,6 +226,33 @@ LEEWGL.Core = function (options) {
             return _gl.LUMINANCE_ALPHA;
     };
 
+    this.initPickingBuffer = function(width, height) {
+        var frameBuffer = new LEEWGL.FrameBuffer();
+        frameBuffer.init(_gl, width, height);
+        frameBuffer.bind(_gl);
+        
+        var texture = new LEEWGL.Texture();
+        texture.create(_gl);
+        texture.bind(_gl);
+        texture.setParameteri(_gl, _gl.TEXTURE_MAG_FILTER, _gl.LINEAR);
+        texture.setParameteri(_gl, _gl.TEXTURE_MIN_FILTER, _gl.LINEAR_MIPMAP_NEAREST);
+        texture.generateMipmap(_gl);
+        
+        _gl.texImage2D(_gl.TEXTURE_2D, 0, _gl.RGBA, frameBuffer.width, frameBuffer.height, 0, _gl.RGBA, _gl.UNSIGNED_BYTE, null);
+        
+        var renderBuffer = new LEEWGL.RenderBuffer();
+        renderBuffer.create(_gl);
+        renderBuffer.bind(_gl);
+        renderBuffer.setData(_gl, frameBuffer.width, frameBuffer.height);
+        
+        _gl.framebufferTexture2D(_gl.FRAMEBUFFER, _gl.COLOR_ATTACHMENT0, _gl.TEXTURE_2D, texture.webglTexture, 0);
+        _gl.framebufferRenderbuffer(_gl.FRAMEBUFFER, _gl.DEPTH_ATTACHMENT, _gl.RENDERBUFFER, renderBuffer.getBuffer());
+        
+        texture.unbind(_gl);
+        renderBuffer.unbind(_gl);
+        frameBuffer.unbind(_gl);
+    };
+
     this.initMouse = function () {
         if (_app === null) {
             console.error("LEEWGL.Core initMouse: No app attached.");

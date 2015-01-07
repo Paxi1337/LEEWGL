@@ -11,7 +11,7 @@ LEEWGL.TestApp = function (options) {
 
     this.camera = new LEEWGL.PerspectiveCamera(90, this.gl.drawingBufferWidth / this.gl.drawingBufferHeight, 1, 1000);
 
-    this.cube = new LEEWGL.Geometry.Cube();
+    this.cube = new LEEWGL.Geometry.Triangle();
     this.texture = new LEEWGL.Texture();
 
     this.activeKeys = [];
@@ -56,15 +56,6 @@ LEEWGL.TestApp.prototype.onCreate = function () {
         0.0, 1.0
     ];
 
-    var cubeVertexIndices = [
-        0, 1, 2, 0, 2, 3, // front
-        4, 5, 6, 4, 6, 7, // back
-        8, 9, 10, 8, 10, 11, // top
-        12, 13, 14, 12, 14, 15, // bottom
-        16, 17, 18, 16, 18, 19, // right
-        20, 21, 22, 20, 22, 23    // left
-    ];
-
     this.cube.addEventListener('mousedown', function () {
         var translation = vec3.create();
         vec3.set(translation, -0.5, 0.0, 0.0);
@@ -76,26 +67,42 @@ LEEWGL.TestApp.prototype.onCreate = function () {
     this.shader.init(this.gl, 'canvas');
 
     this.cubeBuffer.setData(this.gl, this.cube.vertices, new LEEWGL.BufferInformation.VertexTypePos3());
-    this.cubeIndexBuffer.setData(this.gl, cubeVertexIndices);
+    this.cubeIndexBuffer.setData(this.gl, this.cube.indices);
     this.textureBuffer.setData(this.gl, textureCoordinates, new LEEWGL.BufferInformation.VertexTypePos2());
 
     this.gl.clearColor(0.0, 1.0, 0.0, 1.0);
     this.gl.enable(this.gl.DEPTH_TEST);
     this.gl.depthFunc(this.gl.LEQUAL);
-
+    
+    this.core.initPickingBuffer();
     this.core.initTexture(this.texture, '../texture/texture1.jpg');
 };
 
 LEEWGL.TestApp.prototype.onMouseDown = function (event) {
     this.cube.dispatchEvent(event);
 
-    this.castRay();
+    this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+
+    var pixelColor = new Uint8Array(4);
+    var size = this.core.getRenderSize();
+    var mouse = this.mouseVector;
+
+    var x = mouse[0];
+    var y = size.height - mouse[1];
+
+    this.gl.readPixels(x, y, 1, 1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, pixelColor);
+
+    console.log(pixelColor);
+
+    this.gl.clearColor(0.0, 1.0, 0.0, 1.0);
+
+
+//    this.castRay();
 };
 
 LEEWGL.TestApp.prototype.onMouseMove = function (event) {
     var size = this.core.getRenderSize();
-    /// get mousevec to range [-1, 1] in both axes
-//    vec3.set(this.mouseVector, 2 * (event.clientX / size.width) - 1, 1 - 2 * (event.clientY / size.height), 0);
     vec3.set(this.mouseVector, event.clientX, event.clientY, 0);
 
     var x = this.mouseVector[0];
@@ -185,5 +192,5 @@ LEEWGL.TestApp.prototype.onRender = function () {
     this.shader.setMatrixUniform(this.gl, _shaderProgram.mvp, this.cube.matrix);
 
     this.cubeIndexBuffer.bind(this.gl);
-    this.gl.drawElements(this.gl.TRIANGLES, 36, this.gl.UNSIGNED_SHORT, 0);
+    this.gl.drawElements(this.gl.TRIANGLES, this.cube.indices.length, this.gl.UNSIGNED_SHORT, 0);
 };
