@@ -22,12 +22,19 @@ LEEWGL.Shader = function () {
 
         _program.vertexPositionAttribute = gl.getAttribLocation(_program, "aVertexPosition");
         gl.enableVertexAttribArray(_program.vertexPositionAttribute);
-        _program.textureCoordAttribute = gl.getAttribLocation(_program, "aTextureCoord");
-        gl.enableVertexAttribArray(_program.vertexPositionAttribute);
+        
+        _program.vertexColorAttribute = gl.getAttribLocation(_program, "aVertexColor");
+        gl.enableVertexAttribArray(_program.vertexColorAttribute);
+        
+        console.log(gl.getAttribLocation(_program, "aVertexColor"));
+        
+//        _program.textureCoordAttribute = gl.getAttribLocation(_program, "aTextureCoord");
+//        gl.enableVertexAttribArray(_program.textureCoordAttribute);
 
         _program.projection = gl.getUniformLocation(_program, "uProjection");
         _program.mvp = gl.getUniformLocation(_program, "uMVP");
         _program.sampler = gl.getUniformLocation(_program, "uSampler");
+        _program.offscreen = gl.getUniformLocation(_program, "uOffscreen");
     };
 
     this.getShaderDOM = function (gl, selector) {

@@ -28,27 +28,32 @@
         <script id="shader-fs" type="x-shader/x-fragment">
             precision mediump float;
             
-            varying highp vec2 vTextureCoord;
+            uniform bool uOffscreen;
             
-            uniform sampler2D uSampler;
-            
+            varying lowp vec4 vVertexColor;
+
             void main(void) {
-                gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+                if(uOffscreen) {
+                    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+                    return;
+                }
+                
+                gl_FragColor = vVertexColor;
             }
         </script>
 
         <script id="shader-vs" type="x-shader/x-vertex">
             attribute vec3 aVertexPosition;
-            attribute vec2 aTextureCoord;
-
+            attribute vec4 aVertexColor;
+            
             uniform mat4 uMVP;
             uniform mat4 uProjection;
             
-            varying highp vec2 vTextureCoord;
+            varying lowp vec4 vVertexColor;
 
             void main(void) {
-            gl_Position = uProjection * uMVP * vec4(aVertexPosition, 1.0);
-            vTextureCoord = aTextureCoord;
+                gl_Position = uProjection * uMVP * vec4(aVertexPosition, 1.0);
+                vVertexColor = aVertexColor;
             }
         </script>
     </head>

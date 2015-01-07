@@ -11,7 +11,8 @@ LEEWGL.Buffer = function () {
     };
 
     this.create = function (gl) {
-        return gl.createBuffer();
+        _buffer = gl.createBuffer();
+        return _buffer;
     };
 
     this.bind = function (gl) {
@@ -30,15 +31,9 @@ LEEWGL.Buffer = function () {
 LEEWGL.RenderBuffer = function () {
     var _buffer = null;
 
-    this.setData = function (gl, width, height) {
-        _buffer = _buffer !== null ? _buffer : this.create(gl);
-        this.bind(gl, _buffer);
-        
-        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
-    };
-
     this.create = function (gl) {
-        return gl.createRenderbuffer();
+        _buffer = gl.createRenderbuffer();
+        return _buffer; 
     };
 
     this.bind = function (gl) {
@@ -58,8 +53,8 @@ LEEWGL.FrameBuffer = function (gl, options) {
     var _buffer = null;
     
     this.init = function(gl, width, height) {
-        width = typeof width !== undefined ? width : 512;
-        height = typeof height !== undefined ? height : 512;
+        width = typeof width !== 'undefined' ? width : 512;
+        height = typeof height !== 'undefined' ? height : 512;
         
         _buffer = this.create(gl);
         _buffer.width = width;
@@ -67,7 +62,8 @@ LEEWGL.FrameBuffer = function (gl, options) {
     };
     
     this.create = function (gl) {
-        return gl.createFramebuffer();
+        _buffer = gl.createFramebuffer();
+        return _buffer;
     };
 
     this.bind = function (gl) {

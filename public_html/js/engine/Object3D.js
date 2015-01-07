@@ -4,7 +4,7 @@ LEEWGL.Object3D = function () {
     this.name = '';
     this.type = 'Object3D';
 
-    this.parent = undefined;
+    this.parent = 'undefined';
     this.children = [];
 
     this.up = vec3.clone(LEEWGL.Object3D.DefaultUp);
@@ -71,7 +71,7 @@ LEEWGL.Object3D.prototype = {
         }
 
         if (object instanceof LEEWGL.Object3D) {
-            if (object.parent !== undefined) {
+            if (object.parent !== 'undefined') {
                 object.parent.remove(object);
             }
             object.parent = this;
@@ -94,7 +94,7 @@ LEEWGL.Object3D.prototype = {
 
         var index = this.children.indexOf(object);
         if (index !== -1) {
-            object.parent = undefined;
+            object.parent = 'undefined';
             this.children.splice(index, 1);
         }
     },
@@ -124,11 +124,11 @@ LEEWGL.Object3D.prototype = {
         for (var i = 0; i < this.children.length; ++i) {
             var child = this.children[i];
             var object = child.getObjectById(id, recursive);
-            if (object !== undefined) {
+            if (object !== 'undefined') {
                 return object;
             }
         }
-        return undefined;
+        return 'undefined';
     },
     getObjectByName: function (name, recursive) {
         if (this.name === name)
@@ -137,11 +137,11 @@ LEEWGL.Object3D.prototype = {
         for (var i = 0; i < this.children.length; ++i) {
             var child = this.children[i];
             var object = child.getObjectByName(name, recursive);
-            if (object !== undefined) {
+            if (object !== 'undefined') {
                 return object;
             }
         }
-        return undefined;
+        return 'undefined';
     },
     traverse: function (callback) {
         callback(this);
@@ -161,9 +161,9 @@ LEEWGL.Object3D.prototype = {
     },
     
     clone: function (object, recursive) {
-        if (object === undefined)
+        if (object === 'undefined')
             object = new LEEWGL.Object3D();
-        if (recursive === undefined)
+        if (recursive === 'undefined')
             recursive = true;
 
         object.name = this.name;

@@ -26,20 +26,26 @@
         
         <script id="shader-fs" type="x-shader/x-fragment">
             precision mediump float;
+            
+            varying vec4 vVertexColor;
 
             void main(void) {
-                gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+                gl_FragColor = vVertexColor;
             }
         </script>
 
         <script id="shader-vs" type="x-shader/x-vertex">
             attribute vec3 aVertexPosition;
-
+            attribute vec4 aVertexColor;
+            
             uniform mat4 uMVP;
             uniform mat4 uProjection;
+            
+            varying lowp vec4 vVertexColor;
 
             void main(void) {
                 gl_Position = uProjection * uMVP * vec4(aVertexPosition, 1.0);
+                vVertexColor = aVertexColor;
             }
         </script>
         

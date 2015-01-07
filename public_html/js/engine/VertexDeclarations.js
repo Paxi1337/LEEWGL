@@ -14,4 +14,11 @@ LEEWGL.BufferInformation.VertexTypePos3 = function() {
     this.size = 3;
 };
 
+LEEWGL.BufferInformation.VertexTypePos4 = function() {
+    LEEWGL.BufferInformation.call(this);
+    
+    this.pos = vec4.create();
+    this.size = 4;
+};
+
 
