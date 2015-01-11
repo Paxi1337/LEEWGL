@@ -20,23 +20,23 @@ LEEWGL.Shader = function () {
         this.linkShader(gl);
         this.use(gl);
 
-        _program.vertexPositionAttribute = gl.getAttribLocation(_program, "aVertexPosition");
-        gl.enableVertexAttribArray(_program.vertexPositionAttribute);
-        
-        _program.vertexColorAttribute = gl.getAttribLocation(_program, "aVertexColor");
-        gl.enableVertexAttribArray(_program.vertexColorAttribute);
-        
-        console.log(gl.getAttribLocation(_program, "aVertexColor"));
-        
-//        _program.textureCoordAttribute = gl.getAttribLocation(_program, "aTextureCoord");
-//        gl.enableVertexAttribArray(_program.textureCoordAttribute);
+        this.addAttribute(gl, "vertexPositionAttribute", "aVertexPosition");
+        this.addAttribute(gl, "vertexColorAttribute", "aVertexColor");
 
-        _program.projection = gl.getUniformLocation(_program, "uProjection");
-        _program.mvp = gl.getUniformLocation(_program, "uMVP");
-        _program.sampler = gl.getUniformLocation(_program, "uSampler");
-        _program.offscreen = gl.getUniformLocation(_program, "uOffscreen");
+        this.addUniform(gl, "projection", "uProjection");
+        this.addUniform(gl, "mvp", "uMVP");
+        this.addUniform(gl, "offscreen", "uOffscreen");
     };
-
+    
+    this.addAttribute = function(gl, refName, name) {
+        _program[refName] = gl.getAttribLocation(_program, name);
+        gl.enableVertexAttribArray(_program[refName]);
+    };
+    
+    this.addUniform = function(gl, refName, name) {
+        _program[refName] = gl.getUniformLocation(_program, name);
+    };
+    
     this.getShaderDOM = function (gl, selector) {
         var _script = document.querySelector(selector);
         if (_script === null) {

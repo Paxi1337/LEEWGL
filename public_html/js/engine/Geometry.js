@@ -113,25 +113,10 @@ LEEWGL.Geometry.Triangle.prototype.intersectRay = function (origin, direction, c
 };
 
 LEEWGL.Geometry.Triangle.prototype.inTriangle = function (point) {
-    var plane = new LEEWGL.Geometry.Plane();
-    vec3.set(plane.x, this.x);
-    vec3.set(plane.y, this.y);
-    vec3.set(plane.z, this.z);
-
-    var denom = vec3.dot(plane.normal, direction);
-    if (Math.abs(denom) < Math.EPSILON)
-        return false;
-
-    var t = -(plane.distance + vec3.dot(plane.normal, origin)) / denom;
-    if (t <= 0)
-        return false;
-
-    if (segmentationMax !== undefined && t > segmentationMax)
-        return false;
-
-    vec3.set(collision, direction);
-    vec3.scale(collision, collision, t);
-    vec3.add(collision, origin, collision);
+    var u = vec3.create();
+    var v = vec3.create();
+    
+    u[0]
 
 };
 
