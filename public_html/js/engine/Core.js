@@ -102,7 +102,7 @@ LEEWGL.Core = function (options) {
     this.getContext = function () {
         return _gl;
     };
-    
+
     this.getCanvas = function () {
         return _canvas;
     };
@@ -176,8 +176,8 @@ LEEWGL.Core = function (options) {
             _gl.texParameteri(type, _gl.TEXTURE_MAG_FILTER, this.paramToGL(texture.magFilter));
             _gl.texParameteri(type, _gl.TEXTURE_MIN_FILTER, this.paramToGL(texture.minFilter));
         }
-        
-        if(texture.genMipmaps === true)
+
+        if (texture.genMipmaps === true)
             _gl.generateMipmap(type);
     };
 
@@ -240,29 +240,36 @@ LEEWGL.Core = function (options) {
         document.onmousemove = _app.onMouseMove.bind(_app);
         document.onkeydown = _app.onKeyDown.bind(_app);
         document.onkeyup = _app.onKeyUp.bind(_app);
+
+        document.oncontextmenu = function (event) {
+            if (event.preventDefault !== undefined)
+                event.preventDefault();
+            if (event.stopPropagation !== undefined)
+                event.stopPropagation();
+        };
     };
-    
-    this.getRelativeMouseCoordinates = function(event) {
+
+    this.getRelativeMouseCoordinates = function (event) {
         var x, y, top = 0, left = 0, obj = _canvas;
-        
-        while(obj && obj.tagName !== 'BODY') {
+
+        while (obj && obj.tagName !== 'BODY') {
             top += obj.offsetTop;
             left += obj.offsetLeft;
             obj = obj.offsetParent;
         }
-        
+
         left += window.pageXOffset;
         top -= window.pageYOffset;
-        
+
         x = event.clientX - left;
         y = _canvas.height - (event.clientY - top);
-        
+
         return {
-            'x' : x,
-            'y' : y
+            'x': x,
+            'y': y
         };
     };
-    
+
     this.init = function () {
         this.initMouse();
 
