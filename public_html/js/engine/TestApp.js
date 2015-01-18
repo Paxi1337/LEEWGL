@@ -2,11 +2,8 @@
 LEEWGL.TestApp = function (options) {
     LEEWGL.App.call(this, options);
 
-    this.triangleBuffer = new LEEWGL.PickingVertexBuffer();
     this.colorBuffer = new LEEWGL.Buffer();
-    this.triangleIndexBuffer = new LEEWGL.IndexBuffer();
     this.textureBuffer = new LEEWGL.Buffer();
-
     this.frameBuffer = new LEEWGL.FrameBuffer();
 
     this.matrix = mat4.create();
@@ -17,7 +14,8 @@ LEEWGL.TestApp = function (options) {
     this.triangle = new LEEWGL.Geometry.Triangle();
     this.texture = new LEEWGL.Texture();
 
-    this.lastCapturedColorMap = new Uint8Array(this.canvas.width * this.canvas.height * 4);
+    this.lastCapturedColorMap = [];
+    
     this.renderColorMap = false;
 
     this.activeKeys = [];
@@ -93,16 +91,15 @@ LEEWGL.TestApp.prototype.onCreate = function () {
 //        this.translate(translation);
 //    });
 
-    this.camera.offsetPosition(vec3.fromValues(0.0, 0.0, 10.0));
+    this.camera.offsetPosition(vec3.fromValues(0.0, 0.0, 5.0));
 
     this.shader.init(this.gl, 'canvas');
-
-    this.triangleBuffer.setData(this.gl, this.triangle.vertices, new LEEWGL.BufferInformation.VertexTypePos3());
-    this.triangleIndexBuffer.setData(this.gl, this.triangle.indices);
-    this.textureBuffer.setData(this.gl, textureCoordinates, new LEEWGL.BufferInformation.VertexTypePos2());
-
-    this.pickingList[this.triangleBuffer.colorMapIndex] = this.triangleBuffer;
     
+    this.triangle.setBuffer(this.gl);
+    
+    this.textureBuffer.setData(this.gl, textureCoordinates, new LEEWGL.BufferInformation.VertexTypePos2());
+    
+    this.pickingList[this.triangle.vertexBuffer.colorMapIndex] = this.triangle.vertexBuffer;
     this.gl.clearColor(0.0, 1.0, 0.0, 1.0);
     this.gl.enable(this.gl.DEPTH_TEST);
     this.gl.depthFunc(this.gl.LEQUAL);
@@ -114,7 +111,9 @@ LEEWGL.TestApp.prototype.onCreate = function () {
 LEEWGL.TestApp.prototype.initPicking = function (width, height) {
     width = typeof width !== 'undefined' ? width : this.canvas.width;
     height = typeof height !== 'undefined' ? height : this.canvas.height;
-
+    
+    this.lastCapturedColorMap = new Uint8Array(this.canvas.width * this.canvas.height * 4);
+    
     this.gl.enable(this.gl.DEPTH_TEST);
 
     this.frameBuffer.init(this.gl, width, height);
@@ -128,7 +127,6 @@ LEEWGL.TestApp.prototype.initPicking = function (width, height) {
     texture.generateMipmap(this.gl);
 
     this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, width, height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null);
-
 
     var depthBuffer = new LEEWGL.RenderBuffer();
     depthBuffer.create(this.gl);
@@ -157,11 +155,12 @@ LEEWGL.TestApp.prototype.onMouseDown = function (event) {
     this.frameBuffer.bind(this.gl);
 
     var mouseCords = this.core.getRelativeMouseCoordinates(event);
-    console.log(mouseCords);
-    this.gl.readPixels(mouseCords.x, mouseCords.y, 1, 1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.lastCapturedColorMap);
+    this.gl.readPixels(0, 0, this.canvas.width, this.canvas.height, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.lastCapturedColorMap);
+    
     var color = this.getColorMapColor(mouseCords.x, mouseCords.y);
     var index = color[0] * 65536 + color[1] * 256 + color[2];
-    console.log(index);
+    
+    console.log(this.pickingList);
     if(this.picking && this.pickingList[index]) {
         console.log('selected element ' + this.pickingList[index]);
     }
@@ -253,17 +252,17 @@ LEEWGL.TestApp.prototype.draw = function () {
 
     var _shaderProgram = this.shader.getProgram();
     mat4.identity(this.matrix);
-
-    this.triangleBuffer.bind(this.gl);
-    this.gl.vertexAttribPointer(_shaderProgram.vertexPositionAttribute, this.triangleBuffer.getBuffer().itemSize, this.gl.FLOAT, false, 0, 0);
+    
+    this.shader.setFloatArray(this.gl, _shaderProgram.colorMapColor, new Float32Array(this.triangle.vertexBuffer.colorMapColor));
+    this.shader.setMatrixUniform(this.gl, _shaderProgram.projection, this.camera.viewProjMatrix);
+    this.shader.setMatrixUniform(this.gl, _shaderProgram.mvp, this.triangle.matrix);
+    
+    this.triangle.vertexBuffer.bind(this.gl);
+    this.gl.vertexAttribPointer(_shaderProgram.vertexPositionAttribute, this.triangle.vertexBuffer.getBuffer().itemSize, this.gl.FLOAT, false, 0, 0);
 
     this.colorBuffer.bind(this.gl);
     this.gl.vertexAttribPointer(_shaderProgram.vertexColorAttribute, this.colorBuffer.getBuffer().itemSize, this.gl.FLOAT, false, 0, 0);
     
-    this.shader.setFloatArray(this.gl, _shaderProgram.colorMapColor, new Float32Array(this.triangleBuffer.colorMapColor));
-    this.shader.setMatrixUniform(this.gl, _shaderProgram.projection, this.camera.viewProjMatrix);
-    this.shader.setMatrixUniform(this.gl, _shaderProgram.mvp, this.triangle.matrix);
-
-    this.triangleIndexBuffer.bind(this.gl);
+    this.triangle.indexBuffer.bind(this.gl);
     this.gl.drawElements(this.gl.TRIANGLES, this.triangle.indices.length, this.gl.UNSIGNED_SHORT, 0);
 };

@@ -262,7 +262,7 @@ LEEWGL.Core = function (options) {
         top -= window.pageYOffset;
 
         x = event.clientX - left;
-        y = _canvas.height - (event.clientY - top);
+        y = event.clientY - top;
 
         return {
             'x': x,

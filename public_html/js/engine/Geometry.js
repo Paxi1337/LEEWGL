@@ -4,10 +4,19 @@ LEEWGL.Geometry = function () {
     this.type = 'Geometry';
 
     this.vertices = [];
+    this.indices = [];
     this.boundingBox = null;
     this.boundingSphere = null;
 
+    this.vertexBuffer = new LEEWGL.Buffer({'picking': true});
+    this.indexBuffer = new LEEWGL.IndexBuffer();
+
     this.normal = vec3.fromValues(0.0, LEEWGL.up, 0.0);
+    
+    this.setBuffer = function(gl) {
+        this.vertexBuffer.setData(gl, this.vertices, new LEEWGL.BufferInformation.VertexTypePos3());
+        this.indexBuffer.setData(gl, this.indices);
+    };
 };
 
 LEEWGL.Geometry.prototype = Object.create(LEEWGL.Object3D.prototype);
@@ -115,7 +124,7 @@ LEEWGL.Geometry.Triangle.prototype.intersectRay = function (origin, direction, c
 LEEWGL.Geometry.Triangle.prototype.inTriangle = function (point) {
     var u = vec3.create();
     var v = vec3.create();
-    
+
     u[0]
 
 };
