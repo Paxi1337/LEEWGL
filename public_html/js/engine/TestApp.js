@@ -12,6 +12,7 @@ LEEWGL.TestApp = function (options) {
     this.camera = new LEEWGL.PerspectiveCamera(90, this.gl.drawingBufferWidth / this.gl.drawingBufferHeight, 1, 1000);
 
     this.triangle = new LEEWGL.Geometry.Triangle();
+    this.cube = new LEEWGL.Geometry.Triangle();
     this.texture = new LEEWGL.Texture();
 
     this.lastCapturedColorMap = [];
@@ -30,6 +31,7 @@ LEEWGL.TestApp.prototype = Object.create(LEEWGL.App.prototype);
 LEEWGL.TestApp.prototype.onCreate = function () {
     this.core.setSize(512, 512);
     this.triangle.name = 'Triangle';
+    this.cube.name = 'Cube';
 
     var textureCoordinates = [
         // Front
@@ -96,10 +98,13 @@ LEEWGL.TestApp.prototype.onCreate = function () {
     this.shader.init(this.gl, 'canvas');
     
     this.triangle.setBuffer(this.gl);
+    this.cube.setBuffer(this.gl);
     
     this.textureBuffer.setData(this.gl, textureCoordinates, new LEEWGL.BufferInformation.VertexTypePos2());
     
-    this.pickingList[this.triangle.vertexBuffer.colorMapIndex] = this.triangle.vertexBuffer;
+    this.pickingList[this.triangle.vertexBuffer.colorMapIndex] = this.triangle;
+    this.pickingList[this.cube.vertexBuffer.colorMapIndex] = this.cube;
+    
     this.gl.clearColor(0.0, 1.0, 0.0, 1.0);
     this.gl.enable(this.gl.DEPTH_TEST);
     this.gl.depthFunc(this.gl.LEQUAL);
@@ -136,7 +141,6 @@ LEEWGL.TestApp.prototype.initPicking = function (width, height) {
     this.gl.renderbufferStorage(this.gl.RENDERBUFFER, this.gl.DEPTH_COMPONENT16, width, height);
     this.gl.framebufferRenderbuffer(this.gl.FRAMEBUFFER, this.gl.DEPTH_ATTACHMENT, this.gl.RENDERBUFFER, depthBuffer.getBuffer());
 
-
     if (this.gl.checkFramebufferStatus(this.gl.FRAMEBUFFER) !== this.gl.FRAMEBUFFER_COMPLETE) {
         alert("this combination of attachments does not work");
         return;
@@ -162,7 +166,7 @@ LEEWGL.TestApp.prototype.onMouseDown = function (event) {
     
     console.log(this.pickingList);
     if(this.picking && this.pickingList[index]) {
-        console.log('selected element ' + this.pickingList[index]);
+        console.log('selected element ' + this.pickingList[index].name);
     }
     this.frameBuffer.unbind(this.gl);
 };
@@ -253,6 +257,7 @@ LEEWGL.TestApp.prototype.draw = function () {
     var _shaderProgram = this.shader.getProgram();
     mat4.identity(this.matrix);
     
+    /// triangle
     this.shader.setFloatArray(this.gl, _shaderProgram.colorMapColor, new Float32Array(this.triangle.vertexBuffer.colorMapColor));
     this.shader.setMatrixUniform(this.gl, _shaderProgram.projection, this.camera.viewProjMatrix);
     this.shader.setMatrixUniform(this.gl, _shaderProgram.mvp, this.triangle.matrix);
@@ -265,4 +270,20 @@ LEEWGL.TestApp.prototype.draw = function () {
     
     this.triangle.indexBuffer.bind(this.gl);
     this.gl.drawElements(this.gl.TRIANGLES, this.triangle.indices.length, this.gl.UNSIGNED_SHORT, 0);
+    
+    /// cube
+    this.shader.setFloatArray(this.gl, _shaderProgram.colorMapColor, new Float32Array(this.cube.vertexBuffer.colorMapColor));
+    this.shader.setMatrixUniform(this.gl, _shaderProgram.projection, this.camera.viewProjMatrix);
+    
+    mat4.translate(this.cube.matrix, mat4.create(), [5.0, 0.0, 0.0]);
+    this.shader.setMatrixUniform(this.gl, _shaderProgram.mvp, this.cube.matrix);
+    
+    this.cube.vertexBuffer.bind(this.gl);
+    this.gl.vertexAttribPointer(_shaderProgram.vertexPositionAttribute, this.cube.vertexBuffer.getBuffer().itemSize, this.gl.FLOAT, false, 0, 0);
+
+    this.colorBuffer.bind(this.gl);
+    this.gl.vertexAttribPointer(_shaderProgram.vertexColorAttribute, this.colorBuffer.getBuffer().itemSize, this.gl.FLOAT, false, 0, 0);
+    
+    this.cube.indexBuffer.bind(this.gl);
+    this.gl.drawElements(this.gl.TRIANGLES, this.cube.indices.length, this.gl.UNSIGNED_SHORT, 0);
 };
