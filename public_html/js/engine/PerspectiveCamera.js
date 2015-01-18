@@ -72,8 +72,6 @@ LEEWGL.PerspectiveCamera.prototype.rotate = function (angle, vec) {
         this._horizontalAngle += angle;
     }
     
-    this.normalizeAngles();
-
     var rotation = mat4.create();
     mat4.rotate(rotation, mat4.create(), angle, vec);
     var lookAt = vec3.create();

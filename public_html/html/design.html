@@ -31,10 +31,12 @@
             uniform bool uOffscreen;
             
             varying lowp vec4 vVertexColor;
+            
+            uniform vec4 uColorMapColor;
 
             void main(void) {
                 if(uOffscreen) {
-                    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+                    gl_FragColor = uColorMapColor;
                     return;
                 }
                 

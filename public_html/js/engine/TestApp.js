@@ -2,7 +2,7 @@
 LEEWGL.TestApp = function (options) {
     LEEWGL.App.call(this, options);
 
-    this.triangleBuffer = new LEEWGL.Buffer();
+    this.triangleBuffer = new LEEWGL.PickingVertexBuffer();
     this.colorBuffer = new LEEWGL.Buffer();
     this.triangleIndexBuffer = new LEEWGL.IndexBuffer();
     this.textureBuffer = new LEEWGL.Buffer();
@@ -17,9 +17,13 @@ LEEWGL.TestApp = function (options) {
     this.triangle = new LEEWGL.Geometry.Triangle();
     this.texture = new LEEWGL.Texture();
 
-    this.lastCapturedColorMap = new Uint8Array(4);
+    this.lastCapturedColorMap = new Uint8Array(this.canvas.width * this.canvas.height * 4);
+    this.renderColorMap = false;
 
     this.activeKeys = [];
+    
+    this.picking = false;
+    this.pickingList = {};
 };
 
 
@@ -27,8 +31,6 @@ LEEWGL.TestApp.prototype = Object.create(LEEWGL.App.prototype);
 
 LEEWGL.TestApp.prototype.onCreate = function () {
     this.core.setSize(512, 512);
-
-
     this.triangle.name = 'Triangle';
 
     var textureCoordinates = [
@@ -84,7 +86,7 @@ LEEWGL.TestApp.prototype.onCreate = function () {
     ];
 
     this.colorBuffer.setData(this.gl, colors, new LEEWGL.BufferInformation.VertexTypePos4());
-
+    
 //    this.triangle.addEventListener('mousedown', function () {
 //        var translation = vec3.create();
 //        vec3.set(translation, -0.5, 0.0, 0.0);
@@ -99,6 +101,8 @@ LEEWGL.TestApp.prototype.onCreate = function () {
     this.triangleIndexBuffer.setData(this.gl, this.triangle.indices);
     this.textureBuffer.setData(this.gl, textureCoordinates, new LEEWGL.BufferInformation.VertexTypePos2());
 
+    this.pickingList[this.triangleBuffer.colorMapIndex] = this.triangleBuffer;
+    
     this.gl.clearColor(0.0, 1.0, 0.0, 1.0);
     this.gl.enable(this.gl.DEPTH_TEST);
     this.gl.depthFunc(this.gl.LEQUAL);
@@ -143,28 +147,24 @@ LEEWGL.TestApp.prototype.initPicking = function (width, height) {
     texture.unbind(this.gl);
     depthBuffer.unbind(this.gl);
     this.frameBuffer.unbind(this.gl);
+    
+    this.picking = true;
 };
 
 LEEWGL.TestApp.prototype.onMouseDown = function (event) {
-
-    /// right click
-    if (event.which === 3 || event.button === 2) {
-        return;
-    }
-
     this.triangle.dispatchEvent(event);
 
     this.frameBuffer.bind(this.gl);
 
-    var pixelColor = new Uint8Array(4);
-
     var mouseCords = this.core.getRelativeMouseCoordinates(event);
-
-    this.gl.readPixels(mouseCords.x, mouseCords.y, 1, 1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.lastCapturedColorMap);
-
-    console.log(pixelColor);
     console.log(mouseCords);
-
+    this.gl.readPixels(mouseCords.x, mouseCords.y, 1, 1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.lastCapturedColorMap);
+    var color = this.getColorMapColor(mouseCords.x, mouseCords.y);
+    var index = color[0] * 65536 + color[1] * 256 + color[2];
+    console.log(index);
+    if(this.picking && this.pickingList[index]) {
+        console.log('selected element ' + this.pickingList[index]);
+    }
     this.frameBuffer.unbind(this.gl);
 };
 
@@ -175,17 +175,10 @@ LEEWGL.TestApp.prototype.onMouseMove = function (event) {
 
         this.camera.rotate(movementX, vec3.fromValues(0, 1, 0));
         this.camera.rotate(movementY, vec3.fromValues(1, 0, 0));
-        console.log(event.movementX);
     }
-
-    var size = this.core.getRenderSize();
-    vec3.set(this.mouseVector, event.clientX, event.clientY, 0);
-
-    var x = this.mouseVector[0];
-    var y = size.height - this.mouseVector[1];
 };
 
-LEEWGL.TestApp.getColorMapColor = function (x, y) {
+LEEWGL.TestApp.prototype.getColorMapColor = function (x, y) {
     if (x >= this.canvas.width || y >= this.canvas.height || x < 0 || y < 0) {
         console.error('LEEWGL: Invalid color map pixel position');
         return;
@@ -194,35 +187,12 @@ LEEWGL.TestApp.getColorMapColor = function (x, y) {
         console.error('LEEWGL: Color map not captured');
         return;
     }
-
     var position = (this.canvas.height - 1 - y) * this.canvas.width * 4 + x * 4;
     return [this.lastCapturedColorMap[position],
         this.lastCapturedColorMap[position + 1],
         this.lastCapturedColorMap[position + 2]];
 };
 
-LEEWGL.TestApp.prototype.castRay = function () {
-    var size = this.core.getRenderSize();
-    var ray = LEEWGL.Math.Ray;
-    var mouse = this.mouseVector;
-
-    var x = mouse[0];
-    var y = size.height - mouse[1];
-
-    var depth;
-
-    var pixels = new Uint8Array(4);
-    this.gl.readPixels(x, y, 1, 1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, pixels);
-
-    var viewPort = vec4.fromValues(0.0, 0.0, size.width, size.height);
-
-    var coordsObject = vec3.unproject(vec3.fromValues(x, y, pixels), this.camera.viewProjMatrix, this.camera.projMatrix, viewPort);
-
-    ray.direction = coordsObject - ray.origin;
-    ray.direction = vec3.normalize(vec3.create(), ray.direction);
-
-//    console.log(pixels);
-};
 
 LEEWGL.TestApp.prototype.onMouseUp = function (event) {
 };
@@ -254,7 +224,7 @@ LEEWGL.TestApp.prototype.handleKeyInput = function () {
     } else if (this.activeKeys[LEEWGL.KEYS.RIGHT_CURSOR]) {
         this.camera.move([0.1, 0, 0]);
     }
-    
+
     if (this.activeKeys[LEEWGL.KEYS.UP_CURSOR]) {
         this.camera.move([0, 0, -0.1]);
     } else if (this.activeKeys[LEEWGL.KEYS.DOWN_CURSOR]) {
@@ -263,12 +233,15 @@ LEEWGL.TestApp.prototype.handleKeyInput = function () {
 };
 
 LEEWGL.TestApp.prototype.onRender = function () {
-    var _shaderProgram = this.shader.getProgram();
-    this.frameBuffer.bind(this.gl);
-    this.shader.setIntegerUniform(this.gl, _shaderProgram.offscreen, true);
-    this.draw();
+    if (this.picking) {
+        this.renderColorMap = true;
+        var _shaderProgram = this.shader.getProgram();
+        this.frameBuffer.bind(this.gl);
+        this.shader.setIntegerUniform(this.gl, _shaderProgram.offscreen, true);
+        this.draw();
+    }
 
-
+    this.renderColorMap = false;
     this.frameBuffer.unbind(this.gl);
     this.shader.setIntegerUniform(this.gl, _shaderProgram.offscreen, false);
     this.draw();
@@ -286,7 +259,8 @@ LEEWGL.TestApp.prototype.draw = function () {
 
     this.colorBuffer.bind(this.gl);
     this.gl.vertexAttribPointer(_shaderProgram.vertexColorAttribute, this.colorBuffer.getBuffer().itemSize, this.gl.FLOAT, false, 0, 0);
-
+    
+    this.shader.setFloatArray(this.gl, _shaderProgram.colorMapColor, new Float32Array(this.triangleBuffer.colorMapColor));
     this.shader.setMatrixUniform(this.gl, _shaderProgram.projection, this.camera.viewProjMatrix);
     this.shader.setMatrixUniform(this.gl, _shaderProgram.mvp, this.triangle.matrix);
 

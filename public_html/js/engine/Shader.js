@@ -23,6 +23,7 @@ LEEWGL.Shader = function () {
         this.addAttribute(gl, "vertexPositionAttribute", "aVertexPosition");
         this.addAttribute(gl, "vertexColorAttribute", "aVertexColor");
 
+        this.addUniform(gl, "colorMapColor", "uColorMapColor");
         this.addUniform(gl, "projection", "uProjection");
         this.addUniform(gl, "mvp", "uMVP");
         this.addUniform(gl, "offscreen", "uOffscreen");
@@ -90,6 +91,10 @@ LEEWGL.Shader = function () {
     
     this.setMatrixUniform = function(gl, loc, mat) {
         gl.uniformMatrix4fv(loc, false, mat);
+    };
+    
+    this.setFloatArray = function(gl, loc, arr) {
+        gl.uniform4fv(loc, arr);
     };
     
     this.setIntegerUniform = function(gl, loc, integer) {

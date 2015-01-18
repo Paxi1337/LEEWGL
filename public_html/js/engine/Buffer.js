@@ -79,3 +79,45 @@ LEEWGL.FrameBuffer = function (gl, options) {
     };
 };
 
+LEEWGL.PickingVertexBuffer = function () {
+    var _buffer = null;
+    
+    this.colorMapIndex = LEEWGL.PickingVertexBuffer.ColorMapHitCounter++;
+    
+    /// calculate color-map color
+    this.colorMapColor = [0, 0, 0, 1];
+    this.colorMapColor[0] = Math.floor(this.colorMapIndex / 65536) / 256;
+    var remainder = this.colorMapIndex % 65536;
+    this.colorMapColor[1] = Math.floor(remainder / 256) / 256;
+    remainder = this.colorMapIndex % 256;
+    this.colorMapColor[2] = remainder / 256;
+    
+    this.setData = function (gl, vertices, type) {
+        _buffer = _buffer !== null ? _buffer : this.create(gl);
+        this.bind(gl, _buffer);
+        
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+        _buffer.itemSize = type.size;
+        _buffer.numItems = vertices.length / type.size;
+    };
+
+    this.create = function (gl) {
+        _buffer = gl.createBuffer();
+        return _buffer;
+    };
+
+    this.bind = function (gl) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, _buffer);
+    };
+    
+    this.unbind = function (gl) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    };
+
+    this.getBuffer = function () {
+        return _buffer;
+    };
+};
+
+LEEWGL.PickingVertexBuffer.ColorMapHitCounter = 1;
+
