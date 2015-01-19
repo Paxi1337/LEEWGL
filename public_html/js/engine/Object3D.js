@@ -11,7 +11,7 @@ LEEWGL.Object3D = function () {
 
     var scope = this;
     
-    this.transform = new LEEWGL.Transform();
+    this.components = {};
     
     this.matrix = mat4.create();
     this.matrixWorld = mat4.create();
@@ -22,6 +22,9 @@ LEEWGL.Object3D = function () {
     this.autoUpdate = true;
 
     this.userData = {};
+    
+    this.addComponent(new LEEWGL.Transform());
+    this.transform = this.components['Transform'];
 };
 
 LEEWGL.Object3D.DefaultUp = [ 0.0, 1.0, 0.0 ];
@@ -55,6 +58,9 @@ LEEWGL.Object3D.prototype = {
         }
 
         return this;
+    },
+    addComponent : function(component) {
+        this.components[component.type] = component;
     },
     remove: function (object) {
         if (arguments.length > 1) {
