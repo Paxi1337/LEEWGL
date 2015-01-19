@@ -1,8 +1,77 @@
+LEEWGL.Component = function() {
+    
+};
+
+LEEWGL.Transform = function() {
+    LEEWGL.Component.call(this);
+    
+    this.x = 0;
+    this.y = 0;
+    this.z = 0;
+    
+    var position = [this.x, this.y, this.z];
+    
+    var translation = mat4.create();
+    var rotation = mat4.create();
+    var scale = mat4.create();
+    
+    // private properties - configurable tag defaults to false
+    Object.defineProperties(this, {
+        position: {
+            enumerable: true,
+            value: position
+        },
+        translation: {
+            enumerable: true,
+            value: translation
+        },
+        rotation: {
+            enumerable: true,
+            value: rotation
+        },
+        scale: {
+            enumerable: true,
+            value: scale
+        }
+    });
+    
+};
+
+LEEWGL.Transform.prototype = {
+    offsetPosition: function(vector) {
+        vec3.add(this.position, this.position, vector);
+    },
+    
+    setPosition: function() {
+        if(arguments === 'undefined') {
+            console.error('LEEWGL.Transform.setPosition(): no arguments given!');
+            return false;
+        }
+        
+        if(typeof arguments[0] === 'Array') 
+            vec3.copy(this.position, arguments[0]);
+        else 
+            vec3.set(this.position, arguments[0], arguments[1], arguments[2]);
+    },
+    
+    clone : function(transform) {
+         if (transform === 'undefined')
+            transform = new LEEWGL.Transform();
+        
+        transform.position.copy(transform.position, this.position);
+        transform.translation.copy(transform.translation, this.translation);
+        transform.rotation.copy(transform.rotation, this.rotation);
+        transform.scale.copy(transform.scale, this.scale);
+        
+        return transform;
+    }
+};
+
 LEEWGL.Geometry = function () {
     LEEWGL.Object3D.call(this);
 
     this.type = 'Geometry';
-
+    
     this.vertices = [];
     this.indices = [];
     this.boundingBox = null;

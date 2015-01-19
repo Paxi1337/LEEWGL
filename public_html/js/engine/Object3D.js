@@ -10,30 +10,12 @@ LEEWGL.Object3D = function () {
     this.up = vec3.clone(LEEWGL.Object3D.DefaultUp);
 
     var scope = this;
-
-    var position = vec3.create();
-    var rotation = mat4.create();
-    var scale = vec3.fromValues(1.0, 1.0, 1.0);
-
+    
+    this.transform = new LEEWGL.Transform();
+    
     this.matrix = mat4.create();
     this.matrixWorld = mat4.create();
 
-    // private properties - configurable tag defaults to false
-    Object.defineProperties(this, {
-        position: {
-            enumerable: true,
-            value: position
-        },
-        rotation: {
-            enumerable: true,
-            value: rotation
-        },
-        scale: {
-            enumerable: true,
-            value: scale
-        }
-    });
-    
     this.draggable = true;
         
     this.visible = true;
@@ -42,17 +24,13 @@ LEEWGL.Object3D = function () {
     this.userData = {};
 };
 
-LEEWGL.Object3D.DefaultUp = vec3.fromValues(0.0, 1.0, 0.0);
+LEEWGL.Object3D.DefaultUp = [ 0.0, 1.0, 0.0 ];
 
 LEEWGL.Object3D.prototype = {
     constructor: LEEWGL.Object3D,
     
-    setPosition: function(x, y, z) {
-        vec3.set(this.position, x, y, z);
-    },
-    
-    offsetPosition: function(vector) {
-        vec3.add(this.position, this.position, vector);
+    offsetPosition : function(vector) {
+        this.transform.offsetPosition(vector);
     },
     
     add: function (object) {
@@ -168,11 +146,9 @@ LEEWGL.Object3D.prototype = {
 
         object.name = this.name;
         object.up.copy(object.up, this.up);
-
-        object.position.copy(object.position, this.position);
-        object.rotation.copy(object.up, this.rotation);
-        object.scale.copy(object.up, this.scale);
-
+        
+        LEEWGL.Transform.prototype.clone.call(this, object.transform);
+        
         object.visible = this.visible;
 
         object.userData = JSON.parse(JSON.stringify(this.userData));
