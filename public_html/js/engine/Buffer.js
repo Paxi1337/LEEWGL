@@ -17,7 +17,20 @@ LEEWGL.Buffer = function (options) {
         _buffer = _buffer !== null ? _buffer : this.create(gl);
         this.bind(gl, _buffer);
         
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+        var vertProcessed = vertices;
+        
+        if(typeof vertices[0] === 'object') {
+            vertProcessed = [];
+            for(var i = 0; i < vertices.length; ++i) {
+                var v = vertices[i];
+                
+                for(var j = 0; j < vertices[0].length; ++j) {
+                    vertProcessed = vertProcessed.concat(v);
+                }
+            }
+        }
+        
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertProcessed), gl.STATIC_DRAW);
         _buffer.itemSize = type.size;
         _buffer.numItems = vertices.length / type.size;
     };

@@ -12,7 +12,7 @@ LEEWGL.TestApp = function (options) {
     this.camera = new LEEWGL.PerspectiveCamera(90, this.gl.drawingBufferWidth / this.gl.drawingBufferHeight, 1, 1000);
 
     this.triangle = new LEEWGL.Geometry.Triangle();
-    this.cube = new LEEWGL.Geometry.Triangle();
+    this.cube = new LEEWGL.Geometry.Cube();
     this.texture = new LEEWGL.Texture();
 
     this.lastCapturedColorMap = [];
@@ -66,27 +66,6 @@ LEEWGL.TestApp.prototype.onCreate = function () {
         0.0, 1.0
     ];
 
-    var colors = [
-        1.0, 0.0, 0.0, 1.0, // red
-        1.0, 0.0, 0.0, 1.0, // red
-        1.0, 0.0, 0.0, 1.0, // red
-        1.0, 0.0, 0.0, 1.0, // red
-        1.0, 0.0, 0.0, 1.0, // red
-        1.0, 0.0, 0.0, 1.0, // red
-        1.0, 0.0, 0.0, 1.0, // red
-        1.0, 0.0, 0.0, 1.0, // red
-        1.0, 0.0, 0.0, 1.0, // red
-        1.0, 0.0, 0.0, 1.0, // red
-        1.0, 0.0, 0.0, 1.0, // red
-        1.0, 0.0, 0.0, 1.0, // red
-        1.0, 0.0, 0.0, 1.0, // red
-        1.0, 0.0, 0.0, 1.0, // red
-        1.0, 0.0, 0.0, 1.0, // red
-        1.0, 0.0, 0.0, 1.0, // red
-    ];
-
-    this.colorBuffer.setData(this.gl, colors, new LEEWGL.BufferInformation.VertexTypePos4());
-    
 //    this.triangle.addEventListener('mousedown', function () {
 //        var translation = vec3.create();
 //        vec3.set(translation, -0.5, 0.0, 0.0);
@@ -98,7 +77,9 @@ LEEWGL.TestApp.prototype.onCreate = function () {
     this.shader.init(this.gl, 'canvas');
     
     this.triangle.setBuffer(this.gl);
+    this.triangle.addColor(this.gl, undefined, this.triangle.faces);
     this.cube.setBuffer(this.gl);
+    this.cube.addColor(this.gl, undefined, this.cube.faces);
     
     this.textureBuffer.setData(this.gl, textureCoordinates, new LEEWGL.BufferInformation.VertexTypePos2());
     
@@ -164,7 +145,6 @@ LEEWGL.TestApp.prototype.onMouseDown = function (event) {
     var color = this.getColorMapColor(mouseCords.x, mouseCords.y);
     var index = color[0] * 65536 + color[1] * 256 + color[2];
     
-    console.log(this.pickingList);
     if(this.picking && this.pickingList[index]) {
         console.log('selected element ' + this.pickingList[index].name);
     }
@@ -265,8 +245,8 @@ LEEWGL.TestApp.prototype.draw = function () {
     this.triangle.vertexBuffer.bind(this.gl);
     this.gl.vertexAttribPointer(_shaderProgram.vertexPositionAttribute, this.triangle.vertexBuffer.getBuffer().itemSize, this.gl.FLOAT, false, 0, 0);
 
-    this.colorBuffer.bind(this.gl);
-    this.gl.vertexAttribPointer(_shaderProgram.vertexColorAttribute, this.colorBuffer.getBuffer().itemSize, this.gl.FLOAT, false, 0, 0);
+    this.triangle.colorBuffer.bind(this.gl);
+    this.gl.vertexAttribPointer(_shaderProgram.vertexColorAttribute, this.triangle.colorBuffer.getBuffer().itemSize, this.gl.FLOAT, false, 0, 0);
     
     this.triangle.indexBuffer.bind(this.gl);
     this.gl.drawElements(this.gl.TRIANGLES, this.triangle.indices.length, this.gl.UNSIGNED_SHORT, 0);
@@ -274,15 +254,15 @@ LEEWGL.TestApp.prototype.draw = function () {
     /// cube
     this.shader.setFloatArray(this.gl, _shaderProgram.colorMapColor, new Float32Array(this.cube.vertexBuffer.colorMapColor));
     this.shader.setMatrixUniform(this.gl, _shaderProgram.projection, this.camera.viewProjMatrix);
-    
+        
     mat4.translate(this.cube.matrix, mat4.create(), [5.0, 0.0, 0.0]);
     this.shader.setMatrixUniform(this.gl, _shaderProgram.mvp, this.cube.matrix);
     
     this.cube.vertexBuffer.bind(this.gl);
     this.gl.vertexAttribPointer(_shaderProgram.vertexPositionAttribute, this.cube.vertexBuffer.getBuffer().itemSize, this.gl.FLOAT, false, 0, 0);
 
-    this.colorBuffer.bind(this.gl);
-    this.gl.vertexAttribPointer(_shaderProgram.vertexColorAttribute, this.colorBuffer.getBuffer().itemSize, this.gl.FLOAT, false, 0, 0);
+    this.cube.colorBuffer.bind(this.gl);
+    this.gl.vertexAttribPointer(_shaderProgram.vertexColorAttribute, this.cube.colorBuffer.getBuffer().itemSize, this.gl.FLOAT, false, 0, 0);
     
     this.cube.indexBuffer.bind(this.gl);
     this.gl.drawElements(this.gl.TRIANGLES, this.cube.indices.length, this.gl.UNSIGNED_SHORT, 0);
