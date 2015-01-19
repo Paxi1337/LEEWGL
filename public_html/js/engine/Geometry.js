@@ -1,20 +1,20 @@
-LEEWGL.Component = function() {
-    
+LEEWGL.Component = function () {
+
 };
 
-LEEWGL.Transform = function() {
+LEEWGL.Transform = function () {
     LEEWGL.Component.call(this);
-    
+
     this.x = 0;
     this.y = 0;
     this.z = 0;
-    
+
     var position = [this.x, this.y, this.z];
-    
+
     var translation = mat4.create();
     var rotation = mat4.create();
     var scale = mat4.create();
-    
+
     // private properties - configurable tag defaults to false
     Object.defineProperties(this, {
         position: {
@@ -34,35 +34,43 @@ LEEWGL.Transform = function() {
             value: scale
         }
     });
-    
+
 };
 
 LEEWGL.Transform.prototype = {
-    offsetPosition: function(vector) {
+    offsetPosition: function (vector) {
         vec3.add(this.position, this.position, vector);
     },
-    
-    setPosition: function() {
-        if(arguments === 'undefined') {
+    setPosition: function () {
+        if (arguments === 'undefined') {
             console.error('LEEWGL.Transform.setPosition(): no arguments given!');
             return false;
         }
-        
-        if(typeof arguments[0] === 'Array') 
+
+        if (typeof arguments[0] === 'object'){
             vec3.copy(this.position, arguments[0]);
-        else 
+        } else {
             vec3.set(this.position, arguments[0], arguments[1], arguments[2]);
+        }
     },
-    
-    clone : function(transform) {
-         if (transform === 'undefined')
+    translate: function (vector) {
+        mat4.translate(this.translation, mat4.create(), vector);
+    },
+    scale: function (vector) {
+        mat4.scale(this.scale, mat4.create(), vector);
+    },
+    matrix : function() {
+        return mat4.multiply(mat4.create(), this.translation, this.scale);
+    },
+    clone: function (transform) {
+        if (transform === 'undefined')
             transform = new LEEWGL.Transform();
-        
+
         transform.position.copy(transform.position, this.position);
         transform.translation.copy(transform.translation, this.translation);
         transform.rotation.copy(transform.rotation, this.rotation);
         transform.scale.copy(transform.scale, this.scale);
-        
+
         return transform;
     }
 };
@@ -71,7 +79,7 @@ LEEWGL.Geometry = function () {
     LEEWGL.Object3D.call(this);
 
     this.type = 'Geometry';
-    
+
     this.vertices = [];
     this.indices = [];
     this.boundingBox = null;
@@ -96,7 +104,7 @@ LEEWGL.Geometry = function () {
             console.error('LEEWGL.Geometry.addColor(): Color array must be multiple of 4!');
             return false;
         }
-        
+
         this.colorBuffer.setData(gl, this.colors, new LEEWGL.BufferInformation.VertexTypePos4());
     };
 
@@ -109,7 +117,7 @@ LEEWGL.Geometry = function () {
             for (var i = 0; i < length; ++i) {
                 this.colors.push([1.0, 0.0, 1.0, 1.0]);
             }
-            
+
             this.setColorBuffer(gl);
         }
     };
@@ -253,9 +261,9 @@ Object.defineProperty(LEEWGL.Geometry.Triangle.prototype, 2, {
 
 LEEWGL.Geometry.Cube = function () {
     LEEWGL.Geometry.call(this);
-    
+
     this.faces = 6;
-    
+
     this.vertices = [
         // Front face
         -1.0, -1.0, 1.0,
@@ -288,7 +296,7 @@ LEEWGL.Geometry.Cube = function () {
         -1.0, 1.0, 1.0,
         -1.0, 1.0, -1.0
     ];
-    
+
     this.indices = [
         0, 1, 2, 0, 2, 3, // front
         4, 5, 6, 4, 6, 7, // back

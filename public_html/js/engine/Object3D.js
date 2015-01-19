@@ -29,10 +29,6 @@ LEEWGL.Object3D.DefaultUp = [ 0.0, 1.0, 0.0 ];
 LEEWGL.Object3D.prototype = {
     constructor: LEEWGL.Object3D,
     
-    offsetPosition : function(vector) {
-        this.transform.offsetPosition(vector);
-    },
-    
     add: function (object) {
         if (arguments.length > 1) {
             for (var i = 0; i < arguments.length; ++i) {
@@ -88,12 +84,6 @@ LEEWGL.Object3D.prototype = {
         var matrix = mat4.create();
         mat4.lookAt(matrix, vector, this.position, this.up);
         return matrix;
-    },
-    translate : function(vector) {
-        mat4.translate(this.matrix, mat4.create(), vector);
-    },
-    scale : function(vector) {
-        mat4.scale(this.matrix, mat4.create(), vector);
     },
     getObjectById: function (id, recursive) {
         if (this.id === id)
