@@ -153,8 +153,8 @@ LEEWGL.TestApp.prototype.onMouseDown = function (event) {
 
 LEEWGL.TestApp.prototype.onMouseMove = function (event) {
     if (event.which === 3 || event.button === 2) {
-        var movementX = event.movementX * 0.001;
-        var movementY = event.movementY * 0.001;
+        var movementX = (0.1 * event.movementX ) * Math.PI / 180;
+        var movementY = (0.1 * event.movementY) * Math.PI / 180;
         
         this.camera.rotate(movementY, movementX);
     }

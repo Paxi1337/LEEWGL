@@ -41,11 +41,12 @@ LEEWGL.PerspectiveCamera.prototype.projection = function () {
 
 LEEWGL.PerspectiveCamera.prototype.normalizeAngles = function () {
     this._horizontalAngle = this._horizontalAngle % 360.0;
-
-    if (this._verticalAngle > 85.0)
-        this._verticalAngle = 85.0;
-    else if (this._verticalAngle < -85.0)
-        this._verticalAngle = -85.0;
+    this._verticalAngle = this._verticalAngle % 360.0;
+    
+//    if (this._verticalAngle > 85.0)
+//        this._verticalAngle = 85.0;
+//    else if (this._verticalAngle < -85.0)
+//        this._verticalAngle = -85.0;
 };
 
 LEEWGL.PerspectiveCamera.prototype.update = function () {
