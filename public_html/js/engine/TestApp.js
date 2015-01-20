@@ -179,16 +179,10 @@ LEEWGL.TestApp.prototype.onMouseMove = function (event) {
 
         this.camera.rotate(movementY, movementX);
     } else if ((event.which === 1 || event.button === 1) && this.activeElement !== null) {
-        this.movement.x += event.movementX * 0.01;
-        this.movement.y -= event.movementY * 0.01;
-
-        var mouseCords = this.core.getRelativeMouseCoordinates(event);
-        var unprojectedCoords = vec3.unproject([mouseCords.x, mouseCords.y, 1.0], this.camera.viewMatrix, this.camera.projMatrix, [0, 0, this.canvas.width, this.canvas.height]);
-
-        console.log(unprojectedCoords);
-
-        this.activeElement.transform.translate(unprojectedCoords);
-//        this.activeElement.transform.offsetPosition([10.0, 10.0, 0.0]);
+        this.movement.x = event.movementX * 0.01;
+        this.movement.y = event.movementY * 0.01;
+        
+        this.activeElement.transform.translate([this.movement.x, -this.movement.y, 0.0]);
     }
 };
 

@@ -56,7 +56,7 @@ LEEWGL.Transform.prototype = {
         }
     },
     translate: function (vector) {
-        mat4.translate(this.translation, mat4.create(), vector);
+        mat4.translate(this.translation, this.translation, vector);
     },
     scale: function (vector) {
         mat4.scale(this.scale, mat4.create(), vector);
