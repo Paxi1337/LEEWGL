@@ -15,18 +15,13 @@ LEEWGL.TestApp = function (options) {
     this.grid = new LEEWGL.Geometry.Grid();
     this.texture = new LEEWGL.Texture();
 
-    this.lastCapturedColorMap = [];
+    this.picker = new LEEWGL.Picker();
 
-    this.renderColorMap = false;
 
     this.activeKeys = [];
 
-    this.picking = false;
-    this.pickingList = {};
-
+    this.picking = true;
     this.activeElement = null;
-
-    this.movement = {'x': 0, 'y': 0};
 };
 
 
@@ -77,14 +72,11 @@ LEEWGL.TestApp.prototype.onCreate = function () {
 //        this.translate(translation);
 //    });
 
-    this.camera.transform.setPosition([0.0, 0.0, 5.0]);
-//    this.camera.transform.offsetPosition(vec3.fromValues(0.0, 0.0, 5.0));
+    this.camera.transform.setPosition([0.0, 0.0, 10.0]);
 
     this.shader.init(this.gl, 'canvas');
     this.shader.createUniformSetters(this.gl);
     this.shader.createAttributeSetters(this.gl);
-
-    console.log(this.shader.attributes);
 
     this.triangle.setBuffer(this.gl);
     this.triangle.addColor(this.gl, undefined, this.triangle.faces);
@@ -103,104 +95,50 @@ LEEWGL.TestApp.prototype.onCreate = function () {
 
     this.textureBuffer.setData(this.gl, textureCoordinates, new LEEWGL.BufferInformation.VertexTypePos2());
 
-    this.pickingList[this.triangle.vertexBuffer.colorMapIndex] = this.triangle;
-    this.pickingList[this.cube.vertexBuffer.colorMapIndex] = this.cube;
+    this.picker.addToList(this.triangle.vertexBuffer.colorMapIndex, this.triangle);
+    this.picker.addToList(this.cube.vertexBuffer.colorMapIndex, this.cube);
+//    this.pickingList[this.triangle.vertexBuffer.colorMapIndex] = this.triangle;
+//    this.pickingList[this.cube.vertexBuffer.colorMapIndex] = this.cube;
 
     this.gl.clearColor(0.0, 1.0, 0.0, 1.0);
     this.gl.enable(this.gl.DEPTH_TEST);
     this.gl.depthFunc(this.gl.LEQUAL);
 
     this.core.initTexture(this.texture, '../texture/texture1.jpg');
-    this.initPicking();
-};
-
-LEEWGL.TestApp.prototype.initPicking = function (width, height) {
-    width = typeof width !== 'undefined' ? width : this.canvas.width;
-    height = typeof height !== 'undefined' ? height : this.canvas.height;
-
-    this.lastCapturedColorMap = new Uint8Array(this.canvas.width * this.canvas.height * 4);
-
-    this.gl.enable(this.gl.DEPTH_TEST);
-
-    this.frameBuffer.init(this.gl, width, height);
-    this.frameBuffer.bind(this.gl);
-
-    var texture = new LEEWGL.Texture();
-    texture.create(this.gl);
-    texture.bind(this.gl);
-    texture.setParameteri(this.gl, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
-    texture.setParameteri(this.gl, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_NEAREST);
-    texture.generateMipmap(this.gl);
-
-    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, width, height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null);
-
-    var depthBuffer = new LEEWGL.RenderBuffer();
-    depthBuffer.create(this.gl);
-    depthBuffer.bind(this.gl);
-
-    this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, texture.webglTexture, 0);
-    this.gl.renderbufferStorage(this.gl.RENDERBUFFER, this.gl.DEPTH_COMPONENT16, width, height);
-    this.gl.framebufferRenderbuffer(this.gl.FRAMEBUFFER, this.gl.DEPTH_ATTACHMENT, this.gl.RENDERBUFFER, depthBuffer.getBuffer());
-
-    if (this.gl.checkFramebufferStatus(this.gl.FRAMEBUFFER) !== this.gl.FRAMEBUFFER_COMPLETE) {
-        alert("this combination of attachments does not work");
-        return;
-    }
-
-    texture.unbind(this.gl);
-    depthBuffer.unbind(this.gl);
-    this.frameBuffer.unbind(this.gl);
-
-    this.picking = true;
+    this.picker.initPicking(this.gl, this.canvas.width, this.canvas.height);
 };
 
 LEEWGL.TestApp.prototype.onMouseDown = function (event) {
     this.triangle.dispatchEvent(event);
 
-    this.frameBuffer.bind(this.gl);
-
     var mouseCords = this.core.getRelativeMouseCoordinates(event);
-    this.gl.readPixels(0, 0, this.canvas.width, this.canvas.height, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.lastCapturedColorMap);
+    this.picker.bind(this.gl);
+    var obj = this.picker.pick(this.gl, mouseCords.x, mouseCords.y);
 
-    var color = this.getColorMapColor(mouseCords.x, mouseCords.y);
-    var index = color[0] * 65536 + color[1] * 256 + color[2];
-
-    if (this.picking && this.pickingList[index]) {
-        console.log('selected element ' + this.pickingList[index].name);
-        this.activeElement = this.pickingList[index];
+    if (this.picking && obj !== null) {
+        console.log('selected element ' + obj.name);
+        this.activeElement = obj;
     }
-    this.frameBuffer.unbind(this.gl);
+    this.picker.unbind(this.gl);
 };
 
 LEEWGL.TestApp.prototype.onMouseMove = function (event) {
+    var movement = {'x': 0, 'y': 0};
+
     if (event.which === 3 || event.button === 2) {
-        var movementX = (0.1 * event.movementX);
-        var movementY = (0.1 * event.movementY);
+        movement.x = (0.1 * event.movementX);
+        movement.y = (0.1 * event.movementY);
 
-        this.camera.rotate(movementY, movementX);
+        this.camera.rotate(movement.x, movement.y);
     } else if ((event.which === 1 || event.button === 1) && this.activeElement !== null) {
-        this.movement.x = event.movementX * 0.01;
-        this.movement.y = event.movementY * 0.01;
-        
-        this.activeElement.transform.translate([this.movement.x, -this.movement.y, 0.0]);
-    }
-};
+        movement.x = event.movementX * 0.01;
+        movement.y = event.movementY * 0.01;
 
-LEEWGL.TestApp.prototype.getColorMapColor = function (x, y) {
-    if (x >= this.canvas.width || y >= this.canvas.height || x < 0 || y < 0) {
-        console.error('LEEWGL: Invalid color map pixel position');
-        return;
+        this.activeElement.transform.translate([movement.x, -movement.y, 0.0]);
     }
-    if (!this.lastCapturedColorMap) {
-        console.error('LEEWGL: Color map not captured');
-        return;
-    }
-    var position = (this.canvas.height - 1 - y) * this.canvas.width * 4 + x * 4;
-    return [this.lastCapturedColorMap[position],
-        this.lastCapturedColorMap[position + 1],
-        this.lastCapturedColorMap[position + 2]];
+    event.preventDefault();
+    event.stopPropagation();
 };
-
 
 LEEWGL.TestApp.prototype.onMouseUp = function (event) {
     this.activeElement = null;
@@ -220,8 +158,6 @@ LEEWGL.TestApp.prototype.onUpdate = function () {
 };
 
 LEEWGL.TestApp.prototype.handleKeyInput = function () {
-    var pitch = 0.0;
-
     if (this.activeKeys[LEEWGL.KEYS.PAGE_UP]) {
         this.camera.rotate(0.01, vec3.fromValues(1, 0, 0));
     } else if (this.activeKeys[LEEWGL.KEYS.PAGE_DOWN]) {
@@ -243,29 +179,20 @@ LEEWGL.TestApp.prototype.handleKeyInput = function () {
 
 LEEWGL.TestApp.prototype.onRender = function () {
     if (this.picking) {
-        this.renderColorMap = true;
-        var _shaderProgram = this.shader.getProgram();
-        this.frameBuffer.bind(this.gl);
+        this.picker.bind(this.gl);
         this.shader.uniforms['uOffscreen'](1);
-//        this.shader.setIntegerUniform(this.gl, _shaderProgram.offscreen, true);
         this.draw();
     }
 
-    this.renderColorMap = false;
-    this.frameBuffer.unbind(this.gl);
-
+    this.picker.unbind(this.gl);
 
     this.shader.uniforms['uOffscreen'](0);
-//    this.shader.setIntegerUniform(this.gl, _shaderProgram.offscreen, false);
     this.draw();
 };
 
 LEEWGL.TestApp.prototype.draw = function () {
     this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-
-    var _shaderProgram = this.shader.getProgram();
-    mat4.identity(this.matrix);
 
     /// triangle
     this.shader.uniforms['uMVP'](this.camera.viewProjMatrix);
