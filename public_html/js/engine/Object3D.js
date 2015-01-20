@@ -10,28 +10,27 @@ LEEWGL.Object3D = function () {
     this.up = vec3.clone(LEEWGL.Object3D.DefaultUp);
 
     var scope = this;
-    
+
     this.components = {};
-    
+
     this.matrix = mat4.create();
     this.matrixWorld = mat4.create();
 
     this.draggable = true;
-        
+
     this.visible = true;
     this.autoUpdate = true;
 
     this.userData = {};
-    
+
     this.addComponent(new LEEWGL.Transform());
     this.transform = this.components['Transform'];
 };
 
-LEEWGL.Object3D.DefaultUp = [ 0.0, 1.0, 0.0 ];
+LEEWGL.Object3D.DefaultUp = [0.0, 1.0, 0.0];
 
 LEEWGL.Object3D.prototype = {
     constructor: LEEWGL.Object3D,
-    
     add: function (object) {
         if (arguments.length > 1) {
             for (var i = 0; i < arguments.length; ++i) {
@@ -59,7 +58,7 @@ LEEWGL.Object3D.prototype = {
 
         return this;
     },
-    addComponent : function(component) {
+    addComponent: function (component) {
         this.components[component.type] = component;
     },
     remove: function (object) {
@@ -69,8 +68,7 @@ LEEWGL.Object3D.prototype = {
             }
 
             return this;
-        }
-        ;
+        };
 
         var index = this.children.indexOf(object);
         if (index !== -1) {
@@ -78,7 +76,7 @@ LEEWGL.Object3D.prototype = {
             this.children.splice(index, 1);
         }
     },
-    applyMatrix : function(matrix) {
+    applyMatrix: function (matrix) {
         mat4.multiply(this.matrix, this.matrix, matrix);
     },
     localToWorld: function (vector) {
@@ -133,7 +131,6 @@ LEEWGL.Object3D.prototype = {
             child.traverseVisible(callback);
         }
     },
-    
     clone: function (object, recursive) {
         if (object === 'undefined')
             object = new LEEWGL.Object3D();
@@ -142,9 +139,9 @@ LEEWGL.Object3D.prototype = {
 
         object.name = this.name;
         object.up.copy(object.up, this.up);
-        
+
         LEEWGL.Transform.prototype.clone.call(this, object.transform);
-        
+
         object.visible = this.visible;
 
         object.userData = JSON.parse(JSON.stringify(this.userData));

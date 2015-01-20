@@ -28,14 +28,14 @@
         <script id="shader-fs" type="x-shader/x-fragment">
             precision mediump float;
             
-            uniform bool uOffscreen;
+            uniform int uOffscreen;
             
             varying lowp vec4 vVertexColor;
             
             uniform vec4 uColorMapColor;
 
             void main(void) {
-                if(uOffscreen) {
+                if(uOffscreen == 1) {
                     gl_FragColor = uColorMapColor;
                     return;
                 }
@@ -49,12 +49,12 @@
             attribute vec4 aVertexColor;
             
             uniform mat4 uMVP;
-            uniform mat4 uProjection;
+            uniform mat4 uModel;
             
             varying lowp vec4 vVertexColor;
 
             void main(void) {
-                gl_Position = uProjection * uMVP * vec4(aVertexPosition, 1.0);
+                gl_Position = uMVP * uModel * vec4(aVertexPosition, 1.0);
                 vVertexColor = aVertexColor;
             }
         </script>

@@ -31,8 +31,6 @@ LEEWGL.Scene.prototype.pickIndicesRegional = function(x1, x2, y1, y2, arr) {
     else
         arr = [];
     
-    
-    
     if(object === undefined) 
         object = new LEEWGL.Scene();
     

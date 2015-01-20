@@ -641,7 +641,7 @@ vec3.unproject = function (vec, view, proj, viewport) {
     var im = mat4.create();  //inverse view proj
     var v = vec4.create();  //vector
     var tv = vec4.create();  //transformed vector
-
+    
     //apply viewport transform
     v[0] = (vec[0] - viewport[0]) * 2.0 / viewport[2] - 1.0;
     v[1] = (vec[1] - viewport[1]) * 2.0 / viewport[3] - 1.0;

@@ -20,8 +20,8 @@ LEEWGL.PerspectiveCamera.prototype = Object.create(LEEWGL.Camera.prototype);
 
 LEEWGL.PerspectiveCamera.prototype.orientation = function () {
     var orientation = mat4.create();
-    mat4.rotate(orientation, orientation, this._verticalAngle, [1.0, 0.0, 0.0]);
-    mat4.rotate(orientation, orientation, this._horizontalAngle, [0.0, 1.0, 0.0]);
+    mat4.rotate(orientation, orientation, LEEWGL.Math.degToRad(this._verticalAngle), [1.0, 0.0, 0.0]);
+    mat4.rotate(orientation, orientation, LEEWGL.Math.degToRad(this._horizontalAngle), [0.0, 1.0, 0.0]);
     return orientation;
 };
 
@@ -32,6 +32,8 @@ LEEWGL.PerspectiveCamera.prototype.setLookAt = function (lookAt) {
 LEEWGL.PerspectiveCamera.prototype.view = function () {
     var lookAt = mat4.create();
     mat4.lookAt(this.viewMatrix, this.transform.position, [this.transform.position[0] + this.lookAt[0], this.transform.position[1] + this.lookAt[1], this.transform.position[2] + this.lookAt[2]], this.up);
+
+//    mat4.multiply(this.viewMatrix, this.orientation(), mat4.translate(mat4.create(), mat4.create(), -this.transform.position));
 };
 
 LEEWGL.PerspectiveCamera.prototype.projection = function () {
@@ -41,18 +43,20 @@ LEEWGL.PerspectiveCamera.prototype.projection = function () {
 
 LEEWGL.PerspectiveCamera.prototype.normalizeAngles = function () {
     this._horizontalAngle = this._horizontalAngle % 360.0;
-    this._verticalAngle = this._verticalAngle % 360.0;
     
-//    if (this._verticalAngle > 85.0)
-//        this._verticalAngle = 85.0;
-//    else if (this._verticalAngle < -85.0)
-//        this._verticalAngle = -85.0;
+    if(this._horizontalAngle < 0.0) 
+        this._horizontalAngle += 360.0;
+    
+    if (this._verticalAngle > 85.0)
+        this._verticalAngle = 85.0;
+    else if (this._verticalAngle < -85.0)
+        this._verticalAngle = -85.0;
 };
 
 LEEWGL.PerspectiveCamera.prototype.update = function () {
     this.projection();
     this.view();
-    this.viewProjMatrix = mat4.multiply(mat4.create(), this.projMatrix, this.viewMatrix);
+    mat4.multiply(this.viewProjMatrix, this.projMatrix, this.viewMatrix);
 };
 
 LEEWGL.PerspectiveCamera.prototype.move = function (vec) {
@@ -63,21 +67,23 @@ LEEWGL.PerspectiveCamera.prototype.move = function (vec) {
 
 LEEWGL.PerspectiveCamera.prototype.rotate = function (upAngle, rightAngle) {
     if (this.invertY === true)
-        this._verticalAngle += upAngle;
-    else
         this._verticalAngle -= upAngle;
+    else
+        this._verticalAngle += upAngle;
 
     this._horizontalAngle += rightAngle;
-
+    
     this.normalizeAngles();
-
     var lookAt = vec3.create();
     
     var rotation = mat4.create();
-    mat4.rotateX(rotation, mat4.create(), upAngle);
-    mat4.rotateY(rotation, rotation, rightAngle);
-     
+    mat4.rotate(rotation, mat4.create(), LEEWGL.Math.degToRad(upAngle), [1.0, 0.0, 0.0]); 
+    mat4.rotate(rotation, rotation, LEEWGL.Math.degToRad(rightAngle), [0.0, 1.0, 0.0]); 
+    
     vec3.transformMat4(lookAt, vec3.fromValues(this.lookAt[0], this.lookAt[1], this.lookAt[2]), rotation);
+//    
+//    console.log(lookAt);
+//    
     vec3.copy(this.lookAt, lookAt);
 };
 

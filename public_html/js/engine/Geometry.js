@@ -4,9 +4,9 @@ LEEWGL.Component = function () {
 
 LEEWGL.Transform = function () {
     LEEWGL.Component.call(this);
-    
+
     this.type = 'Transform';
-    
+
     this.x = 0;
     this.y = 0;
     this.z = 0;
@@ -49,7 +49,7 @@ LEEWGL.Transform.prototype = {
             return false;
         }
 
-        if (typeof arguments[0] === 'object'){
+        if (typeof arguments[0] === 'object') {
             vec3.copy(this.position, arguments[0]);
         } else {
             vec3.set(this.position, arguments[0], arguments[1], arguments[2]);
@@ -61,7 +61,7 @@ LEEWGL.Transform.prototype = {
     scale: function (vector) {
         mat4.scale(this.scale, mat4.create(), vector);
     },
-    matrix : function() {
+    matrix: function () {
         return mat4.multiply(mat4.create(), this.translation, this.scale);
     },
     clone: function (transform) {
@@ -82,7 +82,7 @@ LEEWGL.Geometry = function () {
 
     this.type = 'Geometry';
 
-    this.vertices = [];
+    this.vertices = {'position': [], 'color': [], 'uv': []};
     this.indices = [];
     this.boundingBox = null;
     this.boundingSphere = null;
@@ -97,17 +97,17 @@ LEEWGL.Geometry = function () {
     this.normal = vec3.fromValues(0.0, LEEWGL.up, 0.0);
 
     this.setBuffer = function (gl) {
-        this.vertexBuffer.setData(gl, this.vertices, new LEEWGL.BufferInformation.VertexTypePos3());
+        this.vertexBuffer.setData(gl, this.vertices.position, new LEEWGL.BufferInformation.VertexTypePos3());
         this.indexBuffer.setData(gl, this.indices);
     };
 
     this.setColorBuffer = function (gl) {
-        if (this.colors[0].length % 4 !== 0) {
+        if (this.vertices.color[0].length % 4 !== 0) {
             console.error('LEEWGL.Geometry.addColor(): Color array must be multiple of 4!');
             return false;
         }
 
-        this.colorBuffer.setData(gl, this.colors, new LEEWGL.BufferInformation.VertexTypePos4());
+        this.colorBuffer.setData(gl, this.vertices.color, new LEEWGL.BufferInformation.VertexTypePos4());
     };
 
     this.addColor = function (gl, colors, length) {
@@ -117,7 +117,7 @@ LEEWGL.Geometry = function () {
         } else {
             this.colors = [];
             for (var i = 0; i < length; ++i) {
-                this.colors.push([1.0, 0.0, 1.0, 1.0]);
+                this.vertices.color.push([1.0, 0.0, 1.0, 1.0]);
             }
 
             this.setColorBuffer(gl);
@@ -158,6 +158,32 @@ LEEWGL.Geometry.Plane = function () {
 
 LEEWGL.Geometry.Plane.prototype = Object.create(LEEWGL.Geometry.prototype);
 
+LEEWGL.Geometry.Grid = function () {
+    LEEWGL.Geometry.call(this);
+
+    this.faces = 4;
+
+    this.generateGrid = function (width, height, margin) {
+        for (var z = 0; z <= height; ++z) {
+            for (var x = 0; x <= width; ++x) {
+                this.vertices.position.push([x * margin.x, 0.0, z * margin.z]);
+                this.vertices.color.push([1.0, 1.0, 1.0, 1.0]);
+            }
+        }
+
+        for (var i = 0; i < height; ++i) {
+            this.indices.push((i + 0) * (width + 1) + 0);
+            for (var j = 0; j < width + 1; ++j) {
+                this.indices.push((i + 0) * (width + 1) + j);
+                this.indices.push((i + 1) * (width + 1) + j);
+            }
+            this.indices.push((i + 0) * (width + 1) + width + 1);
+        }
+    };
+};
+
+LEEWGL.Geometry.Grid.prototype = Object.create(LEEWGL.Geometry.prototype);
+
 /**
  * 
  * @param vec3 origin
@@ -180,7 +206,7 @@ LEEWGL.Geometry.Triangle = function () {
     vec3.set(this.y, 0.0, 0.0, 0.0);
     vec3.set(this.z, 0.0, 0.0, 0.0);
 
-    this.vertices = [
+    this.vertices.position = [
         -1.0, -1.0, 1.0,
         1.0, -1.0, 1.0,
         0.0, 1.0, 1.0,
@@ -266,7 +292,7 @@ LEEWGL.Geometry.Cube = function () {
 
     this.faces = 6;
 
-    this.vertices = [
+    this.vertices.position = [
         // Front face
         -1.0, -1.0, 1.0,
         1.0, -1.0, 1.0,

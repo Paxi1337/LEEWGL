@@ -31,8 +31,13 @@ LEEWGL.Buffer = function (options) {
         }
         
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertProcessed), gl.STATIC_DRAW);
-        _buffer.itemSize = type.size;
+        
+        _buffer.numComponents = type.size;
         _buffer.numItems = vertices.length / type.size;
+        _buffer.type = gl.FLOAT;
+        _buffer.stride = 0;
+        _buffer.offset = 0;
+        _buffer.normalize = false;
     };
 
     this.create = function (gl) {
