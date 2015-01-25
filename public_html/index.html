@@ -23,47 +23,47 @@
         <script type="text/javascript" src="js/engine/PerspectiveCamera.js"></script> 
         <script type="text/javascript" src="js/engine/App.js"></script> 
         <script type="text/javascript" src="js/engine/TestApp.js"></script> 
-        
+
         <script id="shader-fs" type="x-shader/x-fragment">
             precision mediump float;
-            
+
             varying vec4 vVertexColor;
 
             void main(void) {
-                gl_FragColor = vVertexColor;
+            gl_FragColor = vVertexColor;
             }
         </script>
 
         <script id="shader-vs" type="x-shader/x-vertex">
             attribute vec3 aVertexPosition;
             attribute vec4 aVertexColor;
-            
+
             uniform mat4 uMVP;
             uniform mat4 uProjection;
-            
+
             varying lowp vec4 vVertexColor;
 
             void main(void) {
-                gl_Position = uProjection * uMVP * vec4(aVertexPosition, 1.0);
-                vVertexColor = aVertexColor;
+            gl_Position = uProjection * uMVP * vec4(aVertexPosition, 1.0);
+            vVertexColor = aVertexColor;
             }
         </script>
-        
+
     </head>
     <body>
         <canvas id="canvas" width="500" height="500"></canvas>
         <script>
-            var init = function() {
-                var _canvas = document.querySelector('#canvas');
-                
-                var LEEWGL = new window.LEEWGL.Core({'canvas' : _canvas});
-                var testapp = new window.LEEWGL.TestApp({'core' : LEEWGL});
-                
-                LEEWGL.attachApp(testapp);
-                LEEWGL.init();
-                window.requestAnimationFrame(LEEWGL.run);
-            };
-            init();
+var init = function () {
+    var _canvas = document.querySelector('#canvas');
+
+    var LEEWGL = new window.LEEWGL.Core({'canvas' : _canvas});
+    var testapp = new window.LEEWGL.TestApp({'core' : LEEWGL});
+
+    LEEWGL.attachApp(testapp);
+    LEEWGL.init();
+    window.requestAnimationFrame(LEEWGL.run);
+};
+init();
         </script>
     </body>
 </html>

@@ -90,15 +90,10 @@ LEEWGL.TestApp.prototype.onCreate = function () {
     this.grid.setColorBuffer(this.gl);
     this.grid.transform.translate([0.0, -5.0, 0.0]);
 
-    console.log(this.grid.vertices);
-    console.log(this.grid.indices);
-
     this.textureBuffer.setData(this.gl, textureCoordinates, new LEEWGL.BufferInformation.VertexTypePos2());
 
     this.picker.addToList(this.triangle.vertexBuffer.colorMapIndex, this.triangle);
     this.picker.addToList(this.cube.vertexBuffer.colorMapIndex, this.cube);
-//    this.pickingList[this.triangle.vertexBuffer.colorMapIndex] = this.triangle;
-//    this.pickingList[this.cube.vertexBuffer.colorMapIndex] = this.cube;
 
     this.gl.clearColor(0.0, 1.0, 0.0, 1.0);
     this.gl.enable(this.gl.DEPTH_TEST);
@@ -118,6 +113,7 @@ LEEWGL.TestApp.prototype.onMouseDown = function (event) {
     if (this.picking && obj !== null) {
         console.log('selected element ' + obj.name);
         this.activeElement = obj;
+        UI.setInspectorContent(obj.id);
     }
     this.picker.unbind(this.gl);
 };

@@ -23,6 +23,10 @@ body {
 div, span, object, iframe, p, blockquote, pre, a, abbr, acronym, address, code, del, dfn, em, img, q, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, caption, article, aside, dialog, figure, footer, header, hgroup, nav, section {margin:0;padding:0;border:0;font-size:100%;font:inherit;vertical-align:baseline;}
 article, aside, details, figcaption, figure, dialog, footer, header, hgroup, menu, nav, section {display:block;}
 
+ul {
+    list-style: none;
+}
+
 h2,h3,h4 { font-family: sans-serif; font-weight: 400; color: #E7E5E5;}
 h5,h6 { font-family: sans-serif; font-weight: 400; color: #E7E5E5;}
 h1 {
@@ -52,19 +56,19 @@ div#container-overall {
 div#container {
     position: relative;
     margin: 0 auto;
-    width: 1200px;
+    width: 1100px;
     min-height: 650px;
 }
 
 div#content {
-    width: 1116px;
+    width: 1060px;
     padding: 20px;
     float: left;
     margin: 0 auto;
 }
 
 div#render-container {
-    width: 32%;
+    width: 512px;
     min-width: 500px;
     float: left;
     padding-top: 5px;
@@ -73,20 +77,20 @@ div#render-container {
 }
 
 div#outline-container {
-    width: 31%;
+    width: 200px;
     float: left;
-    padding-left: 19px;
-    padding-top: 5px;
+    margin-left: 10px;
+    padding: 5px;
     border-left: 1px solid #565453;
     background-color: #565656;
     border: solid 1px #A9A9A9;
 }
 
 div#inspector-container {
-    width: 31%;
+    width: 282px;
     float: left;
-    padding-left: 19px;
-    padding-top: 5px;
+    margin-left: 20px;
+    padding: 5px;
     border-left: 1px solid #565453;
     background-color: #565656;
     border: solid 1px #A9A9A9;
@@ -265,4 +269,28 @@ div#status-bar-overall {
 
 div#status-bar {
     height: 35px;
+}
+
+div#table-container {
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    border: 1px solid #6D6D6D;
+}
+
+thead {
+    background : #e0e0e0;
+    color : #000;
+    text-align: left;
+    vertical-align: bottom;
+    border-bottom: 1px solid #000;
+}
+
+th, td {
+    padding : 0.5em 1em;
+    border-left : 1px solid #6D6D6D;
+    margin : 0;
+    overflow: visible;
 }

@@ -25,23 +25,24 @@
         <script type="text/javascript" src="../js/engine/App.js"></script> 
         <script type="text/javascript" src="../js/engine/TestApp.js"></script> 
         <script type="text/javascript" src="../js/engine/Picker.js"></script> 
+        <script type="text/javascript" src="../js/engine/UI.js"></script> 
 
         <script id="shader-fs" type="x-shader/x-fragment">
             precision mediump float;
-            
+
             uniform int uOffscreen;
-            
+
             varying lowp vec4 vVertexColor;
-            
+
             uniform vec4 uColorMapColor;
 
             void main(void) {
-                if(uOffscreen == 1) {
-                    gl_FragColor = uColorMapColor;
-                    return;
-                }
-                
-                gl_FragColor = vVertexColor;
+            if(uOffscreen == 1) {
+            gl_FragColor = uColorMapColor;
+            return;
+            }
+
+            gl_FragColor = vVertexColor;
             }
         </script>
 
@@ -55,7 +56,8 @@
             varying lowp vec4 vVertexColor;
 
             void main(void) {
-                gl_Position = uMVP * uModel * vec4(aVertexPosition, 1.0);
+                gl_Position = uMVP 
+                        * uModel * vec4(aVertexPosition, 1.0);
                 vVertexColor = aVertexColor;
             }
         </script>
@@ -114,41 +116,14 @@
                         <div id="render-container">
                             <h2>Render View</h2>
                             <canvas id="canvas" width="512" height="512"></canvas>
-                            <script>
-var init = function () {
-    var _canvas = document.querySelector('#canvas');
-
-    var LEEWGL = new window.LEEWGL.Core({'canvas': _canvas});
-    var testapp = new window.LEEWGL.TestApp({'core': LEEWGL});
-
-    LEEWGL.attachApp(testapp);
-    LEEWGL.init();
-    window.requestAnimationFrame(LEEWGL.run);
-};
-init();
-                            </script>
                         </div>
                         <div id="outline-container">
-                            <ul>
-                                <h2>Outline</h2>
-                                <li>First Item</li>
-                                <li>First Item</li>
-                                <li>First Item</li>
-                                <li>First Item</li>
-                                <li>First Item</li>
-                                <li>First Item</li>
-                            </ul>
+                            <h2>Outline</h2>
+                            <div id="dynamic-outline"></div>
                         </div>
                         <div id="inspector-container">
-                            <ul>
-                                <h2>Inspector</h2>
-                                <li>First Item</li>
-                                <li>First Item</li>
-                                <li>First Item</li>
-                                <li>First Item</li>
-                                <li>First Item</li>
-                                <li>First Item</li>
-                            </ul>
+                            <h2>Inspector</h2>
+                            <div id="dynamic-inspector"></div>
                         </div>
                     </div>    
                 </div>
@@ -159,5 +134,18 @@ init();
                 </div>
             </div>
         </div>
+        <script>
+var init = function () {
+    var _canvas = document.querySelector('#canvas');
+
+    var LEEWGL = new window.LEEWGL.Core({'canvas' : _canvas});
+    var testapp = new window.LEEWGL.TestApp({'core' : LEEWGL});
+
+    LEEWGL.attachApp(testapp);
+    LEEWGL.init();
+    window.requestAnimationFrame(LEEWGL.run);
+};
+init();
+        </script>
     </body>
 </html>

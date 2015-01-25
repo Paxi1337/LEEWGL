@@ -23,7 +23,7 @@ LEEWGL.Shader = function () {
         if (_script === null) {
             console.error("LEEWGL.Shader: No shader with selector " + selector + " found.");
         }
-
+        
         this.getShaderContentDOM(_script);
         var _shader = null;
         if (_script.type === "x-shader/x-fragment")

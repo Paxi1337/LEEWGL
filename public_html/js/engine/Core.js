@@ -77,12 +77,12 @@ LEEWGL.Core = function (options) {
         _viewportWidth = _canvas.width,
         _viewportHeight = _canvas.height,
         _quit = false;
-
+     
     // initialize webGL
     var _gl;
 
     var _lastTS = null;
-
+    
     // execution block
     try {
         _gl = _context || _canvas.getContext('webgl') || _canvas.getContext('experimental-webgl');
@@ -167,7 +167,7 @@ LEEWGL.Core = function (options) {
             _gl.texParameteri(type, _gl.TEXTURE_WRAP_S, this.paramToGL(texture.wrapS));
             _gl.texParameteri(type, _gl.TEXTURE_WRAP_T, this.paramToGL(texture.wrapT));
 
-            _gl.texParameteri(type, _gl.TEXTURE_MAG_FILTER, this.paramToGL(texture.magFilter));
+            _gl.texParameteri(type, _gl.TEwddadwaXTURE_MAG_FILTER, this.paramToGL(texture.magFilter));
             _gl.texParameteri(type, _gl.TEXTURE_MIN_FILTER, this.paramToGL(texture.minFilter));
         } else {
             _gl.texParameteri(type, _gl.TEXTURE_WRAP_S, _gl.CLAMP_TO_EDGE);
@@ -241,7 +241,7 @@ LEEWGL.Core = function (options) {
         document.onkeydown = _app.onKeyDown.bind(_app);
         document.onkeyup = _app.onKeyUp.bind(_app);
 
-        document.oncontextmenu = function (event) {
+        _canvas.oncontextmenu = function (event) {
             if (event.preventDefault !== undefined)
                 event.preventDefault();
             if (event.stopPropagation !== undefined)
@@ -271,6 +271,8 @@ LEEWGL.Core = function (options) {
     };
 
     this.init = function () {
+        UI.setInspector('#dynamic-inspector');
+        
         this.initMouse();
 
         this.setViewport(0, 0, 500, 500);
@@ -279,8 +281,18 @@ LEEWGL.Core = function (options) {
         if (_app !== null)
             _app.onCreate();
     };
-
+    
+    this.updateUI = function() {
+        if(typeof UI !== 'undefined') {
+            
+        }
+    };
+    
     this.run = function (now) {
+        if(typeof UI !== 'undefined') {
+            UI.outlineToHTML('#dynamic-outline');
+        }
+        
         window.requestAnimationFrame(_this.run);
         if (!_lastTS)
             _lastTS = now;

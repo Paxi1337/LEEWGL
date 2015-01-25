@@ -2,6 +2,8 @@ LEEWGL.Component = function () {
     this.type = 'GeneralComponent';
 };
 
+LEEWGL.TransformComponent = 'Transform';
+
 LEEWGL.Transform = function () {
     LEEWGL.Component.call(this);
 
