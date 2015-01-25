@@ -13,7 +13,7 @@ LEEWGL.Transform = function () {
 
     var translation = mat4.create();
     var rotation = mat4.create();
-    var scale = mat4.create();
+    var scaling = mat4.create();
 
     this.transVec = [0, 0, 0];
     this.rotVec = [0, 0, 0];
@@ -33,9 +33,9 @@ LEEWGL.Transform = function () {
             enumerable : true,
             value : rotation
         },
-        scale : {
+        scaling : {
             enumerable : true,
-            value : scale
+            value : scaling
         }
     });
 
@@ -67,10 +67,10 @@ LEEWGL.Transform.prototype = {
     },
     scale : function (vector) {
         vec3.add(this.scaleVec, this.scaleVec, vector);
-        mat4.scale(this.scale, mat4.create(), vector);
+        mat4.scale(this.scaling, mat4.create(), vector);
     },
     matrix : function () {
-        return mat4.multiply(mat4.create(), this.translation, this.scale);
+        return mat4.multiply(mat4.create(), this.translation, this.scaling);
     },
     clone : function (transform) {
         if(transform === 'undefined')
@@ -157,10 +157,6 @@ LEEWGL.Geometry.prototype.clone = function () {
 LEEWGL.Geometry.Plane = function () {
     LEEWGL.Geometry.call(this);
 
-    this.x = vec3.create();
-    this.y = vec3.create();
-    this.z = vec3.create();
-
     this.distance = 0.0;
 };
 
@@ -205,14 +201,6 @@ LEEWGL.Geometry.Triangle = function () {
     LEEWGL.Geometry.call(this);
 
     this.faces = 4;
-
-    this.x = vec3.create();
-    this.y = vec3.create();
-    this.z = vec3.create();
-
-    vec3.set(this.x, 0.0, 0.0, 0.0);
-    vec3.set(this.y, 0.0, 0.0, 0.0);
-    vec3.set(this.z, 0.0, 0.0, 0.0);
 
     this.vertices.position = [
         -1.0, -1.0, 1.0,
@@ -261,39 +249,6 @@ LEEWGL.Geometry.Triangle.prototype.intersectRay = function (origin, direction, c
 
     return false;
 };
-
-Object.defineProperty(LEEWGL.Geometry.Triangle.prototype, 0, {
-    get : function () {
-        return this.z;
-    },
-    set : function (v) {
-        return vec3.set(this.x, v);
-    },
-    enumerable : false,
-    configurable : false
-});
-
-Object.defineProperty(LEEWGL.Geometry.Triangle.prototype, 1, {
-    get : function () {
-        return this.y;
-    },
-    set : function (v) {
-        return vec3.set(this.y, v);
-    },
-    enumerable : false,
-    configurable : false
-});
-
-Object.defineProperty(LEEWGL.Geometry.Triangle.prototype, 2, {
-    get : function () {
-        return this.z;
-    },
-    set : function (v) {
-        return vec3.set(this.z, v);
-    },
-    enumerable : false,
-    configurable : false
-});
 
 LEEWGL.Geometry.Cube = function () {
     LEEWGL.Geometry.call(this);

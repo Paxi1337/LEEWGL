@@ -18,6 +18,8 @@ LEEWGL.TestApp = function (options) {
     this.picker = new LEEWGL.Picker();
 
 
+    this.movement = {'x' : 0, 'y' : 0};
+
     this.activeKeys = [];
 
     this.picking = true;
@@ -86,7 +88,7 @@ LEEWGL.TestApp.prototype.onCreate = function () {
     this.cube.transform.setPosition(5, 0, 0);
 //    this.cube.transform.translate([5.0, 0.0, 0.0]);
 
-    this.grid.generateGrid(10, 10, {'x': 10.0, 'z': 10.0});
+    this.grid.generateGrid(10, 10, {'x' : 10.0, 'z' : 10.0});
     this.grid.setBuffer(this.gl);
     this.grid.setColorBuffer(this.gl);
     this.grid.transform.translate([0.0, -5.0, 0.0]);
@@ -100,6 +102,7 @@ LEEWGL.TestApp.prototype.onCreate = function () {
     this.gl.enable(this.gl.DEPTH_TEST);
     this.gl.depthFunc(this.gl.LEQUAL);
 
+
     this.core.initTexture(this.texture, '../texture/texture1.jpg');
     this.picker.initPicking(this.gl, this.canvas.width, this.canvas.height);
 };
@@ -111,26 +114,36 @@ LEEWGL.TestApp.prototype.onMouseDown = function (event) {
     this.picker.bind(this.gl);
     var obj = this.picker.pick(this.gl, mouseCords.x, mouseCords.y);
 
-    if (this.picking && obj !== null) {
+    if(this.picking && obj !== null) {
         this.activeElement = obj;
+        this.movement.x = 0;
+        this.movement.y = 0;
+        
         UI.setInspectorContent(obj.id);
     }
     this.picker.unbind(this.gl);
 };
 
 LEEWGL.TestApp.prototype.onMouseMove = function (event) {
-    var movement = {'x': 0, 'y': 0};
-
-    if (event.which === 3 || event.button === 2) {
+    var movement = {'x' : 0, 'y' : 0};
+    
+    this.movement.x += event.movementX;
+    this.movement.y += event.movementY;
+    
+    if(event.which === 3 || event.button === 2) {
         movement.x = (0.1 * event.movementX);
         movement.y = (0.1 * event.movementY);
 
         this.camera.rotate(movement.x, movement.y);
-    } else if ((event.which === 1 || event.button === 1) && this.activeElement !== null) {
+    } else if((event.which === 1 || event.button === 1) && this.activeElement !== null) {
+
         movement.x = event.movementX * 0.01;
         movement.y = event.movementY * 0.01;
-        
-        this.activeElement.transform.translate([movement.x, -movement.y, 0.0]);
+
+        if(event.ctrlKey)
+            this.activeElement.transform.scale([this.movement.x * 0.01, this.movement.y * 0.01, 0.0]);
+        else
+            this.activeElement.transform.translate([movement.x, -movement.y, 0.0]);
         UI.setInspectorContent(this.activeElement.id);
     }
     event.preventDefault();
@@ -155,27 +168,27 @@ LEEWGL.TestApp.prototype.onUpdate = function () {
 };
 
 LEEWGL.TestApp.prototype.handleKeyInput = function () {
-    if (this.activeKeys[LEEWGL.KEYS.PAGE_UP]) {
+    if(this.activeKeys[LEEWGL.KEYS.PAGE_UP]) {
         this.camera.rotate(0.01, vec3.fromValues(1, 0, 0));
-    } else if (this.activeKeys[LEEWGL.KEYS.PAGE_DOWN]) {
+    } else if(this.activeKeys[LEEWGL.KEYS.PAGE_DOWN]) {
         this.camera.rotate(-0.01, vec3.fromValues(0, 1, 0));
     }
 
-    if (this.activeKeys[LEEWGL.KEYS.LEFT_CURSOR]) {
+    if(this.activeKeys[LEEWGL.KEYS.LEFT_CURSOR]) {
         this.camera.move([-0.1, 0, 0]);
-    } else if (this.activeKeys[LEEWGL.KEYS.RIGHT_CURSOR]) {
+    } else if(this.activeKeys[LEEWGL.KEYS.RIGHT_CURSOR]) {
         this.camera.move([0.1, 0, 0]);
     }
 
-    if (this.activeKeys[LEEWGL.KEYS.UP_CURSOR]) {
+    if(this.activeKeys[LEEWGL.KEYS.UP_CURSOR]) {
         this.camera.move([0, 0, -0.1]);
-    } else if (this.activeKeys[LEEWGL.KEYS.DOWN_CURSOR]) {
+    } else if(this.activeKeys[LEEWGL.KEYS.DOWN_CURSOR]) {
         this.camera.move([0, 0, 0.1]);
     }
 };
 
 LEEWGL.TestApp.prototype.onRender = function () {
-    if (this.picking) {
+    if(this.picking) {
         this.picker.bind(this.gl);
         this.shader.uniforms['uOffscreen'](1);
         this.draw();

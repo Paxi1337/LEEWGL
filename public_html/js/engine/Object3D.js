@@ -63,6 +63,9 @@ LEEWGL.Object3D.prototype = {
     addComponent : function (component) {
         this.components[component.type] = component;
     },
+    removeComponent : function(component) {
+        this.components[component.type] = null;
+    },
     remove : function (object) {
         if(arguments.length > 1) {
             for(var i = 0; i < arguments.length; ++i) {
