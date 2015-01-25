@@ -102,14 +102,22 @@ LEEWGL.UI = function (options) {
         for(var component in activeElement.components) {
             if(!activeElement.components.hasOwnProperty(component))
                 continue;
-
+            
+            
             /// LEEWGL.TransformComponent
             if(component === LEEWGL.TransformComponent) {
                 container = document.createElement('div');
                 container.setAttribute('id', 'table-container');
 
                 var obj = activeElement.components[component];
-                container.appendChild(this.createTable(['x', 'y', 'z'], [obj.x, obj.y, obj.z]));
+                /// position
+                container.appendChild(this.createTable(['x', 'y', 'z'], [obj.position[0], obj.position[1], obj.position[2]]));
+                /// translation
+                container.appendChild(this.createTable(['x', 'y', 'z'], [obj.transVec[0].toPrecision(6), obj.transVec[1].toPrecision(6), obj.transVec[2].toPrecision(6)]));
+                /// rotation
+                container.appendChild(this.createTable(['x', 'y', 'z'], [obj.rotVec[0], obj.rotVec[1], obj.rotVec[2]]));
+                /// scale
+                container.appendChild(this.createTable(['x', 'y', 'z'], [obj.scaleVec[0], obj.scaleVec[1], obj.scaleVec[2]]));
 
                 this.inspector.appendChild(container);
             }
@@ -125,13 +133,11 @@ LEEWGL.UI = function (options) {
         this.inspector.innerHTML = '';
         var activeElement = this.outline[index];
 
-        this.componentsToHTML(activeElement);
-
         var list = document.createElement('ul');
 
         var item = document.createElement('li');
         var name = document.createElement('h3');
-        name.innerHTML = activeElement.name;
+        name.innerHTML = 'Name: ' + activeElement.name;
         item.appendChild(name);
         list.appendChild(item);
 
@@ -140,14 +146,16 @@ LEEWGL.UI = function (options) {
                 continue;
 
             var item = document.createElement('li');
-            var type = document.createElement('h2');
-            type.innerHTML = prop;
+            var type = document.createElement('h3');
+            type.innerHTML = 'Type: ' + prop;
 
             item.appendChild(type);
             list.appendChild(item);
         }
+        
 
         this.inspector.appendChild(list);
+        this.componentsToHTML(activeElement);
     };
 };
 

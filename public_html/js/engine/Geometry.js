@@ -9,65 +9,71 @@ LEEWGL.Transform = function () {
 
     this.type = 'Transform';
 
-    this.x = 0;
-    this.y = 0;
-    this.z = 0;
-
-    var position = [this.x, this.y, this.z];
+    var position = [0.0, 0.0, 0.0];
 
     var translation = mat4.create();
     var rotation = mat4.create();
     var scale = mat4.create();
 
+    this.transVec = [0, 0, 0];
+    this.rotVec = [0, 0, 0];
+    this.scaleVec = [0, 0, 0];
+
     // private properties - configurable tag defaults to false
     Object.defineProperties(this, {
-        position: {
-            enumerable: true,
-            value: position
+        position : {
+            enumerable : true,
+            value : position
         },
-        translation: {
-            enumerable: true,
-            value: translation
+        translation : {
+            enumerable : true,
+            value : translation
         },
-        rotation: {
-            enumerable: true,
-            value: rotation
+        rotation : {
+            enumerable : true,
+            value : rotation
         },
-        scale: {
-            enumerable: true,
-            value: scale
+        scale : {
+            enumerable : true,
+            value : scale
         }
     });
 
 };
 
 LEEWGL.Transform.prototype = {
-    offsetPosition: function (vector) {
+    offsetPosition : function (vector) {
         vec3.add(this.position, this.position, vector);
+        this.translate(this.position);
     },
-    setPosition: function () {
-        if (arguments === 'undefined') {
+    setPosition : function () {
+        if(arguments === 'undefined') {
             console.error('LEEWGL.Transform.setPosition(): no arguments given!');
             return false;
         }
 
-        if (typeof arguments[0] === 'object') {
+
+        if(typeof arguments[0] === 'object') {
             vec3.copy(this.position, arguments[0]);
         } else {
             vec3.set(this.position, arguments[0], arguments[1], arguments[2]);
         }
+        
+        this.translate(this.position);
     },
-    translate: function (vector) {
+    translate : function (vector) {
+        vec3.add(this.transVec, this.transVec, vector);
         mat4.translate(this.translation, this.translation, vector);
     },
-    scale: function (vector) {
+    scale : function (vector) {
+        vec3.add(this.scaleVec, this.scaleVec, vector);
         mat4.scale(this.scale, mat4.create(), vector);
     },
-    matrix: function () {
+    matrix : function () {
         return mat4.multiply(mat4.create(), this.translation, this.scale);
     },
-    clone: function (transform) {
-        if (transform === 'undefined')
+    clone : function (transform) {
+        if(transform === 'undefined')
             transform = new LEEWGL.Transform();
 
         transform.position.copy(transform.position, this.position);
@@ -84,12 +90,12 @@ LEEWGL.Geometry = function () {
 
     this.type = 'Geometry';
 
-    this.vertices = {'position': [], 'color': [], 'uv': []};
+    this.vertices = {'position' : [], 'color' : [], 'uv' : []};
     this.indices = [];
     this.boundingBox = null;
     this.boundingSphere = null;
 
-    this.vertexBuffer = new LEEWGL.Buffer({'picking': true});
+    this.vertexBuffer = new LEEWGL.Buffer({'picking' : true});
     this.indexBuffer = new LEEWGL.IndexBuffer();
     this.colorBuffer = new LEEWGL.Buffer();
     this.textureBuffer = new LEEWGL.Buffer();
@@ -104,7 +110,7 @@ LEEWGL.Geometry = function () {
     };
 
     this.setColorBuffer = function (gl) {
-        if (this.vertices.color[0].length % 4 !== 0) {
+        if(this.vertices.color[0].length % 4 !== 0) {
             console.error('LEEWGL.Geometry.addColor(): Color array must be multiple of 4!');
             return false;
         }
@@ -113,12 +119,12 @@ LEEWGL.Geometry = function () {
     };
 
     this.addColor = function (gl, colors, length) {
-        if (colors !== undefined && colors.length === length) {
+        if(colors !== undefined && colors.length === length) {
             this.colors = colors;
             this.setColorBuffer(gl);
         } else {
             this.colors = [];
-            for (var i = 0; i < length; ++i) {
+            for(var i = 0; i < length; ++i) {
                 this.vertices.color.push([1.0, 0.0, 1.0, 1.0]);
             }
 
@@ -130,7 +136,7 @@ LEEWGL.Geometry = function () {
 LEEWGL.Geometry.prototype = Object.create(LEEWGL.Object3D.prototype);
 
 LEEWGL.Geometry.prototype.setVertices = function (vertices) {
-    for (var i = 0; i < vertices.length; ++i) {
+    for(var i = 0; i < vertices.length; ++i) {
         this.vertices.push(vertices[i]);
     }
 };
@@ -139,7 +145,7 @@ LEEWGL.Geometry.prototype.clone = function () {
     var geometry = new LEEWGL.Geometry();
     var vertices = this.vertices;
 
-    for (var i = 0; i < vertices.length; ++i) {
+    for(var i = 0; i < vertices.length; ++i) {
         geometry.vertices.push(vertices[i].clone());
     }
 
@@ -166,16 +172,16 @@ LEEWGL.Geometry.Grid = function () {
     this.faces = 4;
 
     this.generateGrid = function (width, height, margin) {
-        for (var z = 0; z <= height; ++z) {
-            for (var x = 0; x <= width; ++x) {
+        for(var z = 0; z <= height; ++z) {
+            for(var x = 0; x <= width; ++x) {
                 this.vertices.position.push([x * margin.x, 0.0, z * margin.z]);
                 this.vertices.color.push([1.0, 1.0, 1.0, 1.0]);
             }
         }
 
-        for (var i = 0; i < height; ++i) {
+        for(var i = 0; i < height; ++i) {
             this.indices.push((i + 0) * (width + 1) + 0);
-            for (var j = 0; j < width + 1; ++j) {
+            for(var j = 0; j < width + 1; ++j) {
                 this.indices.push((i + 0) * (width + 1) + j);
                 this.indices.push((i + 1) * (width + 1) + j);
             }
@@ -234,21 +240,21 @@ LEEWGL.Geometry.Triangle.prototype.intersectRay = function (origin, direction, c
     vec3.set(plane.z, this.z);
 
     var denom = vec3.dot(plane.normal, direction);
-    if (Math.abs(denom) < Math.EPSILON)
+    if(Math.abs(denom) < Math.EPSILON)
         return false;
 
     var t = -(plane.distance + vec3.dot(plane.normal, origin)) / denom;
-    if (t <= 0)
+    if(t <= 0)
         return false;
 
-    if (segmentationMax !== undefined && t > segmentationMax)
+    if(segmentationMax !== undefined && t > segmentationMax)
         return false;
 
     vec3.set(collision, direction);
     vec3.scale(collision, collision, t);
     vec3.add(collision, origin, collision);
 
-    if (this.pointInTriangle(collision)) {
+    if(this.pointInTriangle(collision)) {
         collision[3] = t;
         return true;
     }
@@ -257,36 +263,36 @@ LEEWGL.Geometry.Triangle.prototype.intersectRay = function (origin, direction, c
 };
 
 Object.defineProperty(LEEWGL.Geometry.Triangle.prototype, 0, {
-    get: function () {
+    get : function () {
         return this.z;
     },
-    set: function (v) {
+    set : function (v) {
         return vec3.set(this.x, v);
     },
-    enumerable: false,
-    configurable: false
+    enumerable : false,
+    configurable : false
 });
 
 Object.defineProperty(LEEWGL.Geometry.Triangle.prototype, 1, {
-    get: function () {
+    get : function () {
         return this.y;
     },
-    set: function (v) {
+    set : function (v) {
         return vec3.set(this.y, v);
     },
-    enumerable: false,
-    configurable: false
+    enumerable : false,
+    configurable : false
 });
 
 Object.defineProperty(LEEWGL.Geometry.Triangle.prototype, 2, {
-    get: function () {
+    get : function () {
         return this.z;
     },
-    set: function (v) {
+    set : function (v) {
         return vec3.set(this.z, v);
     },
-    enumerable: false,
-    configurable: false
+    enumerable : false,
+    configurable : false
 });
 
 LEEWGL.Geometry.Cube = function () {

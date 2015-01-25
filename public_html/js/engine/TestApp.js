@@ -83,7 +83,8 @@ LEEWGL.TestApp.prototype.onCreate = function () {
 
     this.cube.setBuffer(this.gl);
     this.cube.addColor(this.gl, undefined, this.cube.faces);
-    this.cube.transform.translate([5.0, 0.0, 0.0]);
+    this.cube.transform.setPosition(5, 0, 0);
+//    this.cube.transform.translate([5.0, 0.0, 0.0]);
 
     this.grid.generateGrid(10, 10, {'x': 10.0, 'z': 10.0});
     this.grid.setBuffer(this.gl);
@@ -111,7 +112,6 @@ LEEWGL.TestApp.prototype.onMouseDown = function (event) {
     var obj = this.picker.pick(this.gl, mouseCords.x, mouseCords.y);
 
     if (this.picking && obj !== null) {
-        console.log('selected element ' + obj.name);
         this.activeElement = obj;
         UI.setInspectorContent(obj.id);
     }
@@ -129,8 +129,9 @@ LEEWGL.TestApp.prototype.onMouseMove = function (event) {
     } else if ((event.which === 1 || event.button === 1) && this.activeElement !== null) {
         movement.x = event.movementX * 0.01;
         movement.y = event.movementY * 0.01;
-
+        
         this.activeElement.transform.translate([movement.x, -movement.y, 0.0]);
+        UI.setInspectorContent(this.activeElement.id);
     }
     event.preventDefault();
     event.stopPropagation();
