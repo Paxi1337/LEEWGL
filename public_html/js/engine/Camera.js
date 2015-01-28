@@ -21,3 +21,6 @@ LEEWGL.Camera.prototype.clone = function (camera) {
 
     return camera;
 };
+
+
+LEEWGL.Camera.MaxVerticalAngle = 85.0;

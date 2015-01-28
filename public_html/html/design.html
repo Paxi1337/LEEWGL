@@ -56,8 +56,8 @@
             varying lowp vec4 vVertexColor;
 
             void main(void) {
-                gl_Position = uMVP 
-                        * uModel * vec4(aVertexPosition, 1.0);
+                gl_Position = (uMVP 
+                        * uModel) * vec4(aVertexPosition, 1.0);
                 vVertexColor = aVertexColor;
             }
         </script>

@@ -75,6 +75,7 @@ LEEWGL.TestApp.prototype.onCreate = function () {
 //    });
 
     this.camera.transform.setPosition([0.0, 0.0, 10.0]);
+    this.camera.setLookAt([0.0, 0.0, -1.0]);
 
     this.shader.init(this.gl, 'canvas');
     this.shader.createUniformSetters(this.gl);
@@ -102,14 +103,11 @@ LEEWGL.TestApp.prototype.onCreate = function () {
     this.gl.enable(this.gl.DEPTH_TEST);
     this.gl.depthFunc(this.gl.LEQUAL);
 
-
     this.core.initTexture(this.texture, '../texture/texture1.jpg');
     this.picker.initPicking(this.gl, this.canvas.width, this.canvas.height);
 };
 
 LEEWGL.TestApp.prototype.onMouseDown = function (event) {
-    this.triangle.dispatchEvent(event);
-
     var mouseCords = this.core.getRelativeMouseCoordinates(event);
     this.picker.bind(this.gl);
     var obj = this.picker.pick(this.gl, mouseCords.x, mouseCords.y);
@@ -134,7 +132,7 @@ LEEWGL.TestApp.prototype.onMouseMove = function (event) {
         movement.x = (0.1 * event.movementX);
         movement.y = (0.1 * event.movementY);
 
-        this.camera.rotate(movement.x, movement.y);
+        this.camera.offsetOrientation(movement.y, movement.x);
     } else if((event.which === 1 || event.button === 1) && this.activeElement !== null) {
 
         movement.x = event.movementX * 0.01;
@@ -169,21 +167,21 @@ LEEWGL.TestApp.prototype.onUpdate = function () {
 
 LEEWGL.TestApp.prototype.handleKeyInput = function () {
     if(this.activeKeys[LEEWGL.KEYS.PAGE_UP]) {
-        this.camera.rotate(0.01, vec3.fromValues(1, 0, 0));
+        this.camera.transform.offsetPosition(vec3.negate(vec3.create(), this.camera.down()));
     } else if(this.activeKeys[LEEWGL.KEYS.PAGE_DOWN]) {
-        this.camera.rotate(-0.01, vec3.fromValues(0, 1, 0));
+        this.camera.transform.offsetPosition(this.camera.down());
     }
 
     if(this.activeKeys[LEEWGL.KEYS.LEFT_CURSOR]) {
-        this.camera.move([-0.1, 0, 0]);
+        this.camera.transform.offsetPosition(vec3.negate(vec3.create(), this.camera.right()));
     } else if(this.activeKeys[LEEWGL.KEYS.RIGHT_CURSOR]) {
-        this.camera.move([0.1, 0, 0]);
+        this.camera.transform.offsetPosition(this.camera.right());
     }
 
     if(this.activeKeys[LEEWGL.KEYS.UP_CURSOR]) {
-        this.camera.move([0, 0, -0.1]);
+        this.camera.transform.offsetPosition(this.camera.forward());
     } else if(this.activeKeys[LEEWGL.KEYS.DOWN_CURSOR]) {
-        this.camera.move([0, 0, 0.1]);
+        this.camera.transform.offsetPosition(vec3.negate(vec3.create(), this.camera.forward()));
     }
 };
 
