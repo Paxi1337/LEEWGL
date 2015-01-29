@@ -1,90 +1,3 @@
-LEEWGL.Component = function () {
-    this.type = 'GeneralComponent';
-};
-
-LEEWGL.TransformComponent = 'Transform';
-
-LEEWGL.Transform = function () {
-    LEEWGL.Component.call(this);
-
-    this.type = 'Transform';
-
-    var position = [0.0, 0.0, 0.0];
-
-    var translation = mat4.create();
-    var rotation = mat4.create();
-    var scaling = mat4.create();
-
-    this.transVec = [0, 0, 0];
-    this.rotVec = [0, 0, 0];
-    this.scaleVec = [0, 0, 0];
-
-    // private properties - configurable tag defaults to false
-    Object.defineProperties(this, {
-        position : {
-            enumerable : true,
-            value : position
-        },
-        translation : {
-            enumerable : true,
-            value : translation
-        },
-        rotation : {
-            enumerable : true,
-            value : rotation
-        },
-        scaling : {
-            enumerable : true,
-            value : scaling
-        }
-    });
-
-};
-
-LEEWGL.Transform.prototype = {
-    offsetPosition : function (vector) {
-        vec3.add(this.position, this.position, vector);
-        this.translate(this.position);
-    },
-    setPosition : function () {
-        if(arguments === 'undefined') {
-            console.error('LEEWGL.Transform.setPosition(): no arguments given!');
-            return false;
-        }
-
-
-        if(typeof arguments[0] === 'object') {
-            vec3.copy(this.position, arguments[0]);
-        } else {
-            vec3.set(this.position, arguments[0], arguments[1], arguments[2]);
-        }
-        
-        this.translate(this.position);
-    },
-    translate : function (vector) {
-        vec3.add(this.transVec, this.transVec, vector);
-        mat4.translate(this.translation, this.translation, vector);
-    },
-    scale : function (vector) {
-        vec3.add(this.scaleVec, this.scaleVec, vector);
-        mat4.scale(this.scaling, mat4.create(), vector);
-    },
-    matrix : function () {
-        return mat4.multiply(mat4.create(), this.translation, this.scaling);
-    },
-    clone : function (transform) {
-        if(transform === 'undefined')
-            transform = new LEEWGL.Transform();
-
-        transform.position.copy(transform.position, this.position);
-        transform.translation.copy(transform.translation, this.translation);
-        transform.rotation.copy(transform.rotation, this.rotation);
-        transform.scale.copy(transform.scale, this.scale);
-
-        return transform;
-    }
-};
-
 LEEWGL.Geometry = function () {
     LEEWGL.Object3D.call(this);
 
@@ -168,21 +81,37 @@ LEEWGL.Geometry.Grid = function () {
     this.faces = 4;
 
     this.generateGrid = function (width, height, margin) {
-        for(var z = 0; z <= height; ++z) {
-            for(var x = 0; x <= width; ++x) {
+        for(var z = 0; z < height; ++z) {
+            for(var x = 0; x < width; ++x) {
                 this.vertices.position.push([x * margin.x, 0.0, z * margin.z]);
                 this.vertices.color.push([1.0, 1.0, 1.0, 1.0]);
             }
         }
 
-        for(var i = 0; i < height; ++i) {
-            this.indices.push((i + 0) * (width + 1) + 0);
-            for(var j = 0; j < width + 1; ++j) {
-                this.indices.push((i + 0) * (width + 1) + j);
-                this.indices.push((i + 1) * (width + 1) + j);
+        for(var z = 0; z < height - 1; ++z) {
+            /// even row 
+            if((z & 1) === 0) {
+                for(var x = 0; x < width; ++x) {
+                    this.indices.push(x + (z * width));
+                    this.indices.push(x + (z * width) + width);
+                }
+                /// degenerate triangle
+                if(z !== height - 2)
+                    this.indices.push((x - 1) + (z * width));
+                /// odd row        
+            } else {
+                for(var x = width - 1; x >= 0; --x) {
+                    this.indices.push(x + (z * width));
+                    this.indices.push(x + (z * width) + width);
+                }
+                /// degenerate triangle
+                if(z !== height - 2)
+                    this.indices.push((x + 1) + (z * width));
+
             }
-            this.indices.push((i + 0) * (width + 1) + width + 1);
         }
+
+        console.log(this.indices);
     };
 };
 

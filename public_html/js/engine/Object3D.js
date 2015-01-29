@@ -23,7 +23,7 @@ LEEWGL.Object3D = function () {
 
     this.userData = {};
 
-    this.addComponent(new LEEWGL.Transform());
+    this.addComponent(new LEEWGL.Component.Transform());
     this.transform = this.components['Transform'];
 
     if(typeof UI !== 'undefined')

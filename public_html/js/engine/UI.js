@@ -23,8 +23,8 @@ LEEWGL.UI = function (options) {
         this.outline[obj.id] = obj;
         this.update = true;
     };
-    
-    this.removeObjFromOutline = function(index) {
+
+    this.removeObjFromOutline = function (index) {
         this.outline.splice(index, 1);
         this.update = true;
     };
@@ -103,13 +103,13 @@ LEEWGL.UI = function (options) {
             if(!activeElement.components.hasOwnProperty(component))
                 continue;
             
+            container = document.createElement('div');
+            var obj = activeElement.components[component];
+            
             
             /// LEEWGL.TransformComponent
-            if(component === LEEWGL.TransformComponent) {
-                container = document.createElement('div');
+            if(component === LEEWGL.Component.TransformComponent) {
                 container.setAttribute('id', 'table-container');
-
-                var obj = activeElement.components[component];
                 /// position
                 container.appendChild(this.createTable(['x', 'y', 'z'], [obj.position[0], obj.position[1], obj.position[2]]));
                 /// translation
@@ -118,9 +118,30 @@ LEEWGL.UI = function (options) {
                 container.appendChild(this.createTable(['x', 'y', 'z'], [obj.rotVec[0], obj.rotVec[1], obj.rotVec[2]]));
                 /// scale
                 container.appendChild(this.createTable(['x', 'y', 'z'], [obj.scaleVec[0], obj.scaleVec[1], obj.scaleVec[2]]));
+            } else if(component === LEEWGL.Component.CustomScriptComponent) {
+                container = document.createElement('div');
+                container.setAttribute('id', 'custom-script-container');
 
-                this.inspector.appendChild(container);
+                var textfield = document.createElement('textarea');
+                textfield.setAttribute('rows', 5);
+                textfield.setAttribute('cols', 30);
+                textfield.setAttribute('placeholder', obj.code);
+                
+                textfield.addEventListener('keyup', function(event) {
+                    /// enter key
+                    if(event.keyCode === 13) {
+                        var script = document.createElement('script');
+                        script.type = 'text/javascript';
+                        var code = this.value;
+                        
+                        script.appendChild(document.createTextNode(code));
+                        document.body.appendChild(script);
+                    };
+                });
+                
+                container.appendChild(textfield);
             }
+            this.inspector.appendChild(container);
         }
     };
 
@@ -152,7 +173,7 @@ LEEWGL.UI = function (options) {
             item.appendChild(type);
             list.appendChild(item);
         }
-        
+
 
         this.inspector.appendChild(list);
         this.componentsToHTML(activeElement);
