@@ -71,7 +71,7 @@ LEEWGL.TestApp.prototype.onCreate = function () {
 //    this.triangle.addEventListener('mousedown', function () {
 //        var translation = vec3.create();
 //        vec3.set(translation, -0.5, 0.0, 0.0);
-//        this.translate(translation);
+//        this.transform.translate(translation);
 //    });
 
     this.camera.transform.setPosition([0.0, 0.0, 10.0]);
@@ -87,11 +87,10 @@ LEEWGL.TestApp.prototype.onCreate = function () {
     this.cube.setBuffer(this.gl);
     this.cube.addColor(this.gl, undefined, this.cube.faces);
     this.cube.transform.setPosition(5, 0, 0);
-//    this.cube.transform.translate([5.0, 0.0, 0.0]);
     
     this.cube.addComponent(new LEEWGL.Component.CustomScript());
     
-    this.grid.generateGrid(5, 10, {'x' : 1.0, 'z' : 1.0});
+    this.grid.generateGrid(10, 10, {'x' : 10.0, 'z' : 10.0});
     this.grid.setBuffer(this.gl);
     this.grid.setColorBuffer(this.gl);
     this.grid.transform.translate([0.0, -5.0, 0.0]);

@@ -102,10 +102,11 @@ LEEWGL.UI = function (options) {
         for(var component in activeElement.components) {
             if(!activeElement.components.hasOwnProperty(component))
                 continue;
-            
+
             container = document.createElement('div');
             var obj = activeElement.components[component];
             
+            window.activeElement = activeElement;
             
             /// LEEWGL.TransformComponent
             if(component === LEEWGL.Component.TransformComponent) {
@@ -126,19 +127,21 @@ LEEWGL.UI = function (options) {
                 textfield.setAttribute('rows', 5);
                 textfield.setAttribute('cols', 30);
                 textfield.setAttribute('placeholder', obj.code);
-                
-                textfield.addEventListener('keyup', function(event) {
+
+                textfield.addEventListener('keyup', function (event) {
                     /// enter key
                     if(event.keyCode === 13) {
                         var script = document.createElement('script');
                         script.type = 'text/javascript';
-                        var code = this.value;
-                        
+                        var code = 'activeElement.addEventListener("custom", function() {' + this.value + '});';
                         script.appendChild(document.createTextNode(code));
                         document.body.appendChild(script);
-                    };
+                        
+                        
+                        activeElement.dispatchEvent({ 'type' : 'custom' });
+                    }
                 });
-                
+
                 container.appendChild(textfield);
             }
             this.inspector.appendChild(container);
