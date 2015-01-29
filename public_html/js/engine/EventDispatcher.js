@@ -53,8 +53,6 @@ LEEWGL.EventDispatcher.prototype = {
         var listeners = this._listeners;
         var listenerArray = listeners[event.type];
         
-        console.log(event.type);
-        
         if (listenerArray !== undefined) {
             event.target = this;
 
