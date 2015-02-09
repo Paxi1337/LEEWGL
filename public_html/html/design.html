@@ -11,7 +11,7 @@
         <script type="text/javascript" src="../js/gl-matrix/vec3.js"></script> 
         <script type="text/javascript" src="../js/gl-matrix/vec2.js"></script> 
         <script type="text/javascript" src="../js/engine/Core.js"></script> 
-        <script type="text/javascript" src="../js/engine/Timer.js"></script> 
+        <!--<script type="text/javascript" src="../js/engine/Timer.js"></script>--> 
         <script type="text/javascript" src="../js/engine/Math.js"></script> 
         <script type="text/javascript" src="../js/engine/VertexDeclarations.js"></script> 
         <script type="text/javascript" src="../js/engine/Buffer.js"></script> 
@@ -28,7 +28,10 @@
         <script type="text/javascript" src="../js/engine/TestApp.js"></script> 
         <script type="text/javascript" src="../js/engine/Picker.js"></script> 
         <script type="text/javascript" src="../js/engine/UI.js"></script> 
-
+        <script type="text/javascript" src="../js/engine/AsynchRequest.js"></script> 
+        <script type="text/javascript" src="../js/engine/UniformLibrary.js"></script> 
+        <script type="text/javascript" src="../js/engine/ShaderChunk.js"></script> 
+        <script type="text/javascript" src="../js/engine/ShaderLibrary.js"></script> 
         <script id="shader-fs" type="x-shader/x-fragment">
             precision mediump float;
 
@@ -51,16 +54,15 @@
         <script id="shader-vs" type="x-shader/x-vertex">
             attribute vec3 aVertexPosition;
             attribute vec4 aVertexColor;
-            
+
             uniform mat4 uMVP;
             uniform mat4 uModel;
-            
+
             varying lowp vec4 vVertexColor;
 
             void main(void) {
-                gl_Position = (uMVP 
-                        * uModel) * vec4(aVertexPosition, 1.0);
-                vVertexColor = aVertexColor;
+            gl_Position = (uMVP * uModel) * vec4(aVertexPosition, 1.0);
+            vVertexColor = aVertexColor;
             }
         </script>
     </head>
@@ -149,7 +151,7 @@ window.onload = function () {
         window.requestAnimationFrame(LEEWGL.run.bind(LEEWGL));
     };
     init();
-}
+};
         </script>
     </body>
 </html>

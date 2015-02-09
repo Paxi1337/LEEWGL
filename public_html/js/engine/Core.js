@@ -329,7 +329,7 @@ LEEWGL.Core = function (options) {
 
     this.updateUI = function () {
         if(typeof UI !== 'undefined') {
-
+            
         }
     };
 

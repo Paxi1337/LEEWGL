@@ -77,7 +77,11 @@ LEEWGL.TestApp.prototype.onCreate = function () {
     this.camera.transform.setPosition([0.0, 0.0, 10.0]);
     this.camera.setLookAt([0.0, 0.0, -1.0]);
 
-    this.shader.init(this.gl, 'canvas');
+    this.shader.createShaderFromLibrary(this.gl, LEEWGL.Shader.VERTEX, LEEWGL.ShaderLibrary.picking.vertexShader);
+    this.shader.createShaderFromLibrary(this.gl, LEEWGL.Shader.FRAGMENT, LEEWGL.ShaderLibrary.picking.fragmentShader);
+    this.shader.linkShader(this.gl);
+    this.shader.use(this.gl);
+    
     this.shader.createUniformSetters(this.gl);
     this.shader.createAttributeSetters(this.gl);
 
@@ -204,7 +208,7 @@ LEEWGL.TestApp.prototype.draw = function () {
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 
     /// triangle
-    this.shader.uniforms['uMVP'](this.camera.viewProjMatrix);
+    this.shader.uniforms['uVP'](this.camera.viewProjMatrix);
     this.shader.uniforms['uModel'](this.triangle.transform.matrix());
     this.shader.uniforms['uColorMapColor'](new Float32Array(this.triangle.vertexBuffer.colorMapColor));
 

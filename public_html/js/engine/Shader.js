@@ -1,5 +1,4 @@
 LEEWGL.Shader = function () {
-    var _shaderContent = null;
     var _program = null;
 
     this.uniforms = [];
@@ -8,56 +7,74 @@ LEEWGL.Shader = function () {
     this.getProgram = function () {
         return _program;
     };
-    this.init = function (gl, selector) {
-        var _vertex = this.getShaderDOM(gl, '#shader-vs');
-        var _fragment = this.getShaderDOM(gl, '#shader-fs');
-        if (_program === null)
-            _program = gl.createProgram();
-        gl.attachShader(_program, _vertex);
-        gl.attachShader(_program, _fragment);
-        this.linkShader(gl);
-        this.use(gl);
-    };
-    this.getShaderDOM = function (gl, selector) {
-        var _script = document.querySelector(selector);
-        if (_script === null) {
-            console.error("LEEWGL.Shader: No shader with selector " + selector + " found.");
+
+    this.compile = function (gl, type, code) {
+        var _shader = null;
+        if(type === LEEWGL.Shader.FRAGMENT) {
+            _shader = gl.createShader(gl.FRAGMENT_SHADER);
+        }
+        else if(type === LEEWGL.Shader.VERTEX) {
+            _shader = gl.createShader(gl.VERTEX_SHADER);
+        }
+        else {
+            console.error('LEEWGL.Shader.addShader(): unknown type given');
+            return null;
         }
         
-        this.getShaderContentDOM(_script);
-        var _shader = null;
-        if (_script.type === "x-shader/x-fragment")
-            _shader = gl.createShader(gl.FRAGMENT_SHADER);
-        else if (_script.type === "x-shader/x-vertex")
-            _shader = gl.createShader(gl.VERTEX_SHADER);
-        else
-            return null;
-        gl.shaderSource(_shader, _shaderContent);
+        gl.shaderSource(_shader, code);
         gl.compileShader(_shader);
-        if (!gl.getShaderParameter(_shader, gl.COMPILE_STATUS)) {
+        if(!gl.getShaderParameter(_shader, gl.COMPILE_STATUS)) {
             console.error(gl.getShaderInfoLog(_shader));
             return null;
         }
 
         return _shader;
     };
+    
+    this.getShaderDOM = function (gl, selector) {
+        var _script = document.querySelector(selector);
+        if(_script === null) {
+            console.error("LEEWGL.Shader: No shader with selector " + selector + " found.");
+        }
+
+        return this.getShaderContentDOM(_script);
+    };
+
     this.getShaderContentDOM = function (dom) {
         var _str = '';
         var _k = dom.firstChild;
-        _shaderContent = '';
-        while (_k) {
-            if (_k.nodeType === 3)
-                _shaderContent += _k.textContent;
+        var _content = '';
+        while(_k) {
+            if(_k.nodeType === 3)
+                _content += _k.textContent;
             _k = _k.nextSibling;
         }
+        
+        return _content; 
     };
     this.linkShader = function (gl) {
         gl.linkProgram(_program);
-        if (!gl.getProgramParameter(_program, gl.LINK_STATUS))
+        if(!gl.getProgramParameter(_program, gl.LINK_STATUS))
             console.error("LEEWGL.Shader: Could not initialise shaders");
     };
     this.use = function (gl) {
         gl.useProgram(_program);
+    };
+
+    this.createShaderFromLibrary = function (gl, type, code) {
+        if (_program === null)
+            _program = gl.createProgram();
+        
+        var _shader = this.compile(gl, type, code);
+        gl.attachShader(_program, _shader);
+    };
+    
+    this.createShaderFromDOM = function (gl, type, selector) {
+        if (_program === null)
+            _program = gl.createProgram();
+        
+        var _shader = this.compile(gl, type, code);
+        gl.attachShader(_program, _shader);
     };
 
     this.createUniformSetters = function (gl) {
@@ -66,71 +83,71 @@ LEEWGL.Shader = function () {
             var type = uniform.type;
             var loc = gl.getUniformLocation(_program, uniform.name);
 
-            if (type === gl.FLOAT && isArray)
+            if(type === gl.FLOAT && isArray)
                 return function (v) {
                     gl.uniform1fv(loc, v);
                 };
-            if (type === gl.FLOAT)
+            if(type === gl.FLOAT)
                 return function (v) {
                     gl.uniform1f(loc, v);
                 };
-            if (type === gl.FLOAT_VEC2)
+            if(type === gl.FLOAT_VEC2)
                 return function (v) {
                     gl.uniform2fv(loc, v);
                 };
-            if (type === gl.FLOAT_VEC3)
+            if(type === gl.FLOAT_VEC3)
                 return function (v) {
                     gl.uniform3fv(loc, v);
                 };
-            if (type === gl.FLOAT_VEC4)
+            if(type === gl.FLOAT_VEC4)
                 return function (v) {
                     gl.uniform4fv(loc, v);
                 };
-            if (type === gl.INT && isArray)
+            if(type === gl.INT && isArray)
                 return function (v) {
                     gl.uniform1iv(loc, v);
                 };
-            if (type === gl.INT)
+            if(type === gl.INT)
                 return function (v) {
                     gl.uniform1i(loc, v);
                 };
-            if (type === gl.INT_VEC2)
+            if(type === gl.INT_VEC2)
                 return function (v) {
                     gl.uniform2iv(loc, v);
                 };
-            if (type === gl.INT_VEC3)
+            if(type === gl.INT_VEC3)
                 return function (v) {
                     gl.uniform3iv(loc, v);
                 };
-            if (type === gl.INT_VEC4)
+            if(type === gl.INT_VEC4)
                 return function (v) {
                     gl.uniform4iv(loc, v);
                 };
-            if (type === gl.BOOL)
+            if(type === gl.BOOL)
                 return function (v) {
                     gl.uniform1iv(loc, v);
                 };
-            if (type === gl.BOOL_VEC2)
+            if(type === gl.BOOL_VEC2)
                 return function (v) {
                     gl.uniform2iv(loc, v);
                 };
-            if (type === gl.BOOL_VEC3)
+            if(type === gl.BOOL_VEC3)
                 return function (v) {
                     gl.uniform3iv(loc, v);
                 };
-            if (type === gl.BOOL_VEC4)
+            if(type === gl.BOOL_VEC4)
                 return function (v) {
                     gl.uniform4iv(loc, v);
                 };
-            if (type === gl.FLOAT_MAT2)
+            if(type === gl.FLOAT_MAT2)
                 return function (v) {
                     gl.uniformMatrix2fv(loc, false, v);
                 };
-            if (type === gl.FLOAT_MAT3)
+            if(type === gl.FLOAT_MAT3)
                 return function (v) {
                     gl.uniformMatrix3fv(loc, false, v);
                 };
-            if (type === gl.FLOAT_MAT4)
+            if(type === gl.FLOAT_MAT4)
                 return function (v) {
                     gl.uniformMatrix4fv(loc, false, v);
                 };
@@ -138,14 +155,14 @@ LEEWGL.Shader = function () {
 
         var numUniforms = gl.getProgramParameter(_program, gl.ACTIVE_UNIFORMS);
 
-        for (var i = 0; i < numUniforms; ++i) {
+        for(var i = 0; i < numUniforms; ++i) {
             var uniformInfo = gl.getActiveUniform(_program, i);
-            if (!uniformInfo)
+            if(!uniformInfo)
                 break;
 
             var name = uniformInfo.name;
             /// remove array suffix
-            if (name.substr(-3) === '[0]')
+            if(name.substr(-3) === '[0]')
                 name = name.substr(0, name.length - 3);
 
             var setter = createUniformSetter(gl, uniformInfo);
@@ -165,14 +182,17 @@ LEEWGL.Shader = function () {
         };
 
         var numAttributes = gl.getProgramParameter(_program, gl.ACTIVE_ATTRIBUTES);
-        
-        for (var i = 0; i < numAttributes; ++i) {
+
+        for(var i = 0; i < numAttributes; ++i) {
             var attributeInfo = gl.getActiveAttrib(_program, i);
             if(!attributeInfo)
                 break;
-            
+
             var index = gl.getAttribLocation(_program, attributeInfo.name);
             this.attributes[attributeInfo.name] = createAttributeSetter(index);
         }
     };
 };
+
+LEEWGL.Shader.VERTEX = "x-shader/x-vertex";
+LEEWGL.Shader.FRAGMENT = "x-shader/x-fragment";

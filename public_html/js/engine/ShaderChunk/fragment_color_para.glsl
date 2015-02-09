@@ -1,0 +1,1 @@
+varying lowp vec4 vVertexColor;
