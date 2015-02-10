@@ -31,7 +31,7 @@
         <script type="text/javascript" src="../js/engine/AsynchRequest.js"></script> 
         <script type="text/javascript" src="../js/engine/UniformLibrary.js"></script> 
         <script type="text/javascript" src="../js/engine/ShaderChunk.js"></script> 
-        <script type="text/javascript" src="../js/engine/ShaderLibrary.js"></script> 
+        <script type="text/javascript" src="../js/engine/ShaderLibrary.js"></script>
     </head>
     <body>
         <div id="wrapper">
@@ -84,15 +84,15 @@
             <div id="container-overall">
                 <div id="container">
                     <div id="content">
-                        <div id="render-container">
+                        <div id="render-container" class="dynamic-container">
                             <h2>Render View</h2>
                             <canvas id="canvas" width="512" height="512"></canvas>
                         </div>
-                        <div id="outline-container">
+                        <div id="outline-container" class="dynamic-container">
                             <h2>Outline</h2>
                             <div id="dynamic-outline"></div>
                         </div>
-                        <div id="inspector-container">
+                        <div id="inspector-container" class="dynamic-container">
                             <h2>Inspector</h2>
                             <div id="dynamic-inspector"></div>
                         </div>
@@ -108,6 +108,8 @@
         <script>
 window.onload = function () {
     var init = function () {
+//        UI.dynamicContainers('.dynamic-container');
+        
         var _canvas = document.querySelector('#canvas');
 
         var LEEWGL = new window.LEEWGL.Core({'canvas' : _canvas});

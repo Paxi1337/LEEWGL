@@ -8,6 +8,6 @@ LEEWGL.ShaderChunk = {
     'vertex_color' : ajax.send('GET', '../js/engine/ShaderChunk/vertex_color.glsl', false, null).response.responseText,
     'vertex_color_para' : ajax.send('GET', '../js/engine/ShaderChunk/vertex_color_para.glsl', false, null).response.responseText,
     'vertex_default' : ajax.send('GET', '../js/engine/ShaderChunk/vertex_default.glsl', false, null).response.responseText,
-    'vertex_default_para' : ajax.send('GET', '../js/engine/ShaderChunk/vertex_default_para.glsl', false, null).response.responseText,
+    'vertex_default_para' : ajax.send('GET', '../js/engine/ShaderChunk/vertex_default_para.glsl', false, null).response.responseText
 };
 

@@ -23,15 +23,12 @@ LEEWGL.KEYS.D = 68;
 LEEWGL.KEYS.S = 83;
 LEEWGL.KEYS.W = 87;
 
-
 // wrapping modes
-
 LEEWGL.WrappingRepeat = 1000;
 LEEWGL.WrappingClampToEdge = 1001;
 LEEWGL.WrappingMirroredRepeat = 1002;
 
 // filters
-
 LEEWGL.FilterNearest = 1003;
 LEEWGL.FilterNearestMipMapNearest = 1004;
 LEEWGL.FilterNearestMipMapLinear = 1005;
@@ -40,7 +37,6 @@ LEEWGL.FilterLinearMipMapNearest = 1007;
 LEEWGL.FilterLinearMipmapLinear = 1008;
 
 // data types
-
 LEEWGL.TypeUnsignedByte = 1009;
 LEEWGL.TypeByte = 1010;
 LEEWGL.TypeShort = 1011;
@@ -50,7 +46,6 @@ LEEWGL.TypeUnsignedInt = 1014;
 LEEWGL.TypeFloat = 1015;
 
 // pixel formats
-
 LEEWGL.FormatAlpha = 1016;
 LEEWGL.FormatRGB = 1017;
 LEEWGL.FormatRGBA = 1018;
@@ -59,51 +54,47 @@ LEEWGL.FormatLuminanceAlpha = 1020;
 
 LEEWGL.Timer = function(auto) {
     this.auto = auto !== undefined ? auto : true;
-    
+
     this.startTime = 0;
     this.oldTime = 0;
     this.elapsedTime = 0;
-    
+
     this.running = false;
 };
 
 LEEWGL.Timer.prototype = {
     constructor : LEEWGL.Timer,
-    
     start : function() {
         this.startTime = self.performance !== undefined && self.performance.now !== undefined ? self.performance.now() : Date.now();
         this.oldTime = this.startTime;
         this.running = true;
     },
-    
     stop : function() {
         this.getElapsedTime();
         this.running = false;
     },
-    
     getElapsedTime : function() {
         this.getDeltaTime();
         return this.elapsedTime;
     },
-    
     getDeltaTime : function() {
         if(this.auto && this.running === false)
             this.start();
-        
+
         var diff = 0;
-        
+
         if(this.running === true) {
             var newTime = self.performance !== undefined && self.performance.now !== undefined ? self.performance.now() : Date.now();
             diff = 0.001 * (newTime - this.oldTime);
             this.oldTime = newTime;
             this.elapsedTime += diff;
         }
-        
+
         return diff;
     }
 };
 
-LEEWGL.Core = function (options) {
+LEEWGL.Core = function(options) {
     var _canvas = options.canvas !== 'undefined' ? options.canvas : document.createElement('canvas'),
             _context = options.context !== 'undefined' ? options.context : null;
 
@@ -113,7 +104,7 @@ LEEWGL.Core = function (options) {
     this.canvas = _canvas;
     this.context = null;
     this.timer = new LEEWGL.Timer();
-    
+
     var _this = this,
             _programs = [],
             _currentProgram = null,
@@ -144,15 +135,15 @@ LEEWGL.Core = function (options) {
 
     this.context = _gl;
 
-    this.getContext = function () {
+    this.getContext = function() {
         return _gl;
     };
 
-    this.getCanvas = function () {
+    this.getCanvas = function() {
         return _canvas;
     };
 
-    this.setSize = function (width, height, updateStyle) {
+    this.setSize = function(width, height, updateStyle) {
         _canvas.width = width;
         _canvas.height = height;
 
@@ -162,14 +153,14 @@ LEEWGL.Core = function (options) {
         }
     };
 
-    this.getRenderSize = function () {
+    this.getRenderSize = function() {
         return {
             'width' : _canvas.width,
             'height' : _canvas.height
         };
     };
 
-    this.setViewport = function (x, y, width, height) {
+    this.setViewport = function(x, y, width, height) {
         _viewportX = x;
         _viewportY = y;
 
@@ -179,11 +170,11 @@ LEEWGL.Core = function (options) {
         _gl.viewport(_viewportX, _viewportY, _viewportWidth, _viewportHeight);
     };
 
-    this.attachApp = function (app) {
+    this.attachApp = function(app) {
         _app = app;
     };
 
-    this.initTexture = function (texture, img) {
+    this.initTexture = function(texture, img) {
         var image = new Image();
         image.src = img;
 
@@ -193,26 +184,26 @@ LEEWGL.Core = function (options) {
 
         var that = this;
 
-        texture.img.onload = function () {
+        texture.img.onload = function() {
             that.setTexture(texture, 0);
             that.setTextureParameters(texture, _gl.TEXTURE_2D, true);
         };
 
     };
 
-    this.setTexture = function (texture, number) {
+    this.setTexture = function(texture, number) {
         _gl.activeTexture(_gl.TEXTURE0);
         _gl.bindTexture(_gl.TEXTURE_2D, texture.webglTexture);
     };
 
-    this.setTextureParameters = function (texture, type, isPowerOfTwo) {
+    this.setTextureParameters = function(texture, type, isPowerOfTwo) {
         _gl.texImage2D(type, 0, _gl.RGBA, _gl.RGBA, _gl.UNSIGNED_BYTE, texture.img);
         _gl.texParameteri(type, _gl.TEXTURE_MIN_FILTER, this.paramToGL(texture.minFilter));
         if(isPowerOfTwo) {
             _gl.texParameteri(type, _gl.TEXTURE_WRAP_S, this.paramToGL(texture.wrapS));
             _gl.texParameteri(type, _gl.TEXTURE_WRAP_T, this.paramToGL(texture.wrapT));
 
-            _gl.texParameteri(type, _gl.TEwddadwaXTURE_MAG_FILTER, this.paramToGL(texture.magFilter));
+            _gl.texParameteri(type, _gl.TEXTURE_MAG_FILTER, this.paramToGL(texture.magFilter));
             _gl.texParameteri(type, _gl.TEXTURE_MIN_FILTER, this.paramToGL(texture.minFilter));
         } else {
             _gl.texParameteri(type, _gl.TEXTURE_WRAP_S, _gl.CLAMP_TO_EDGE);
@@ -226,7 +217,7 @@ LEEWGL.Core = function (options) {
             _gl.generateMipmap(type);
     };
 
-    this.paramToGL = function (param) {
+    this.paramToGL = function(param) {
         if(param === LEEWGL.WrappingRepeat)
             return _gl.REPEAT;
         if(param === LEEWGL.WrappingClampToEdge)
@@ -275,7 +266,7 @@ LEEWGL.Core = function (options) {
             return _gl.LUMINANCE_ALPHA;
     };
 
-    this.initMouse = function () {
+    this.initMouse = function() {
         if(_app === null) {
             console.error("LEEWGL.Core initMouse: No app attached.");
             return null;
@@ -286,7 +277,7 @@ LEEWGL.Core = function (options) {
         document.onkeydown = _app.onKeyDown.bind(_app);
         document.onkeyup = _app.onKeyUp.bind(_app);
 
-        _canvas.oncontextmenu = function (event) {
+        _canvas.oncontextmenu = function(event) {
             if(event.preventDefault !== undefined)
                 event.preventDefault();
             if(event.stopPropagation !== undefined)
@@ -294,28 +285,7 @@ LEEWGL.Core = function (options) {
         };
     };
 
-    this.getRelativeMouseCoordinates = function (event) {
-        var x, y, top = 0, left = 0, obj = _canvas;
-
-        while(obj && obj.tagName !== 'BODY') {
-            top += obj.offsetTop;
-            left += obj.offsetLeft;
-            obj = obj.offsetParent;
-        }
-
-        left += window.pageXOffset;
-        top -= window.pageYOffset;
-
-        x = event.clientX - left;
-        y = event.clientY - top;
-
-        return {
-            'x' : x,
-            'y' : y
-        };
-    };
-
-    this.init = function () {
+    this.init = function() {
         UI.setInspector('#dynamic-inspector');
 
         this.initMouse();
@@ -327,13 +297,13 @@ LEEWGL.Core = function (options) {
             _app.onCreate();
     };
 
-    this.updateUI = function () {
+    this.updateUI = function() {
         if(typeof UI !== 'undefined') {
-            
+
         }
     };
 
-    this.run = function () {
+    this.run = function() {
         if(typeof UI !== 'undefined') {
             UI.outlineToHTML('#dynamic-outline');
         }
@@ -342,7 +312,7 @@ LEEWGL.Core = function (options) {
         window.requestAnimationFrame(_this.run);
 
         var requiredElapsed = (100 / 60); // 60 fps
-        
+
         if(_this.timer.getElapsedTime() * 1000 >= requiredElapsed) {
             _gl.clear(_gl.COLOR_BUFFER_BIT | _gl.DEPTH_BUFFER_BIT);
             if(_app !== null) {

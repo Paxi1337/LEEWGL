@@ -1,4 +1,4 @@
-LEEWGL.UI = function (options) {
+LEEWGL.UI = function(options) {
     var outline = [];
     var activeElement;
     var inspector;
@@ -15,21 +15,42 @@ LEEWGL.UI = function (options) {
         }
     });
 
-    this.setInspector = function (container) {
+    this.setInspector = function(container) {
         this.inspector = (typeof container === 'string') ? document.querySelector(container) : container;
     };
 
-    this.addObjToOutline = function (obj) {
+    this.addObjToOutline = function(obj) {
         this.outline[obj.id] = obj;
         this.update = true;
     };
 
-    this.removeObjFromOutline = function (index) {
+    this.removeObjFromOutline = function(index) {
         this.outline.splice(index, 1);
         this.update = true;
     };
 
-    this.outlineToHTML = function (container) {
+    this.getRelativeMouseCoordinates = function(event, start) {
+        var x, y, top = 0, left = 0, obj = start;
+
+        while(obj && obj.tagName !== 'BODY') {
+            top += obj.offsetTop;
+            left += obj.offsetLeft;
+            obj = obj.offsetParent;
+        }
+
+        left += window.pageXOffset;
+        top -= window.pageYOffset;
+
+        x = event.clientX - left;
+        y = event.clientY - top;
+
+        return {
+            'x' : x,
+            'y' : y
+        };
+    };
+
+    this.outlineToHTML = function(container) {
         if(this.update === false)
             return;
 
@@ -45,8 +66,8 @@ LEEWGL.UI = function (options) {
             list.appendChild(item);
 
             var that = this;
-            (function (index) {
-                item.addEventListener('click', function () {
+            (function(index) {
+                item.addEventListener('click', function() {
                     that.setInspectorContent(index);
                 });
             })(i);
@@ -57,7 +78,7 @@ LEEWGL.UI = function (options) {
         this.update = false;
     };
 
-    this.createTable = function (header, content) {
+    this.createTable = function(header, content) {
         var table = document.createElement('table');
         var thead = document.createElement('thead');
         var tbody = document.createElement('tbody');
@@ -84,7 +105,7 @@ LEEWGL.UI = function (options) {
             td.innerHTML = content[i];
 
             /// html5 feature - gets called when dom elements with contenteditable = true get edited
-            td.addEventListener('input', function () {
+            td.addEventListener('input', function() {
 
             });
 
@@ -96,7 +117,7 @@ LEEWGL.UI = function (options) {
         return table;
     };
 
-    this.componentsToHTML = function (activeElement) {
+    this.componentsToHTML = function(activeElement) {
         var container;
 
         for(var component in activeElement.components) {
@@ -105,9 +126,9 @@ LEEWGL.UI = function (options) {
 
             container = document.createElement('div');
             var obj = activeElement.components[component];
-            
+
             window.activeElement = activeElement;
-            
+
             /// LEEWGL.TransformComponent
             if(component === LEEWGL.Component.TransformComponent) {
                 container.setAttribute('id', 'table-container');
@@ -128,7 +149,7 @@ LEEWGL.UI = function (options) {
                 textfield.setAttribute('cols', 30);
                 textfield.setAttribute('placeholder', obj.code);
 
-                textfield.addEventListener('keyup', function (event) {
+                textfield.addEventListener('keyup', function(event) {
                     /// enter key
                     if(event.keyCode === 13) {
                         var script = document.createElement('script');
@@ -136,9 +157,9 @@ LEEWGL.UI = function (options) {
                         var code = 'activeElement.addEventListener("custom", function() {' + this.value + '});';
                         script.appendChild(document.createTextNode(code));
                         document.body.appendChild(script);
-                        
-                        
-                        activeElement.dispatchEvent({ 'type' : 'custom' });
+
+
+                        activeElement.dispatchEvent({'type' : 'custom'});
                     }
                 });
 
@@ -148,7 +169,7 @@ LEEWGL.UI = function (options) {
         }
     };
 
-    this.setInspectorContent = function (index) {
+    this.setInspectorContent = function(index) {
         if(typeof this.inspector === 'undefined') {
             console.error('LEEWGL.UI: No inspector container set. Please use setInspector() first!');
             return;
@@ -181,6 +202,40 @@ LEEWGL.UI = function (options) {
         this.inspector.appendChild(list);
         this.componentsToHTML(activeElement);
     };
+
+    this.dynamicContainers = function(classname) {
+        var that = this;
+        var elements = document.querySelectorAll(classname);
+        for(var i = 0; i < elements.length; ++i) {
+            (function(index) {
+                var e = elements[index];
+                e.addEventListener('click', function(event) {
+                    if(e.style.position !== LEEWGL.UI.ABSOLUTE) {
+                        e.style.position = LEEWGL.UI.ABSOLUTE;
+                        e.addEventListener('mousemove', function(event) {
+                            if(event.which === 1 || event.button === 1) {
+                                var mouse = that.getRelativeMouseCoordinates(event, e);
+                                
+                                /// FIXME: jumnps from value to value!
+                                console.log(mouse.x);
+
+                                e.style.left = mouse.x + 'px';
+                                e.style.top = mouse.y + 'px';
+                            }
+                            event.preventDefault();
+                            event.stopPropagation();
+                        });
+                    } else {
+                        e.style.position = LEEWGL.UI.STATIC;
+                        e.removeEventListener('mousemove');
+                    }
+                });
+            })(i);
+        }
+    };
 };
+
+LEEWGL.UI.STATIC = 'static';
+LEEWGL.UI.ABSOLUTE = 'absolute';
 
 var UI = new LEEWGL.UI();

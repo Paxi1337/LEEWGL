@@ -1,5 +1,5 @@
 
-LEEWGL.TestApp = function (options) {
+LEEWGL.TestApp = function(options) {
     LEEWGL.App.call(this, options);
 
     this.textureBuffer = new LEEWGL.Buffer();
@@ -29,7 +29,7 @@ LEEWGL.TestApp = function (options) {
 
 LEEWGL.TestApp.prototype = Object.create(LEEWGL.App.prototype);
 
-LEEWGL.TestApp.prototype.onCreate = function () {
+LEEWGL.TestApp.prototype.onCreate = function() {
     this.core.setSize(512, 512);
     this.triangle.name = 'Triangle';
     this.cube.name = 'Cube';
@@ -81,7 +81,7 @@ LEEWGL.TestApp.prototype.onCreate = function () {
     this.shader.createShaderFromLibrary(this.gl, LEEWGL.Shader.FRAGMENT, LEEWGL.ShaderLibrary.picking.fragmentShader);
     this.shader.linkShader(this.gl);
     this.shader.use(this.gl);
-    
+
     this.shader.createUniformSetters(this.gl);
     this.shader.createAttributeSetters(this.gl);
 
@@ -91,9 +91,9 @@ LEEWGL.TestApp.prototype.onCreate = function () {
     this.cube.setBuffer(this.gl);
     this.cube.addColor(this.gl, undefined, this.cube.faces);
     this.cube.transform.setPosition(5, 0, 0);
-    
+
     this.cube.addComponent(new LEEWGL.Component.CustomScript());
-    
+
     this.grid.generateGrid(10, 10, {'x' : 10.0, 'z' : 10.0});
     this.grid.setBuffer(this.gl);
     this.grid.setColorBuffer(this.gl);
@@ -112,8 +112,8 @@ LEEWGL.TestApp.prototype.onCreate = function () {
     this.picker.initPicking(this.gl, this.canvas.width, this.canvas.height);
 };
 
-LEEWGL.TestApp.prototype.onMouseDown = function (event) {
-    var mouseCords = this.core.getRelativeMouseCoordinates(event);
+LEEWGL.TestApp.prototype.onMouseDown = function(event) {
+    var mouseCords = UI.getRelativeMouseCoordinates(event, this.canvas);
     this.picker.bind(this.gl);
     var obj = this.picker.pick(this.gl, mouseCords.x, mouseCords.y);
 
@@ -121,18 +121,18 @@ LEEWGL.TestApp.prototype.onMouseDown = function (event) {
         this.activeElement = obj;
         this.movement.x = 0;
         this.movement.y = 0;
-        
+
         UI.setInspectorContent(obj.id);
     }
     this.picker.unbind(this.gl);
 };
 
-LEEWGL.TestApp.prototype.onMouseMove = function (event) {
+LEEWGL.TestApp.prototype.onMouseMove = function(event) {
     var movement = {'x' : 0, 'y' : 0};
-    
+
     this.movement.x += event.movementX;
     this.movement.y += event.movementY;
-    
+
     if(event.which === 3 || event.button === 2) {
         movement.x = (0.1 * event.movementX);
         movement.y = (0.1 * event.movementY);
@@ -144,7 +144,7 @@ LEEWGL.TestApp.prototype.onMouseMove = function (event) {
         movement.y = event.movementY * 0.01;
 
         if(event.ctrlKey)
-            this.activeElement.transform.scale([this.movement.x * 0.01, this.movement.y * 0.01, 0.0]);
+            this.activeElement.transform.scale([this.movement.x * 0.01, this.movement.y * 0.01, 1.0]);
         else
             this.activeElement.transform.translate([movement.x, -movement.y, 0.0]);
         UI.setInspectorContent(this.activeElement.id);
@@ -153,24 +153,24 @@ LEEWGL.TestApp.prototype.onMouseMove = function (event) {
     event.stopPropagation();
 };
 
-LEEWGL.TestApp.prototype.onMouseUp = function (event) {
+LEEWGL.TestApp.prototype.onMouseUp = function(event) {
     this.activeElement = null;
 };
 
-LEEWGL.TestApp.prototype.onKeyUp = function (event) {
+LEEWGL.TestApp.prototype.onKeyUp = function(event) {
     this.activeKeys[event.keyCode] = false;
 };
 
-LEEWGL.TestApp.prototype.onKeyDown = function (event) {
+LEEWGL.TestApp.prototype.onKeyDown = function(event) {
     this.activeKeys[event.keyCode] = true;
 };
 
-LEEWGL.TestApp.prototype.onUpdate = function () {
+LEEWGL.TestApp.prototype.onUpdate = function() {
     this.camera.update();
     this.handleKeyInput();
 };
 
-LEEWGL.TestApp.prototype.handleKeyInput = function () {
+LEEWGL.TestApp.prototype.handleKeyInput = function() {
     if(this.activeKeys[LEEWGL.KEYS.PAGE_UP]) {
         this.camera.transform.offsetPosition(vec3.negate(vec3.create(), this.camera.down()));
     } else if(this.activeKeys[LEEWGL.KEYS.PAGE_DOWN]) {
@@ -190,7 +190,7 @@ LEEWGL.TestApp.prototype.handleKeyInput = function () {
     }
 };
 
-LEEWGL.TestApp.prototype.onRender = function () {
+LEEWGL.TestApp.prototype.onRender = function() {
     if(this.picking) {
         this.picker.bind(this.gl);
         this.shader.uniforms['uOffscreen'](1);
@@ -203,7 +203,7 @@ LEEWGL.TestApp.prototype.onRender = function () {
     this.draw();
 };
 
-LEEWGL.TestApp.prototype.draw = function () {
+LEEWGL.TestApp.prototype.draw = function() {
     this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 
