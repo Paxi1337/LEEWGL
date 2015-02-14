@@ -2,6 +2,8 @@
 
 var LEEWGL = {version : '0.1'};
 
+LEEWGL.ROOT = '../';
+
 /// node.js compatibility
 if(typeof module === 'object') {
     module.exports = LEEWGL;

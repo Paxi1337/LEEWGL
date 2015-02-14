@@ -37,45 +37,67 @@
         <div id="wrapper">
             <div id="header-bar-overall">
                 <div id="header-bar">
-                    <ul id="menu-bar">
-                        <li class="active"><a href="#">File</a>
+                    <ul>
+                        <li><a href="#">File</a>
                             <ul>
-                                <li><a href="#"></a></li>
-                                <li><a href="#"></a></li>
-                                <li><a href="#"></a></li>
-                                <li><a href="#"></a></li>
+                                <li><a href="#">Save</a></li>
+                                <li><a href="#">Import</a>
+                                    <ul>
+                                        <li><a href="#">Model</a></li>
+                                        <li><a href="#">Script</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#">Export</a></li>
+                                <li><a href="#">Reset Scene</a></li>
                             </ul>
                         </li>
                         <li><a href="#">Edit</a>
                             <ul>
                                 <li><a href="#">Copy</a></li>
                                 <li><a href="#">Paste</a></li>
-                                <li><a href="#"></a></li>
-                                <li><a href="#"></a></li>
+                                <li><a href="#">Duplicate</a></li>
+                                <li><a href="#">Delete</a></li>
                             </ul>
                         </li>
-                        <li><a href="#">Assets</a>
+                        <li><a href="#">GameObject</a>
                             <ul>
-                                <li><a href="#"></a></li>
-                                <li><a href="#"></a></li>
-                                <li><a href="#"></a></li>
-                                <li><a href="#"></a></li>
+                                <li><a href="#">3D-Object</a>
+                                    <ul>
+                                        <li><a href="#">Circle</a></li>
+                                        <li><a href="#">Cube</a></li>
+                                        <li><a href="#">Triangle</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#">Light</a>
+                                    <ul>
+                                        <li><a href="#">Directional Light</a></li>
+                                        <li><a href="#">Point Light</a></li>
+                                        <li><a href="#">Spot Light</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#">Camera</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#">Component</a>
+                            <ul>
+                                <li><a href="#">Rendering</a>
+                                    <ul>
+                                        <li><a href="#">Texture</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#">Script</a></li>
                             </ul>
                         </li>
                         <li><a href="#">Window</a>
                             <ul>
-                                <li><a href="#"></a></li>
-                                <li><a href="#"></a></li>
-                                <li><a href="#"></a></li>
-                                <li><a href="#"></a></li>
-                            </ul>
-                        </li>
-                        <li><a href="#">Help</a>
-                            <ul>
-                                <li><a href="#"></a></li>
-                                <li><a href="#"></a></li>
-                                <li><a href="#"></a></li>
-                                <li><a href="#"></a></li>
+                                <li><a href="#">Layout</a>
+                                    <ul>
+                                        <li><a href="#">Default</a></li>
+                                        <li><a href="#">Wide</a></li>
+                                        <li><a href="#">Small</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#">About</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -106,21 +128,21 @@
             </div>
         </div>
         <script>
-window.onload = function () {
-    var init = function () {
+            window.onload = function() {
+                var init = function() {
 //        UI.dynamicContainers('.dynamic-container');
-        
-        var _canvas = document.querySelector('#canvas');
 
-        var LEEWGL = new window.LEEWGL.Core({'canvas' : _canvas});
-        var testapp = new window.LEEWGL.TestApp({'core' : LEEWGL});
+                    var _canvas = document.querySelector('#canvas');
 
-        LEEWGL.attachApp(testapp);
-        LEEWGL.init();
-        window.requestAnimationFrame(LEEWGL.run.bind(LEEWGL));
-    };
-    init();
-};
+                    var LEEWGL = new window.LEEWGL.Core({'canvas' : _canvas});
+                    var testapp = new window.LEEWGL.TestApp({'core' : LEEWGL});
+
+                    LEEWGL.attachApp(testapp);
+                    LEEWGL.init();
+                    window.requestAnimationFrame(LEEWGL.run.bind(LEEWGL));
+                };
+                init();
+            };
         </script>
     </body>
 </html>

@@ -27,7 +27,6 @@ LEEWGL.AsynchRequest.prototype = {
     onRequest : function() {
     },
     onSuccess : function() {
-
     },
     onReadyStateChange : function() {
         if(this.request.readyState === LEEWGL.AsynchRequest.LOADING) {
