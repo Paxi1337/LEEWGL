@@ -60,9 +60,13 @@ LEEWGL.UI = function(options) {
 
         var list = document.createElement('ul');
 
-        for(var i = 0; i < this.outline.length; ++i) {
+        for(var i = 1; i < this.outline.length; ++i) {
             var item = document.createElement('li');
-            item.innerHTML = this.outline[i].name;
+            var element = document.createElement('a');
+            element.setAttribute('href', '#');
+            element.innerHTML = this.outline[i].name;
+
+            item.appendChild(element);
             list.appendChild(item);
 
             var that = this;
@@ -119,12 +123,17 @@ LEEWGL.UI = function(options) {
 
     this.componentsToHTML = function(activeElement) {
         var container;
+        var title;
 
         for(var component in activeElement.components) {
             if(!activeElement.components.hasOwnProperty(component))
                 continue;
 
             container = document.createElement('div');
+            title = document.createElement('h3');
+            title.innerHTML = 'Type: ' + component;
+            container.appendChild(title);
+
             var obj = activeElement.components[component];
 
             window.activeElement = activeElement;
@@ -141,7 +150,6 @@ LEEWGL.UI = function(options) {
                 /// scale
                 container.appendChild(this.createTable(['x', 'y', 'z'], [obj.scaleVec[0], obj.scaleVec[1], obj.scaleVec[2]]));
             } else if(component === LEEWGL.Component.CustomScriptComponent) {
-                container = document.createElement('div');
                 container.setAttribute('id', 'custom-script-container');
 
                 var textfield = document.createElement('textarea');
@@ -178,56 +186,46 @@ LEEWGL.UI = function(options) {
         this.inspector.innerHTML = '';
         var activeElement = this.outline[index];
 
-        var list = document.createElement('ul');
-
-        var item = document.createElement('li');
         var name = document.createElement('h3');
         name.innerHTML = 'Name: ' + activeElement.name;
-        item.appendChild(name);
-        list.appendChild(item);
 
-        for(var prop in activeElement.components) {
-            if(!activeElement.components.hasOwnProperty(prop))
-                continue;
-
-            var item = document.createElement('li');
-            var type = document.createElement('h3');
-            type.innerHTML = 'Type: ' + prop;
-
-            item.appendChild(type);
-            list.appendChild(item);
-        }
-
-
-        this.inspector.appendChild(list);
+        this.inspector.appendChild(name);
         this.componentsToHTML(activeElement);
     };
 
-    this.dynamicContainers = function(classname) {
+    this.dynamicContainers = function(classname_toggle, classname_container, movable_container) {
         var that = this;
-        var elements = document.querySelectorAll(classname);
-        for(var i = 0; i < elements.length; ++i) {
-            (function(index) {
-                var e = elements[index];
-                e.addEventListener('click', function(event) {
-                    if(e.style.position !== LEEWGL.UI.ABSOLUTE) {
-                        e.style.position = LEEWGL.UI.ABSOLUTE;
-                        e.addEventListener('mousemove', function(event) {
-                            if(event.which === 1 || event.button === 1) {
-                                var mouse = that.getRelativeMouseCoordinates(event, e);
-                                
-                                /// FIXME: jumnps from value to value!
-                                console.log(mouse.x);
+        var toggle = document.querySelectorAll(classname_toggle);
+        var container = document.querySelectorAll(classname_container);
+        var movable = document.querySelectorAll(movable_container);
 
-                                e.style.left = mouse.x + 'px';
-                                e.style.top = mouse.y + 'px';
+        var body = document.body, html = document.documentElement;
+        var height = Math.max(body.scrollHeight, body.offsetHeight,
+                html.clientHeight, html.scrollHeight, html.offsetHeight);
+        var width = Math.max(body.scrollWidth, body.offsetWidth,
+                html.clientWidth, html.scrollHeight, html.offsetWidth);
+
+        for(var i = 0; i < toggle.length; ++i) {
+            (function(index) {
+                toggle[index].addEventListener('click', function(event) {
+                    var c = container[index];
+                    
+                    if(c.style.position !== LEEWGL.UI.ABSOLUTE) {
+                        c.style.position = LEEWGL.UI.ABSOLUTE;
+                        movable[index].addEventListener('mousemove', function(event) {
+                            if(event.which === 1 || event.button === 1) {
+                                var mouse = that.getRelativeMouseCoordinates(event, c);
+
+                                /// FIXME: jumps from value to value!
+                                c.style.left = mouse.x + 'px';
+                                c.style.top = mouse.y + 'px';
                             }
                             event.preventDefault();
                             event.stopPropagation();
                         });
                     } else {
-                        e.style.position = LEEWGL.UI.STATIC;
-                        e.removeEventListener('mousemove');
+                        c.style.position = LEEWGL.UI.STATIC;
+                        movable[index].removeEventListener('mousemove');
                     }
                 });
             })(i);

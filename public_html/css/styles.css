@@ -8,6 +8,10 @@
     #6D6D6D - mediocre grey
     #565656 - dark grey
     #E7E5E5 - font color
+
+    #83b4d3 - bright-blue;
+    #0a6096 - middle-blue;
+    #4F6573 - dark-blue;
 */
 
 html {margin:0;padding:0;border:0;overflow-x:hidden;}
@@ -71,29 +75,43 @@ div#render-container {
     width: 512px;
     min-width: 500px;
     float: left;
-    padding-top: 5px;
     margin-right: 10px;
-    border: solid 1px #A9A9A9;
+    border: solid 2px #000;
 }
 
 div#outline-container {
     width: 200px;
     float: left;
     margin-left: 10px;
-    padding: 5px;
-    border-left: 1px solid #565453;
     background-color: #565656;
-    border: solid 1px #A9A9A9;
+    border: solid 1px #000;
+}
+
+div#dynamic-outline {
+    padding: 10px;
+}
+
+div#dynamic-outline a {
+    display: block;
+    padding: 5px;
+}
+
+div#dynamic-outline a:hover {
+    background-color: #83b4d3;
+    color: #000;
 }
 
 div#inspector-container {
     width: 282px;
     float: left;
     margin-left: 20px;
-    padding: 5px;
-    border-left: 1px solid #565453;
     background-color: #565656;
-    border: solid 1px #A9A9A9;
+    border: solid 1px #000;
+
+}
+
+div#dynamic-inspector {
+    padding: 10px;
 }
 
 div#header-bar-overall {
@@ -101,7 +119,7 @@ div#header-bar-overall {
     background-color: #565656;
 }
 
-#header-bar{
+#header-bar {
     position: absolute;
     width: 100%;
     text-align: center;
@@ -112,7 +130,8 @@ div#header-bar-overall {
     font-weight: normal;
     left: 0px;
 }
-#header-bar ul{
+
+#header-bar ul {
     background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAjCAYAAABVcWC0AAAAX0lEQVQIW1XE2xJCYBgF0Nlvh1IilxTlkNNQBjXefRu/b8K6WHCLkbjmP8nJvoTKfg3SJe0JlZV0u+KWsObO0Uc6Pd+Eynw0245hTSwFlXS4l8SacSsIle7nkuZlxL8J1OJK6wtAUrwAAAAASUVORK5CYII=);
     min-width: 642px;
     padding: 0 0 0 0;
@@ -123,30 +142,39 @@ div#header-bar-overall {
     position: relative;
     display: inline-table;
 }
-#header-bar a{
+
+#header-bar a {
     font-family: Droid Sans !important;
 }
-#header-bar>ul>li{
+
+#header-bar>ul>li {
     display: inline-block;
     vertical-align: top;
     position: relative;
 }
-#header-bar ul li:hover>ul, .hvr>ul{
+
+#header-bar ul li:hover>ul, .hvr>ul {
     display: block !important;
 }
-#header-bar>ul>li:hover>a, .hvr>a{
+
+#header-bar>ul>li:hover>a, .hvr>a {
     color: #72e5e5 !important;
     border-radius: 0px;
     position: relative;
     z-index: 9;
 }
-#header-bar ul li:hover > a:only-child{ box-shadow:none;}
-#header-bar ul li a{
+
+#header-bar ul li:hover > a:only-child { 
+    box-shadow : none;
+}
+
+#header-bar ul li a {
     display: block;
     text-decoration: none;
     white-space: nowrap;
 }
-#header-bar>ul>li>a{
+
+#header-bar>ul>li>a {
     padding: 0px 20px;
     line-height: 35px;
     height: 35px;
@@ -154,7 +182,8 @@ div#header-bar-overall {
     margin-right: -1px;	
     text-shadow: 0px 1px 0px rgba(0,0,0,.83);
 }
-#header-bar ul ul{
+
+#header-bar ul ul {
     font-size: 15px;
     font-style: normal;
     font-variant: normal;
@@ -171,14 +200,16 @@ div#header-bar-overall {
     box-shadow: 0px 0px 0px  0px rgba(85,85,85,0);
     top: 33px;
 }
-#header-bar ul ul li{
+
+#header-bar ul ul li {
     float: none;
     position: relative;
     width: 100%;
     text-align: left;
-    border-bottom: 1px solid #999;
+    border-bottom: 1px solid #000;
 }
-#header-bar ul ul li a{
+
+#header-bar ul ul li a {
     padding: 0px 15px;
     padding-right: 50px;
     line-height: 30px;
@@ -187,16 +218,19 @@ div#header-bar-overall {
     margin: 0;
     text-shadow: 0px 1px 1px rgba(0,0,0,.60);
 }
-#header-bar ul ul li:hover>a{
+
+#header-bar ul ul li:hover>a {
     border-radius: 0px;
     color: #72e5e5 !important;
     box-shadow: none;
 }
-#header-bar ul ul li a:hover{
+
+#header-bar ul ul li a:hover {
     border-radius: 0px;
     background: #3f5f70;
 }
-#header-bar ul ul ul{
+
+#header-bar ul ul ul {
     position: absolute;
     z-index: 8;
     left: 100%;
@@ -214,6 +248,17 @@ div#status-bar-overall {
 
 div#status-bar {
     height: 35px;
+    line-height: 35px;
+}
+
+.container-header {
+    background-color: #0a6096;
+    text-align: center;
+    color: #fff;
+    box-shadow: 0px 2px 1px  0px rgba(0,0,0,.55);
+    margin: 0px 0 5px 0;
+    height: 40px;
+    line-height: 40px;
 }
 
 div#table-container {
@@ -238,4 +283,20 @@ th, td {
     border-left : 1px solid #6D6D6D;
     margin : 0;
     overflow: visible;
+}
+
+div.icon-container {
+    width: 35px;
+    height: 35px;
+    float: right;
+    padding: 5px 5px 0px 0px;
+}
+
+div.icon-container:hover {
+    background-color: #83b4d3;
+}
+
+.clearer {
+    clear: both;
+    float: none;
 }

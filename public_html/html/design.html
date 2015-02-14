@@ -107,17 +107,33 @@
                 <div id="container">
                     <div id="content">
                         <div id="render-container" class="dynamic-container">
-                            <h2>Render View</h2>
+                            <div class="container-header">
+                                <h2>Render View</h2>
+                                <div class="icon-container">
+                                    <img alt="relase window" src="../img/icons/anchor_half.png" />
+                                </div>
+                            </div>
                             <canvas id="canvas" width="512" height="512"></canvas>
                         </div>
                         <div id="outline-container" class="dynamic-container">
-                            <h2>Outline</h2>
+                            <div class="container-header">
+                                <h2>Outline</h2>
+                                <div class="icon-container">
+                                    <img alt="relase window" src="../img/icons/anchor_half.png" />
+                                </div>
+                            </div>
                             <div id="dynamic-outline"></div>
                         </div>
                         <div id="inspector-container" class="dynamic-container">
-                            <h2>Inspector</h2>
+                            <div class="container-header">
+                                <h2>Inspector</h2>
+                                <div class="icon-container">
+                                    <img alt="relase window" src="../img/icons/anchor_half.png" />
+                                </div>
+                            </div>
                             <div id="dynamic-inspector"></div>
                         </div>
+                        <div class="clearer"></div>
                     </div>    
                 </div>
             </div>
@@ -130,7 +146,7 @@
         <script>
             window.onload = function() {
                 var init = function() {
-//        UI.dynamicContainers('.dynamic-container');
+                    UI.dynamicContainers('.icon-container', '.dynamic-container', '.container-header');
 
                     var _canvas = document.querySelector('#canvas');
 
