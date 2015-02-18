@@ -2,7 +2,7 @@
 
 var LEEWGL = {version : '0.1'};
 
-LEEWGL.ROOT = '../';
+LEEWGL.ROOT = '';
 
 /// node.js compatibility
 if(typeof module === 'object') {
