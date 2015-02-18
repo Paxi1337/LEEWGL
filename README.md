@@ -1,12 +1,12 @@
 LEEWGL
 ======
 
-Lightweight-Editor-Environment-Web-GL is a javascript framework which provides an environment for a basic WebGL game engine. 
-It is written using plain javascript with no external dependencies except for glMatrix as math library.
+**L**ightweight-**E**ditor-**E**nvironment-**W**eb-**GL** is a javascript framework which provides an environment for a basic WebGL game engine. 
+It is written using plain javascript with **no** external dependencies except for glMatrix as math library.
 
 ## Run
 
-To run LEEWGL locally you need to set-up a webserver and open the index.html through the webserver.
+To run LEEWGL locally you need to set-up a webserver [eg. Apache] and open the *index.html* through the webserver.
 
 ## Classes
 
@@ -27,11 +27,29 @@ To run LEEWGL locally you need to set-up a webserver and open the index.html thr
 - Object3D.js - Base class of all 3D-Objects.
 - Geometry.js - Collection of predefined Objects like Triangle, Cube etc.
 
-## Current features
+## Features [planned, done]
 
-- Picking.
-- Transform Objects.
-- Movable Editor-Camera.
-- UI interactivity.
-- Dynamic shaders injected by javascript.
+- [x] Picking.
+- [x] Transform Objects.
+- [x] Movable Editor-Camera.
+- [ ] Different Lights
+- [ ] UI interactivity.
+  - [x] Dynamic Outline.
+  - [x] Dynamic Inspector.
+  - [ ] Menu.
+  - [ ] Statusbar.
+- [x] Dynamic shaders injected by javascript.
+- [x] Ajax-Calls
+- [ ] Adding Components to GameObjects
+- [ ] UI Styling
+- [ ] Import Models / Files
+- [ ] Saving / Loading
+- [ ] Components
+  - [x] Transform
+  - [x] Custom Script
+    - [ ] Highlight, snippets
+  - [ ] Collider
+  - [ ] Texture
+- [ ] Game Camera
+- [ ] Play / Pause Rendering
    
