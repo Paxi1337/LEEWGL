@@ -1,0 +1,19 @@
+.fleft {
+    float: left;
+}
+
+.padding10 {
+    padding: 10px;
+}
+
+.mright10 {
+    margin-right: 10px;
+}
+
+.mright35 {
+    margin-right: 35px;
+}
+
+.pointer {
+    cursor: pointer;
+}

@@ -17,7 +17,6 @@ LEEWGL.TestApp = function(options) {
 
     this.picker = new LEEWGL.Picker();
 
-
     this.movement = {'x' : 0, 'y' : 0};
 
     this.activeKeys = [];
@@ -87,7 +86,8 @@ LEEWGL.TestApp.prototype.onCreate = function() {
 
     this.triangle.setBuffer(this.gl);
     this.triangle.addColor(this.gl, undefined, this.triangle.faces);
-
+    this.triangle.addComponent(new LEEWGL.Component.CustomScript());
+    
     this.cube.setBuffer(this.gl);
     this.cube.addColor(this.gl, undefined, this.cube.faces);
     this.cube.transform.setPosition(5, 0, 0);

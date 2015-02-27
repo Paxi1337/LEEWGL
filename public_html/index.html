@@ -3,6 +3,7 @@
     <head>
         <title>LEEWGL Editor View</title>
         <link rel="stylesheet" type="text/css" href="css/styles.css">
+        <link rel="stylesheet" type="text/css" href="css/general.css">
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script type="text/javascript" src="js/gl-matrix/common.js"></script> 
@@ -106,6 +107,10 @@
             <div id="container-overall">
                 <div id="container">
                     <div id="content">
+                        <div id="controls-container" class="padding10">
+                            <img class="icon-big mright35 pointer" src="img/icons/play.png" alt="play" onclick="UI.play()" />
+                            <img class="icon-big pointer" src="img/icons/stop.png" alt="stop" onclick="UI.stop();" />
+                        </div>
                         <div id="render-container" class="dynamic-container">
                             <div class="container-header">
                                 <h2>Render View</h2>

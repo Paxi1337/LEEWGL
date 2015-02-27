@@ -1,19 +1,16 @@
 LEEWGL.UI = function(options) {
     var outline = [];
-    var activeElement;
     var inspector;
     var update = false;
     
+    this.activeElement = null;
     this.storage = new LEEWGL.LocalStorage();
+    this.playing = false;
     
     Object.defineProperties(this, {
         outline : {
             enumerable : true,
             value : outline
-        },
-        activeElement : {
-            enumerable : true,
-            value : activeElement
         }
     });
 
@@ -74,6 +71,12 @@ LEEWGL.UI = function(options) {
             var that = this;
             (function(index) {
                 item.addEventListener('click', function() {
+                    /// FIXME: add active class
+//                    if(this.getAttribute('class') !== 'active')
+//                        this.setAttribute('class', 'active');
+//                    else 
+//                        this.setAttribute('class', '');
+                        
                     that.setInspectorContent(index);
                 });
             })(i);
@@ -139,20 +142,41 @@ LEEWGL.UI = function(options) {
             container.appendChild(title);
 
             var obj = activeElement.components[component];
-
-            window.activeElement = activeElement;
-
+            var hr = document.createElement('hr');
+            
             /// LEEWGL.TransformComponent
             if(component === LEEWGL.Component.TransformComponent) {
                 container.setAttribute('id', 'table-container');
+                var pos = document.createElement('h4');
+                pos.setAttribute('class', 'fleft mright10');
+                pos.innerHTML = 'Position: ';
+                
+                var trans = document.createElement('h4');
+                trans.setAttribute('class', 'fleft mright10');
+                trans.innerHTML = 'Translation: ';
+                
+                var rot = document.createElement('h4');
+                rot.setAttribute('class', 'fleft mright10');
+                rot.innerHTML = 'Rotation: ';
+                
+                var scale = document.createElement('h4');
+                scale.setAttribute('class', 'fleft mright10');
+                scale.innerHTML = 'Scale: ';
+                
                 /// position
+                container.appendChild(pos);
                 container.appendChild(this.createTable(['x', 'y', 'z'], [obj.position[0], obj.position[1], obj.position[2]]));
                 /// translation
+                container.appendChild(trans);
                 container.appendChild(this.createTable(['x', 'y', 'z'], [obj.transVec[0].toPrecision(6), obj.transVec[1].toPrecision(6), obj.transVec[2].toPrecision(6)]));
                 /// rotation
+                container.appendChild(rot);
                 container.appendChild(this.createTable(['x', 'y', 'z'], [obj.rotVec[0], obj.rotVec[1], obj.rotVec[2]]));
                 /// scale
+                container.appendChild(scale);
                 container.appendChild(this.createTable(['x', 'y', 'z'], [obj.scaleVec[0], obj.scaleVec[1], obj.scaleVec[2]]));
+                
+                container.appendChild(hr);
             } else if(component === LEEWGL.Component.CustomScriptComponent) {
                 container.setAttribute('id', 'custom-script-container');
                 
@@ -161,27 +185,16 @@ LEEWGL.UI = function(options) {
                 textfield.setAttribute('cols', 30);
                 textfield.setAttribute('placeholder', obj.code);
                 
-                textfield.value = that.storage.getValue('customScript');
-                
-                console.log(that.storage.getValue('customScript'));
+                textfield.value = that.storage.getValue('customScript' + activeElement.id);
                 
                 textfield.addEventListener('keyup', function(event) {
-                    /// enter key
-                    if(event.keyCode === 13) {
-                        var script = document.createElement('script');
-                        script.type = 'text/javascript';
-                        var code = 'activeElement.addEventListener("custom", function() {' + this.value + '});';
-                        script.appendChild(document.createTextNode(code));
-                        document.body.appendChild(script);
-                        
-                        
-                        that.storage.setValue('customScript', this.value);
-                        
-                        activeElement.dispatchEvent({'type' : 'custom'});
+                    if(event.keyCode === LEEWGL.KEYS.ENTER) {
+                        that.addScript('customScript' + activeElement.id, this.value);
                     }
                 });
 
                 container.appendChild(textfield);
+                container.appendChild(hr);
             }
             this.inspector.appendChild(container);
         }
@@ -194,7 +207,11 @@ LEEWGL.UI = function(options) {
         }
 
         this.inspector.innerHTML = '';
+        
         var activeElement = this.outline[index];
+        
+        this.activeElement = activeElement;
+        window.activeElement = activeElement;
 
         var name = document.createElement('h3');
         name.innerHTML = 'Name: ' + activeElement.name;
@@ -240,6 +257,31 @@ LEEWGL.UI = function(options) {
                 });
             })(i);
         }
+    };
+    
+    this.addScript = function(id, src) {
+        var script;
+        if(script = document.querySelector('#' + id)) {
+            document.body.removeChild(script);
+        } 
+        
+        this.storage.setValue('customScript' + id, src);
+        
+        var newScript = document.createElement('script');
+        newScript.type = 'text/javascript';
+        newScript.id = id;
+        var code = 'activeElement.addEventListener("custom", function() { if(UI.playing === true) {' + src + '}});';
+        newScript.appendChild(document.createTextNode(code));
+        document.body.appendChild(newScript);
+    };
+    
+    this.play = function() {
+        this.playing = true;
+        this.activeElement.dispatchEvent({'type' : 'custom'});
+    };
+    
+    this.stop = function() {
+        this.playing = false;
     };
 };
 

@@ -25,6 +25,8 @@ LEEWGL.KEYS.D = 68;
 LEEWGL.KEYS.S = 83;
 LEEWGL.KEYS.W = 87;
 
+LEEWGL.KEYS.ENTER = 13;
+
 // wrapping modes
 LEEWGL.WrappingRepeat = 1000;
 LEEWGL.WrappingClampToEdge = 1001;

@@ -50,6 +50,13 @@ h6 { font-size: 80%; margin: 0 0 2px 0; }
 
 a { text-decoration: none; color: #E7E5E5; }
 
+hr {
+    border: 0;
+    height: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+
 div#container-overall {
     -webkit-box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.2);
     -moz-box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.2);
@@ -61,14 +68,19 @@ div#container {
     position: relative;
     margin: 0 auto;
     width: 1100px;
-    min-height: 650px;
+    min-height: 750px;
 }
 
 div#content {
     width: 1060px;
-    padding: 20px;
     float: left;
     margin: 0 auto;
+}
+
+div#controls-container {
+    margin: 20px auto;
+    width: 110px;
+    border: solid 2px #000;
 }
 
 div#render-container {
@@ -102,7 +114,7 @@ div#dynamic-outline a:hover {
 }
 
 div#inspector-container {
-    width: 282px;
+    width: 300px;
     float: left;
     margin-left: 20px;
     background-color: #565656;
@@ -294,6 +306,11 @@ div.icon-container {
 
 div.icon-container:hover {
     background-color: #83b4d3;
+}
+
+img.icon-big {
+    width: 35px;
+    height: 35px;
 }
 
 .clearer {
