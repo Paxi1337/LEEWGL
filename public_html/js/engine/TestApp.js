@@ -110,6 +110,12 @@ LEEWGL.TestApp.prototype.onCreate = function() {
 
     this.core.initTexture(this.texture, 'texture/texture1.jpg');
     this.picker.initPicking(this.gl, this.canvas.width, this.canvas.height);
+    
+    /// test load collada file
+    var ajax = new LEEWGL.AsynchRequest();
+    var ColladaImporter = new LEEWGL.Importer();
+    
+    ColladaImporter.parseCollada(ajax.send('GET', LEEWGL.ROOT + 'models/Man_Mp_Iphone.DAE', false).response.responseXML);
 };
 
 LEEWGL.TestApp.prototype.onMouseDown = function(event) {

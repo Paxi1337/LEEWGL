@@ -36,6 +36,7 @@ LEEWGL.AsynchRequest.prototype = {
                 this.response['response'] = this.request.response;
                 this.response['responseText'] = this.request.responseText;
                 this.response['responseHTML'] = this.request.responseHTML;
+                this.response['responseXML'] = this.request.responseXML;
 
                 this.onSuccess();
             }
