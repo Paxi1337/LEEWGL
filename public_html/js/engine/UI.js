@@ -3,7 +3,9 @@ LEEWGL.UI = function(options) {
     var activeElement;
     var inspector;
     var update = false;
-
+    
+    this.storage = new LEEWGL.LocalStorage();
+    
     Object.defineProperties(this, {
         outline : {
             enumerable : true,
@@ -124,7 +126,9 @@ LEEWGL.UI = function(options) {
     this.componentsToHTML = function(activeElement) {
         var container;
         var title;
-
+        
+        var that = this;
+        
         for(var component in activeElement.components) {
             if(!activeElement.components.hasOwnProperty(component))
                 continue;
@@ -151,12 +155,16 @@ LEEWGL.UI = function(options) {
                 container.appendChild(this.createTable(['x', 'y', 'z'], [obj.scaleVec[0], obj.scaleVec[1], obj.scaleVec[2]]));
             } else if(component === LEEWGL.Component.CustomScriptComponent) {
                 container.setAttribute('id', 'custom-script-container');
-
+                
                 var textfield = document.createElement('textarea');
                 textfield.setAttribute('rows', 5);
                 textfield.setAttribute('cols', 30);
                 textfield.setAttribute('placeholder', obj.code);
-
+                
+                textfield.value = that.storage.getValue('customScript');
+                
+                console.log(that.storage.getValue('customScript'));
+                
                 textfield.addEventListener('keyup', function(event) {
                     /// enter key
                     if(event.keyCode === 13) {
@@ -165,8 +173,10 @@ LEEWGL.UI = function(options) {
                         var code = 'activeElement.addEventListener("custom", function() {' + this.value + '});';
                         script.appendChild(document.createTextNode(code));
                         document.body.appendChild(script);
-
-
+                        
+                        
+                        that.storage.setValue('customScript', this.value);
+                        
                         activeElement.dispatchEvent({'type' : 'custom'});
                     }
                 });
