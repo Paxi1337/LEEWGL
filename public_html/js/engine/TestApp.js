@@ -108,7 +108,7 @@ LEEWGL.TestApp.prototype.onCreate = function() {
     this.gl.enable(this.gl.DEPTH_TEST);
     this.gl.depthFunc(this.gl.LEQUAL);
 
-    this.core.initTexture(this.texture, '../texture/texture1.jpg');
+    this.core.initTexture(this.texture, 'texture/texture1.jpg');
     this.picker.initPicking(this.gl, this.canvas.width, this.canvas.height);
 };
 

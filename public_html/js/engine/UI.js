@@ -2,15 +2,15 @@ LEEWGL.UI = function(options) {
     var outline = [];
     var inspector;
     var update = false;
-    
+
     this.activeElement = null;
     this.storage = new LEEWGL.LocalStorage();
     this.playing = false;
-    
+
     Object.defineProperties(this, {
-        outline : {
-            enumerable : true,
-            value : outline
+        outline: {
+            enumerable: true,
+            value: outline
         }
     });
 
@@ -44,8 +44,8 @@ LEEWGL.UI = function(options) {
         y = event.clientY - top;
 
         return {
-            'x' : x,
-            'y' : y
+            'x': x,
+            'y': y
         };
     };
 
@@ -76,7 +76,7 @@ LEEWGL.UI = function(options) {
 //                        this.setAttribute('class', 'active');
 //                    else 
 //                        this.setAttribute('class', '');
-                        
+
                     that.setInspectorContent(index);
                 });
             })(i);
@@ -129,9 +129,9 @@ LEEWGL.UI = function(options) {
     this.componentsToHTML = function(activeElement) {
         var container;
         var title;
-        
+
         var that = this;
-        
+
         for(var component in activeElement.components) {
             if(!activeElement.components.hasOwnProperty(component))
                 continue;
@@ -143,26 +143,26 @@ LEEWGL.UI = function(options) {
 
             var obj = activeElement.components[component];
             var hr = document.createElement('hr');
-            
+
             /// LEEWGL.TransformComponent
             if(component === LEEWGL.Component.TransformComponent) {
                 container.setAttribute('id', 'table-container');
                 var pos = document.createElement('h4');
                 pos.setAttribute('class', 'fleft mright10');
                 pos.innerHTML = 'Position: ';
-                
+
                 var trans = document.createElement('h4');
                 trans.setAttribute('class', 'fleft mright10');
                 trans.innerHTML = 'Translation: ';
-                
+
                 var rot = document.createElement('h4');
                 rot.setAttribute('class', 'fleft mright10');
                 rot.innerHTML = 'Rotation: ';
-                
+
                 var scale = document.createElement('h4');
                 scale.setAttribute('class', 'fleft mright10');
                 scale.innerHTML = 'Scale: ';
-                
+
                 /// position
                 container.appendChild(pos);
                 container.appendChild(this.createTable(['x', 'y', 'z'], [obj.position[0], obj.position[1], obj.position[2]]));
@@ -175,18 +175,18 @@ LEEWGL.UI = function(options) {
                 /// scale
                 container.appendChild(scale);
                 container.appendChild(this.createTable(['x', 'y', 'z'], [obj.scaleVec[0], obj.scaleVec[1], obj.scaleVec[2]]));
-                
+
                 container.appendChild(hr);
             } else if(component === LEEWGL.Component.CustomScriptComponent) {
                 container.setAttribute('id', 'custom-script-container');
-                
+
                 var textfield = document.createElement('textarea');
                 textfield.setAttribute('rows', 5);
                 textfield.setAttribute('cols', 30);
                 textfield.setAttribute('placeholder', obj.code);
-                
+
                 textfield.value = that.storage.getValue('customScript' + activeElement.id);
-                
+
                 textfield.addEventListener('keyup', function(event) {
                     if(event.keyCode === LEEWGL.KEYS.ENTER) {
                         that.addScript('customScript' + activeElement.id, this.value);
@@ -207,9 +207,9 @@ LEEWGL.UI = function(options) {
         }
 
         this.inspector.innerHTML = '';
-        
+
         var activeElement = this.outline[index];
-        
+
         this.activeElement = activeElement;
         window.activeElement = activeElement;
 
@@ -236,7 +236,7 @@ LEEWGL.UI = function(options) {
             (function(index) {
                 toggle[index].addEventListener('click', function(event) {
                     var c = container[index];
-                    
+
                     if(c.style.position !== LEEWGL.UI.ABSOLUTE) {
                         c.style.position = LEEWGL.UI.ABSOLUTE;
                         movable[index].addEventListener('mousemove', function(event) {
@@ -258,15 +258,14 @@ LEEWGL.UI = function(options) {
             })(i);
         }
     };
-    
+
     this.addScript = function(id, src) {
         var script;
         if(script = document.querySelector('#' + id)) {
             document.body.removeChild(script);
-        } 
-        
-        this.storage.setValue('customScript' + id, src);
-        
+        }
+        this.storage.setValue(id, src);
+
         var newScript = document.createElement('script');
         newScript.type = 'text/javascript';
         newScript.id = id;
@@ -274,14 +273,38 @@ LEEWGL.UI = function(options) {
         newScript.appendChild(document.createTextNode(code));
         document.body.appendChild(newScript);
     };
-    
+
     this.play = function() {
         this.playing = true;
-        this.activeElement.dispatchEvent({'type' : 'custom'});
+        this.activeElement.dispatchEvent({'type': 'custom'});
     };
-    
+
     this.stop = function() {
         this.playing = false;
+    };
+
+    this.popup = function(pos, center, file) {
+        var popupContainer = document.createElement('div');
+        popupContainer.setAttribute('class', 'popup-container');
+        popupContainer.style.top = '10px';
+
+
+        var width = document.body.clientWidth;
+        var height = document.body.clientHeight;
+
+        if(center === true) {
+            /// FIXME: hardcoded value
+            popupContainer.style.top = height / 2 - 200 + 'px';
+            popupContainer.style.left = (width / 2) - 200 + 'px';
+        } else {
+            popupContainer.style.top = pos.top + 'px';
+            popupContainer.style.left = pos.left + 'px';
+        }
+
+        var ajax = new LEEWGL.AsynchRequest();
+        popupContainer.innerHTML = ajax.send('GET', LEEWGL.ROOT + 'html/' + file, false, null).response.responseText;
+        document.body.appendChild(popupContainer);
+
     };
 };
 
