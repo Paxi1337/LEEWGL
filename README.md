@@ -33,6 +33,7 @@ To run LEEWGL locally you need to set-up a webserver [eg. Apache] and open the *
 - [x] Transform Objects.
 - [x] Movable Editor-Camera.
 - [ ] Different Lights
+- [ ] Shadow Mapping
 - [ ] UI interactivity.
   - [x] Dynamic Outline.
   - [x] Dynamic Inspector.
@@ -44,6 +45,8 @@ To run LEEWGL locally you need to set-up a webserver [eg. Apache] and open the *
 - [ ] UI Styling
 - [ ] Import Models / Files
 - [ ] Saving / Loading
+  - [x] LocalStorage
+  - [ ] SessionStorage??
 - [ ] Components
   - [x] Transform
   - [x] Custom Script
