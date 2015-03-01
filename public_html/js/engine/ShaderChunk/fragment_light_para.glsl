@@ -1,0 +1,1 @@
+varying highp vec3 vLighting;

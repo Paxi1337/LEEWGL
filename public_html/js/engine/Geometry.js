@@ -1,14 +1,15 @@
-LEEWGL.Geometry = function () {
+LEEWGL.Geometry = function() {
     LEEWGL.Object3D.call(this);
 
     this.type = 'Geometry';
 
-    this.vertices = {'position' : [], 'color' : [], 'uv' : []};
+    this.vertices = {'position': [], 'normal': [], 'color': [], 'uv': []};
     this.indices = [];
     this.boundingBox = null;
     this.boundingSphere = null;
 
-    this.vertexBuffer = new LEEWGL.Buffer({'picking' : true});
+    this.vertexBuffer = new LEEWGL.Buffer({'picking': true});
+    this.normalBuffer = new LEEWGL.Buffer();
     this.indexBuffer = new LEEWGL.IndexBuffer();
     this.colorBuffer = new LEEWGL.Buffer();
     this.textureBuffer = new LEEWGL.Buffer();
@@ -17,12 +18,14 @@ LEEWGL.Geometry = function () {
 
     this.normal = vec3.fromValues(0.0, LEEWGL.up, 0.0);
 
-    this.setBuffer = function (gl) {
+    this.setBuffer = function(gl) {
         this.vertexBuffer.setData(gl, this.vertices.position, new LEEWGL.BufferInformation.VertexTypePos3());
+        this.normalBuffer.setData(gl, this.vertices.normal, new LEEWGL.BufferInformation.VertexTypePos3());
+        this.textureBuffer.setData(gl, this.vertices.uv, new LEEWGL.BufferInformation.VertexTypePos2());
         this.indexBuffer.setData(gl, this.indices);
     };
 
-    this.setColorBuffer = function (gl) {
+    this.setColorBuffer = function(gl) {
         if(this.vertices.color[0].length % 4 !== 0) {
             console.error('LEEWGL.Geometry.addColor(): Color array must be multiple of 4!');
             return false;
@@ -31,7 +34,7 @@ LEEWGL.Geometry = function () {
         this.colorBuffer.setData(gl, this.vertices.color, new LEEWGL.BufferInformation.VertexTypePos4());
     };
 
-    this.addColor = function (gl, colors, length) {
+    this.addColor = function(gl, colors, length) {
         if(colors !== undefined && colors.length === length) {
             this.colors = colors;
             this.setColorBuffer(gl);
@@ -48,13 +51,13 @@ LEEWGL.Geometry = function () {
 
 LEEWGL.Geometry.prototype = Object.create(LEEWGL.Object3D.prototype);
 
-LEEWGL.Geometry.prototype.setVertices = function (vertices) {
+LEEWGL.Geometry.prototype.setVertices = function(vertices) {
     for(var i = 0; i < vertices.length; ++i) {
         this.vertices.push(vertices[i]);
     }
 };
 
-LEEWGL.Geometry.prototype.clone = function () {
+LEEWGL.Geometry.prototype.clone = function() {
     var geometry = new LEEWGL.Geometry();
     var vertices = this.vertices;
 
@@ -67,7 +70,7 @@ LEEWGL.Geometry.prototype.clone = function () {
     return geometry;
 };
 
-LEEWGL.Geometry.Plane = function () {
+LEEWGL.Geometry.Plane = function() {
     LEEWGL.Geometry.call(this);
 
     this.distance = 0.0;
@@ -75,12 +78,13 @@ LEEWGL.Geometry.Plane = function () {
 
 LEEWGL.Geometry.Plane.prototype = Object.create(LEEWGL.Geometry.prototype);
 
-LEEWGL.Geometry.Grid = function () {
+/// FIXME: not working [indices]
+LEEWGL.Geometry.Grid = function() {
     LEEWGL.Geometry.call(this);
 
     this.faces = 4;
 
-    this.generateGrid = function (width, height, margin) {
+    this.generateGrid = function(width, height, margin) {
         for(var z = 0; z < height; ++z) {
             for(var x = 0; x < width; ++x) {
                 this.vertices.position.push([x * margin.x, 0.0, z * margin.z]);
@@ -122,11 +126,11 @@ LEEWGL.Geometry.Grid.prototype = Object.create(LEEWGL.Geometry.prototype);
  * @param vec3 origin
  * @returns {undefined}
  */
-LEEWGL.Geometry.Plane.prototype.distance = function (origin) {
+LEEWGL.Geometry.Plane.prototype.distance = function(origin) {
     return vec3.dot(this.normal, origin) + this.distance;
 };
 
-LEEWGL.Geometry.Triangle = function () {
+LEEWGL.Geometry.Triangle = function() {
     LEEWGL.Geometry.call(this);
 
     this.faces = 4;
@@ -137,6 +141,14 @@ LEEWGL.Geometry.Triangle = function () {
         0.0, 1.0, 1.0,
         -1.0, -1.0, -1.0,
         1.0, -1.0, -1.0
+    ];
+    
+    this.vertices.normal = [
+        0.0, 1.0, 0.0,
+        0.0, 1.0, 0.0,
+        0.0, 1.0, 0.0,
+        0.0, 1.0, 0.0,
+        0.0, 1.0, 0.0
     ];
 
     this.indices = [
@@ -150,7 +162,7 @@ LEEWGL.Geometry.Triangle = function () {
 
 LEEWGL.Geometry.Triangle.prototype = Object.create(LEEWGL.Geometry.prototype);
 
-LEEWGL.Geometry.Triangle.prototype.intersectRay = function (origin, direction, collision, distance, segmentationMax) {
+LEEWGL.Geometry.Triangle.prototype.intersectRay = function(origin, direction, collision, distance, segmentationMax) {
     var plane = new LEEWGL.Geometry.Plane();
     vec3.set(plane.x, this.x);
     vec3.set(plane.y, this.y);
@@ -179,7 +191,7 @@ LEEWGL.Geometry.Triangle.prototype.intersectRay = function (origin, direction, c
     return false;
 };
 
-LEEWGL.Geometry.Cube = function () {
+LEEWGL.Geometry.Cube = function() {
     LEEWGL.Geometry.call(this);
 
     this.faces = 6;
@@ -215,6 +227,39 @@ LEEWGL.Geometry.Cube = function () {
         -1.0, -1.0, 1.0,
         -1.0, 1.0, 1.0,
         -1.0, 1.0, -1.0
+    ];
+
+    this.vertices.normal = [
+        // Front
+        0.0, 0.0, 1.0,
+        0.0, 0.0, 1.0,
+        0.0, 0.0, 1.0,
+        0.0, 0.0, 1.0,
+        // Back
+        0.0, 0.0, -1.0,
+        0.0, 0.0, -1.0,
+        0.0, 0.0, -1.0,
+        0.0, 0.0, -1.0,
+        // Top
+        0.0, 1.0, 0.0,
+        0.0, 1.0, 0.0,
+        0.0, 1.0, 0.0,
+        0.0, 1.0, 0.0,
+        // Bottom
+        0.0, -1.0, 0.0,
+        0.0, -1.0, 0.0,
+        0.0, -1.0, 0.0,
+        0.0, -1.0, 0.0,
+        // Right
+        1.0, 0.0, 0.0,
+        1.0, 0.0, 0.0,
+        1.0, 0.0, 0.0,
+        1.0, 0.0, 0.0,
+        // Left
+        -1.0, 0.0, 0.0,
+        -1.0, 0.0, 0.0,
+        -1.0, 0.0, 0.0,
+        -1.0, 0.0, 0.0
     ];
 
     this.indices = [

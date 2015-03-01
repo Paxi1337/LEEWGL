@@ -76,8 +76,8 @@ LEEWGL.TestApp.prototype.onCreate = function() {
     this.camera.transform.setPosition([0.0, 0.0, 10.0]);
     this.camera.setLookAt([0.0, 0.0, -1.0]);
 
-    this.shader.createShaderFromLibrary(this.gl, LEEWGL.Shader.VERTEX, LEEWGL.ShaderLibrary.picking.vertexShader);
-    this.shader.createShaderFromLibrary(this.gl, LEEWGL.Shader.FRAGMENT, LEEWGL.ShaderLibrary.picking.fragmentShader);
+    this.shader.createShaderFromLibrary(this.gl, LEEWGL.Shader.VERTEX, LEEWGL.ShaderLibrary.picking_directional_ambient.vertexShader);
+    this.shader.createShaderFromLibrary(this.gl, LEEWGL.Shader.FRAGMENT, LEEWGL.ShaderLibrary.picking_directional_ambient.fragmentShader);
     this.shader.linkShader(this.gl);
     this.shader.use(this.gl);
 
@@ -220,6 +220,8 @@ LEEWGL.TestApp.prototype.draw = function() {
 
     this.shader.attributes['aVertexPosition'](this.triangle.vertexBuffer);
     this.shader.attributes['aVertexColor'](this.triangle.colorBuffer);
+    
+    this.shader.attributes['aVertexNormal'](this.triangle.normalBuffer);
 
     this.triangle.indexBuffer.bind(this.gl);
     this.gl.drawElements(this.gl.TRIANGLES, this.triangle.indices.length, this.gl.UNSIGNED_SHORT, 0);
@@ -227,6 +229,7 @@ LEEWGL.TestApp.prototype.draw = function() {
     /// cube
     this.shader.attributes['aVertexPosition'](this.cube.vertexBuffer);
     this.shader.attributes['aVertexColor'](this.cube.colorBuffer);
+    this.shader.attributes['aVertexNormal'](this.cube.normalBuffer);
     this.shader.uniforms['uColorMapColor'](new Float32Array(this.cube.vertexBuffer.colorMapColor));
     this.shader.uniforms['uModel'](this.cube.transform.matrix());
 
@@ -234,11 +237,11 @@ LEEWGL.TestApp.prototype.draw = function() {
     this.gl.drawElements(this.gl.TRIANGLES, this.cube.indices.length, this.gl.UNSIGNED_SHORT, 0);
 
     /// grid
-    this.shader.attributes['aVertexPosition'](this.grid.vertexBuffer);
-    this.shader.attributes['aVertexColor'](this.grid.colorBuffer);
-    this.shader.uniforms['uColorMapColor'](new Float32Array(this.grid.vertexBuffer.colorMapColor));
-    this.shader.uniforms['uModel'](this.grid.transform.matrix());
-
-    this.grid.indexBuffer.bind(this.gl);
-    this.gl.drawElements(this.gl.TRIANGLE_STRIP, this.grid.indices.length, this.gl.UNSIGNED_SHORT, 0);
+//    this.shader.attributes['aVertexPosition'](this.grid.vertexBuffer);
+//    this.shader.attributes['aVertexColor'](this.grid.colorBuffer);
+//    this.shader.uniforms['uColorMapColor'](new Float32Array(this.grid.vertexBuffer.colorMapColor));
+//    this.shader.uniforms['uModel'](this.grid.transform.matrix());
+//
+//    this.grid.indexBuffer.bind(this.gl);
+//    this.gl.drawElements(this.gl.TRIANGLE_STRIP, this.grid.indices.length, this.gl.UNSIGNED_SHORT, 0);
 };

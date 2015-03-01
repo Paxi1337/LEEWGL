@@ -28,6 +28,9 @@ LEEWGL.AsynchRequest.prototype = {
     },
     onSuccess : function() {
     },
+    onError : function() {
+        
+    },
     onReadyStateChange : function() {
         if(this.request.readyState === LEEWGL.AsynchRequest.LOADING) {
             this.onRequest();
@@ -40,6 +43,8 @@ LEEWGL.AsynchRequest.prototype = {
 
                 this.onSuccess();
             }
+        } else {
+            this.onError();
         }
     },
     send : function(method, loc, asynch, data) {
