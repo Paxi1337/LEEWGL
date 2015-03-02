@@ -1,9 +1,9 @@
 LEEWGL.DirectionalLight = function() {
     LEEWGL.Object3D.call(this);
     
-    this.direction = [0.0, 0.0, 0.0];   
+    this.direction = [-1.0, 1.0, -1.0];   
     /// MATERIAL??
-    this.color = [0.0, 0.0, 0.0];
+    this.color = [1.0, 1.0, 1.0];
 };
 
 LEEWGL.DirectionalLight.prototype = Object.create(LEEWGL.Object3D.prototype);

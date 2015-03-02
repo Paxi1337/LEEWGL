@@ -215,6 +215,7 @@ LEEWGL.TestApp.prototype.draw = function() {
     this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
     
+    
     /// light
     this.shader.uniforms['uAmbient']([0.5, 0.5, 0.5]);
     this.shader.uniforms['uLightDirection'](this.light.direction);
@@ -224,10 +225,15 @@ LEEWGL.TestApp.prototype.draw = function() {
     this.shader.uniforms['uVP'](this.camera.viewProjMatrix);
     this.shader.uniforms['uModel'](this.triangle.transform.matrix());
     this.shader.uniforms['uColorMapColor'](new Float32Array(this.triangle.vertexBuffer.colorMapColor));
+    
+    var normalMatrix = mat4.create();
+    mat4.invert(normalMatrix, this.triangle.transform.matrix());
+    mat4.transpose(normalMatrix, normalMatrix);
+    
+    this.shader.uniforms['uNormalMatrix'](normalMatrix);
 
     this.shader.attributes['aVertexPosition'](this.triangle.vertexBuffer);
     this.shader.attributes['aVertexColor'](this.triangle.colorBuffer);
-    
     this.shader.attributes['aVertexNormal'](this.triangle.normalBuffer);
 
     this.triangle.indexBuffer.bind(this.gl);
@@ -237,8 +243,15 @@ LEEWGL.TestApp.prototype.draw = function() {
     this.shader.attributes['aVertexPosition'](this.cube.vertexBuffer);
     this.shader.attributes['aVertexColor'](this.cube.colorBuffer);
     this.shader.attributes['aVertexNormal'](this.cube.normalBuffer);
+    
     this.shader.uniforms['uColorMapColor'](new Float32Array(this.cube.vertexBuffer.colorMapColor));
     this.shader.uniforms['uModel'](this.cube.transform.matrix());
+
+    var normalMatrix = mat4.create();
+    mat4.invert(normalMatrix, this.cube.transform.matrix());
+    mat4.transpose(normalMatrix, normalMatrix);
+    
+    this.shader.uniforms['uNormalMatrix'](normalMatrix);
 
     this.cube.indexBuffer.bind(this.gl);
     this.gl.drawElements(this.gl.TRIANGLES, this.cube.indices.length, this.gl.UNSIGNED_SHORT, 0);

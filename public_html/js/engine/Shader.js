@@ -169,8 +169,6 @@ LEEWGL.Shader = function () {
             this.uniforms[name] = setter;
         }
         
-        
-        console.log(this.uniforms);
         return this.uniforms;
     };
 
