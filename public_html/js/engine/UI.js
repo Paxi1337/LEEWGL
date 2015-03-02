@@ -189,7 +189,7 @@ LEEWGL.UI = function(options) {
 
                 textfield.addEventListener('keyup', function(event) {
                     if(event.keyCode === LEEWGL.KEYS.ENTER) {
-                        that.addScript('customScript' + activeElement.id, this.value);
+                        that.addScript(activeElement.id, this.value);
                     }
                 });
 
@@ -261,22 +261,29 @@ LEEWGL.UI = function(options) {
 
     this.addScript = function(id, src) {
         var script;
-        if(script = document.querySelector('#' + id)) {
+        if((script = document.querySelector('#customScript' + id)) !== null) {
             document.body.removeChild(script);
         }
-        this.storage.setValue(id, src);
-
+        this.storage.setValue('customScript' + id, src);
+        
         var newScript = document.createElement('script');
         newScript.type = 'text/javascript';
-        newScript.id = id;
-        var code = 'activeElement.addEventListener("custom", function() { if(UI.playing === true) {' + src + '}});';
+        newScript.id = 'customScript' + id;
+        
+        var code = 'UI.outline[' + id + '].addEventListener("custom", function() { if(UI.playing === true) {' + src + '}});';
+        
+        console.log(code);
         newScript.appendChild(document.createTextNode(code));
         document.body.appendChild(newScript);
     };
 
     this.play = function() {
         this.playing = true;
-        this.activeElement.dispatchEvent({'type': 'custom'});
+        
+        for(var i = 0; i < this.outline.length; ++i) {
+            this.outline[i].dispatchEvent({'type': 'custom'});
+        }
+        
     };
 
     this.stop = function() {
