@@ -16,6 +16,8 @@ LEEWGL.TestApp = function(options) {
     this.texture = new LEEWGL.Texture();
 
     this.picker = new LEEWGL.Picker();
+    
+    this.light = new LEEWGL.DirectionalLight();
 
     this.movement = {'x' : 0, 'y' : 0};
 
@@ -212,7 +214,12 @@ LEEWGL.TestApp.prototype.onRender = function() {
 LEEWGL.TestApp.prototype.draw = function() {
     this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-
+    
+    /// light
+    this.shader.uniforms['uAmbient']([0.5, 0.5, 0.5]);
+    this.shader.uniforms['uLightDirection'](this.light.direction);
+    this.shader.uniforms['uLightColor'](this.light.color);
+    
     /// triangle
     this.shader.uniforms['uVP'](this.camera.viewProjMatrix);
     this.shader.uniforms['uModel'](this.triangle.transform.matrix());

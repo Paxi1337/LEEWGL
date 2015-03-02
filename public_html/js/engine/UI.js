@@ -272,7 +272,6 @@ LEEWGL.UI = function(options) {
         
         var code = 'UI.outline[' + id + '].addEventListener("custom", function() { if(UI.playing === true) {' + src + '}});';
         
-        console.log(code);
         newScript.appendChild(document.createTextNode(code));
         document.body.appendChild(newScript);
     };

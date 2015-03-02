@@ -1,12 +1,10 @@
-/// FIXME: static values in shader for lighting position and color [material!!]
-
-LEEWGL.Light = function() {
+LEEWGL.DirectionalLight = function() {
     LEEWGL.Object3D.call(this);
-};
-
-LEEWGL.Light.prototype = Object.create(LEEWGL.Object3D.prototype);
-
-LEEWGL.Light.prototype.Test = function() {
     
+    this.direction = [0.0, 0.0, 0.0];   
+    /// MATERIAL??
+    this.color = [0.0, 0.0, 0.0];
 };
+
+LEEWGL.DirectionalLight.prototype = Object.create(LEEWGL.Object3D.prototype);
 
