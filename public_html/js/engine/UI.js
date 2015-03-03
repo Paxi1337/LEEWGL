@@ -156,9 +156,6 @@ LEEWGL.UI = function(options) {
 
             /// LEEWGL.TransformComponent
             if(compName === LEEWGL.Component.TransformComponent) {
-
-                console.log(comp.transVec);
-
                 container.setAttribute('class', 'table-container');
                 var pos = document.createElement('h4');
                 pos.setAttribute('class', 'fleft mright10');
