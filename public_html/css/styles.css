@@ -273,7 +273,7 @@ div#status-bar {
     line-height: 40px;
 }
 
-div#table-container {
+div.table-container {
 }
 
 table {

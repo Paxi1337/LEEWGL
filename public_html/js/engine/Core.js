@@ -56,6 +56,10 @@ LEEWGL.FormatRGBA = 1018;
 LEEWGL.FormatLuminance = 1019;
 LEEWGL.FormatLuminanceAlpha = 1020;
 
+LEEWGL.Settings = {};
+
+LEEWGL.Settings.Precision = 4;
+
 LEEWGL.Timer = function(auto) {
     this.auto = auto !== undefined ? auto : true;
 

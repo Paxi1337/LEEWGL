@@ -13,6 +13,7 @@ LEEWGL.Component.prototype = {
 };
 
 LEEWGL.Component.TransformComponent = 'Transform';
+LEEWGL.Component.LightComponent = 'Light';
 LEEWGL.Component.CustomScriptComponent = 'CustomScript';
 
 LEEWGL.Component.Transform = function () {
@@ -98,6 +99,26 @@ LEEWGL.Component.Transform.prototype.clone = function (transform) {
     return transform;
 };
 
+LEEWGL.Component.Light = function() {
+    LEEWGL.Component.call(this);
+    
+    this.type = 'Light';
+    this.direction = [0.0, 0.0, 0.0];
+    this.color = [1.0, 1.0, 1.0];
+};
+
+LEEWGL.Component.Light.prototype.clone = function(light) {
+  if(light === 'undefined') 
+      light = new LEEWGL.Component.Light();
+  
+    LEEWGL.Component.prototype.clone.call(light);
+    
+    light.direction.copy(light.direction, this.direction);
+    light.color.copy(light.color, this.color);
+    
+    return light;
+};
+
 LEEWGL.Component.CustomScript = function () {
     LEEWGL.Component.call(this);
 
@@ -109,6 +130,8 @@ LEEWGL.Component.CustomScript = function () {
 LEEWGL.Component.CustomScript.prototype.clone = function (customScript) {
     if(customScript === 'undefined')
         customScript = new LEEWGL.Component.CustomScript();
+    
+    LEEWGL.Component.prototype.clone.call(customScript);
 
     customScript.code = this.code;
 

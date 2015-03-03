@@ -111,11 +111,21 @@ LEEWGL.UI = function(options) {
         for(var i = 0; i < content.length; ++i) {
             td = document.createElement('td');
             td.setAttribute('contenteditable', true);
-            td.innerHTML = content[i];
+            td.setAttribute('num', i);
+
+            if(typeof content[i] === 'number')
+                td.innerHTML = content[i].toPrecision(LEEWGL.Settings.Precision);
+            else
+                td.innerHTML = content[i];
 
             /// html5 feature - gets called when dom elements with contenteditable = true get edited
-            td.addEventListener('input', function() {
-
+            td.addEventListener('keydown', function(event) {
+                if(event.keyCode === LEEWGL.KEYS.ENTER) {
+                    var num = this.getAttribute('num');
+                    content[num] = this.innerText;
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
             });
 
             tr.appendChild(td);
@@ -132,21 +142,24 @@ LEEWGL.UI = function(options) {
 
         var that = this;
 
-        for(var component in activeElement.components) {
-            if(!activeElement.components.hasOwnProperty(component))
+        for(var compName in activeElement.components) {
+            if(!activeElement.components.hasOwnProperty(compName))
                 continue;
 
             container = document.createElement('div');
             title = document.createElement('h3');
-            title.innerHTML = 'Type: ' + component;
+            title.innerHTML = 'Type: ' + compName;
             container.appendChild(title);
 
-            var obj = activeElement.components[component];
+            var comp = activeElement.components[compName];
             var hr = document.createElement('hr');
 
             /// LEEWGL.TransformComponent
-            if(component === LEEWGL.Component.TransformComponent) {
-                container.setAttribute('id', 'table-container');
+            if(compName === LEEWGL.Component.TransformComponent) {
+
+                console.log(comp.transVec);
+
+                container.setAttribute('class', 'table-container');
                 var pos = document.createElement('h4');
                 pos.setAttribute('class', 'fleft mright10');
                 pos.innerHTML = 'Position: ';
@@ -165,37 +178,55 @@ LEEWGL.UI = function(options) {
 
                 /// position
                 container.appendChild(pos);
-                container.appendChild(this.createTable(['x', 'y', 'z'], [obj.position[0], obj.position[1], obj.position[2]]));
+                container.appendChild(this.createTable(['x', 'y', 'z'], comp.position));
                 /// translation
                 container.appendChild(trans);
-                container.appendChild(this.createTable(['x', 'y', 'z'], [obj.transVec[0].toPrecision(6), obj.transVec[1].toPrecision(6), obj.transVec[2].toPrecision(6)]));
+                container.appendChild(this.createTable(['x', 'y', 'z'], comp.transVec));
                 /// rotation
                 container.appendChild(rot);
-                container.appendChild(this.createTable(['x', 'y', 'z'], [obj.rotVec[0], obj.rotVec[1], obj.rotVec[2]]));
+                container.appendChild(this.createTable(['x', 'y', 'z'], comp.rotVec));
                 /// scale
                 container.appendChild(scale);
-                container.appendChild(this.createTable(['x', 'y', 'z'], [obj.scaleVec[0], obj.scaleVec[1], obj.scaleVec[2]]));
+                container.appendChild(this.createTable(['x', 'y', 'z'], comp.scaleVec));
 
                 container.appendChild(hr);
-            } else if(component === LEEWGL.Component.CustomScriptComponent) {
+            } else if(compName === LEEWGL.Component.CustomScriptComponent) {
                 container.setAttribute('id', 'custom-script-container');
 
                 var textfield = document.createElement('textarea');
                 textfield.setAttribute('rows', 5);
                 textfield.setAttribute('cols', 30);
-                textfield.setAttribute('placeholder', obj.code);
+                textfield.setAttribute('placeholder', comp.code);
 
                 textfield.value = that.storage.getValue('customScript' + activeElement.id);
 
                 textfield.addEventListener('keyup', function(event) {
                     if(event.keyCode === LEEWGL.KEYS.ENTER) {
                         that.addScript(activeElement.id, this.value);
+                        event.stopPropagation();
                     }
                 });
 
                 container.appendChild(textfield);
                 container.appendChild(hr);
+            } else if(compName === LEEWGL.Component.LightComponent) {
+                container.setAttribute('class', 'table-container');
+                var direction = document.createElement('h4');
+                direction.setAttribute('class', 'fleft mright10');
+                direction.innerHTML = 'Direction: ';
+
+                var color = document.createElement('h4');
+                color.setAttribute('class', 'fleft mright10');
+                color.innerHTML = 'Color: ';
+
+                /// direction
+                container.appendChild(direction);
+                container.appendChild(this.createTable(['x', 'y', 'z'], comp.direction));
+                /// color
+                container.appendChild(color);
+                container.appendChild(this.createTable(['r', 'g', 'b'], comp.color));
             }
+
             this.inspector.appendChild(container);
         }
     };
@@ -265,24 +296,24 @@ LEEWGL.UI = function(options) {
             document.body.removeChild(script);
         }
         this.storage.setValue('customScript' + id, src);
-        
+
         var newScript = document.createElement('script');
         newScript.type = 'text/javascript';
         newScript.id = 'customScript' + id;
-        
+
         var code = 'UI.outline[' + id + '].addEventListener("custom", function() { if(UI.playing === true) {' + src + '}});';
-        
+
         newScript.appendChild(document.createTextNode(code));
         document.body.appendChild(newScript);
     };
 
     this.play = function() {
         this.playing = true;
-        
+
         for(var i = 0; i < this.outline.length; ++i) {
             this.outline[i].dispatchEvent({'type': 'custom'});
         }
-        
+
     };
 
     this.stop = function() {

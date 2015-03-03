@@ -35,7 +35,8 @@ LEEWGL.TestApp.prototype.onCreate = function() {
     this.triangle.name = 'Triangle';
     this.cube.name = 'Cube';
     this.grid.name = 'Grid';
-
+    this.light.name = 'DirectionalLight';
+    
     var textureCoordinates = [
         // Front
         0.0, 0.0,
@@ -215,11 +216,10 @@ LEEWGL.TestApp.prototype.draw = function() {
     this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
     
-    
     /// light
     this.shader.uniforms['uAmbient']([0.5, 0.5, 0.5]);
-    this.shader.uniforms['uLightDirection'](this.light.direction);
-    this.shader.uniforms['uLightColor'](this.light.color);
+    this.shader.uniforms['uLightDirection'](this.light.components['Light'].direction);
+    this.shader.uniforms['uLightColor'](this.light.components['Light'].color);
     
     /// triangle
     this.shader.uniforms['uVP'](this.camera.viewProjMatrix);

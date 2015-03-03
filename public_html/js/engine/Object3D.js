@@ -74,7 +74,6 @@ LEEWGL.Object3D.prototype = {
 
             return this;
         }
-        ;
 
         var index = this.children.indexOf(object);
         if(index !== -1) {
