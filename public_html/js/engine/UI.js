@@ -321,7 +321,7 @@ LEEWGL.UI = function(options) {
         var popupContainer = document.createElement('div');
         popupContainer.setAttribute('class', 'popup-container');
         popupContainer.style.top = '10px';
-
+#
 
         var width = document.body.clientWidth;
         var height = document.body.clientHeight;
