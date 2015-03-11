@@ -75,7 +75,7 @@ LEEWGL.TestApp.prototype.onCreate = function() {
 //        vec3.set(translation, -0.5, 0.0, 0.0);
 //        this.transform.translate(translation);
 //    });
-
+    
     this.camera.transform.setPosition([0.0, 0.0, 10.0]);
     this.camera.setLookAt([0.0, 0.0, -1.0]);
 

@@ -28,6 +28,7 @@
         <script type="text/javascript" src="js/engine/TestApp.js"></script> 
         <script type="text/javascript" src="js/engine/Picker.js"></script> 
         <script type="text/javascript" src="js/engine/Storage.js"></script>
+        <script type="text/javascript" src="js/engine/DragDrop.js"></script>
         <script type="text/javascript" src="js/engine/UI.js"></script> 
         <script type="text/javascript" src="js/engine/AsynchRequest.js"></script> 
         <script type="text/javascript" src="js/engine/UniformLibrary.js"></script> 
@@ -154,7 +155,7 @@
         <script>
             window.onload = function() {
                 var init = function() {
-                    UI.dynamicContainers('.icon-container', '.dynamic-container', '.container-header');
+                    UI.dynamicContainers('.icon-container', '.dynamic-container');
 
                     var _canvas = document.querySelector('#canvas');
 
