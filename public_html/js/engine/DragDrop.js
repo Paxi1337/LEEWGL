@@ -38,5 +38,16 @@ LEEWGL.DragDrop = function() {
 		event.stopPropagation();
 		event.preventDefault();
 	};
+	
+	this.restore = function(obj, event) {
+		if(obj.style.position === LEEWGL.UI.ABSOLUTE) 
+			obj.style.position = LEEWGL.UI.STATIC;
+		
+		obj.style.left = '';
+		obj.style.top = '';
+		
+		event.stopPropagation();
+		event.preventDefault();
+	};
 };
 

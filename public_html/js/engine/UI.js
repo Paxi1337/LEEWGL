@@ -261,6 +261,10 @@ LEEWGL.UI = function(options) {
 					var c = container[index];
 					c.addEventListener('click', that.drag.drag(c, event));
 				});
+				toggle[index].addEventListener('dblclick', function(event) {
+					var c = container[index];
+					that.drag.restore(c, event);
+				});
 			})(i);
 		}
 	};
