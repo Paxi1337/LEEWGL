@@ -119,11 +119,15 @@ div#inspector-container {
     margin-left: 20px;
     background-color: #565656;
     border: solid 1px #000;
-
 }
 
 div#dynamic-inspector {
     padding: 10px;
+}
+
+div.controls-container {
+	height: 35px;
+	padding: 5px;
 }
 
 div#header-bar-overall {

@@ -1,3 +1,8 @@
+button {
+	width: 115px;
+	height: 30px;
+}
+
 .fleft {
     float: left;
 }

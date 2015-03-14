@@ -125,7 +125,7 @@ LEEWGL.Core = function(options) {
             _quit = false;
 
     // initialize webGL
-    var _gl;
+    var _gl = null;
 
     // execution block
     try {

@@ -236,6 +236,7 @@ LEEWGL.UI = function(options) {
 			return;
 		}
 
+		var that = this;
 		this.inspector.innerHTML = '';
 
 		var activeElement = this.outline[index];
@@ -248,6 +249,22 @@ LEEWGL.UI = function(options) {
 
 		this.inspector.appendChild(name);
 		this.componentsToHTML(activeElement);
+
+		// / interactive GUI elements
+		// / add component
+		var interactiveControlsContainer = document.createElement('div');
+		interactiveControlsContainer.setAttribute('class', 'controls-container');
+
+		var addComponentControl = document.createElement('button');
+		addComponentControl.setAttribute('type', 'button');
+		addComponentControl.appendChild(document.createTextNode('Add Component'));
+		interactiveControlsContainer.appendChild(addComponentControl);
+
+		addComponentControl.addEventListener('click', function(event) {
+			that.displayComponentMenu(index, interactiveControlsContainer);
+		});
+
+		this.inspector.appendChild(interactiveControlsContainer);
 	};
 
 	this.dynamicContainers = function(classname_toggle, classname_container, movable_container) {
@@ -284,6 +301,38 @@ LEEWGL.UI = function(options) {
 
 		newScript.appendChild(document.createTextNode(code));
 		document.body.appendChild(newScript);
+	};
+
+	this.displayComponentMenu = function(index, container) {
+		// / get all not already added components
+		var availableComponents = this.getAvailableComponents(this.outline[index]);
+		
+		/// create popup menu with entries
+		for(var i = 0; i < availableComponents.length; ++i) {
+			container.appendChild(document.createTextNode(availableComponents[i]));
+		}
+	};
+
+	this.getAvailableComponents = function(activeElement) {
+		var activeComponents = Object.keys(activeElement.components);
+
+		var subArray = function(a, b) {
+			var visited = [];
+			var arr = [];
+
+			for(var i = 0; i < b.length; ++i) {
+				visited[b[i]] = true;
+			}
+			for(var i = 0; i < a.length; ++i) {
+				console.log(a[i]);
+				if(!visited[a[i]])
+					arr.push(a[i]);
+			}
+			return arr;
+		};
+
+		var availableComponents = subArray(LEEWGL.Component.Components, activeComponents);
+		return availableComponents;
 	};
 
 	this.play = function() {

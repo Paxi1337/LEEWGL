@@ -16,6 +16,8 @@ LEEWGL.Component.TransformComponent = 'Transform';
 LEEWGL.Component.LightComponent = 'Light';
 LEEWGL.Component.CustomScriptComponent = 'CustomScript';
 
+LEEWGL.Component.Components = [LEEWGL.Component.TransformComponent, LEEWGL.Component.LightComponent, LEEWGL.Component.CustomScriptComponent];
+
 LEEWGL.Component.Transform = function () {
     LEEWGL.Component.call(this);
 

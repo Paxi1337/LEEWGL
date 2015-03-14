@@ -39,6 +39,6 @@ LEEWGL.Importer = function() {
 
     this.parseLib = function() {
 
-    }
-}
+    };
+};
 

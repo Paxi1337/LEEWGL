@@ -11,7 +11,7 @@ LEEWGL.Object3D = function () {
 
     var scope = this;
 
-    this.components = [];
+    this.components = {};
 
     this.matrix = mat4.create();
     this.matrixWorld = mat4.create();

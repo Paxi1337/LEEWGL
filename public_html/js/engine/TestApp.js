@@ -11,6 +11,7 @@ LEEWGL.TestApp = function(options) {
     this.camera = new LEEWGL.PerspectiveCamera(90, this.canvas.width / this.canvas.height, 1, 1000);
 
     this.triangle = new LEEWGL.Geometry.Triangle();
+    this.secondTriangle = new LEEWGL.Geometry.Triangle();
     this.cube = new LEEWGL.Geometry.Cube();
     this.grid = new LEEWGL.Geometry.Grid();
     this.texture = new LEEWGL.Texture();
@@ -89,7 +90,6 @@ LEEWGL.TestApp.prototype.onCreate = function() {
 
     this.triangle.setBuffer(this.gl);
     this.triangle.addColor(this.gl, undefined, this.triangle.faces);
-    this.triangle.addComponent(new LEEWGL.Component.CustomScript());
     
     this.cube.setBuffer(this.gl);
     this.cube.addColor(this.gl, undefined, this.cube.faces);

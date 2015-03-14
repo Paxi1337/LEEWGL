@@ -35,6 +35,6 @@ LEEWGL.LocalStorage = function() {
 
     this.clear = function() {
         localStorage.clear();
-    }
+    };
 };
 
