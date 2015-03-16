@@ -22,9 +22,9 @@ LEEWGL.TestApp = function(options) {
 		'near' : 1,
 		'far' : 1000
 	});
-	
+
 	this.cameraGizmo = new LEEWGL.Geometry.Sphere();
-	
+
 	this.triangle = new LEEWGL.Geometry.Triangle();
 	this.cube = new LEEWGL.Geometry.Cube();
 	this.grid = new LEEWGL.Geometry.Grid();
@@ -85,7 +85,7 @@ LEEWGL.TestApp.prototype.onCreate = function() {
 
 	this.cameraGizmo.setBuffer(this.gl);
 	this.cameraGizmo.addColor(this.gl, undefined, this.cameraGizmo.faces);
-	
+
 	this.triangle.setBuffer(this.gl);
 	this.triangle.addColor(this.gl, undefined, this.triangle.faces);
 
@@ -106,8 +106,13 @@ LEEWGL.TestApp.prototype.onCreate = function() {
 	this.textureBuffer.setData(this.gl, textureCoordinates, new LEEWGL.BufferInformation.VertexTypePos2());
 
 	if(this.picking === true) {
-		this.picker.addToList(this.triangle.vertexBuffer.colorMapIndex, this.triangle);
-		this.picker.addToList(this.cube.vertexBuffer.colorMapIndex, this.cube);
+		if(typeof UI !== 'undefined') {
+			for(var i = 0; i < UI.outline.length; ++i) {
+				var element = UI.outline[i];
+				if(typeof element.vertexBuffer !== 'undefined')
+					this.picker.addToList(element);
+			}
+		}
 		this.picker.initPicking(this.gl, this.canvas.width, this.canvas.height);
 	}
 
@@ -246,10 +251,10 @@ LEEWGL.TestApp.prototype.draw = function() {
 
 	// / cube
 	this.cube.render(this.gl, this.shader, this.gl.TRIANGLES);
-	
-	/// camera gizmo
+
+	// / camera gizmo
 	this.cameraGizmo.render(this.gl, this.shader, this.gl.TRIANGLES);
-	
+
 	// / grid
 	// this.shader.attributes['aVertexPosition'](this.grid.vertexBuffer);
 	// this.shader.attributes['aVertexColor'](this.grid.colorBuffer);

@@ -60,8 +60,8 @@ LEEWGL.Picker = function () {
         }
     };
     
-    this.addToList = function(index, obj) {
-        this.objList[index] = obj;
+    this.addToList = function(obj) {
+        this.objList[obj.vertexBuffer.colorMapIndex] = obj;
     };
     
     this.getColorMapColor = function (x, y) {
