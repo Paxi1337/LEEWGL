@@ -1,16 +1,17 @@
-LEEWGL.Object3D = function () {
+LEEWGL.Object3D = function (options) {
     Object.defineProperty(this, 'id', {value : LEEWGL.Object3DCount++});
 
-    this.name = '';
+    this.name = (typeof options !== 'undefined' && typeof options.name !== 'undefined') ? options.name : 'Object3D_' + LEEWGL.Object3DCount;
     this.type = 'Object3D';
-
+    
     this.parent = 'undefined';
     this.children = [];
-
+    
     this.up = vec3.clone(LEEWGL.Object3D.DefaultUp);
 
     var scope = this;
-
+    this.inOutline = (typeof options !== 'undefined' && typeof options.inOutine !== 'undefined') ? options.inOutline : true;
+    
     this.components = {};
 
     this.matrix = mat4.create();
@@ -26,7 +27,7 @@ LEEWGL.Object3D = function () {
     this.addComponent(new LEEWGL.Component.Transform());
     this.transform = this.components['Transform'];
 
-    if(typeof UI !== 'undefined')
+    if(typeof UI !== 'undefined' && this.inOutline === true)
         UI.addObjToOutline(this);
 };
 

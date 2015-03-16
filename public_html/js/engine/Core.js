@@ -10,7 +10,7 @@ if(typeof module === 'object') {
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent.button
-LEEWGL.MOUSE = {left : 0, middle : 1, right : 2};
+LEEWGL.MOUSE = {LEFT : 0, MIDDLE : 1, RIGHT : 2};
 
 LEEWGL.KEYS = {};
 
