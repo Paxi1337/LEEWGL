@@ -68,7 +68,7 @@ div#container {
     position: relative;
     margin: 0 auto;
     width: 1100px;
-    min-height: 750px;
+    min-height: 1400px;
 }
 
 div#content {
@@ -88,6 +88,14 @@ div#render-container {
     min-width: 500px;
     float: left;
     margin-right: 10px;
+}
+
+div#editor-view-container  {
+	margin-bottom: 10px;
+    border: solid 2px #000;
+}
+
+div#game-view-container  {
     border: solid 2px #000;
 }
 
@@ -284,6 +292,7 @@ table {
     border-collapse: collapse;
     border-spacing: 0;
     border: 1px solid #6D6D6D;
+    margin: 5px 0px;
 }
 
 thead {

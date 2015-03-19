@@ -42,6 +42,16 @@ LEEWGL.TestApp = function(options) {
 	this.activeKeys = [];
 
 	this.picking = (typeof options !== 'undefined' && typeof options.picking !== 'undefined') ? options.picking : true;
+
+	this.translationSpeed = {
+		'x' : ((typeof options !== 'undefined' && typeof options.translationSpeedX !== 'undefined') ? options.translationSpeedX : 0.1),
+		'y' : ((typeof options !== 'undefined' && typeof options.translationSpeedY !== 'undefined') ? options.translationSpeedY : 0.1)
+	};
+	this.rotationSpeed = {
+		'x' : ((typeof options !== 'undefined' && typeof options.rotationSpeedX !== 'undefined') ? options.rotationSpeedX : 0.1),
+		'y' : ((typeof options !== 'undefined' && typeof options.rotationSpeedY !== 'undefined') ? options.rotationSpeedY : 0.1)
+	};
+
 	this.activeElement = null;
 };
 
@@ -116,7 +126,6 @@ LEEWGL.TestApp.prototype.onCreate = function() {
 		this.picker.initPicking(this.gl, this.canvas.width, this.canvas.height);
 	}
 
-	this.gl.clearColor(0.0, 1.0, 0.0, 1.0);
 	this.gl.enable(this.gl.DEPTH_TEST);
 	this.gl.depthFunc(this.gl.LEQUAL);
 
@@ -160,14 +169,14 @@ LEEWGL.TestApp.prototype.onMouseMove = function(event) {
 	this.movement.y += event.movementY;
 
 	if(event.which === 3 || event.button === LEEWGL.MOUSE.RIGHT) {
-		movement.x = (0.1 * event.movementX);
-		movement.y = (0.1 * event.movementY);
+		movement.x = (this.rotationSpeed.x * event.movementX);
+		movement.y = (this.rotationSpeed.y * event.movementY);
 
 		this.camera.offsetOrientation(movement.y, movement.x);
 	} else if((event.which === 1 || event.button === LEEWGL.MOUSE.LEFT) && this.activeElement !== null) {
 
-		movement.x = event.movementX * 0.01;
-		movement.y = event.movementY * 0.01;
+		movement.x = event.movementX * this.translationSpeed.x;
+		movement.y = event.movementY * this.translationSpeed.y;
 
 		if(event.ctrlKey)
 			this.activeElement.transform.scale([ this.movement.x * 0.01, this.movement.y * 0.01, 1.0 ]);
@@ -234,6 +243,7 @@ LEEWGL.TestApp.prototype.onRender = function() {
 
 LEEWGL.TestApp.prototype.draw = function() {
 	this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+	this.gl.clearColor(LEEWGL.Settings.BackgroundColor.r, LEEWGL.Settings.BackgroundColor.g, LEEWGL.Settings.BackgroundColor.b, LEEWGL.Settings.BackgroundColor.a);
 	this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 
 	// / light

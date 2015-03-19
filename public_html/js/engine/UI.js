@@ -7,6 +7,8 @@ LEEWGL.UI = function(options) {
 	this.storage = new LEEWGL.LocalStorage();
 	this.playing = false;
 
+	this.overallContainer = null;
+
 	this.drag = new LEEWGL.DragDrop();
 
 	Object.defineProperties(this, {
@@ -108,30 +110,61 @@ LEEWGL.UI = function(options) {
 
 		table.appendChild(thead);
 
-		tr = document.createElement('tr');
-		// / content
-		for(var i = 0; i < content.length; ++i) {
-			td = document.createElement('td');
+		var fillTable = function(index, content) {
+			var td = document.createElement('td');
 			td.setAttribute('contenteditable', true);
-			td.setAttribute('num', i);
-
-			if(typeof content[i] === 'number')
-				td.innerHTML = content[i].toPrecision(LEEWGL.Settings.Precision);
+			td.setAttribute('num', index);
+			
+			
+			var c = content[index];
+			
+			if(typeof c === 'undefined') { 
+				var keys = Object.keys(content);
+				c = content[keys[index]];
+			}
+			
+			if(typeof c === 'number')
+				td.innerHTML = c.toPrecision(LEEWGL.Settings.DisplayPrecision);
 			else
-				td.innerHTML = content[i];
+				td.innerHTML = c;
 
 			// / html5 feature - gets called when dom elements with contenteditable = true get edited
 			td.addEventListener('keydown', function(event) {
 				if(event.keyCode === LEEWGL.KEYS.ENTER) {
 					var num = this.getAttribute('num');
-					content[num] = this.innerText;
+					if(typeof content[num] === 'undefined') { 
+						var keys = Object.keys(content);
+						content[keys[index]] = this.innerText;
+					} else {
+						content[num] = this.innerText;
+					}
+
 					event.preventDefault();
 					event.stopPropagation();
 				}
 			});
 
-			tr.appendChild(td);
-			tbody.appendChild(tr);
+			return td;
+		};
+
+		tr = document.createElement('tr');
+		// / content
+		if(typeof content.length === 'undefined') {
+			var i = 0;
+			for( var k in content) {
+				td = fillTable(i, content);
+				tr.appendChild(td);
+				tbody.appendChild(tr);
+
+				++i;
+			}
+		} else {
+			for(var i = 0; i < content.length; ++i) {
+				td = fillTable(i, content);
+
+				tr.appendChild(td);
+				tbody.appendChild(tr);
+			}
 		}
 
 		table.appendChild(tbody);
@@ -160,19 +193,15 @@ LEEWGL.UI = function(options) {
 			if(compName === LEEWGL.Component.TransformComponent) {
 				container.setAttribute('class', 'table-container');
 				var pos = document.createElement('h4');
-				pos.setAttribute('class', 'fleft mright10');
 				pos.innerHTML = 'Position: ';
 
 				var trans = document.createElement('h4');
-				trans.setAttribute('class', 'fleft mright10');
 				trans.innerHTML = 'Translation: ';
 
 				var rot = document.createElement('h4');
-				rot.setAttribute('class', 'fleft mright10');
 				rot.innerHTML = 'Rotation: ';
 
 				var scale = document.createElement('h4');
-				scale.setAttribute('class', 'fleft mright10');
 				scale.innerHTML = 'Scale: ';
 
 				// / position
@@ -306,8 +335,8 @@ LEEWGL.UI = function(options) {
 	this.displayComponentMenu = function(index, container) {
 		// / get all not already added components
 		var availableComponents = this.getAvailableComponents(this.outline[index]);
-		
-		/// create popup menu with entries
+
+		// / create popup menu with entries
 		for(var i = 0; i < availableComponents.length; ++i) {
 			container.appendChild(document.createTextNode(availableComponents[i]));
 		}
@@ -371,6 +400,28 @@ LEEWGL.UI = function(options) {
 		popupContainer.innerHTML = ajax.send('GET', LEEWGL.ROOT + 'html/' + file, false, null).response.responseText;
 		document.body.appendChild(popupContainer);
 
+	};
+
+	this.displaySettings = function() {
+		this.inspector.innerHTML = '';
+		var container = document.createElement('div');
+
+		for( var k in LEEWGL.Settings) {
+			var name = document.createElement('h4');
+			name.innerText = k;
+			container.appendChild(name);
+
+			if(typeof LEEWGL.Settings[k] === 'object') {
+				container.appendChild(this.createTable(Object.keys(LEEWGL.Settings[k]), LEEWGL.Settings[k]));
+			} else {
+				var input = document.createElement('input');
+				input.setAttribute('value', LEEWGL.Settings[k]);
+				container.appendChild(input);
+			}
+
+		}
+		console.log(LEEWGL.Settings.BackgroundColor);
+		this.inspector.appendChild(container);
 	};
 };
 

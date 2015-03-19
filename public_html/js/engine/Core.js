@@ -56,9 +56,33 @@ LEEWGL.FormatRGBA = 1018;
 LEEWGL.FormatLuminance = 1019;
 LEEWGL.FormatLuminanceAlpha = 1020;
 
-LEEWGL.Settings = {};
-
-LEEWGL.Settings.Precision = 4;
+LEEWGL.Settings = {
+		'DisplayPrecision' : 4,
+		'TranslationSpeed' : {
+			'x' : 0.1,
+			'y' : 0.1
+		},
+		'RotationSpeed' : {
+			'x' : 0.1,
+			'y' : 0.1
+		},
+		'BackgroundColor' : {
+			'r' : 0.0,
+			'g' : 1.0,
+			'b' : 0.0,
+			'a' : 1.0
+		},
+		'DepthBuffer' : true,
+		'RenderSize' : {
+			'width' : 512,
+			'height' : 512
+		},
+		'ViewportSize' : {
+			'x' : 0,
+			'y' : 0
+		},
+		'FPS' : 60
+};
 
 LEEWGL.Timer = function(auto) {
     this.auto = auto !== undefined ? auto : true;
@@ -103,7 +127,7 @@ LEEWGL.Timer.prototype = {
 };
 
 LEEWGL.Core = function(options) {
-    var _canvas = options.canvas !== 'undefined' ? options.canvas : document.createElement('canvas'),
+    var _canvas = options.editorCanvas !== 'undefined' ? options.editorCanvas : document.createElement('canvas'),
             _context = options.context !== 'undefined' ? options.context : null;
 
     var _app = null;
@@ -171,9 +195,15 @@ LEEWGL.Core = function(options) {
     this.setViewport = function(x, y, width, height) {
         _viewportX = x;
         _viewportY = y;
-
+        
+        LEEWGL.Settings.ViewportSize.x = x;
+        LEEWGL.Settings.ViewportSize.y = y;
+        
         _viewportWidth = width;
         _viewportHeight = height;
+
+        LEEWGL.Settings.RenderSize.width = width;
+        LEEWGL.Settings.RenderSize.height = height;
 
         _gl.viewport(_viewportX, _viewportY, _viewportWidth, _viewportHeight);
     };
@@ -319,7 +349,7 @@ LEEWGL.Core = function(options) {
         _this.timer.start();
         window.requestAnimationFrame(_this.run);
 
-        var requiredElapsed = (100 / 60); // 60 fps
+        var requiredElapsed = (100 / LEEWGL.Settings.FPS); // 60 fps
 
         if(_this.timer.getElapsedTime() * 1000 >= requiredElapsed) {
             _gl.clear(_gl.COLOR_BUFFER_BIT | _gl.DEPTH_BUFFER_BIT);
