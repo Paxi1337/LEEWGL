@@ -29,7 +29,6 @@ LEEWGL.Picker = function() {
         var depthBuffer = new LEEWGL.RenderBuffer();
         depthBuffer.create(gl);
         depthBuffer.bind(gl);
-
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture.webglTexture, 0);
         gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, _width, _height);
         gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthBuffer.getBuffer());

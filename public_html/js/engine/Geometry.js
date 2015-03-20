@@ -226,7 +226,7 @@ LEEWGL.Geometry.Triangle.prototype.clone = function(triangle) {
 
     LEEWGL.Geometry.prototype.clone.call(this, triangle);
 
-    return cube;
+    return triangle;
 };
 
 LEEWGL.Geometry.Cube = function() {
