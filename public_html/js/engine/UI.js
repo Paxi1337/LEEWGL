@@ -2,12 +2,12 @@ LEEWGL.UI = function(options) {
     var outline = [],
         inspector, update = false;
 
-    this.activeElement = null;
+    this.activeElement = undefined;
     this.storage = new LEEWGL.LocalStorage();
-    this.playing = false;
+    this.playing = undefined;
 
-    this.overallContainer = null;
-    this.scene = null;
+    this.gl = undefined;
+    this.scene = undefined;
 
     this.drag = new LEEWGL.DragDrop();
     this.popup = new LEEWGL.UI.Popup();
@@ -18,6 +18,10 @@ LEEWGL.UI = function(options) {
             value: outline
         }
     });
+
+    this.setGL = function(gl) {
+        this.gl = gl;
+    };
 
     this.setScene = function(scene) {
         this.scene = scene;
@@ -64,6 +68,8 @@ LEEWGL.UI = function(options) {
         if (this.update === false)
             return;
 
+        var that = this;
+
         container = (typeof container === 'string') ? document.querySelector(container) : container;
 
         container.innerHTML = '';
@@ -76,8 +82,25 @@ LEEWGL.UI = function(options) {
             element.setAttribute('href', '#');
             element.innerHTML = this.outline[i].name;
 
+
             item.appendChild(element);
             list.appendChild(item);
+
+            /// events
+
+            element.addEventListener('dblclick', function(event) {
+                if (this.getAttribute('contenteditable') === null)
+                    this.setAttribute('contenteditable', true);
+            });
+
+            element.addEventListener('keydown', function(event) {
+                if(event.keyCode === LEEWGL.KEYS.ENTER) {
+                    that.activeElement.name = this.innerText;
+                    this.setAttribute('contenteditable', false);
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+            });
 
             var that = this;
             (function(index) {
@@ -407,6 +430,7 @@ LEEWGL.UI = function(options) {
         this.inspector.appendChild(container);
     };
 
+    /// object methods
     this.duplicateObject = function() {
         if (this.activeElement === null) {
             console.warn('LEEWGL.UI: No active element selected!');
@@ -414,6 +438,13 @@ LEEWGL.UI = function(options) {
         }
         var copy = this.activeElement.clone();
         this.scene.add(copy);
+    };
+
+    this.insertTriangle = function() {
+        var triangle = new LEEWGL.Geometry.Triangle();
+        triangle.setBuffer(this.gl);
+        triangle.addColor(this.gl, undefined, triangle.faces);
+        this.scene.add(triangle);
     };
 
     this.importScript = function() {

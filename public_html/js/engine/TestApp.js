@@ -123,7 +123,6 @@ LEEWGL.TestApp.prototype.onCreate = function() {
 
     this.scene.add(this.camera, this.gameCamera, this.triangle, this.cube, this.cameraGizmo);
 
-    UI.setScene(this.scene);
 
     this.gl.enable(this.gl.DEPTH_TEST);
     this.gl.depthFunc(this.gl.LEQUAL);
@@ -135,6 +134,9 @@ LEEWGL.TestApp.prototype.onCreate = function() {
     var ColladaImporter = new LEEWGL.Importer();
 
     ColladaImporter.parseCollada(ajax.send('GET', LEEWGL.ROOT + 'models/Man_Mp_Iphone.DAE', false).response.responseXML);
+
+    UI.setGL(this.gl);
+    UI.setScene(this.scene);
 };
 
 LEEWGL.TestApp.prototype.updatePickingList = function() {
