@@ -460,6 +460,22 @@ LEEWGL.UI = function(options) {
         this.popup.addHTMLFile('html/about.html');
         this.popup.show();
     };
+
+    this.contextMenu = function(event) {
+        this.popup.center = false;
+        this.popup.overlayEnabled = false;
+
+        this.popup.create();
+        this.popup.empty();
+
+
+        this.popup.setPosition({'x' : event.clientX, 'y' : event.clientY });
+        this.popup.addTitleText('Context Menu');
+        this.popup.show();
+
+        event.stopPropagation();
+        event.preventDefault();
+    };
 };
 
 LEEWGL.UI.Popup = function(options) {
@@ -493,6 +509,17 @@ LEEWGL.UI.Popup = function(options) {
         this.wHeight = (typeof options.wrapperHeight !== 'undefined') ? options.wrapperHeight : this.wHeight;
         this.overlayEnabled = (typeof options.overlayEnabled !== 'undefined') ? options.overlayEnabled : this.overlayEnabled;
     }
+
+    this.setPosition = function() {
+        if(arguments.length === 1) {
+            this.pos = arguments[0];
+        } else {
+            this.pos.x = arguments[0];
+            this.pos.y = arguments[1];
+        }
+
+        this.position();
+    };
 
     this.create = function() {
         if (typeof this.wrapper !== 'undefined')

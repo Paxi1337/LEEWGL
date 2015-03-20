@@ -315,18 +315,13 @@ LEEWGL.Core = function(options) {
             console.error("LEEWGL.Core initMouse: No app attached.");
             return null;
         }
-        _canvas.onmousedown = _app.onMouseDown.bind(_app);
-        document.onmouseup = _app.onMouseUp.bind(_app);
-        document.onmousemove = _app.onMouseMove.bind(_app);
-        document.onkeydown = _app.onKeyDown.bind(_app);
-        document.onkeyup = _app.onKeyUp.bind(_app);
 
-        _canvas.oncontextmenu = function(event) {
-            if (event.preventDefault !== undefined)
-                event.preventDefault();
-            if (event.stopPropagation !== undefined)
-                event.stopPropagation();
-        };
+        _canvas.onmousedown = _app.onMouseDown.bind(_app);
+        _canvas.oncontextmenu = UI.contextMenu.bind(UI);
+        _canvas.onmouseup = _app.onMouseUp.bind(_app);
+        _canvas.onmousemove = _app.onMouseMove.bind(_app);
+        _canvas.onkeydown = _app.onKeyDown.bind(_app);
+        _canvas.onkeyup = _app.onKeyUp.bind(_app);
     };
 
     this.init = function() {
