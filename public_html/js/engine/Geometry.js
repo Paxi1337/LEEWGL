@@ -20,10 +20,9 @@ LEEWGL.Geometry = function(options) {
 	this.indexBuffer = new LEEWGL.IndexBuffer();
 	this.colorBuffer = new LEEWGL.Buffer();
 	this.textureBuffer = new LEEWGL.Buffer();
-	this.colors = [];
 	this.faces = 1;
 
-	this.normal = vec3.fromValues(0.0, LEEWGL.up, 0.0);
+	this.normal = vec3.fromValues(0.0, LEEWGL.Object3D.DefaultUp, 0.0);
 
 	this.setBuffer = function(gl) {
 		this.vertexBuffer.setData(gl, this.vertices.position, new LEEWGL.BufferInformation.VertexTypePos3());
@@ -43,10 +42,8 @@ LEEWGL.Geometry = function(options) {
 
 	this.addColor = function(gl, colors, length) {
 		if(colors !== undefined && colors.length === length) {
-			this.colors = colors;
 			this.setColorBuffer(gl);
 		} else {
-			this.colors = [];
 			for(var i = 0; i < length; ++i) {
 				this.vertices.color.push([ 1.0, 0.0, 1.0, 1.0 ]);
 			}
@@ -87,15 +84,41 @@ LEEWGL.Geometry.prototype.setVertices = function(vertices) {
 	}
 };
 
-LEEWGL.Geometry.prototype.clone = function() {
-	var geometry = new LEEWGL.Geometry();
-	var vertices = this.vertices;
+LEEWGL.Geometry.prototype.clone = function(geometry) {
+  if(typeof geometry === 'undefined') {
+    geometry =   new LEEWGL.Geometry();
+  }
 
-	for(var i = 0; i < vertices.length; ++i) {
-		geometry.vertices.push(vertices[i].clone());
+  LEEWGL.Object3D.prototype.clone.call(this, geometry);
+
+  geometry.faces = this.faces;
+
+	var position = this.vertices.position;
+  var normal = this.vertices.normal;
+  var color = this.vertices.color;
+  var uv = this.vertices.uv;
+
+	for(var i = 0; i < position.length; ++i) {
+		geometry.vertices.position.push(position[i]);
 	}
 
-	LEEWGL.Object3D.prototype.clone.call(this, geometry);
+  for(var i = 0; i < normal.length; ++i) {
+		geometry.vertices.normal.push(normal[i]);
+	}
+
+  for(var i = 0; i < color.length; ++i) {
+		geometry.vertices.color.push(color[i]);
+	}
+
+  for(var i = 0; i < uv.length; ++i) {
+		geometry.vertices.uv.push(uv[i]);
+	}
+
+  LEEWGL.Buffer.prototype.clone.call(this.vertexBuffer, geometry.vertexBuffer);
+  LEEWGL.Buffer.prototype.clone.call(this.normalBuffer, geometry.normalBuffer);
+  LEEWGL.Buffer.prototype.clone.call(this.indexBuffer, geometry.indexBuffer);
+  LEEWGL.Buffer.prototype.clone.call(this.colorBuffer, geometry.colorBuffer);
+  LEEWGL.Buffer.prototype.clone.call(this.textureBuffer, geometry.textureBuffer);
 
 	return geometry;
 };
@@ -149,12 +172,6 @@ LEEWGL.Geometry.Grid = function() {
 
 LEEWGL.Geometry.Grid.prototype = Object.create(LEEWGL.Geometry.prototype);
 
-/**
- * 
- * @param vec3
- *            origin
- * @returns {undefined}
- */
 LEEWGL.Geometry.Plane.prototype.distance = function(origin) {
 	return vec3.dot(this.normal, origin) + this.distance;
 };
@@ -202,6 +219,16 @@ LEEWGL.Geometry.Triangle.prototype.intersectRay = function(origin, direction, co
 	return false;
 };
 
+LEEWGL.Geometry.Triangle.prototype.clone = function(triangle) {
+  if(typeof triangle === 'undefined') {
+    triangle =   new LEEWGL.Geometry.Triangle();
+  }
+
+  LEEWGL.Geometry.prototype.clone.call(this, triangle);
+
+	return cube;
+};
+
 LEEWGL.Geometry.Cube = function() {
 	LEEWGL.Geometry.call(this);
 
@@ -245,6 +272,16 @@ LEEWGL.Geometry.Cube = function() {
 };
 
 LEEWGL.Geometry.Cube.prototype = Object.create(LEEWGL.Geometry.prototype);
+
+LEEWGL.Geometry.Cube.prototype.clone = function(cube) {
+  if(typeof cube === 'undefined') {
+    cube =   new LEEWGL.Geometry.Cube();
+  }
+
+  LEEWGL.Geometry.prototype.clone.call(this, cube);
+
+	return cube;
+};
 
 LEEWGL.Geometry.Sphere = function(options) {
 	LEEWGL.Geometry.call(this, options);
@@ -299,3 +336,13 @@ LEEWGL.Geometry.Sphere = function(options) {
 };
 
 LEEWGL.Geometry.Sphere.prototype = Object.create(LEEWGL.Geometry.prototype);
+
+LEEWGL.Geometry.Sphere.prototype.clone = function(sphere) {
+  if(typeof sphere === 'undefined') {
+    sphere =   new LEEWGL.Geometry.Sphere();
+  }
+
+  LEEWGL.Geometry.prototype.clone.call(this, sphere);
+
+	return sphere;
+};

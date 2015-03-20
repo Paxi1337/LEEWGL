@@ -16,13 +16,12 @@
 <script type="text/javascript" src="js/engine/Math.js"></script>
 <script type="text/javascript" src="js/engine/VertexDeclarations.js"></script>
 <script type="text/javascript" src="js/engine/Buffer.js"></script>
-<script type="text/javascript" src="js/engine/IndexBuffer.js"></script>
 <script type="text/javascript" src="js/engine/Shader.js"></script>
 <script type="text/javascript" src="js/engine/EventDispatcher.js"></script>
+<script type="text/javascript" src="js/engine/Component.js"></script>
 <script type="text/javascript" src="js/engine/Object3D.js"></script>
 <script type="text/javascript" src="js/engine/Texture.js"></script>
 <script type="text/javascript" src="js/engine/Geometry.js"></script>
-<script type="text/javascript" src="js/engine/Component.js"></script>
 <script type="text/javascript" src="js/engine/Camera.js"></script>
 <script type="text/javascript" src="js/engine/PerspectiveCamera.js"></script>
 <script type="text/javascript" src="js/engine/App.js"></script>
@@ -37,6 +36,7 @@
 <script type="text/javascript" src="js/engine/ShaderLibrary.js"></script>
 <script type="text/javascript" src="js/engine/Importer.js"></script>
 <script type="text/javascript" src="js/engine/Light.js"></script>
+<script type="text/javascript" src="js/engine/Scene.js"></script>
 </head>
 <body>
 	<div id="wrapper">
@@ -48,18 +48,18 @@
 							<li><a href="#">Save</a></li>
 							<li><a href="#">Import</a>
 								<ul>
-									<li><a href="#">Model</a></li>
-									<li><a href="#">Script</a></li>
+									<li><a href="#" onclick="UI.importModel();">Model</a></li>
+									<li><a href="#" onclick="UI.importScript();">Script</a></li>
 								</ul></li>
 							<li><a href="#">Export</a></li>
-							<li><a href="#">Reset Scene</a></li>
+							<li><a href="#" onclick="UI.resetScene();">Reset Scene</a></li>
 							<li><a href="#" onclick="UI.displaySettings();">Settings</a></li>
 						</ul></li>
 					<li><a href="#">Edit</a>
 						<ul>
 							<li><a href="#">Copy</a></li>
 							<li><a href="#">Paste</a></li>
-							<li><a href="#">Duplicate</a></li>
+							<li><a href="#" onclick="UI.duplicateObject();">Duplicate</a></li>
 							<li><a href="#">Delete</a></li>
 						</ul></li>
 					<li><a href="#">GameObject</a>

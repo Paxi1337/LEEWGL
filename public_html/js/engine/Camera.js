@@ -1,7 +1,8 @@
 LEEWGL.Camera = function (options) {
     LEEWGL.Object3D.call(this, options);
     this.type = 'Camera';
-
+    this.render = false;
+    
     this.viewMatrix = mat4.create();
     this.projMatrix = mat4.create();
     this.viewProjMatrix = mat4.create();

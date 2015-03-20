@@ -52,6 +52,8 @@ LEEWGL.TestApp = function(options) {
 		'y' : ((typeof options !== 'undefined' && typeof options.rotationSpeedY !== 'undefined') ? options.rotationSpeedY : 0.1)
 	};
 
+	this.scene = new LEEWGL.Scene();
+
 	this.activeElement = null;
 };
 
@@ -125,6 +127,10 @@ LEEWGL.TestApp.prototype.onCreate = function() {
 		}
 		this.picker.initPicking(this.gl, this.canvas.width, this.canvas.height);
 	}
+
+	this.scene.add(this.camera, this.gameCamera, this.triangle, this.cube, this.grid);
+
+  UI.setScene(this.scene);
 
 	this.gl.enable(this.gl.DEPTH_TEST);
 	this.gl.depthFunc(this.gl.LEQUAL);
@@ -256,14 +262,19 @@ LEEWGL.TestApp.prototype.draw = function() {
 	else
 		this.shader.uniforms['uVP'](this.camera.viewProjMatrix);
 
+	for(var i = 0; i < this.scene.children.length; ++i) {
+		if(this.scene.children[i].render)
+			this.scene.children[i].render(this.gl, this.shader, this.gl.TRIANGLES);
+	}
+
 	// / triangle
-	this.triangle.render(this.gl, this.shader, this.gl.TRIANGLES);
+//	this.triangle.render(this.gl, this.shader, this.gl.TRIANGLES);
 
 	// / cube
-	this.cube.render(this.gl, this.shader, this.gl.TRIANGLES);
+//	this.cube.render(this.gl, this.shader, this.gl.TRIANGLES);
 
 	// / camera gizmo
-	this.cameraGizmo.render(this.gl, this.shader, this.gl.TRIANGLES);
+//	this.cameraGizmo.render(this.gl, this.shader, this.gl.TRIANGLES);
 
 	// / grid
 	// this.shader.attributes['aVertexPosition'](this.grid.vertexBuffer);

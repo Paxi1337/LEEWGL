@@ -1,13 +1,12 @@
 LEEWGL.UI = function(options) {
-	var outline = [];
-	var inspector;
-	var update = false;
+	var outline = [], inspector, update = false;
 
 	this.activeElement = null;
 	this.storage = new LEEWGL.LocalStorage();
 	this.playing = false;
 
 	this.overallContainer = null;
+  this.scene = null;
 
 	this.drag = new LEEWGL.DragDrop();
 
@@ -17,6 +16,10 @@ LEEWGL.UI = function(options) {
 			value : outline
 		}
 	});
+
+  this.setScene = function(scene) {
+      this.scene = scene;
+  };
 
 	this.setInspector = function(container) {
 		this.inspector = (typeof container === 'string') ? document.querySelector(container) : container;
@@ -114,15 +117,15 @@ LEEWGL.UI = function(options) {
 			var td = document.createElement('td');
 			td.setAttribute('contenteditable', true);
 			td.setAttribute('num', index);
-			
-			
+
+
 			var c = content[index];
-			
-			if(typeof c === 'undefined') { 
+
+			if(typeof c === 'undefined') {
 				var keys = Object.keys(content);
 				c = content[keys[index]];
 			}
-			
+
 			if(typeof c === 'number')
 				td.innerHTML = c.toPrecision(LEEWGL.Settings.DisplayPrecision);
 			else
@@ -132,7 +135,7 @@ LEEWGL.UI = function(options) {
 			td.addEventListener('keydown', function(event) {
 				if(event.keyCode === LEEWGL.KEYS.ENTER) {
 					var num = this.getAttribute('num');
-					if(typeof content[num] === 'undefined') { 
+					if(typeof content[num] === 'undefined') {
 						var keys = Object.keys(content);
 						content[keys[index]] = this.innerText;
 					} else {
@@ -420,8 +423,19 @@ LEEWGL.UI = function(options) {
 			}
 
 		}
-		console.log(LEEWGL.Settings.BackgroundColor);
 		this.inspector.appendChild(container);
+	};
+
+	this.duplicateObject = function() {
+		if(this.activeElement === null) {
+			console.warn('LEEWGL.UI: No active element selected!');
+			return;
+		}
+    var copy = this.activeElement.clone();
+		console.log(this.activeElement);
+    console.log(copy);
+
+		this.scene.add(copy);
 	};
 };
 

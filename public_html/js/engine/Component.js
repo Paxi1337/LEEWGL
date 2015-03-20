@@ -4,7 +4,7 @@ LEEWGL.Component = function () {
 
 LEEWGL.Component.prototype = {
     clone : function (component) {
-        if(component === 'undefined')
+        if(typeof component === 'undefined')
             component = new LEEWGL.Component();
 
         component.type = this.type;
@@ -54,6 +54,8 @@ LEEWGL.Component.Transform = function () {
     });
 };
 
+LEEWGL.Component.Transform.prototype = Object.create(LEEWGL.Component.prototype);
+
 LEEWGL.Component.Transform.prototype.offsetPosition = function (vector) {
     vec3.add(this.position, this.position, vector);
     this.translate(this.position);
@@ -88,36 +90,38 @@ LEEWGL.Component.Transform.prototype.matrix = function () {
 };
 
 LEEWGL.Component.Transform.prototype.clone = function (transform) {
-    if(transform === 'undefined')
+    if(typeof transform === 'undefined')
         transform = new LEEWGL.Component.Transform();
 
-    LEEWGL.Component.prototype.clone.call(transform);
+    LEEWGL.Component.prototype.clone.call(this, transform);
 
-    transform.position.copy(transform.position, this.position);
-    transform.translation.copy(transform.translation, this.translation);
-    transform.rotation.copy(transform.rotation, this.rotation);
-    transform.scale.copy(transform.scale, this.scale);
+    vec3.copy(transform.position, this.position);
+    mat4.copy(transform.translation, this.translation);
+    mat4.copy(transform.rotation, this.rotation);
+    mat4.copy(transform.scaling, this.scaling);
 
     return transform;
 };
 
 LEEWGL.Component.Light = function() {
     LEEWGL.Component.call(this);
-    
+
     this.type = 'Light';
     this.direction = [0.0, 0.0, 0.0];
     this.color = [1.0, 1.0, 1.0];
 };
 
+LEEWGL.Component.Light.prototype = Object.create(LEEWGL.Component.prototype);
+
 LEEWGL.Component.Light.prototype.clone = function(light) {
-  if(light === 'undefined') 
+  if(light === 'undefined')
       light = new LEEWGL.Component.Light();
-  
-    LEEWGL.Component.prototype.clone.call(light);
-    
+
+    LEEWGL.Component.prototype.clone.call(this, light);
+
     light.direction.copy(light.direction, this.direction);
     light.color.copy(light.color, this.color);
-    
+
     return light;
 };
 
@@ -129,11 +133,13 @@ LEEWGL.Component.CustomScript = function () {
     this.code = 'Type your custom code in here!';
 };
 
+LEEWGL.Component.CustomScript.prototype = Object.create(LEEWGL.Component.prototype);
+
 LEEWGL.Component.CustomScript.prototype.clone = function (customScript) {
     if(customScript === 'undefined')
         customScript = new LEEWGL.Component.CustomScript();
-    
-    LEEWGL.Component.prototype.clone.call(customScript);
+
+    LEEWGL.Component.prototype.clone.call(this, customScript);
 
     customScript.code = this.code;
 

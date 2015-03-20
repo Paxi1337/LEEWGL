@@ -3,15 +3,15 @@ LEEWGL.Object3D = function (options) {
 
     this.name = (typeof options !== 'undefined' && typeof options.name !== 'undefined') ? options.name : 'Object3D_' + LEEWGL.Object3DCount;
     this.type = 'Object3D';
-    
+
     this.parent = 'undefined';
     this.children = [];
-    
+
     this.up = vec3.clone(LEEWGL.Object3D.DefaultUp);
 
     var scope = this;
     this.inOutline = (typeof options !== 'undefined' && typeof options.inOutine !== 'undefined') ? options.inOutline : true;
-    
+
     this.components = {};
 
     this.matrix = mat4.create();
@@ -23,6 +23,7 @@ LEEWGL.Object3D = function (options) {
     this.autoUpdate = true;
 
     this.userData = {};
+    this.render = true;
 
     this.addComponent(new LEEWGL.Component.Transform());
     this.transform = this.components['Transform'];
@@ -143,10 +144,10 @@ LEEWGL.Object3D.prototype = {
         if(recursive === 'undefined')
             recursive = true;
 
-        object.name = this.name;
-        object.up.copy(object.up, this.up);
+        object.name = this.name + 'Clone';
+        vec3.copy(object.up, this.up);
 
-        LEEWGL.Transform.prototype.clone.call(this, object.transform);
+        LEEWGL.Component.Transform.prototype.clone.call(this.transform, object.transform);
 
         object.visible = this.visible;
 
