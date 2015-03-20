@@ -9,7 +9,7 @@ LEEWGL.Scene = function() {
 LEEWGL.Scene.prototype = Object.create(LEEWGL.Object3D.prototype);
 
 LEEWGL.Scene.prototype.clone = function(object) {
-    if(object === undefined)
+    if (object === undefined)
         object = new LEEWGL.Scene();
 
     LEEWGL.Object3D.prototype.clone.call(this, object);

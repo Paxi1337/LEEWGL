@@ -1,17 +1,19 @@
-LEEWGL.Texture = function (img, wrapS, wrapT, mapping, magFilter, minFilter, format, type, anisotropy) {
-    Object.defineProperty(this, 'id', {value: LEEWGL.TextureCount++});
+LEEWGL.Texture = function(img, wrapS, wrapT, mapping, magFilter, minFilter, format, type, anisotropy) {
+    Object.defineProperty(this, 'id', {
+        value: LEEWGL.TextureCount++
+    });
 
     this.img = img !== undefined ? img : LEEWGL.Texture.IMG_DEFAULT;
-    
+
     this.webglTexture = null;
-    
+
     this.mipmaps = [];
 
     this.wrapS = wrapS !== undefined ? wrapS : LEEWGL.WrappingClampToEdge;
     this.wrapT = wrapT !== undefined ? wrapT : LEEWGL.WrappingClampToEdge;
 
     this.mapping = mapping !== undefined ? mapping : LEEWGL.Texture.MAPPING_DEFAULT;
-   
+
     this.magFilter = magFilter !== undefined ? magFilter : LEEWGL.FilterLinear;
     this.minFilter = minFilter !== undefined ? minFilter : LEEWGL.FilterNearestMipMapLinear;
 
@@ -33,28 +35,28 @@ LEEWGL.Texture.MAPPING_DEFAULT = undefined;
 
 LEEWGL.Texture.prototype = {
     constructor: LEEWGL.Texture,
-    
-    create : function(gl) {
+
+    create: function(gl) {
         this.webglTexture = gl.createTexture();
     },
-    
-    bind : function(gl) {
+
+    bind: function(gl) {
         gl.bindTexture(gl.TEXTURE_2D, this.webglTexture);
     },
-    
-    unbind : function(gl) {
+
+    unbind: function(gl) {
         gl.bindTexture(gl.TEXTURE_2D, null);
     },
-    
-    setParameteri : function(gl, name, param) {
+
+    setParameteri: function(gl, name, param) {
         gl.texParameteri(gl.TEXTURE_2D, name, param);
     },
-    
-    generateMipmap : function(gl) {
+
+    generateMipmap: function(gl) {
         gl.generateMipmap(gl.TEXTURE_2D);
     },
-    
-    clone: function (texture) {
+
+    clone: function(texture) {
         if (texture === undefined)
             texture = new LEEWGL.Texture();
 
@@ -63,7 +65,7 @@ LEEWGL.Texture.prototype = {
 
         texture.wrapS = this.wrapS;
         texture.wrapT = this.wrapT;
-        
+
         texture.mapping = this.mapping;
 
         texture.magFilter = this.magFilter;
@@ -83,11 +85,15 @@ LEEWGL.Texture.prototype = {
 
         return texture;
     },
-    update: function () {
-        this.dispatchEvent({type: 'update'});
+    update: function() {
+        this.dispatchEvent({
+            type: 'update'
+        });
     },
-    dispose: function () {
-        this.dispatchEvent({type: 'dispose'});
+    dispose: function() {
+        this.dispatchEvent({
+            type: 'dispose'
+        });
     }
 };
 

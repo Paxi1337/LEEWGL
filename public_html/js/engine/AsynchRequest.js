@@ -2,9 +2,9 @@ LEEWGL.AsynchRequest = function() {
     this.request;
     this.response = {};
 
-    if(window.XMLHttpRequest) {
+    if (window.XMLHttpRequest) {
         this.request = new XMLHttpRequest();
-    } else if(window.ActiveXObject) {
+    } else if (window.ActiveXObject) {
         this.request = new ActiveXObject("Microsoft.XMLHTTP");
     } else {
         console.error('LEEWGL.AsynchRequest: Cannot create a XMLHTTP Request.');
@@ -23,19 +23,17 @@ LEEWGL.AsynchRequest.COMPLETE = 4;
 LEEWGL.AsynchRequest.HTTPSTATUS_COMPLETE = 200;
 
 LEEWGL.AsynchRequest.prototype = {
-    constructor : LEEWGL.AsynchRequest,
-    onRequest : function() {
+    constructor: LEEWGL.AsynchRequest,
+    onRequest: function() {},
+    onSuccess: function() {},
+    onError: function() {
+
     },
-    onSuccess : function() {
-    },
-    onError : function() {
-        
-    },
-    onReadyStateChange : function() {
-        if(this.request.readyState === LEEWGL.AsynchRequest.LOADING) {
+    onReadyStateChange: function() {
+        if (this.request.readyState === LEEWGL.AsynchRequest.LOADING) {
             this.onRequest();
-        } else if(this.request.readyState === LEEWGL.AsynchRequest.COMPLETE) {
-            if(this.request.status === LEEWGL.AsynchRequest.HTTPSTATUS_COMPLETE) {
+        } else if (this.request.readyState === LEEWGL.AsynchRequest.COMPLETE) {
+            if (this.request.status === LEEWGL.AsynchRequest.HTTPSTATUS_COMPLETE) {
                 this.response['response'] = this.request.response;
                 this.response['responseText'] = this.request.responseText;
                 this.response['responseHTML'] = this.request.responseHTML;
@@ -47,11 +45,10 @@ LEEWGL.AsynchRequest.prototype = {
             this.onError();
         }
     },
-    send : function(method, loc, asynch, data) {
+    send: function(method, loc, asynch, data) {
         this.request.open(method.toUpperCase(), loc, asynch);
         this.request.send(data);
 
         return this;
     }
 };
-

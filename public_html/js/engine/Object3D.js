@@ -1,5 +1,7 @@
-LEEWGL.Object3D = function (options) {
-    Object.defineProperty(this, 'id', {value : LEEWGL.Object3DCount++});
+LEEWGL.Object3D = function(options) {
+    Object.defineProperty(this, 'id', {
+        value: LEEWGL.Object3DCount++
+    });
 
     this.name = (typeof options !== 'undefined' && typeof options.name !== 'undefined') ? options.name : 'Object3D_' + LEEWGL.Object3DCount;
     this.type = 'Object3D';
@@ -30,30 +32,30 @@ LEEWGL.Object3D = function (options) {
     this.addComponent(new LEEWGL.Component.Transform());
     this.transform = this.components['Transform'];
 
-    if(typeof UI !== 'undefined' && this.inOutline === true)
+    if (typeof UI !== 'undefined' && this.inOutline === true)
         UI.addObjToOutline(this);
 };
 
 LEEWGL.Object3D.DefaultUp = [0.0, 1.0, 0.0];
 
 LEEWGL.Object3D.prototype = {
-    constructor : LEEWGL.Object3D,
-    add : function (object) {
-        if(arguments.length > 1) {
-            for(var i = 0; i < arguments.length; ++i) {
+    constructor: LEEWGL.Object3D,
+    add: function(object) {
+        if (arguments.length > 1) {
+            for (var i = 0; i < arguments.length; ++i) {
                 this.add(arguments[i]);
             }
 
             return this;
         }
 
-        if(object === this) {
+        if (object === this) {
             console.error("LEEWGL.Object3D.add:", object, " can't be added as a child of itself");
             return this;
         }
 
-        if(object instanceof LEEWGL.Object3D) {
-            if(object.parent !== 'undefined') {
+        if (object instanceof LEEWGL.Object3D) {
+            if (object.parent !== 'undefined') {
                 object.parent.remove(object);
             }
             object.parent = this;
@@ -66,15 +68,15 @@ LEEWGL.Object3D.prototype = {
 
         return this;
     },
-    addComponent : function (component) {
+    addComponent: function(component) {
         this.components[component.type] = component;
     },
-    removeComponent : function(component) {
+    removeComponent: function(component) {
         this.components[component.type] = null;
     },
-    remove : function (object) {
-        if(arguments.length > 1) {
-            for(var i = 0; i < arguments.length; ++i) {
+    remove: function(object) {
+        if (arguments.length > 1) {
+            for (var i = 0; i < arguments.length; ++i) {
                 this.remove(arguments[i]);
             }
 
@@ -82,72 +84,71 @@ LEEWGL.Object3D.prototype = {
         }
 
         var index = this.children.indexOf(object);
-        if(index !== -1) {
+        if (index !== -1) {
             object.parent = 'undefined';
             this.children.splice(index, 1);
         }
 
-      this.needsUpdate = true;
+        this.needsUpdate = true;
     },
-    applyMatrix : function (matrix) {
+    applyMatrix: function(matrix) {
         mat4.multiply(this.matrix, this.matrix, matrix);
     },
-    localToWorld : function (vector) {
-    },
-    worldToLocal : function () {
+    localToWorld: function(vector) {},
+    worldToLocal: function() {
 
     },
-    lookAt : function (vector) {
+    lookAt: function(vector) {
         var matrix = mat4.create();
         mat4.lookAt(matrix, vector, this.position, this.up);
         return matrix;
     },
-    getObjectById : function (id, recursive) {
-        if(this.id === id)
+    getObjectById: function(id, recursive) {
+        if (this.id === id)
             return this;
 
-        for(var i = 0; i < this.children.length; ++i) {
+        for (var i = 0; i < this.children.length; ++i) {
             var child = this.children[i];
             var object = child.getObjectById(id, recursive);
-            if(object !== 'undefined') {
+            if (object !== 'undefined') {
                 return object;
             }
         }
         return 'undefined';
     },
-    getObjectByName : function (name, recursive) {
-        if(this.name === name)
+    getObjectByName: function(name, recursive) {
+        if (this.name === name)
             return this;
 
-        for(var i = 0; i < this.children.length; ++i) {
+        for (var i = 0; i < this.children.length; ++i) {
             var child = this.children[i];
             var object = child.getObjectByName(name, recursive);
-            if(object !== 'undefined') {
+            if (object !== 'undefined') {
                 return object;
             }
         }
         return 'undefined';
     },
-    traverse : function (callback) {
+    traverse: function(callback) {
         callback(this);
-        for(var i = 0; i < this.children.length; ++i) {
+        for (var i = 0; i < this.children.length; ++i) {
             var child = this.children[i];
             child.traverse(callback);
         }
     },
-    traverseVisible : function (callback) {
-        if(this.visible === true)
+    traverseVisible: function(callback) {
+        if (this.visible === true)
             return;
         callback(this);
-        for(var i = 0; i < this.children.length; ++i) {
+        for (var i = 0; i < this.children.length; ++i) {
             var child = this.children[i];
             child.traverseVisible(callback);
         }
     },
-    clone : function (object, recursive) {
-        if(object === 'undefined')
+    clone: function(object, recursive) {
+        if (object === 'undefined')
             object = new LEEWGL.Object3D();
-        if(recursive === 'undefined')
+        if (recursive === 'undefined')
             recursive = true;
 
         object.name = this.name + 'Clone';
@@ -159,8 +160,8 @@ LEEWGL.Object3D.prototype = {
 
         object.userData = JSON.parse(JSON.stringify(this.userData));
 
-        if(recursive === true) {
-            for(var i = 0; i < this.children.length; ++i) {
+        if (recursive === true) {
+            for (var i = 0; i < this.children.length; ++i) {
                 var child = this.children[i];
                 object.add(child.clone());
             }

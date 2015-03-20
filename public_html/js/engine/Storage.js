@@ -18,7 +18,7 @@ LEEWGL.LocalStorage = function() {
     };
 
     this.all = function() {
-        for(var i = 0, key, value; i < localStorage.length; ++i) {
+        for (var i = 0, key, value; i < localStorage.length; ++i) {
 
             key = localStorage.key(i);
             value = localStorage.getItem(key);
@@ -37,4 +37,3 @@ LEEWGL.LocalStorage = function() {
         localStorage.clear();
     };
 };
-

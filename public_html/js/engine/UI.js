@@ -464,7 +464,7 @@ LEEWGL.UI.Popup = function(options) {
     }
 
     this.create = function() {
-        if(typeof this.wrapper !== 'undefined')
+        if (typeof this.wrapper !== 'undefined')
             return;
 
         if (this.parent === null)
@@ -491,7 +491,7 @@ LEEWGL.UI.Popup = function(options) {
         this.position();
 
 
-        if(this.hidden === true)
+        if (this.hidden === true)
             this.hide();
     };
 
@@ -509,7 +509,7 @@ LEEWGL.UI.Popup = function(options) {
     };
 
     this.addText = function(text) {
-        if(typeof this.wrapper === 'undefined') {
+        if (typeof this.wrapper === 'undefined') {
             console.error('LEEWGL.UI.Popup: call create() first!');
             return;
         }
@@ -519,7 +519,7 @@ LEEWGL.UI.Popup = function(options) {
     };
 
     this.addTitleText = function(text) {
-        if(typeof this.wrapper === 'undefined') {
+        if (typeof this.wrapper === 'undefined') {
             console.error('LEEWGL.UI.Popup: call create() first!');
             return;
         }
@@ -529,7 +529,7 @@ LEEWGL.UI.Popup = function(options) {
     };
 
     this.addHTMLFile = function(path) {
-        if(typeof this.wrapper === 'undefined') {
+        if (typeof this.wrapper === 'undefined') {
             console.error('LEEWGL.UI.Popup: call create() first!');
             return;
         }

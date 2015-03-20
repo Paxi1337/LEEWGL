@@ -13,15 +13,15 @@ LEEWGL.Importer = function() {
         var mesh = xml.querySelectorAll("geometry > mesh")[0];
         var triangles = xml.querySelectorAll("triangles")[0];
         var polylist = xml.querySelectorAll("polylist")[0];
-        
+
         var vrtInput = getInput("VERTEX", polylist);
         var posInput = getInput("POSITION", vrtInput);
-		var nrmInput = getInput("NORMAL", polylist);
-		var nrmList = parseVals(xml.querySelectorAll("float_array", nrmInput)[0]);
-		var idxList = parseVals(xml.querySelectorAll("p", polylist)[0]);
+        var nrmInput = getInput("NORMAL", polylist);
+        var nrmList = parseVals(xml.querySelectorAll("float_array", nrmInput)[0]);
+        var idxList = parseVals(xml.querySelectorAll("p", polylist)[0]);
 
-		var vertices = parseVals(xml.querySelectorAll("float_array", posInput)[0]);
-        
+        var vertices = parseVals(xml.querySelectorAll("float_array", posInput)[0]);
+
         console.log(vertices);
 
         console.log(xml.querySelectorAll('asset'));
@@ -41,4 +41,3 @@ LEEWGL.Importer = function() {
 
     };
 };
-

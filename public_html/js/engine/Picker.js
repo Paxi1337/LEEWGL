@@ -1,4 +1,4 @@
-LEEWGL.Picker = function () {
+LEEWGL.Picker = function() {
     this.frameBuffer = new LEEWGL.FrameBuffer();
 
     var _width, _height = 0;
@@ -6,10 +6,10 @@ LEEWGL.Picker = function () {
     this.lastCapturedColorMap = [];
     this.objList = {};
 
-    this.initPicking = function (gl, width, height) {
+    this.initPicking = function(gl, width, height) {
         _width = width;
         _height = height;
-        
+
         this.lastCapturedColorMap = new Uint8Array(_width * _height * 4);
 
         gl.enable(gl.DEPTH_TEST);
@@ -44,7 +44,7 @@ LEEWGL.Picker = function () {
         this.frameBuffer.unbind(gl);
     };
 
-    this.pick = function (gl, x, y) {
+    this.pick = function(gl, x, y) {
         this.frameBuffer.bind(gl);
 
         gl.readPixels(0, 0, _width, _height, gl.RGBA, gl.UNSIGNED_BYTE, this.lastCapturedColorMap);
@@ -59,12 +59,12 @@ LEEWGL.Picker = function () {
             return null;
         }
     };
-    
+
     this.addToList = function(obj) {
         this.objList[obj.vertexBuffer.colorMapIndex] = obj;
     };
-    
-    this.getColorMapColor = function (x, y) {
+
+    this.getColorMapColor = function(x, y) {
         if (x >= _width || y >= _height || x < 0 || y < 0) {
             console.error('LEEWGL: Invalid color map pixel position');
             return;
@@ -76,15 +76,15 @@ LEEWGL.Picker = function () {
         var position = (_height - 1 - y) * _width * 4 + x * 4;
         return [this.lastCapturedColorMap[position],
             this.lastCapturedColorMap[position + 1],
-            this.lastCapturedColorMap[position + 2]];
+            this.lastCapturedColorMap[position + 2]
+        ];
     };
-    
+
     this.bind = function(gl) {
         this.frameBuffer.bind(gl);
     };
-    
+
     this.unbind = function(gl) {
         this.frameBuffer.unbind(gl);
     };
 };
-

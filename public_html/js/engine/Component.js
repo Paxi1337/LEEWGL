@@ -1,10 +1,10 @@
-LEEWGL.Component = function () {
+LEEWGL.Component = function() {
     this.type = 'GeneralComponent';
 };
 
 LEEWGL.Component.prototype = {
-    clone : function (component) {
-        if(typeof component === 'undefined')
+    clone: function(component) {
+        if (typeof component === 'undefined')
             component = new LEEWGL.Component();
 
         component.type = this.type;
@@ -18,7 +18,7 @@ LEEWGL.Component.CustomScriptComponent = 'CustomScript';
 
 LEEWGL.Component.Components = [LEEWGL.Component.TransformComponent, LEEWGL.Component.LightComponent, LEEWGL.Component.CustomScriptComponent];
 
-LEEWGL.Component.Transform = function () {
+LEEWGL.Component.Transform = function() {
     LEEWGL.Component.call(this);
 
     this.type = 'Transform';
@@ -35,39 +35,39 @@ LEEWGL.Component.Transform = function () {
 
     // private properties - configurable tag defaults to false
     Object.defineProperties(this, {
-        position : {
-            enumerable : true,
-            value : position
+        position: {
+            enumerable: true,
+            value: position
         },
-        translation : {
-            enumerable : true,
-            value : translation
+        translation: {
+            enumerable: true,
+            value: translation
         },
-        rotation : {
-            enumerable : true,
-            value : rotation
+        rotation: {
+            enumerable: true,
+            value: rotation
         },
-        scaling : {
-            enumerable : true,
-            value : scaling
+        scaling: {
+            enumerable: true,
+            value: scaling
         }
     });
 };
 
 LEEWGL.Component.Transform.prototype = Object.create(LEEWGL.Component.prototype);
 
-LEEWGL.Component.Transform.prototype.offsetPosition = function (vector) {
+LEEWGL.Component.Transform.prototype.offsetPosition = function(vector) {
     vec3.add(this.position, this.position, vector);
     this.translate(this.position);
 };
-LEEWGL.Component.Transform.prototype.setPosition = function () {
-    if(arguments === 'undefined') {
+LEEWGL.Component.Transform.prototype.setPosition = function() {
+    if (arguments === 'undefined') {
         console.error('LEEWGL.Transform.setPosition(): no arguments given!');
         return false;
     }
 
 
-    if(typeof arguments[0] === 'object') {
+    if (typeof arguments[0] === 'object') {
         vec3.copy(this.position, arguments[0]);
     } else {
         vec3.set(this.position, arguments[0], arguments[1], arguments[2]);
@@ -75,22 +75,22 @@ LEEWGL.Component.Transform.prototype.setPosition = function () {
 
     this.translate(this.position);
 };
-LEEWGL.Component.Transform.prototype.translate = function (vector) {
+LEEWGL.Component.Transform.prototype.translate = function(vector) {
     vec3.add(this.transVec, this.transVec, vector);
     mat4.translate(this.translation, this.translation, vector);
 };
 
-LEEWGL.Component.Transform.prototype.scale = function (vector) {
+LEEWGL.Component.Transform.prototype.scale = function(vector) {
     vec3.add(this.scaleVec, this.scaleVec, vector);
     mat4.scale(this.scaling, mat4.create(), vector);
 };
 
-LEEWGL.Component.Transform.prototype.matrix = function () {
+LEEWGL.Component.Transform.prototype.matrix = function() {
     return mat4.multiply(mat4.create(), this.translation, this.scaling);
 };
 
-LEEWGL.Component.Transform.prototype.clone = function (transform) {
-    if(typeof transform === 'undefined')
+LEEWGL.Component.Transform.prototype.clone = function(transform) {
+    if (typeof transform === 'undefined')
         transform = new LEEWGL.Component.Transform();
 
     LEEWGL.Component.prototype.clone.call(this, transform);
@@ -114,8 +114,8 @@ LEEWGL.Component.Light = function() {
 LEEWGL.Component.Light.prototype = Object.create(LEEWGL.Component.prototype);
 
 LEEWGL.Component.Light.prototype.clone = function(light) {
-  if(light === 'undefined')
-      light = new LEEWGL.Component.Light();
+    if (light === 'undefined')
+        light = new LEEWGL.Component.Light();
 
     LEEWGL.Component.prototype.clone.call(this, light);
 
@@ -125,7 +125,7 @@ LEEWGL.Component.Light.prototype.clone = function(light) {
     return light;
 };
 
-LEEWGL.Component.CustomScript = function () {
+LEEWGL.Component.CustomScript = function() {
     LEEWGL.Component.call(this);
 
     this.type = 'CustomScript';
@@ -135,8 +135,8 @@ LEEWGL.Component.CustomScript = function () {
 
 LEEWGL.Component.CustomScript.prototype = Object.create(LEEWGL.Component.prototype);
 
-LEEWGL.Component.CustomScript.prototype.clone = function (customScript) {
-    if(customScript === 'undefined')
+LEEWGL.Component.CustomScript.prototype.clone = function(customScript) {
+    if (customScript === 'undefined')
         customScript = new LEEWGL.Component.CustomScript();
 
     LEEWGL.Component.prototype.clone.call(this, customScript);
@@ -145,4 +145,3 @@ LEEWGL.Component.CustomScript.prototype.clone = function (customScript) {
 
     return customScript;
 };
-
