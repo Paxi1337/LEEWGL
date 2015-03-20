@@ -25,6 +25,8 @@ LEEWGL.Object3D = function (options) {
     this.userData = {};
     this.render = true;
 
+    this.needsUpdate = false;
+
     this.addComponent(new LEEWGL.Component.Transform());
     this.transform = this.components['Transform'];
 
@@ -60,6 +62,8 @@ LEEWGL.Object3D.prototype = {
             console.error("LEEWGL.Object3D.add:", object, " is not an instance of LEEWGL.Object3D");
         }
 
+        this.needsUpdate = true;
+
         return this;
     },
     addComponent : function (component) {
@@ -82,6 +86,8 @@ LEEWGL.Object3D.prototype = {
             object.parent = 'undefined';
             this.children.splice(index, 1);
         }
+
+      this.needsUpdate = true;
     },
     applyMatrix : function (matrix) {
         mat4.multiply(this.matrix, this.matrix, matrix);

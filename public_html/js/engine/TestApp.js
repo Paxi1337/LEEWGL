@@ -117,16 +117,8 @@ LEEWGL.TestApp.prototype.onCreate = function() {
 
 	this.textureBuffer.setData(this.gl, textureCoordinates, new LEEWGL.BufferInformation.VertexTypePos2());
 
-	if(this.picking === true) {
-		if(typeof UI !== 'undefined') {
-			for(var i = 0; i < UI.outline.length; ++i) {
-				var element = UI.outline[i];
-				if(typeof element.vertexBuffer !== 'undefined')
-					this.picker.addToList(element);
-			}
-		}
+	if(this.picking === true)
 		this.picker.initPicking(this.gl, this.canvas.width, this.canvas.height);
-	}
 
 	this.scene.add(this.camera, this.gameCamera, this.triangle, this.cube, this.grid);
 
@@ -142,6 +134,17 @@ LEEWGL.TestApp.prototype.onCreate = function() {
 	var ColladaImporter = new LEEWGL.Importer();
 
 	ColladaImporter.parseCollada(ajax.send('GET', LEEWGL.ROOT + 'models/Man_Mp_Iphone.DAE', false).response.responseXML);
+};
+
+LEEWGL.TestApp.prototype.updatePickingList = function() {
+  if(this.picking === true) {
+    for(var i = 0; i < this.scene.children.length; ++i) {
+      var element = this.scene.children[i];
+      if(typeof element.vertexBuffer !== 'undefined')
+        this.picker.addToList(element);
+    }
+  }
+  this.picker.initPicking(this.gl, this.canvas.width, this.canvas.height);
 };
 
 LEEWGL.TestApp.prototype.onMouseDown = function(event) {
@@ -210,6 +213,11 @@ LEEWGL.TestApp.prototype.onUpdate = function() {
 	this.camera.update();
 	this.gameCamera.update();
 	this.handleKeyInput();
+
+  if(this.scene.needsUpdate === true) {
+     this.updatePickingList();
+     this.scene.needsUpdate = false;
+  }
 };
 
 LEEWGL.TestApp.prototype.handleKeyInput = function() {
