@@ -1,6 +1,9 @@
 LEEWGL.UI = function(options) {
-    var outline = [],
-        inspector, update = false;
+    var inspector;
+
+    this.outline = {};
+
+    this.update = false;
 
     this.activeElement = undefined;
     this.storage = new LEEWGL.LocalStorage();
@@ -9,15 +12,10 @@ LEEWGL.UI = function(options) {
     this.gl = undefined;
     this.scene = undefined;
 
+    this.activeIndex = undefined;
+
     this.drag = new LEEWGL.DragDrop();
     this.popup = new LEEWGL.UI.Popup();
-
-    Object.defineProperties(this, {
-        outline: {
-            enumerable: true,
-            value: outline
-        }
-    });
 
     this.setGL = function(gl) {
         this.gl = gl;
@@ -31,8 +29,30 @@ LEEWGL.UI = function(options) {
         this.inspector = (typeof container === 'string') ? document.querySelector(container) : container;
     };
 
+    this.setEditable = function(index) {
+        for (var i = 0; i < Object.keys(this.outline).length; ++i) {
+            this.outline[i].editable = false;
+        }
+
+        if(index !== -1)
+            this.outline[index].editable = true;
+    };
+
+    this.setActive = function(index) {
+        for (var i = 0; i < Object.keys(this.outline).length; ++i) {
+            this.outline[i].active = false;
+        }
+
+        if(index !== -1)
+            this.outline[index].active = true;
+    };
+
     this.addObjToOutline = function(obj) {
-        this.outline[obj.id] = obj;
+        this.outline[obj.id] = {};
+        this.outline[obj.id].obj = obj;
+        this.outline[obj.id].active = false;
+        this.outline[obj.id].editable = false;
+
         this.update = true;
     };
 
@@ -64,18 +84,22 @@ LEEWGL.UI = function(options) {
         };
     };
 
-    this.editable = function(obj) {
+    this.editable = function(obj, index) {
         var that = this;
+
         obj.addEventListener('dblclick', function(event) {
-            console.log(this);
-            if (this.getAttribute('contenteditable') === null)
-                this.setAttribute('contenteditable', true);
+            if (that.outline[index].editable === false)
+                that.setEditable(index);
+
+            that.update = true;
         });
 
         obj.addEventListener('keydown', function(event) {
             if (event.keyCode === LEEWGL.KEYS.ENTER) {
                 that.activeElement.name = this.innerText;
-                this.setAttribute('contenteditable', false);
+                that.setEditable(-1);
+                that.update = true;
+                that.setInspectorContent(index);
                 event.preventDefault();
                 event.stopPropagation();
             }
@@ -86,37 +110,47 @@ LEEWGL.UI = function(options) {
         if (this.update === false)
             return;
 
-        var that = this;
-
         container = (typeof container === 'string') ? document.querySelector(container) : container;
+
+        var that = this;
 
         container.innerHTML = '';
 
         var list = document.createElement('ul');
 
-        for (var i = 1; i < this.outline.length; ++i) {
+        for (var i = 1; i < Object.keys(this.outline).length; ++i) {
+            var outline = this.outline[i];
+
+            var obj = outline.obj;
             var item = document.createElement('li');
             var element = document.createElement('a');
             element.setAttribute('href', '#');
-            element.innerHTML = this.outline[i].name;
 
+            element.innerHTML = obj.name;
 
             item.appendChild(element);
             list.appendChild(item);
 
+            if (outline.active === true)
+                item.setAttribute('class', 'active');
+
+            if (outline.editable === true) {
+                item.setAttribute('class', 'editable');
+                element.setAttribute('contenteditable', true);
+            }
+
             /// events
-            this.editable(element);
+            this.editable(element, i);
 
-            var that = this;
             (function(index) {
+                var activeOutline = that.outline[index];
                 item.addEventListener('click', function() {
-                    // / FIXME: add active class
-                    // if(this.getAttribute('class') !== 'active')
-                    // this.setAttribute('class', 'active');
-                    // else
-                    // this.setAttribute('class', '');
-
-                    that.setInspectorContent(index);
+                    if (activeOutline.active === false && activeOutline.editable === false) {
+                        that.setActive(index);
+                        that.setEditable(-1);
+                        that.update = true;
+                        that.setInspectorContent(index);
+                    }
                 });
             })(i);
         }
@@ -305,11 +339,9 @@ LEEWGL.UI = function(options) {
 
         var that = this;
         this.inspector.innerHTML = '';
-
-        var activeElement = this.outline[index];
-
-        this.activeElement = activeElement;
-        window.activeElement = activeElement;
+        this.activeIndex = index;
+        this.activeElement = this.outline[index].obj;
+        window.activeElement = this.activeElement;
 
         var name = document.createElement('h3');
         name.innerHTML = 'Name: ' + activeElement.name;
@@ -364,7 +396,7 @@ LEEWGL.UI = function(options) {
         newScript.type = 'text/javascript';
         newScript.id = 'customScript' + id;
 
-        var code = 'UI.outline[' + id + '].addEventListener("custom", function() { if(UI.playing === true) {' + src + '}});';
+        var code = 'UI.outline[' + id + '].obj.addEventListener("custom", function() { if(UI.playing === true) {' + src + '}});';
 
         newScript.appendChild(document.createTextNode(code));
         document.body.appendChild(newScript);
@@ -372,7 +404,7 @@ LEEWGL.UI = function(options) {
 
     this.displayComponentMenu = function(index, container) {
         // / get all not already added components
-        var availableComponents = this.getAvailableComponents(this.outline[index]);
+        var availableComponents = this.getAvailableComponents(this.outline[index].obj);
 
         // / create popup menu with entries
         for (var i = 0; i < availableComponents.length; ++i) {
@@ -405,8 +437,8 @@ LEEWGL.UI = function(options) {
     this.play = function() {
         this.playing = true;
 
-        for (var i = 0; i < this.outline.length; ++i) {
-            this.outline[i].dispatchEvent({
+        for (var i = 0; i < Object.keys(this.outline).length; ++i) {
+            this.outline[i].obj.dispatchEvent({
                 'type': 'custom'
             });
         }
@@ -457,6 +489,20 @@ LEEWGL.UI = function(options) {
         triangle.setBuffer(this.gl);
         triangle.addColor(this.gl, undefined, triangle.faces);
         this.scene.add(triangle);
+    };
+
+    this.insertCube = function() {
+        var cube = new LEEWGL.Geometry.Cube();
+        cube.setBuffer(this.gl);
+        cube.addColor(this.gl, undefined, cube.faces);
+        this.scene.add(cube);
+    };
+
+    this.insertSphere = function() {
+        var sphere = new LEEWGL.Geometry.Sphere();
+        sphere.setBuffer(this.gl);
+        sphere.addColor(this.gl, undefined, sphere.faces);
+        this.scene.add(sphere);
     };
 
     this.importScript = function() {
