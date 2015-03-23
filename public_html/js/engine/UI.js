@@ -64,6 +64,24 @@ LEEWGL.UI = function(options) {
         };
     };
 
+    this.editable = function(obj) {
+        var that = this;
+        obj.addEventListener('dblclick', function(event) {
+            console.log(this);
+            if (this.getAttribute('contenteditable') === null)
+                this.setAttribute('contenteditable', true);
+        });
+
+        obj.addEventListener('keydown', function(event) {
+            if (event.keyCode === LEEWGL.KEYS.ENTER) {
+                that.activeElement.name = this.innerText;
+                this.setAttribute('contenteditable', false);
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        });
+    };
+
     this.outlineToHTML = function(container) {
         if (this.update === false)
             return;
@@ -87,20 +105,7 @@ LEEWGL.UI = function(options) {
             list.appendChild(item);
 
             /// events
-
-            element.addEventListener('dblclick', function(event) {
-                if (this.getAttribute('contenteditable') === null)
-                    this.setAttribute('contenteditable', true);
-            });
-
-            element.addEventListener('keydown', function(event) {
-                if(event.keyCode === LEEWGL.KEYS.ENTER) {
-                    that.activeElement.name = this.innerText;
-                    this.setAttribute('contenteditable', false);
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-            });
+            this.editable(element);
 
             var that = this;
             (function(index) {
@@ -128,6 +133,8 @@ LEEWGL.UI = function(options) {
         var tr;
         var td;
 
+        var that = this;
+
         tr = document.createElement('tr');
         // / headers
         for (var i = 0; i < header.length; ++i) {
@@ -142,11 +149,11 @@ LEEWGL.UI = function(options) {
 
         var fillTable = function(index, content) {
             var td = document.createElement('td');
-            td.setAttribute('contenteditable', true);
             td.setAttribute('num', index);
 
-
             var c = content[index];
+
+            that.editable(td);
 
             if (typeof c === 'undefined') {
                 var keys = Object.keys(content);
@@ -183,6 +190,7 @@ LEEWGL.UI = function(options) {
             var i = 0;
             for (var k in content) {
                 td = fillTable(i, content);
+                this.editable(td);
                 tr.appendChild(td);
                 tbody.appendChild(tr);
 
@@ -413,6 +421,8 @@ LEEWGL.UI = function(options) {
         this.inspector.innerHTML = '';
         var container = document.createElement('div');
 
+        var list = document.createElement('ul');
+
         for (var k in LEEWGL.Settings) {
             var name = document.createElement('h4');
             name.innerText = k;
@@ -421,9 +431,11 @@ LEEWGL.UI = function(options) {
             if (typeof LEEWGL.Settings[k] === 'object') {
                 container.appendChild(this.createTable(Object.keys(LEEWGL.Settings[k]), LEEWGL.Settings[k]));
             } else {
-                var input = document.createElement('input');
-                input.setAttribute('value', LEEWGL.Settings[k]);
-                container.appendChild(input);
+                var item = document.createElement('li');
+                var content = document.createTextNode(LEEWGL.Settings[k]);
+                item.appendChild(content);
+
+                container.appendChild(item);
             }
 
         }
@@ -469,7 +481,10 @@ LEEWGL.UI = function(options) {
         this.popup.empty();
 
 
-        this.popup.setPosition({'x' : event.clientX, 'y' : event.clientY });
+        this.popup.setPosition({
+            'x': event.clientX,
+            'y': event.clientY
+        });
         this.popup.addTitleText('Context Menu');
         this.popup.show();
 
@@ -511,7 +526,7 @@ LEEWGL.UI.Popup = function(options) {
     }
 
     this.setPosition = function() {
-        if(arguments.length === 1) {
+        if (arguments.length === 1) {
             this.pos = arguments[0];
         } else {
             this.pos.x = arguments[0];
