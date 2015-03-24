@@ -34,7 +34,7 @@ LEEWGL.UI = function(options) {
             this.outline[i].editable = false;
         }
 
-        if(index !== -1)
+        if (index !== -1)
             this.outline[index].editable = true;
     };
 
@@ -43,7 +43,7 @@ LEEWGL.UI = function(options) {
             this.outline[i].active = false;
         }
 
-        if(index !== -1)
+        if (index !== -1)
             this.outline[index].active = true;
     };
 
@@ -187,7 +187,7 @@ LEEWGL.UI = function(options) {
 
             var c = content[index];
 
-            that.editable(td);
+            that.editable(td, index);
 
             if (typeof c === 'undefined') {
                 var keys = Object.keys(content);
@@ -224,7 +224,7 @@ LEEWGL.UI = function(options) {
             var i = 0;
             for (var k in content) {
                 td = fillTable(i, content);
-                this.editable(td);
+                this.editable(td, i);
                 tr.appendChild(td);
                 tbody.appendChild(tr);
 

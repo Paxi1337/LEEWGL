@@ -1,4 +1,4 @@
-/* 
+/*
     Created on : Dec 15, 2014, 11:21:16 PM
     Author     : lukas oberbichler <l.oberbichler@gmail.com>
 */
@@ -34,11 +34,11 @@ ul {
 h2,h3,h4 { font-family: sans-serif; font-weight: 400; color: #E7E5E5;}
 h5,h6 { font-family: sans-serif; font-weight: 400; color: #E7E5E5;}
 h1 {
-    font-family: sans-serif; 
-    font-weight: 300; 
+    font-family: sans-serif;
+    font-weight: 300;
     color: #E7E5E5;
-    font-size: 200%; 
-    margin: 0 0 35px 0; 
+    font-size: 200%;
+    margin: 0 0 35px 0;
     letter-spacing: 2px;
 }
 
@@ -187,7 +187,7 @@ div#header-bar-overall {
     z-index: 9;
 }
 
-#header-bar ul li:hover > a:only-child { 
+#header-bar ul li:hover > a:only-child {
     box-shadow : none;
 }
 
@@ -202,7 +202,7 @@ div#header-bar-overall {
     line-height: 35px;
     height: 35px;
     color: #ffffff;
-    margin-right: -1px;	
+    margin-right: -1px;
     text-shadow: 0px 1px 0px rgba(0,0,0,.83);
 }
 
@@ -265,7 +265,7 @@ div#status-bar-overall {
     width: 100%;
     font-size: 17px;
     text-align: center;
-    box-shadow: 0px -2px 1px  0px rgba(0,0,0,.55);
+    box-shadow: 0px -2px 1px  0px rgba(0,0,0.55);
     border-bottom: 1px solid #000;
 }
 
@@ -282,6 +282,25 @@ div#status-bar {
     margin: 0px 0 5px 0;
     height: 40px;
     line-height: 40px;
+}
+
+.editable {
+    background-color: #47bf48 !important;
+}
+
+.editable a {
+    color: #000;
+    font-weight: bold;
+}
+
+.active {
+    background-color: #83b4d3;
+    color: #000;
+}
+
+.active a {
+    color: #000;
+    font-weight: bold;
 }
 
 div.table-container {
