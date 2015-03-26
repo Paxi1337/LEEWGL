@@ -84,25 +84,71 @@ LEEWGL.UI = function(options) {
         };
     };
 
-    this.editable = function(obj, index) {
+    this.editable = function(obj, index, dom) {
+        dom = (typeof dom !== 'undefined') ? dom : false;
         var that = this;
 
-        obj.addEventListener('dblclick', function(event) {
-            if (that.outline[index].editable === false)
-                that.setEditable(index);
+        var dblclickFunction, keydownFunction, clickFunction;
 
-            that.update = true;
+        if (dom === false) {
+            dblclickFunction = function() {
+                if (that.outline[index].editable === false) {
+                    that.setEditable(index);
+                    that.update = true;
+                }
+            };
+
+            keydownFunction = function(element) {
+                that.activeElement.name = element.innerText;
+                that.setEditable(-1);
+                that.update = true;
+                that.setInspectorContent(index);
+            };
+
+            clickFunction = function() {
+                var activeOutline = that.outline[index];
+
+                if (activeOutline.active === false && activeOutline.editable === false) {
+                    that.setActive(index);
+                    that.setEditable(-1);
+                    that.update = true;
+                    that.setInspectorContent(index);
+                }
+            };
+
+        } else {
+            dblclickFunction = function(element) {
+                console.log(element);
+                if (element.getAttribute('contenteditable') === null) {
+                    element.setAttribute('contenteditable', true);
+                    that.update = true;
+                }
+            };
+
+            keydownFunction = function(element) {
+                if (element.getAttribute('contenteditable') !== null) {
+                    element.removeAttribute('contenteditable');
+                    that.update = true;
+                }
+            };
+
+            clickFunction = function() {
+            };
+        }
+        obj.addEventListener('dblclick', function(event) {
+            dblclickFunction(this);
         });
 
         obj.addEventListener('keydown', function(event) {
             if (event.keyCode === LEEWGL.KEYS.ENTER) {
-                that.activeElement.name = this.innerText;
-                that.setEditable(-1);
-                that.update = true;
-                that.setInspectorContent(index);
+                keydownFunction(this);
                 event.preventDefault();
                 event.stopPropagation();
             }
+        });
+
+        obj.addEventListener('click', function(event) {
+            clickFunction();
         });
     };
 
@@ -141,18 +187,6 @@ LEEWGL.UI = function(options) {
 
             /// events
             this.editable(element, i);
-
-            (function(index) {
-                var activeOutline = that.outline[index];
-                item.addEventListener('click', function() {
-                    if (activeOutline.active === false && activeOutline.editable === false) {
-                        that.setActive(index);
-                        that.setEditable(-1);
-                        that.update = true;
-                        that.setInspectorContent(index);
-                    }
-                });
-            })(i);
         }
 
         container.appendChild(list);
@@ -187,7 +221,7 @@ LEEWGL.UI = function(options) {
 
             var c = content[index];
 
-            that.editable(td, index);
+            that.editable(td, index, true);
 
             if (typeof c === 'undefined') {
                 var keys = Object.keys(content);

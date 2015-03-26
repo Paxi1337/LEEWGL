@@ -133,7 +133,7 @@ LEEWGL.TestApp.prototype.onCreate = function() {
     var ajax = new LEEWGL.AsynchRequest();
     var ColladaImporter = new LEEWGL.Importer();
 
-    ColladaImporter.parseCollada(ajax.send('GET', LEEWGL.ROOT + 'models/Man_Mp_Iphone.DAE', false).response.responseXML);
+    // ColladaImporter.parseCollada(ajax.send('GET', LEEWGL.ROOT + 'models/Man_Mp_Iphone.DAE', false).response.responseXML);
 
     UI.setGL(this.gl);
     UI.setScene(this.scene);
