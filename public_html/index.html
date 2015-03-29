@@ -139,7 +139,7 @@
             <div id="container">
                 <div id="content">
                     <div id="controls-container" class="padding10">
-                        <img class="icon-big mright35 pointer" src="img/icons/play.png" alt="play" onclick="UI.play()" />
+                        <img id="play-control" class="icon-big mright35 pointer" alt="play" onclick="UI.play(this);" />
                         <img class="icon-big pointer" src="img/icons/stop.png" alt="stop" onclick="UI.stop();" />
                     </div>
                     <div id="render-container">
@@ -151,15 +151,6 @@
                                 </div>
                             </div>
                             <canvas id="editor-canvas" width="512" height="512" tabindex="0"></canvas>
-                        </div>
-                        <div id="game-view-container" class="dynamic-container">
-                            <div class="container-header">
-                                <h2>Game View</h2>
-                                <div class="icon-container">
-                                    <img alt="relase window" src="img/icons/anchor_half.png" />
-                                </div>
-                            </div>
-                            <canvas id="game-canvas" width="512" height="512"></canvas>
                         </div>
                     </div>
                     <div id="outline-container" class="dynamic-container">
@@ -190,28 +181,25 @@
     </div>
 
     <script>
-        window.onload = function() {
-            var init = function() {
-                UI.dynamicContainers('.icon-container', '.dynamic-container');
+        window.addEventListener('load', function() {
+            UI.dynamicContainers('.icon-container', '.dynamic-container');
 
-                var overallContainer = document.querySelector('#container-overall');
-                var editorCanvas = document.querySelector('#editor-canvas');
-                var gameCanvas = document.querySelector('#game-canvas');
+            var overallContainer = document.querySelector('#container-overall');
+            var editorCanvas = document.querySelector('#editor-canvas');
+            var gameCanvas = document.querySelector('#game-canvas');
 
-                var LEEWGL = new window.LEEWGL.Core({
-                    'editorCanvas': editorCanvas,
-                    'gameCanvas': gameCanvas
-                });
-                var testapp = new window.LEEWGL.TestApp({
-                    'core': LEEWGL
-                });
+            var LEEWGL = new window.LEEWGL.Core({
+                'editorCanvas': editorCanvas,
+                'gameCanvas': gameCanvas
+            });
+            var testapp = new window.LEEWGL.TestApp({
+                'core': LEEWGL
+            });
 
-                LEEWGL.attachApp(testapp);
-                LEEWGL.init();
-                window.requestAnimationFrame(LEEWGL.run.bind(LEEWGL));
-            };
-            init();
-        };
+            LEEWGL.attachApp(testapp);
+            LEEWGL.init();
+            window.requestAnimationFrame(LEEWGL.run.bind(LEEWGL));
+        });
     </script>
 </body>
 

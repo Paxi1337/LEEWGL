@@ -284,8 +284,18 @@ div#status-bar {
     line-height: 40px;
 }
 
+img#play-control {
+    content:url("../img/icons/play.png");
+}
+
+img#pause-control {
+    content:url("../img/icons/pause.png");
+}
+
 .editable {
     background-color: #47bf48 !important;
+    color: #000;
+    font-weight: bold;
 }
 
 .editable a {

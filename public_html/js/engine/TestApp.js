@@ -146,8 +146,8 @@ LEEWGL.TestApp.prototype.updatePickingList = function() {
             if (typeof element.vertexBuffer !== 'undefined')
                 this.picker.addToList(element);
         }
+        this.picker.initPicking(this.gl, this.canvas.width, this.canvas.height);
     }
-    this.picker.initPicking(this.gl, this.canvas.width, this.canvas.height);
 };
 
 LEEWGL.TestApp.prototype.onMouseDown = function(event) {
@@ -187,13 +187,20 @@ LEEWGL.TestApp.prototype.onMouseMove = function(event) {
         this.camera.offsetOrientation(movement.y, movement.x);
     } else if ((event.which === 1 || event.button === LEEWGL.MOUSE.LEFT) && this.activeElement !== null) {
 
+        var forward = this.camera.forward();
+
         movement.x = event.movementX * this.translationSpeed.x;
         movement.y = event.movementY * this.translationSpeed.y;
+
+
+        var trans = [movement.x, -movement.y, 0.0];
+        vec3.transformMat4(trans, trans, this.camera.orientation());
+        console.log(trans);
 
         if (event.ctrlKey)
             this.activeElement.transform.scale([this.movement.x * 0.01, this.movement.y * 0.01, 1.0]);
         else
-            this.activeElement.transform.translate([movement.x, -movement.y, 0.0]);
+            this.activeElement.transform.translate(trans);
         UI.setInspectorContent(this.activeElement.id);
     }
     event.preventDefault();
@@ -277,15 +284,6 @@ LEEWGL.TestApp.prototype.draw = function() {
         if (this.scene.children[i].render)
             this.scene.children[i].render(this.gl, this.shader, this.gl.TRIANGLES);
     }
-
-    // / triangle
-    //	this.triangle.render(this.gl, this.shader, this.gl.TRIANGLES);
-
-    // / cube
-    //	this.cube.render(this.gl, this.shader, this.gl.TRIANGLES);
-
-    // / camera gizmo
-    //	this.cameraGizmo.render(this.gl, this.shader, this.gl.TRIANGLES);
 
     // / grid
     // this.shader.attributes['aVertexPosition'](this.grid.vertexBuffer);

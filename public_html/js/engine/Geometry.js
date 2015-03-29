@@ -179,13 +179,71 @@ LEEWGL.Geometry.Plane.prototype.distance = function(origin) {
 LEEWGL.Geometry.Triangle = function() {
     LEEWGL.Geometry.call(this);
 
-    this.faces = 4;
+    this.faces = 5;
 
-    this.vertices.position = [-1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 0.0, 1.0, 1.0, -1.0, -1.0, -1.0, 1.0, -1.0, -1.0];
+    this.vertices.position = [
+        -1.0, -1.0, 1.0,
+        1.0, -1.0, 1.0,
+        0.0, 1.0, 1.0,
+        -1.0, -1.0, -1.0,
+        1.0, -1.0, -1.0
+    ];
 
-    this.vertices.normal = [0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0];
 
-    this.indices = [0, 1, 2, 3, 4, 2, 4, 1, 2, 3, 2, 0, 3, 4, 1];
+
+    var vertices = [
+        [-1.0, -1.0, 1.0],
+        [1.0, -1.0, 1.0],
+        [0.0, 1.0, 1.0],
+        [-1.0, -1.0, -1.0],
+        [1.0, -1.0, -1.0],
+        [0.0, 1.0, 1.0],
+        [1.0, -1.0, -1.0],
+        [1.0, -1.0, 1.0],
+        [0.0, 1.0, 1.0],
+        [-1.0, -1.0, -1.0],
+        [0.0, 1.0, 1.0],
+        [-1.0, -1.0, 1.0],
+        [-1.0, -1.0, -1.0],
+        [1.0, -1.0, -1.0],
+        [1.0, -1.0, 1.0]
+    ];
+
+    this.indices = [
+        0, 1, 2,
+        3, 4, 2,
+        4, 1, 2,
+        3, 2, 0,
+        3, 4, 1
+    ];
+
+    var face1 = [vertices[0], vertices[1], vertices[2]];
+    var face2 = [vertices[3], vertices[4], vertices[2]];
+    var face3 = [vertices[4], vertices[1], vertices[2]];
+    var face4 = [vertices[3], vertices[2], vertices[0]];
+    var face5 = [vertices[3], vertices[4], vertices[1]];
+
+    var faces = [face1, face2, face3, face4, face5];
+
+    var normalFace1 = LEEWGL.Math.calculateSurfaceNormal(face1[0], face1[1], face1[2]);
+    var normalFace2 = LEEWGL.Math.calculateSurfaceNormal(face2[0], face2[1], face2[2]);
+    var normalFace3 = LEEWGL.Math.calculateSurfaceNormal(face3[0], face3[1], face3[2]);
+    var normalFace4 = LEEWGL.Math.calculateSurfaceNormal(face4[0], face4[1], face4[2]);
+    var normalFace5 = LEEWGL.Math.calculateSurfaceNormal(face5[0], face5[1], face5[2]);
+
+    console.log(normalFace1);
+    console.log(normalFace2);
+    console.log(normalFace3);
+    console.log(normalFace4);
+    console.log(normalFace5);
+
+    this.vertices.normal = [
+        0.0, 0.0, 1.0,
+        0.0, -0.7, 0.7,
+        -0.8, ,0.4, 0.0,
+        0.8, -0.4, 0.0,
+        0.0, -1.0, 0.0
+    ];
 };
 
 LEEWGL.Geometry.Triangle.prototype = Object.create(LEEWGL.Geometry.prototype);

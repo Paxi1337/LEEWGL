@@ -63,3 +63,10 @@
     bottom: 0;
     left: 0;
 }
+.popup-close-icon {
+	width: 32px;
+	height: 32px;
+	position: absolute;
+	margin: 0;
+	cursor: pointer;
+}
