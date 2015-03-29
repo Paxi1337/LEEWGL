@@ -97,13 +97,13 @@ LEEWGL.TestApp.prototype.onCreate = function() {
     this.shader.createAttributeSetters(this.gl);
 
     this.cameraGizmo.setBuffer(this.gl);
-    this.cameraGizmo.addColor(this.gl, undefined, this.cameraGizmo.faces);
+    this.cameraGizmo.addColor(this.gl);
 
     this.triangle.setBuffer(this.gl);
-    this.triangle.addColor(this.gl, undefined, this.triangle.faces);
+    this.triangle.addColor(this.gl);
 
     this.cube.setBuffer(this.gl);
-    this.cube.addColor(this.gl, undefined, this.cube.faces);
+    this.cube.addColor(this.gl);
     this.cube.transform.setPosition(5, 0, 0);
 
     this.cube.addComponent(new LEEWGL.Component.CustomScript());

@@ -20,9 +20,9 @@ LEEWGL.Geometry = function(options) {
     this.indexBuffer = new LEEWGL.IndexBuffer();
     this.colorBuffer = new LEEWGL.Buffer();
     this.textureBuffer = new LEEWGL.Buffer();
-    this.faces = 1;
-
-    this.normal = vec3.fromValues(0.0, LEEWGL.Object3D.DefaultUp, 0.0);
+    this.facesNum = 1;
+    this.faces = [];
+    this.vectors = [];
 
     this.setBuffer = function(gl) {
         this.vertexBuffer.setData(gl, this.vertices.position, new LEEWGL.BufferInformation.VertexTypePos3());
@@ -41,6 +41,8 @@ LEEWGL.Geometry = function(options) {
     };
 
     this.addColor = function(gl, colors, length) {
+        length = (typeof length !== 'undefined') ? length : this.facesNum;
+
         if (colors !== undefined && colors.length === length) {
             this.setColorBuffer(gl);
         } else {
@@ -84,6 +86,51 @@ LEEWGL.Geometry.prototype.setVertices = function(vertices) {
     }
 };
 
+LEEWGL.Geometry.prototype.calculateFaces = function() {
+    this.vectors = [];
+
+    for (var i = 0; i < this.vertices.position.length; i += 3) {
+        var x = this.vertices.position[i];
+        var y = this.vertices.position[i + 1];
+        var z = this.vertices.position[i + 2];
+
+        this.vectors.push([x, y, z]);
+    }
+
+    for (var i = 0; i < this.indices.length; i += 3) {
+        var i0 = this.indices[i];
+        var i1 = this.indices[i + 1];
+        var i2 = this.indices[i + 2];
+
+        var c0 = this.vectors[i0];
+        var c1 = this.vectors[i1];
+        var c2 = this.vectors[i2];
+
+        this.faces.push([c0, c1, c2]);
+    }
+
+    this.facesNum = this.faces.length;
+};
+
+LEEWGL.Geometry.prototype.calculateNormals = function() {
+    this.vertices.normal = [];
+
+    for (var i = 0; i < this.vectors.length; ++i) {
+        var nSum = [0.0, 0.0, 0.0];
+        for (var j = 0; j < this.faces.length; ++j) {
+            if (this.faces[j].indexOf(this.vectors[i]) > -1) {
+                var normal = LEEWGL.Math.triangleNormalFromVertex(this.faces[j], i);
+                vec3.add(nSum, nSum, normal);
+            }
+        }
+        vec3.normalize(nSum, nSum);
+        this.vertices.normal.push(nSum[0]);
+        this.vertices.normal.push(nSum[1]);
+        this.vertices.normal.push(nSum[2]);
+
+    }
+};
+
 LEEWGL.Geometry.prototype.clone = function(geometry) {
     if (typeof geometry === 'undefined') {
         geometry = new LEEWGL.Geometry();
@@ -91,12 +138,13 @@ LEEWGL.Geometry.prototype.clone = function(geometry) {
 
     LEEWGL.Object3D.prototype.clone.call(this, geometry);
 
-    geometry.faces = this.faces;
+    geometry.facesNum = this.facesNum;
 
     var position = this.vertices.position;
     var normal = this.vertices.normal;
     var color = this.vertices.color;
     var uv = this.vertices.uv;
+    var faces = this.vertices.faces;
 
     for (var i = 0; i < position.length; ++i) {
         geometry.vertices.position.push(position[i]);
@@ -112,6 +160,10 @@ LEEWGL.Geometry.prototype.clone = function(geometry) {
 
     for (var i = 0; i < uv.length; ++i) {
         geometry.vertices.uv.push(uv[i]);
+    }
+
+    for (var i = 0; i < facesNum; ++i) {
+        geometry.faces.push(faces[i]);
     }
 
     LEEWGL.Buffer.prototype.clone.call(this.vertexBuffer, geometry.vertexBuffer);
@@ -134,8 +186,6 @@ LEEWGL.Geometry.Plane.prototype = Object.create(LEEWGL.Geometry.prototype);
 // / FIXME: not working [indices]
 LEEWGL.Geometry.Grid = function() {
     LEEWGL.Geometry.call(this);
-
-    this.faces = 4;
 
     this.generateGrid = function(width, height, margin) {
         for (var z = 0; z < height; ++z) {
@@ -179,71 +229,23 @@ LEEWGL.Geometry.Plane.prototype.distance = function(origin) {
 LEEWGL.Geometry.Triangle = function() {
     LEEWGL.Geometry.call(this);
 
-    this.faces = 5;
-
     this.vertices.position = [
+        0.0, 1.0, 0.0,
         -1.0, -1.0, 1.0,
         1.0, -1.0, 1.0,
-        0.0, 1.0, 1.0,
-        -1.0, -1.0, -1.0,
-        1.0, -1.0, -1.0
-    ];
-
-
-
-    var vertices = [
-        [-1.0, -1.0, 1.0],
-        [1.0, -1.0, 1.0],
-        [0.0, 1.0, 1.0],
-        [-1.0, -1.0, -1.0],
-        [1.0, -1.0, -1.0],
-        [0.0, 1.0, 1.0],
-        [1.0, -1.0, -1.0],
-        [1.0, -1.0, 1.0],
-        [0.0, 1.0, 1.0],
-        [-1.0, -1.0, -1.0],
-        [0.0, 1.0, 1.0],
-        [-1.0, -1.0, 1.0],
-        [-1.0, -1.0, -1.0],
-        [1.0, -1.0, -1.0],
-        [1.0, -1.0, 1.0]
+        1.0, -1.0, -1.0,
+        -1.0, -1.0, -1.0
     ];
 
     this.indices = [
         0, 1, 2,
-        3, 4, 2,
-        4, 1, 2,
-        3, 2, 0,
-        3, 4, 1
+        0, 2, 3,
+        0, 3, 4,
+        0, 4, 1
     ];
 
-    var face1 = [vertices[0], vertices[1], vertices[2]];
-    var face2 = [vertices[3], vertices[4], vertices[2]];
-    var face3 = [vertices[4], vertices[1], vertices[2]];
-    var face4 = [vertices[3], vertices[2], vertices[0]];
-    var face5 = [vertices[3], vertices[4], vertices[1]];
-
-    var faces = [face1, face2, face3, face4, face5];
-
-    var normalFace1 = LEEWGL.Math.calculateSurfaceNormal(face1[0], face1[1], face1[2]);
-    var normalFace2 = LEEWGL.Math.calculateSurfaceNormal(face2[0], face2[1], face2[2]);
-    var normalFace3 = LEEWGL.Math.calculateSurfaceNormal(face3[0], face3[1], face3[2]);
-    var normalFace4 = LEEWGL.Math.calculateSurfaceNormal(face4[0], face4[1], face4[2]);
-    var normalFace5 = LEEWGL.Math.calculateSurfaceNormal(face5[0], face5[1], face5[2]);
-
-    console.log(normalFace1);
-    console.log(normalFace2);
-    console.log(normalFace3);
-    console.log(normalFace4);
-    console.log(normalFace5);
-
-    this.vertices.normal = [
-        0.0, 0.0, 1.0,
-        0.0, -0.7, 0.7,
-        -0.8, ,0.4, 0.0,
-        0.8, -0.4, 0.0,
-        0.0, -1.0, 0.0
-    ];
+    this.calculateFaces();
+    this.calculateNormals();
 };
 
 LEEWGL.Geometry.Triangle.prototype = Object.create(LEEWGL.Geometry.prototype);
@@ -290,36 +292,30 @@ LEEWGL.Geometry.Triangle.prototype.clone = function(triangle) {
 LEEWGL.Geometry.Cube = function() {
     LEEWGL.Geometry.call(this);
 
-    this.faces = 6;
-
     this.vertices.position = [
         // Front face
-        -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0,
+        -1.0, -1.0, 1.0,
+        1.0, -1.0, 1.0,
+        1.0, 1.0, 1.0, -1.0, 1.0, 1.0,
         // Back face
-        -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0,
+        -1.0, -1.0, -1.0, -1.0, 1.0, -1.0,
+        1.0, 1.0, -1.0,
+        1.0, -1.0, -1.0,
         // Top face
-        -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0,
+        -1.0, 1.0, -1.0, -1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0,
+        1.0, 1.0, -1.0,
         // Bottom face
-        -1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0,
+        -1.0, -1.0, -1.0,
+        1.0, -1.0, -1.0,
+        1.0, -1.0, 1.0, -1.0, -1.0, 1.0,
         // Right face
-        1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0,
+        1.0, -1.0, -1.0,
+        1.0, 1.0, -1.0,
+        1.0, 1.0, 1.0,
+        1.0, -1.0, 1.0,
         // Left face
         -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0
-    ];
-
-    this.vertices.normal = [
-        // Front
-        0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,
-        // Back
-        0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0,
-        // Top
-        0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
-        // Bottom
-        0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0,
-        // Right
-        1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,
-        // Left
-        -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0
     ];
 
     this.indices = [0, 1, 2, 0, 2, 3, // front
@@ -329,6 +325,10 @@ LEEWGL.Geometry.Cube = function() {
         16, 17, 18, 16, 18, 19, // right
         20, 21, 22, 20, 22, 23 // left
     ];
+
+
+    this.calculateFaces();
+    this.calculateNormals();
 };
 
 LEEWGL.Geometry.Cube.prototype = Object.create(LEEWGL.Geometry.prototype);
@@ -389,10 +389,13 @@ LEEWGL.Geometry.Sphere = function(options) {
             this.indices.push(second);
             this.indices.push(second + 1);
             this.indices.push(first + 1);
-            this.faces++;
+            this.facesNum++;
         }
     }
 
+
+    // this.calculateFaces();
+    // this.calculateNormals();
 };
 
 LEEWGL.Geometry.Sphere.prototype = Object.create(LEEWGL.Geometry.prototype);

@@ -549,21 +549,21 @@ LEEWGL.UI = function(options) {
     this.insertTriangle = function() {
         var triangle = new LEEWGL.Geometry.Triangle();
         triangle.setBuffer(this.gl);
-        triangle.addColor(this.gl, undefined, triangle.faces);
+        triangle.addColor(this.gl);
         this.scene.add(triangle);
     };
 
     this.insertCube = function() {
         var cube = new LEEWGL.Geometry.Cube();
         cube.setBuffer(this.gl);
-        cube.addColor(this.gl, undefined, cube.faces);
+        cube.addColor(this.gl);
         this.scene.add(cube);
     };
 
     this.insertSphere = function() {
         var sphere = new LEEWGL.Geometry.Sphere();
         sphere.setBuffer(this.gl);
-        sphere.addColor(this.gl, undefined, sphere.faces);
+        sphere.addColor(this.gl);
         this.scene.add(sphere);
     };
 
