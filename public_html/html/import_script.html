@@ -1,0 +1,31 @@
+<html>
+
+<head>
+    <title>Add Script</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <div>
+        <h2 style="color:#000; font-size: 100%;">Add Script per File:</h2>
+        <div>
+            <form name="form-import-javascript-file" action="#" method="post">
+                <input type="file" name="filename" value="">
+                <div class="mbot10"></div>
+                <input type="submit" class="submit" name="submit" value="Submit">
+            </form>
+        </div>
+        <div class="mbot10"></div>
+        <h2 style="color:#000; font-size: 100%;">Add Script per Input:</h2>
+        <div>
+            <form name="form-import-javascript-code" action="#" method="post" onsubmit="UI.importScriptFromSource(this.elements['input-code']); return false;">
+                <textarea id="textarea-import-code" name="input-code" rows="8" cols="40"></textarea>
+                <div class="mbot10"></div>
+                <input type="submit" class="submit" name="submit" value="Submit">
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

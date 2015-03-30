@@ -14,9 +14,14 @@ LEEWGL.UI = function(options) {
 
     this.activeIndex = undefined;
 
+    this.importedScripts = 0;
+
     this.drag = new LEEWGL.DragDrop();
     this.popup = new LEEWGL.UI.Popup({});
     this.popup.create();
+
+    this.importedScripts = [];
+    this.objectScripts = [];
 
     this.setGL = function(gl) {
         this.gl = gl;
@@ -333,7 +338,7 @@ LEEWGL.UI = function(options) {
 
                 textfield.addEventListener('keyup', function(event) {
                     if (event.keyCode === LEEWGL.KEYS.ENTER) {
-                        that.addScript(activeElement.id, this.value);
+                        that.addScriptToObject(activeElement.id, this.value);
                         event.stopPropagation();
                     }
                 });
@@ -405,8 +410,10 @@ LEEWGL.UI = function(options) {
         for (var i = 0; i < toggle.length; ++i) {
             (function(index) {
                 toggle[index].addEventListener('mousedown', function(event) {
-                    var c = container[index];
-                    c.addEventListener('click', that.drag.drag(c, event));
+                    if (event.which === 1 || event.button === LEEWGL.MOUSE.LEFT) {
+                        var c = container[index];
+                        c.addEventListener('click', that.drag.drag(c, event));
+                    }
                 });
                 toggle[index].addEventListener('dblclick', function(event) {
                     var c = container[index];
@@ -416,18 +423,35 @@ LEEWGL.UI = function(options) {
         }
     };
 
-    this.addScript = function(id, src) {
+    this.addScriptToObject = function(id, src) {
         var script;
-        if ((script = document.querySelector('#customScript' + id)) !== null) {
+        if ((script = document.querySelector('#custom-object-script-' + id)) !== null) {
             document.body.removeChild(script);
         }
-        this.storage.setValue('customScript' + id, src);
+        this.storage.setValue('custom-object-script-' + id, src);
 
         var newScript = document.createElement('script');
         newScript.type = 'text/javascript';
-        newScript.id = 'customScript' + id;
+        newScript.id = 'custom-object-script-' + id;
 
         var code = 'UI.outline[' + id + '].obj.addEventListener("custom", function() { if(UI.playing === true) {' + src + '}});';
+
+        newScript.appendChild(document.createTextNode(code));
+        document.body.appendChild(newScript);
+    };
+
+    this.addScriptToDOM = function(id, src) {
+        var script;
+        if ((script = document.querySelector('#custom-dom-script-' + id)) !== null) {
+            document.body.removeChild(script);
+        }
+        this.storage.setValue('custom-dom-script-' + id, src);
+
+        var newScript = document.createElement('script');
+        newScript.type = 'text/javascript';
+        newScript.id = 'custom-dom-script-' + id;
+
+        var code = 'Window.prototype.addEventListener("custom", function() { if(UI.playing === true) {' + src + '}}.bind(this));';
 
         newScript.appendChild(document.createTextNode(code));
         document.body.appendChild(newScript);
@@ -494,6 +518,9 @@ LEEWGL.UI = function(options) {
             });
         }
 
+        Window.prototype.dispatchEvent({
+            'type': 'custom'
+        });
     };
 
     this.pause = function(element) {
@@ -503,6 +530,10 @@ LEEWGL.UI = function(options) {
     };
 
     this.stop = function() {
+        var playIcon;
+        if((playIcon = document.getElementById('pause-control')) !== null)
+            playIcon.setAttribute('id', 'play-control');
+
         this.playing = false;
     };
 
@@ -562,10 +593,23 @@ LEEWGL.UI = function(options) {
         this.scene.add(sphere);
     };
 
-    this.importScript = function() {
+    this.displayImportScript = function() {
         this.popup.empty();
+        this.popup.setOptions({
+            'wrapper-width': 500,
+            'wrapper-height': 'auto'
+        });
+
+        this.popup.setDimensions();
+
         this.popup.addTitleText('Import Script');
+        this.popup.addHTMLFile('html/import_script.html');
         this.popup.show();
+    };
+
+    this.importScriptFromSource = function(textarea) {
+        this.addScriptToDOM(this.importedScripts, textarea.value);
+        this.importedScripts++;
     };
 
     this.displayAbout = function() {
@@ -608,6 +652,10 @@ LEEWGL.UI = function(options) {
     };
 };
 
+/**
+ * LEEWGL.UI.Popup
+ */
+
 LEEWGL.UI.Popup = function(options) {
     this.pos = {
         'x': 0,
@@ -624,10 +672,11 @@ LEEWGL.UI.Popup = function(options) {
         'overlay-class': 'popup-overlay',
         'list-item-class': 'popup-list',
         'close-icon-enabled': true,
-        'wrapper-width': 250,
+        'wrapper-width': 350,
         'wrapper-height': 100,
         'center': true,
-        'hidden': true
+        'hidden': true,
+        'movable': true
     };
 
     this.wrapper = undefined;
@@ -639,6 +688,7 @@ LEEWGL.UI.Popup = function(options) {
 
     this.initialized = false;
 
+    this.drag = new LEEWGL.DragDrop();
     this.ajax = new LEEWGL.AsynchRequest();
 
     this.setOptions = function(options) {
@@ -648,6 +698,12 @@ LEEWGL.UI.Popup = function(options) {
                     this.options[attribute] = options[attribute];
             }
         }
+    };
+
+    this.setDimensions = function() {
+        this.wrapper.style.width = (typeof this.options['wrapper-width'] === 'number') ? this.options['wrapper-width'] + 'px' : this.options['wrapper-width'];
+        this.wrapper.style.height = (typeof this.options['wrapper-height'] === 'number') ? this.options['wrapper-height'] + 'px' : this.options['wrapper-height'];
+        this.position();
     };
 
     this.setOptions(options);
@@ -689,11 +745,16 @@ LEEWGL.UI.Popup = function(options) {
         this.parent.appendChild(this.wrapper);
         this.parent.appendChild(this.overlay);
 
+        this.setDimensions();
+
         this.position();
         this.initialized = true;
 
         if (this.options['close-icon-enabled'] === true)
             this.addCloseIcon();
+
+        if (this.options['movable'] === true)
+            this.movable();
 
         if (this.options['hidden'] === true)
             this.hide();
@@ -761,6 +822,14 @@ LEEWGL.UI.Popup = function(options) {
         this.content.appendChild(list);
     };
 
+    this.addCustomElementToTitle = function(element) {
+        this.title.appendChild(element);
+    };
+
+    this.addCustomElementToContent = function(element) {
+        this.content.appendChild(element);
+    };
+
     this.addTitleText = function(text) {
         if (this.initialized === false) {
             console.error('LEEWGL.UI.Popup: call create() first!');
@@ -786,7 +855,7 @@ LEEWGL.UI.Popup = function(options) {
         }
 
         var iconContainer = document.createElement('div');
-        iconContainer.setAttribute('class', 'popup-icon-wrapper');
+        iconContainer.setAttribute('class', 'popup-icon-wrapper fright mleft10');
         var clearer = document.createElement('div');
         clearer.setAttribute('class', 'clearer');
 
@@ -798,10 +867,42 @@ LEEWGL.UI.Popup = function(options) {
         iconContainer.appendChild(closeIcon);
         iconContainer.appendChild(clearer);
 
-        /// event
         closeIcon.addEventListener('click', function(event) {
             this.hide();
         }.bind(this));
+
+        this.title.appendChild(iconContainer);
+    };
+
+    this.movable = function() {
+        if (this.initialized === false) {
+            console.error('LEEWGL.UI.Popup: call create() first!');
+            return;
+        }
+
+        var that = this;
+
+        var iconContainer = document.createElement('div');
+        iconContainer.setAttribute('class', 'popup-icon-wrapper fleft mright10');
+        var clearer = document.createElement('div');
+        clearer.setAttribute('class', 'clearer');
+
+        var moveIcon = document.createElement('img');
+        moveIcon.setAttribute('alt', 'Move Popup');
+        moveIcon.setAttribute('title', 'Move Popup');
+        moveIcon.setAttribute('class', 'popup-move-icon');
+
+        iconContainer.appendChild(moveIcon);
+        iconContainer.appendChild(clearer);
+
+        moveIcon.addEventListener('mousedown', function(event) {
+            if (event.which === 1 || event.button === LEEWGL.MOUSE.LEFT) {
+                that.wrapper.addEventListener('click', that.drag.drag(that.wrapper, event));
+            }
+        });
+        moveIcon.addEventListener('dblclick', function(event) {
+            that.drag.restore(that.wrapper, event);
+        });
 
         this.title.appendChild(iconContainer);
     };
@@ -836,6 +937,9 @@ LEEWGL.UI.Popup = function(options) {
 
         if (this.options['close-icon-enabled'] === true)
             this.addCloseIcon();
+
+        if (this.options['movable'] === true)
+            this.movable();
 
         this.content.innerHTML = '';
     };

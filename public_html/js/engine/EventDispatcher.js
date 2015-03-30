@@ -1,15 +1,14 @@
-LEEWGL.EventDispatcher = function () {
-};
+LEEWGL.EventDispatcher = function() {};
 
 LEEWGL.EventDispatcher.prototype = {
     constructor: LEEWGL.EventDispatcher,
-    apply: function (object) {
+    apply: function(object) {
         object.addEventListener = LEEWGL.EventDispatcher.prototype.addEventListener;
         object.hasEventListener = LEEWGL.EventDispatcher.prototype.hasEventListener;
         object.removeEventListener = LEEWGL.EventDispatcher.prototype.removeEventListener;
         object.dispatchEvent = LEEWGL.EventDispatcher.prototype.dispatchEvent;
     },
-    addEventListener: function (type, listener) {
+    addEventListener: function(type, listener) {
         if (this._listeners === undefined)
             this._listeners = {};
         var listeners = this._listeners;
@@ -20,7 +19,7 @@ LEEWGL.EventDispatcher.prototype = {
         if (listeners[type].indexOf(listener) === -1)
             listeners[type].push(listener);
     },
-    hasEventListener: function (type, listener) {
+    hasEventListener: function(type, listener) {
         if (this._listeners === undefined)
             return false;
         var listeners = this._listeners;
@@ -31,12 +30,10 @@ LEEWGL.EventDispatcher.prototype = {
 
         return false;
     },
-    removeEventListener: function (type, listener) {
-    	console.log('removeEvent');
+    removeEventListener: function(type, listener) {
         if (this._listeners === undefined)
             return;
-        
-        
+
         var listeners = this._listeners;
         var listenerArray = listeners[type];
 
@@ -47,14 +44,13 @@ LEEWGL.EventDispatcher.prototype = {
             }
         }
     },
-    dispatchEvent: function (event) {
+    dispatchEvent: function(event) {
         if (this._listeners === undefined)
             return;
-        
 
         var listeners = this._listeners;
         var listenerArray = listeners[event.type];
-        
+
         if (listenerArray !== undefined) {
             event.target = this;
 
@@ -72,3 +68,6 @@ LEEWGL.EventDispatcher.prototype = {
     }
 };
 
+window.addEventListener('load', function() {
+    LEEWGL.EventDispatcher.prototype.apply(Window.prototype);
+});

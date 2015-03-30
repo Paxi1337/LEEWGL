@@ -1,23 +1,58 @@
 .fleft {
     float: left;
 }
-
 .padding10 {
     padding: 10px;
 }
-
+.mtop10 {
+    margin-top: 10px;
+}
+.mtop35 {
+    margin-top: 35px;
+}
+.mbot10 {
+    margin-bottom: 10px;
+}
+.mtop35 {
+    margin-bottom: 35px;
+}
+.margin10 {
+    margin: 10px;
+}
+.margin15 {
+    margin: 15px;
+}
+.margin20 {
+    margin: 20px;
+}
+.mtopbot10 {
+    margin: 10px 0;
+}
+.mtopbot15 {
+    margin: 15px 0;
+}
+.mtopbot20 {
+    margin: 20px 0;
+}
+.margin20 {
+    margin: 20px;
+}
 .mright10 {
     margin-right: 10px;
 }
-
 .mright35 {
     margin-right: 35px;
 }
-
 .pointer {
     cursor: pointer;
 }
-
+.fright {
+    float: right;
+}
+.fleft {
+    float: left;
+}
 .clearer {
     clear: both;
+    float: none;
 }

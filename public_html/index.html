@@ -112,7 +112,7 @@
                                     </li>
                                 </ul>
                             </li>
-                            <li><a href="#">Script</a>
+                            <li><a href="#" onclick="UI.displayImportScript();">Script</a>
                             </li>
                         </ul>
                     </li>
@@ -189,8 +189,7 @@
             var gameCanvas = document.querySelector('#game-canvas');
 
             var LEEWGL = new window.LEEWGL.Core({
-                'editorCanvas': editorCanvas,
-                'gameCanvas': gameCanvas
+                'editorCanvas': editorCanvas
             });
             var testapp = new window.LEEWGL.TestApp({
                 'core': LEEWGL

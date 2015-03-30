@@ -1,7 +1,7 @@
 /// Lightweight Editor Environment Web GL
 
 var LEEWGL = {
-    version: '0.1'
+    version: '0.3'
 };
 
 LEEWGL.ROOT = '';

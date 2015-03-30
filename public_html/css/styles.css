@@ -349,8 +349,8 @@ div.popup-container {
 div.icon-container {
     width: 35px;
     height: 35px;
-    float: right;
-    padding: 5px 5px 0px 0px;
+    float: left;
+    padding: 5px 0px 0px 5px;
 }
 
 div.icon-container:hover {
@@ -360,9 +360,4 @@ div.icon-container:hover {
 img.icon-big {
     width: 35px;
     height: 35px;
-}
-
-.clearer {
-    clear: both;
-    float: none;
 }
