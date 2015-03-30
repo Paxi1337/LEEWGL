@@ -15,7 +15,7 @@ LEEWGL.UI = function(options) {
     this.activeIndex = undefined;
 
     this.drag = new LEEWGL.DragDrop();
-    this.popup = new LEEWGL.UI.Popup();
+    this.popup = new LEEWGL.UI.Popup({});
     this.popup.create();
 
     this.setGL = function(gl) {
@@ -438,6 +438,7 @@ LEEWGL.UI = function(options) {
         var availableComponents = this.getAvailableComponents(this.outline[index].obj);
 
         this.popup.empty();
+        this.popup.addTitleText('Add Component');
         this.popup.setPosition({
             'x': event.clientX,
             'y': event.clientY
@@ -445,12 +446,6 @@ LEEWGL.UI = function(options) {
 
         var that = this;
         var testClass = this.stringToFunction('LEEWGL.Component.' + availableComponents[0]);
-        console.log(testClass);
-
-        console.log(availableComponents[0]);
-
-        console.log(this.activeElement.components);
-        console.log(availableComponents);
 
         this.popup.addList(availableComponents, function(item) {
             var className = that.stringToFunction('LEEWGL.Component.' + item);
@@ -575,7 +570,13 @@ LEEWGL.UI = function(options) {
 
     this.displayAbout = function() {
         this.popup.empty();
+        this.popup.setOptions({
+            'wrapper-width': '500px'
+        });
+
+        this.popup.addTitleText('About LEEWGL');
         this.popup.addHTMLFile('html/about.html');
+        this.popup.center();
         this.popup.show();
     };
 
@@ -608,11 +609,6 @@ LEEWGL.UI = function(options) {
 };
 
 LEEWGL.UI.Popup = function(options) {
-    this.wWidth = 250;
-    this.wHeight = 100;
-    this.overlayEnabled = true;
-    this.center = true;
-    this.hidden = true;
     this.pos = {
         'x': 0,
         'y': 0
@@ -620,26 +616,41 @@ LEEWGL.UI.Popup = function(options) {
 
     this.parent = document.body;
 
-    this.wClass = 'popup';
-    this.tClass = 'popup-title';
-    this.cClass = 'popup-content';
-    this.oClass = 'popup-overlay';
-    this.closeIcon = LEEWGL.ROOT + 'img/icons/';
+    this.options = {
+        'overlay': false,
+        'wrapper-class': 'popup',
+        'title-class': 'popup-title',
+        'content-class': 'popup-content',
+        'overlay-class': 'popup-overlay',
+        'list-item-class': 'popup-list',
+        'close-icon-enabled': true,
+        'wrapper-width': 250,
+        'wrapper-height': 100,
+        'center': true,
+        'hidden': true
+    };
 
     this.wrapper = undefined;
     this.title = undefined;
     this.content = undefined;
     this.overlay = undefined;
 
+    this.listItems = [];
+
     this.initialized = false;
 
     this.ajax = new LEEWGL.AsynchRequest();
 
-    if (typeof options !== 'undefined') {
-        this.wWidth = (typeof options.wrapperWidth !== 'undefined') ? options.wrapperWidth : this.wWidth;
-        this.wHeight = (typeof options.wrapperHeight !== 'undefined') ? options.wrapperHeight : this.wHeight;
-        this.overlayEnabled = (typeof options.overlayEnabled !== 'undefined') ? options.overlayEnabled : this.overlayEnabled;
-    }
+    this.setOptions = function(options) {
+        if (typeof options !== 'undefined') {
+            for (var attribute in this.options) {
+                if (options.hasOwnProperty(attribute))
+                    this.options[attribute] = options[attribute];
+            }
+        }
+    };
+
+    this.setOptions(options);
 
     this.setPosition = function() {
         if (arguments.length === 1) {
@@ -649,7 +660,7 @@ LEEWGL.UI.Popup = function(options) {
             this.pos.y = arguments[1];
         }
 
-        this.center = false;
+        this.options['center'] = false;
         this.position();
     };
 
@@ -661,16 +672,16 @@ LEEWGL.UI.Popup = function(options) {
             this.parent = document.body;
 
         this.wrapper = document.createElement('div');
-        this.wrapper.setAttribute('class', this.wClass);
+        this.wrapper.setAttribute('class', this.options['wrapper-class']);
 
         this.title = document.createElement('div');
-        this.title.setAttribute('class', this.tClass);
+        this.title.setAttribute('class', this.options['title-class']);
 
         this.content = document.createElement('div');
-        this.content.setAttribute('class', this.cClass);
+        this.content.setAttribute('class', this.options['content-class']);
 
         this.overlay = document.createElement('div');
-        this.overlay.setAttribute('class', this.oClass);
+        this.overlay.setAttribute('class', this.options['overlay-class']);
 
         this.wrapper.appendChild(this.title);
         this.wrapper.appendChild(this.content);
@@ -679,20 +690,27 @@ LEEWGL.UI.Popup = function(options) {
         this.parent.appendChild(this.overlay);
 
         this.position();
-
         this.initialized = true;
 
-        if (this.hidden === true)
+        if (this.options['close-icon-enabled'] === true)
+            this.addCloseIcon();
+
+        if (this.options['hidden'] === true)
             this.hide();
     };
 
+    this.center = function() {
+        this.options['center'] = true;
+        this.position();
+    }
+
     this.position = function() {
-        if (this.center === true) {
+        if (this.options['center'] === true) {
             var bodyX = document.body.offsetWidth;
             var bodyY = document.body.offsetHeight;
 
-            this.pos.x = (bodyX / 2) - (this.wWidth / 2);
-            this.pos.y = (bodyY / 2) - this.wHeight;
+            this.pos.x = (bodyX / 2) - parseInt((this.options['wrapper-width'] / 2));
+            this.pos.y = (bodyY / 2) - parseInt(this.options['wrapper-height']);
         }
 
         this.wrapper.style.top = this.pos.y + 'px';
@@ -704,8 +722,7 @@ LEEWGL.UI.Popup = function(options) {
             console.error('LEEWGL.UI.Popup: call create() first!');
             return;
         }
-        var content = document.createElement('p');
-        content.innerHTML = text;
+        var content = document.createTextNode(text);
         this.content.appendChild(content);
     };
 
@@ -714,7 +731,6 @@ LEEWGL.UI.Popup = function(options) {
             console.error('LEEWGL.UI.Popup: call create() first!');
             return;
         }
-        console.log(html);
         this.content.innerHTML += html;
     };
 
@@ -722,9 +738,14 @@ LEEWGL.UI.Popup = function(options) {
         var list = document.createElement('ul');
         list.setAttribute('class', 'popup-list');
 
+        this.listItems = [];
+
         for (var i = 0; i < content.length; ++i) {
             var item = document.createElement('li');
             item.innerHTML = content[i];
+            item.setAttribute('class', this.options['list-item-class']);
+
+            this.listItems.push(item);
 
             if (typeof evFunction === 'function') {
                 (function(index) {
@@ -763,6 +784,26 @@ LEEWGL.UI.Popup = function(options) {
             console.error('LEEWGL.UI.Popup: call create() first!');
             return;
         }
+
+        var iconContainer = document.createElement('div');
+        iconContainer.setAttribute('class', 'popup-icon-wrapper');
+        var clearer = document.createElement('div');
+        clearer.setAttribute('class', 'clearer');
+
+        var closeIcon = document.createElement('img');
+        closeIcon.setAttribute('alt', 'Close Popup');
+        closeIcon.setAttribute('title', 'Close Popup');
+        closeIcon.setAttribute('class', 'popup-close-icon');
+
+        iconContainer.appendChild(closeIcon);
+        iconContainer.appendChild(clearer);
+
+        /// event
+        closeIcon.addEventListener('click', function(event) {
+            this.hide();
+        }.bind(this));
+
+        this.title.appendChild(iconContainer);
     };
 
     this.show = function() {
@@ -792,6 +833,10 @@ LEEWGL.UI.Popup = function(options) {
         }
 
         this.title.innerHTML = '';
+
+        if (this.options['close-icon-enabled'] === true)
+            this.addCloseIcon();
+
         this.content.innerHTML = '';
     };
 }

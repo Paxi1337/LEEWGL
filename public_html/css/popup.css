@@ -9,11 +9,12 @@
     color: #000 !important;
 }
 .popup-title {
-    color: #000;
+    min-height: 32px;
 }
 .popup-title h1 {
-    font-size: 225% !important;
-    line-height: 48px;
+    color: #000;
+    font-size: 135% !important;
+    line-height: 32px;
     margin: 0 0 5px 0 !important;
 }
 
@@ -24,7 +25,7 @@
 .popup-content {
     color: #000 !important;
     font-size: 115%;
-    margin: 15px;
+    margin: 10px 0;
 }
 .popup-button-wrapper {
     display: block;
@@ -63,10 +64,25 @@
     bottom: 0;
     left: 0;
 }
+.popup-icon-wrapper {
+    float: right;
+    width: 32px;
+    height: 32px;
+    position: relative;
+}
 .popup-close-icon {
 	width: 32px;
 	height: 32px;
 	position: absolute;
 	margin: 0;
 	cursor: pointer;
+    content:url("../img/icons/close_circle.png");
+}
+li.popup-list {
+    padding: 5px;
+    cursor: pointer;
+}
+li.popup-list:hover {
+    background-color: #83b4d3;
+    color: #000;
 }
