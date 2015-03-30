@@ -1,4 +1,5 @@
-LEEWGL.EventDispatcher = function() {};
+LEEWGL.EventDispatcher = function() {
+};
 
 LEEWGL.EventDispatcher.prototype = {
     constructor: LEEWGL.EventDispatcher,
@@ -9,9 +10,9 @@ LEEWGL.EventDispatcher.prototype = {
         object.dispatchEvent = LEEWGL.EventDispatcher.prototype.dispatchEvent;
     },
     addEventListener: function(type, listener) {
-        if (this._listeners === undefined)
-            this._listeners = {};
-        var listeners = this._listeners;
+        if (this.listeners === undefined)
+            this.listeners = {};
+        var listeners = this.listeners;
 
         if (listeners[type] === undefined)
             listeners[type] = [];
@@ -20,9 +21,9 @@ LEEWGL.EventDispatcher.prototype = {
             listeners[type].push(listener);
     },
     hasEventListener: function(type, listener) {
-        if (this._listeners === undefined)
+        if (this.listeners === undefined)
             return false;
-        var listeners = this._listeners;
+        var listeners = this.listeners;
 
         if (listeners[type] !== undefined && listeners[type].indexOf(listener) !== -1) {
             return true;
@@ -31,10 +32,10 @@ LEEWGL.EventDispatcher.prototype = {
         return false;
     },
     removeEventListener: function(type, listener) {
-        if (this._listeners === undefined)
+        if (this.listeners === undefined)
             return;
 
-        var listeners = this._listeners;
+        var listeners = this.listeners;
         var listenerArray = listeners[type];
 
         if (listenerArray !== undefined) {
@@ -45,10 +46,10 @@ LEEWGL.EventDispatcher.prototype = {
         }
     },
     dispatchEvent: function(event) {
-        if (this._listeners === undefined)
+        if (this.listeners === undefined)
             return;
 
-        var listeners = this._listeners;
+        var listeners = this.listeners;
         var listenerArray = listeners[event.type];
 
         if (listenerArray !== undefined) {
