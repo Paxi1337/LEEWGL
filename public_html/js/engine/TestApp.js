@@ -163,7 +163,6 @@ LEEWGL.TestApp.prototype.onMouseDown = function(event) {
     if (this.picking === true) {
         this.picker.bind(this.gl);
         obj = this.picker.pick(this.gl, mouseCords.x, mouseCords.y);
-        console.log(obj);
     }
 
     if (this.picking === true && obj !== null) {
@@ -191,7 +190,6 @@ LEEWGL.TestApp.prototype.onMouseMove = function(event) {
 
         this.camera.offsetOrientation(movement.y, movement.x);
     } else if ((event.which === 1 || event.button === LEEWGL.MOUSE.LEFT) && this.activeElement !== null) {
-
         var forward = this.camera.forward();
 
         movement.x = event.movementX * this.translationSpeed.x;

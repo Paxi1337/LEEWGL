@@ -376,6 +376,9 @@ LEEWGL.UI = function(options) {
         var that = this;
         this.inspector.innerHTML = '';
         this.activeIndex = index;
+
+        this.setActive(index);
+
         this.activeElement = this.outline[index].obj;
         window.activeElement = this.activeElement;
 
@@ -400,6 +403,7 @@ LEEWGL.UI = function(options) {
         });
 
         this.inspector.appendChild(interactiveControlsContainer);
+        this.update = true;
     };
 
     this.dynamicContainers = function(classname_toggle, classname_container, movable_container) {
@@ -531,7 +535,7 @@ LEEWGL.UI = function(options) {
 
     this.stop = function() {
         var playIcon;
-        if((playIcon = document.getElementById('pause-control')) !== null)
+        if ((playIcon = document.getElementById('pause-control')) !== null)
             playIcon.setAttribute('id', 'play-control');
 
         this.playing = false;

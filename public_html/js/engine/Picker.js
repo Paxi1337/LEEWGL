@@ -51,9 +51,6 @@ LEEWGL.Picker = function() {
         var color = this.getColorMapColor(x, y);
         var index = color[0] * 65536 + color[1] * 256 + color[2];
 
-        console.log(this.objList);
-        console.log(index);
-
         if (this.objList[index]) {
             this.frameBuffer.unbind(gl);
             return this.objList[index];
@@ -75,11 +72,8 @@ LEEWGL.Picker = function() {
             console.error('LEEWGL: Color map not captured');
             return;
         }
-        var position = (_height - 1 - y) * _width * 4 + x * 4;
 
-        console.log(this.lastCapturedColorMap[position],
-        this.lastCapturedColorMap[position + 1],
-        this.lastCapturedColorMap[position + 2]);
+        var position = (_height - 1 - y) * _width * 4 + x * 4;
 
         return [this.lastCapturedColorMap[position],
             this.lastCapturedColorMap[position + 1],
