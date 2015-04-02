@@ -34,7 +34,7 @@ LEEWGL.Picker = function() {
         gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthBuffer.getBuffer());
 
         if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
-            alert("this combination of attachments does not work");
+            console.warn("LEEWGL.Picker.initPicking(): This combination of attachments does not work");
             return;
         }
 
@@ -50,6 +50,9 @@ LEEWGL.Picker = function() {
 
         var color = this.getColorMapColor(x, y);
         var index = color[0] * 65536 + color[1] * 256 + color[2];
+
+        console.log(this.objList);
+        console.log(index);
 
         if (this.objList[index]) {
             this.frameBuffer.unbind(gl);
@@ -73,6 +76,11 @@ LEEWGL.Picker = function() {
             return;
         }
         var position = (_height - 1 - y) * _width * 4 + x * 4;
+
+        console.log(this.lastCapturedColorMap[position],
+        this.lastCapturedColorMap[position + 1],
+        this.lastCapturedColorMap[position + 2]);
+
         return [this.lastCapturedColorMap[position],
             this.lastCapturedColorMap[position + 1],
             this.lastCapturedColorMap[position + 2]

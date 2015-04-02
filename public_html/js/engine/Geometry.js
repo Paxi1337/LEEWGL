@@ -57,6 +57,8 @@ LEEWGL.Geometry = function(options) {
     this.render = function(gl, shader, drawMode, indices) {
         indices = (typeof indices !== 'undefined') ? indices : true;
 
+        shader.use(gl);
+
         shader.attributes['aVertexPosition'](this.vertexBuffer);
         shader.attributes['aVertexColor'](this.colorBuffer);
         shader.attributes['aVertexNormal'](this.normalBuffer);
@@ -65,9 +67,9 @@ LEEWGL.Geometry = function(options) {
         mat4.invert(normalMatrix, this.transform.matrix());
         mat4.transpose(normalMatrix, normalMatrix);
 
+        shader.uniforms['uColorMapColor'](new Float32Array(this.vertexBuffer.colorMapColor));
         shader.uniforms['uNormalMatrix'](normalMatrix);
         shader.uniforms['uModel'](this.transform.matrix());
-        shader.uniforms['uColorMapColor'](new Float32Array(this.vertexBuffer.colorMapColor));
 
         if (indices === true) {
             this.indexBuffer.bind(gl);

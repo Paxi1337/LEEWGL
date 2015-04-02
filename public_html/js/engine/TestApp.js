@@ -53,7 +53,6 @@ LEEWGL.TestApp = function(options) {
     };
 
     this.scene = new LEEWGL.Scene();
-
     this.activeElement = null;
 };
 
@@ -88,8 +87,15 @@ LEEWGL.TestApp.prototype.onCreate = function() {
     this.gameCamera.setLookAt([0.0, 0.0, -1.0]);
     this.cameraGizmo.transform.setPosition([10.0, 0.0, 10.0]);
 
-    this.shader.createShaderFromLibrary(this.gl, LEEWGL.Shader.VERTEX, LEEWGL.ShaderLibrary.picking_directional_ambient.vertexShader);
-    this.shader.createShaderFromLibrary(this.gl, LEEWGL.Shader.FRAGMENT, LEEWGL.ShaderLibrary.picking_directional_ambient.fragmentShader);
+    this.shaderLibrary.addParameterChunk(LEEWGL.Shader.VERTEX, 'basic');
+    this.shaderLibrary.addParameterChunk(LEEWGL.Shader.FRAGMENT, 'basic');
+    this.shaderLibrary.addParameterChunk(LEEWGL.Shader.VERTEX, 'picking');
+    this.shaderLibrary.addParameterChunk(LEEWGL.Shader.FRAGMENT, 'picking');
+    this.shaderLibrary.addParameterChunk(LEEWGL.Shader.VERTEX, 'light_ambient_directional');
+    this.shaderLibrary.addParameterChunk(LEEWGL.Shader.FRAGMENT, 'light_ambient_directional');
+
+    this.shader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, this.shaderLibrary.out(LEEWGL.Shader.VERTEX));
+    this.shader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, this.shaderLibrary.out(LEEWGL.Shader.FRAGMENT));
     this.shader.linkShader(this.gl);
     this.shader.use(this.gl);
 
@@ -122,7 +128,6 @@ LEEWGL.TestApp.prototype.onCreate = function() {
         this.picker.initPicking(this.gl, this.canvas.width, this.canvas.height);
 
     this.scene.add(this.camera, this.gameCamera, this.triangle, this.cube, this.cameraGizmo);
-
 
     this.gl.enable(this.gl.DEPTH_TEST);
     this.gl.depthFunc(this.gl.LEQUAL);
@@ -158,6 +163,7 @@ LEEWGL.TestApp.prototype.onMouseDown = function(event) {
     if (this.picking === true) {
         this.picker.bind(this.gl);
         obj = this.picker.pick(this.gl, mouseCords.x, mouseCords.y);
+        console.log(obj);
     }
 
     if (this.picking === true && obj !== null) {
@@ -176,7 +182,6 @@ LEEWGL.TestApp.prototype.onMouseMove = function(event) {
         'x': 0,
         'y': 0
     };
-
     this.movement.x += event.movementX;
     this.movement.y += event.movementY;
 
@@ -191,7 +196,6 @@ LEEWGL.TestApp.prototype.onMouseMove = function(event) {
 
         movement.x = event.movementX * this.translationSpeed.x;
         movement.y = event.movementY * this.translationSpeed.y;
-
 
         var trans = [movement.x, -movement.y, 0.0];
         vec3.transformMat4(trans, trans, this.camera.orientation());
@@ -270,15 +274,17 @@ LEEWGL.TestApp.prototype.draw = function() {
     this.gl.clearColor(LEEWGL.Settings.BackgroundColor.r, LEEWGL.Settings.BackgroundColor.g, LEEWGL.Settings.BackgroundColor.b, LEEWGL.Settings.BackgroundColor.a);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 
-    // / light
-    this.shader.uniforms['uAmbient']([0.5, 0.5, 0.5]);
-    this.shader.uniforms['uLightDirection'](this.light.components['Light'].direction);
-    this.shader.uniforms['uLightColor'](this.light.components['Light'].color);
+    this.shader.use(this.gl);
 
     if (typeof UI !== 'undefined' && UI.playing === true)
         this.shader.uniforms['uVP'](this.gameCamera.viewProjMatrix);
     else
         this.shader.uniforms['uVP'](this.camera.viewProjMatrix);
+
+    // / light
+    this.shader.uniforms['uAmbient']([0.5, 0.5, 0.5]);
+    this.shader.uniforms['uLightDirection'](this.light.components['Light'].direction);
+    this.shader.uniforms['uLightColor'](this.light.components['Light'].color);
 
     for (var i = 0; i < this.scene.children.length; ++i) {
         if (this.scene.children[i].render)

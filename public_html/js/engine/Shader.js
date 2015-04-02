@@ -59,7 +59,7 @@ LEEWGL.Shader = function() {
         gl.useProgram(_program);
     };
 
-    this.createShaderFromLibrary = function(gl, type, code) {
+    this.createShaderFromCode = function(gl, type, code) {
         if (_program === null)
             _program = gl.createProgram();
 

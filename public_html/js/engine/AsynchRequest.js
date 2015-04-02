@@ -1,6 +1,7 @@
 LEEWGL.AsynchRequest = function() {
     this.request;
     this.response = {};
+    this.type = LEEWGL.AsynchRequest.HTML;
 
     if (window.XMLHttpRequest) {
         this.request = new XMLHttpRequest();
@@ -22,6 +23,10 @@ LEEWGL.AsynchRequest.COMPLETE = 4;
 
 LEEWGL.AsynchRequest.HTTPSTATUS_COMPLETE = 200;
 
+LEEWGL.AsynchRequest.HTML = 100;
+LEEWGL.AsynchRequest.JSON = 101;
+
+
 LEEWGL.AsynchRequest.prototype = {
     constructor: LEEWGL.AsynchRequest,
     onRequest: function() {},
@@ -39,13 +44,18 @@ LEEWGL.AsynchRequest.prototype = {
                 this.response['responseHTML'] = this.request.responseHTML;
                 this.response['responseXML'] = this.request.responseXML;
 
+                if(this.type === LEEWGL.AsynchRequest.JSON)
+                    this.response['responseJSON'] = JSON.parse(this.request.responseText);
+
                 this.onSuccess();
             }
         } else {
             this.onError();
         }
     },
-    send: function(method, loc, asynch, data) {
+    send: function(method, loc, asynch, data, type) {
+        this.type = (typeof type !== 'undefined') ? type : LEEWGL.AsynchRequest.HTML;
+
         this.request.open(method.toUpperCase(), loc, asynch);
         this.request.send(data);
 
