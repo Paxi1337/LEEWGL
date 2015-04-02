@@ -48,8 +48,8 @@
                 <ul>
                     <li><a href="#">File</a>
                         <ul>
-                            <li><a href="#">Save</a>
-                            </li>
+                            <li><a href="#" onclick="UI.load();">Load</a></li>
+                            <li><a href="#" onclick="UI.save();">Save</a></li>
                             <li><a href="#">Import</a>
                                 <ul>
                                     <li><a href="#" onclick="UI.importModel();">Model</a>
@@ -183,6 +183,7 @@
     <script>
         window.addEventListener('load', function() {
             UI.dynamicContainers('.icon-container', '.dynamic-container');
+            // UI.preventRefresh();
 
             var overallContainer = document.querySelector('#container-overall');
             var editorCanvas = document.querySelector('#editor-canvas');

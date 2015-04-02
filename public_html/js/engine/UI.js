@@ -23,6 +23,8 @@ LEEWGL.UI = function(options) {
     this.importedScripts = [];
     this.objectScripts = [];
 
+    this.saved = {};
+
     this.setGL = function(gl) {
         this.gl = gl;
     };
@@ -334,7 +336,7 @@ LEEWGL.UI = function(options) {
                 textfield.setAttribute('cols', 30);
                 textfield.setAttribute('placeholder', comp.code);
 
-                textfield.value = that.storage.getValue('customScript' + activeElement.id);
+                textfield.value = this.saved['custom-object-script-' + activeElement.id];
 
                 textfield.addEventListener('keyup', function(event) {
                     if (event.keyCode === LEEWGL.KEYS.ENTER) {
@@ -432,7 +434,8 @@ LEEWGL.UI = function(options) {
         if ((script = document.querySelector('#custom-object-script-' + id)) !== null) {
             document.body.removeChild(script);
         }
-        this.storage.setValue('custom-object-script-' + id, src);
+
+        this.saved['custom-object-script-' + id] = src;
 
         var newScript = document.createElement('script');
         newScript.type = 'text/javascript';
@@ -449,7 +452,8 @@ LEEWGL.UI = function(options) {
         if ((script = document.querySelector('#custom-dom-script-' + id)) !== null) {
             document.body.removeChild(script);
         }
-        this.storage.setValue('custom-dom-script-' + id, src);
+
+        this.saved['custom-dom-script-' + id] = src;
 
         var newScript = document.createElement('script');
         newScript.type = 'text/javascript';
@@ -643,6 +647,34 @@ LEEWGL.UI = function(options) {
 
         event.stopPropagation();
         event.preventDefault();
+    };
+
+    this.save = function() {
+        for(var name in this.saved) {
+            this.storage.setValue(name, this.saved[name]);
+        }
+    };
+
+    this.load = function() {
+        for(var name in this.storage.all()) {
+            this.saved[name] = this.storage.getValue(name);
+
+            if(name.indexOf('custom-object-script-') !== -1) {
+                var id = name.substr(name.lastIndexOf('-') + 1, name.length);
+                this.addScriptToObject(id, this.saved[name]);
+            } else if(name.indexOf('custom-dom-script-') !== -1) {
+                var id = name.substr(name.lastIndexOf('-') + 1, name.length);
+                this.addScriptToDOM(id, this.saved[name]);
+            }
+        }
+    };
+
+    this.preventRefresh = function() {
+        window.onkeydown = function(event) {
+            if((event.keyCode || event.which) === LEEWGL.KEYS.F5) {
+                event.preventDefault();
+            }
+        };
     };
 
     this.stringToFunction = function(str) {

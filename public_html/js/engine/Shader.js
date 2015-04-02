@@ -15,7 +15,7 @@ LEEWGL.Shader = function() {
         } else if (type === LEEWGL.Shader.VERTEX) {
             _shader = gl.createShader(gl.VERTEX_SHADER);
         } else {
-            console.error('LEEWGL.Shader.addShader(): unknown type given');
+            console.error('LEEWGL.Shader.compile(): unknown type given');
             return null;
         }
 
@@ -32,7 +32,7 @@ LEEWGL.Shader = function() {
     this.getShaderDOM = function(gl, selector) {
         var _script = document.querySelector(selector);
         if (_script === null) {
-            console.error("LEEWGL.Shader: No shader with selector " + selector + " found.");
+            console.error("LEEWGL.Shader.getShaderDOM(): No shader with selector " + selector + " found.");
         }
 
         return this.getShaderContentDOM(_script);
@@ -53,7 +53,7 @@ LEEWGL.Shader = function() {
     this.linkShader = function(gl) {
         gl.linkProgram(_program);
         if (!gl.getProgramParameter(_program, gl.LINK_STATUS))
-            console.error("LEEWGL.Shader: Could not initialise shaders");
+            console.error("LEEWGL.Shader.linkShader(): Could not initialise shaders");
     };
     this.use = function(gl) {
         gl.useProgram(_program);

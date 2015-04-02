@@ -32,6 +32,7 @@ LEEWGL.KEYS.S = 83;
 LEEWGL.KEYS.W = 87;
 
 LEEWGL.KEYS.ENTER = 13;
+LEEWGL.KEYS.F5 = 116;
 
 // wrapping modes
 LEEWGL.WrappingRepeat = 1000;
@@ -334,12 +335,6 @@ LEEWGL.Core = function(options) {
 
         if (_app !== null)
             _app.onCreate();
-    };
-
-    this.updateUI = function() {
-        if (typeof UI !== 'undefined') {
-
-        }
     };
 
     this.run = function() {
