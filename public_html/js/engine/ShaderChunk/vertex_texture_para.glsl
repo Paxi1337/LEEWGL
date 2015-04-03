@@ -1,3 +1,3 @@
-attribute lowp vec2 aTextureCoord;
+attribute vec2 aTextureCoord;
 
-varying lowp vec2 vTextureCoord;
+varying highp vec2 vTextureCoord;

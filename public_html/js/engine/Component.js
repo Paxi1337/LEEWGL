@@ -12,11 +12,7 @@ LEEWGL.Component.prototype = {
     }
 };
 
-LEEWGL.Component.TransformComponent = 'Transform';
-LEEWGL.Component.LightComponent = 'Light';
-LEEWGL.Component.CustomScriptComponent = 'CustomScript';
-
-LEEWGL.Component.Components = [LEEWGL.Component.TransformComponent, LEEWGL.Component.LightComponent, LEEWGL.Component.CustomScriptComponent];
+LEEWGL.Component.Components = ['Transform', 'CustomScript', 'Light', 'Texture'];
 
 LEEWGL.Component.Transform = function() {
     LEEWGL.Component.call(this);
@@ -129,7 +125,6 @@ LEEWGL.Component.CustomScript = function() {
     LEEWGL.Component.call(this);
 
     this.type = 'CustomScript';
-
     this.code = 'Type your custom code in here!';
 };
 
@@ -144,4 +139,42 @@ LEEWGL.Component.CustomScript.prototype.clone = function(customScript) {
     customScript.code = this.code;
 
     return customScript;
+};
+
+LEEWGL.Component.Texture = function() {
+    LEEWGL.Component.call(this);
+
+    this.type = 'Texture';
+    this.texture = new LEEWGL.Texture();
+    this.src = '';
+};
+
+LEEWGL.Component.Texture.prototype = Object.create(LEEWGL.Component.prototype);
+
+LEEWGL.Component.Texture.prototype.init = function(gl, src) {
+    var that = this;
+    var image = new Image();
+    this.src = src;
+    image.src = this.src;
+
+    this.texture.create(gl);
+    this.texture.img = image;
+
+    this.texture.img.onload = function() {
+        that.texture.bind(gl);
+        that.texture.setTextureParameters(gl, gl.TEXTURE_2D, true);
+        that.texture.unbind(gl);
+    };
+};
+
+LEEWGL.Component.Texture.prototype.clone = function(texture) {
+    if (texture === 'undefined')
+        texture = new LEEWGL.Component.Texture();
+
+    LEEWGL.Component.prototype.clone.call(this, texture);
+    texture.texture = LEEWGL.Texture.prototype.clone.call(this.texture);
+
+    texture.src = this.src;
+
+    return texture;
 };

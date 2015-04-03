@@ -9,31 +9,66 @@ LEEWGL.ShaderLibrary = function() {
     };
 
     this.chunks = {};
-    this.chunks['basic'] = {
+    this.chunks[LEEWGL.ShaderLibrary.DEFAULT] = {
         vertex: {
             parameters: [
                 LEEWGL.ShaderChunk['vertex_default_para'],
-                LEEWGL.ShaderChunk['vertex_color_para']
             ],
             main: [
                 "void main() {",
                 LEEWGL.ShaderChunk['vertex_default'],
-                LEEWGL.ShaderChunk['vertex_color']
             ]
         },
         fragment: {
             parameters: [
                 "precision mediump float;",
-                LEEWGL.ShaderChunk['fragment_color_para']
             ],
             main: [
                 "void main() {",
+            ]
+        }
+    };
+
+    this.chunks[LEEWGL.ShaderLibrary.COLOR] = {
+        vertex: {
+            parameters: [
+                LEEWGL.ShaderChunk['vertex_color_para']
+            ],
+            main: [
+                LEEWGL.ShaderChunk['vertex_color']
+            ]
+        },
+        fragment: {
+            parameters: [
+                LEEWGL.ShaderChunk['fragment_color_para']
+            ],
+            main: [
                 LEEWGL.ShaderChunk['fragment_color']
             ]
         }
     };
 
-    this.chunks.picking = {
+    this.chunks[LEEWGL.ShaderLibrary.TEXTURE] = {
+        vertex: {
+            parameters: [
+                LEEWGL.ShaderChunk['vertex_texture_para']
+            ],
+            main: [
+                LEEWGL.ShaderChunk['vertex_texture']
+            ]
+        },
+        fragment: {
+            parameters: [
+                LEEWGL.ShaderChunk['fragment_texture_para']
+            ],
+            main: [
+                LEEWGL.ShaderChunk['fragment_texture_sampler'],
+                LEEWGL.ShaderChunk['fragment_texture_light']
+            ]
+        }
+    };
+
+    this.chunks[LEEWGL.ShaderLibrary.PICKING] = {
         vertex: {
             parameters: [],
             main : []
@@ -51,8 +86,7 @@ LEEWGL.ShaderLibrary = function() {
         }
     };
 
-    this.chunks.light = {};
-    this.chunks.light_ambient_directional = {
+    this.chunks[LEEWGL.ShaderLibrary.DIRECTIONAL_AMBIENT] = {
         vertex: {
             parameters: [
                 LEEWGL.ShaderChunk['vertex_light_para'],
@@ -67,21 +101,15 @@ LEEWGL.ShaderLibrary = function() {
                 LEEWGL.ShaderChunk['fragment_light_para']
             ],
             main: [
-                LEEWGL.ShaderChunk['fragment_color_light']
             ]
         }
     };
 
-    this.addParameterChunk = function(type, name) {
-        if (type === LEEWGL.Shader.VERTEX) {
-            this.vertex.parameters += this.chunks[name].vertex.parameters.join("\n");
-            this.vertex.main += this.chunks[name].vertex.main.join("\n");
-        } else if (type === LEEWGL.Shader.FRAGMENT) {
-            this.fragment.parameters += this.chunks[name].fragment.parameters.join("\n");
-            this.fragment.main += this.chunks[name].fragment.main.join("\n");
-        } else {
-            console.error('LEEWGL.ShaderLibrary.addParameterChunk: Wrong type given: ' + type + '!');
-        }
+    this.addParameterChunk = function(type) {
+            this.vertex.parameters += this.chunks[type].vertex.parameters.join("\n");
+            this.vertex.main += this.chunks[type].vertex.main.join("\n");
+            this.fragment.parameters += this.chunks[type].fragment.parameters.join("\n");
+            this.fragment.main += this.chunks[type].fragment.main.join("\n");
     };
 
     this.out = function(type) {
@@ -98,3 +126,9 @@ LEEWGL.ShaderLibrary = function() {
         this.fragment = '';
     };
 };
+
+LEEWGL.ShaderLibrary.DEFAULT = 0;
+LEEWGL.ShaderLibrary.COLOR = 1;
+LEEWGL.ShaderLibrary.TEXTURE = 2;
+LEEWGL.ShaderLibrary.DIRECTIONAL_AMBIENT = 3;
+LEEWGL.ShaderLibrary.PICKING = 4;

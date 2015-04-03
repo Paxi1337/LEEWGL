@@ -1,3 +1,2 @@
-attribute lowp vec3 aVertexNormal;
-
-uniform lowp mat4 uNormalMatrix;
+attribute highp vec3 aVertexNormal;
+uniform highp mat4 uNormalMatrix;

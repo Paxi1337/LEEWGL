@@ -219,71 +219,7 @@ LEEWGL.Core = function(options) {
         _app = app;
     };
 
-    this.initTexture = function(texture, img) {
-        var image = new Image();
-        image.src = img;
-
-        texture = texture instanceof LEEWGL.Texture ? texture : new LEEWGL.Texture(image);
-        texture.img = image;
-        texture.webglTexture = _gl.createTexture();
-
-        var that = this;
-
-        texture.img.onload = function() {
-            that.setTexture(texture, 0);
-            that.setTextureParameters(texture, _gl.TEXTURE_2D, true);
-        };
-
-    };
-
-    this.setTexture = function(texture, number) {
-        _gl.activeTexture(_gl.TEXTURE0);
-        _gl.bindTexture(_gl.TEXTURE_2D, texture.webglTexture);
-    };
-
-    this.setTextureParameters = function(texture, type, isPowerOfTwo) {
-        _gl.texImage2D(type, 0, _gl.RGBA, _gl.RGBA, _gl.UNSIGNED_BYTE, texture.img);
-        _gl.texParameteri(type, _gl.TEXTURE_MIN_FILTER, this.paramToGL(texture.minFilter));
-        if (isPowerOfTwo) {
-            _gl.texParameteri(type, _gl.TEXTURE_WRAP_S, this.paramToGL(texture.wrapS));
-            _gl.texParameteri(type, _gl.TEXTURE_WRAP_T, this.paramToGL(texture.wrapT));
-
-            _gl.texParameteri(type, _gl.TEXTURE_MAG_FILTER, this.paramToGL(texture.magFilter));
-            _gl.texParameteri(type, _gl.TEXTURE_MIN_FILTER, this.paramToGL(texture.minFilter));
-        } else {
-            _gl.texParameteri(type, _gl.TEXTURE_WRAP_S, _gl.CLAMP_TO_EDGE);
-            _gl.texParameteri(type, _gl.TEXTURE_WRAP_T, _gl.CLAMP_TO_EDGE);
-
-            _gl.texParameteri(type, _gl.TEXTURE_MAG_FILTER, this.paramToGL(texture.magFilter));
-            _gl.texParameteri(type, _gl.TEXTURE_MIN_FILTER, this.paramToGL(texture.minFilter));
-        }
-
-        if (texture.genMipmaps === true)
-            _gl.generateMipmap(type);
-    };
-
     this.paramToGL = function(param) {
-        if (param === LEEWGL.WrappingRepeat)
-            return _gl.REPEAT;
-        if (param === LEEWGL.WrappingClampToEdge)
-            return _gl.CLAMP_TO_EDGE;
-        if (param === LEEWGL.WrappingMirroredRepeat)
-            return _gl.MIRRORED_REPEAT;
-
-        if (param === LEEWGL.FilterNearest)
-            return _gl.NEAREST;
-        if (param === LEEWGL.FilterNearestMipMapNearest)
-            return _gl.NEAREST_MIPMAP_NEAREST;
-        if (param === LEEWGL.FilterNearestMipMapLinear)
-            return _gl.NEAREST_MIPMAP_LINEAR;
-
-        if (param === LEEWGL.FilterLinear)
-            return _gl.LINEAR;
-        if (param === LEEWGL.FilterLinearMipMapNearest)
-            return _gl.LINEAR_MIPMAP_NEAREST;
-        if (param === LEEWGL.FilterLinearMipmapLinear)
-            return _gl.LINEAR_MIPMAP_LINEAR;
-
         if (param === LEEWGL.TypeUnsignedByte)
             return _gl.UNSIGNED_BYTE;
         if (param === LEEWGL.TypeByte)

@@ -22,7 +22,7 @@ LEEWGL.Shader = function() {
         gl.shaderSource(_shader, code);
         gl.compileShader(_shader);
         if (!gl.getShaderParameter(_shader, gl.COMPILE_STATUS)) {
-            console.error(gl.getShaderInfoLog(_shader));
+            console.error('LEEWGL.Shader.compile(): compile error: ' + gl.getShaderInfoLog(_shader));
             return null;
         }
 
@@ -50,11 +50,13 @@ LEEWGL.Shader = function() {
 
         return _content;
     };
+
     this.linkShader = function(gl) {
         gl.linkProgram(_program);
         if (!gl.getProgramParameter(_program, gl.LINK_STATUS))
             console.error("LEEWGL.Shader.linkShader(): Could not initialise shaders");
     };
+
     this.use = function(gl) {
         gl.useProgram(_program);
     };

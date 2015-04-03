@@ -1,12 +1,6 @@
 LEEWGL.TestApp = function(options) {
     LEEWGL.App.call(this, options);
 
-    this.textureBuffer = new LEEWGL.Buffer();
-    this.frameBuffer = new LEEWGL.FrameBuffer();
-
-    this.matrix = mat4.create();
-    this.proj = mat4.create();
-
     this.camera = new LEEWGL.PerspectiveCamera({
         'name': 'EditorCamera',
         'fov': 90,
@@ -28,7 +22,6 @@ LEEWGL.TestApp = function(options) {
     this.triangle = new LEEWGL.Geometry.Triangle();
     this.cube = new LEEWGL.Geometry.Cube();
     this.grid = new LEEWGL.Geometry.Grid();
-    this.texture = new LEEWGL.Texture();
 
     this.picker = new LEEWGL.Picker();
 
@@ -59,26 +52,13 @@ LEEWGL.TestApp = function(options) {
 LEEWGL.TestApp.prototype = Object.create(LEEWGL.App.prototype);
 
 LEEWGL.TestApp.prototype.onCreate = function() {
+    var that = this;
+
     this.core.setSize(512, 512);
     this.triangle.name = 'Triangle';
     this.cube.name = 'Cube';
     this.grid.name = 'Grid';
     this.light.name = 'DirectionalLight';
-
-    var textureCoordinates = [
-        // Front
-        0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
-        // Back
-        0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
-        // Top
-        0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
-        // Bottom
-        0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
-        // Right
-        0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
-        // Left
-        0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0
-    ];
 
     this.camera.transform.setPosition([0.0, 0.0, 10.0]);
     this.camera.setLookAt([0.0, 0.0, -1.0]);
@@ -87,12 +67,11 @@ LEEWGL.TestApp.prototype.onCreate = function() {
     this.gameCamera.setLookAt([0.0, 0.0, -1.0]);
     this.cameraGizmo.transform.setPosition([10.0, 0.0, 10.0]);
 
-    this.shaderLibrary.addParameterChunk(LEEWGL.Shader.VERTEX, 'basic');
-    this.shaderLibrary.addParameterChunk(LEEWGL.Shader.FRAGMENT, 'basic');
-    this.shaderLibrary.addParameterChunk(LEEWGL.Shader.VERTEX, 'picking');
-    this.shaderLibrary.addParameterChunk(LEEWGL.Shader.FRAGMENT, 'picking');
-    this.shaderLibrary.addParameterChunk(LEEWGL.Shader.VERTEX, 'light_ambient_directional');
-    this.shaderLibrary.addParameterChunk(LEEWGL.Shader.FRAGMENT, 'light_ambient_directional');
+    this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.DEFAULT);
+    // this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.COLOR);
+    this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.TEXTURE);
+    this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.PICKING);
+    this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.DIRECTIONAL_AMBIENT);
 
     this.shader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, this.shaderLibrary.out(LEEWGL.Shader.VERTEX));
     this.shader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, this.shaderLibrary.out(LEEWGL.Shader.FRAGMENT));
@@ -122,17 +101,25 @@ LEEWGL.TestApp.prototype.onCreate = function() {
     this.grid.setColorBuffer(this.gl);
     this.grid.transform.translate([0.0, -5.0, 0.0]);
 
-    this.textureBuffer.setData(this.gl, textureCoordinates, new LEEWGL.BufferInformation.VertexTypePos2());
-
     if (this.picking === true)
         this.picker.initPicking(this.gl, this.canvas.width, this.canvas.height);
 
-    this.scene.add(this.camera, this.gameCamera, this.triangle, this.cube, this.cameraGizmo);
+    this.scene.add(this.camera, this.gameCamera, this.cube, this.cameraGizmo);
 
     this.gl.enable(this.gl.DEPTH_TEST);
     this.gl.depthFunc(this.gl.LEQUAL);
 
-    this.core.initTexture(this.texture, 'texture/texture1.jpg');
+    // var image = new Image();
+    // image.src = 'texture/texture1.jpg';
+    //
+    // this.texture.create(this.gl);
+    // this.texture.img = image;
+    //
+    // this.texture.img.onload = function() {
+    //     that.texture.bind(that.gl);
+    //     that.texture.setTextureParameters(that.gl, that.gl.TEXTURE_2D, true);
+    //     that.texture.unbind(that.gl);
+    // };
 
     // / test load collada file
     var ajax = new LEEWGL.AsynchRequest();

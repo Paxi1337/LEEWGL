@@ -1,2 +1,2 @@
 attribute vec4 aVertexColor;
-varying lowp vec4 vVertexColor;
+varying highp vec4 vVertexColor;

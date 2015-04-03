@@ -29,6 +29,7 @@ LEEWGL.Geometry = function(options) {
         this.normalBuffer.setData(gl, this.vertices.normal, new LEEWGL.BufferInformation.VertexTypePos3());
         this.textureBuffer.setData(gl, this.vertices.uv, new LEEWGL.BufferInformation.VertexTypePos2());
         this.indexBuffer.setData(gl, this.indices);
+
     };
 
     this.setColorBuffer = function(gl) {
@@ -60,8 +61,12 @@ LEEWGL.Geometry = function(options) {
         shader.use(gl);
 
         shader.attributes['aVertexPosition'](this.vertexBuffer);
-        shader.attributes['aVertexColor'](this.colorBuffer);
+        shader.attributes['aTextureCoord'](this.textureBuffer);
+        // shader.attributes['aVertexColor'](this.colorBuffer);
         shader.attributes['aVertexNormal'](this.normalBuffer);
+
+        if (typeof this.components['Texture'] !== 'undefined')
+            this.components['Texture'].texture.bind(gl);
 
         var normalMatrix = mat4.create();
         mat4.invert(normalMatrix, this.transform.matrix());
@@ -129,7 +134,6 @@ LEEWGL.Geometry.prototype.calculateNormals = function() {
         this.vertices.normal.push(nSum[0]);
         this.vertices.normal.push(nSum[1]);
         this.vertices.normal.push(nSum[2]);
-
     }
 };
 
@@ -232,11 +236,9 @@ LEEWGL.Geometry.Triangle = function() {
     LEEWGL.Geometry.call(this);
 
     this.vertices.position = [
-        0.0, 1.0, 0.0,
-        -1.0, -1.0, 1.0,
+        0.0, 1.0, 0.0, -1.0, -1.0, 1.0,
         1.0, -1.0, 1.0,
-        1.0, -1.0, -1.0,
-        -1.0, -1.0, -1.0
+        1.0, -1.0, -1.0, -1.0, -1.0, -1.0
     ];
 
     this.indices = [
@@ -318,6 +320,39 @@ LEEWGL.Geometry.Cube = function() {
         1.0, -1.0, 1.0,
         // Left face
         -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0
+    ];
+
+    this.vertices.uv = [
+        // Front
+        0.0, 0.0,
+        1.0, 0.0,
+        1.0, 1.0,
+        0.0, 1.0,
+        // Back
+        0.0, 0.0,
+        1.0, 0.0,
+        1.0, 1.0,
+        0.0, 1.0,
+        // Top
+        0.0, 0.0,
+        1.0, 0.0,
+        1.0, 1.0,
+        0.0, 1.0,
+        // Bottom
+        0.0, 0.0,
+        1.0, 0.0,
+        1.0, 1.0,
+        0.0, 1.0,
+        // Right
+        0.0, 0.0,
+        1.0, 0.0,
+        1.0, 1.0,
+        0.0, 1.0,
+        // Left
+        0.0, 0.0,
+        1.0, 0.0,
+        1.0, 1.0,
+        0.0, 1.0
     ];
 
     this.indices = [0, 1, 2, 0, 2, 3, // front

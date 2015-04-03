@@ -287,20 +287,20 @@ LEEWGL.UI = function(options) {
 
         var that = this;
 
-        for (var compName in activeElement.components) {
-            if (!activeElement.components.hasOwnProperty(compName))
+
+        for (var name in activeElement.components) {
+            if (!activeElement.components.hasOwnProperty(name))
                 continue;
 
             container = document.createElement('div');
             title = document.createElement('h3');
-            title.innerHTML = 'Type: ' + compName;
+            title.innerHTML = 'Type: ' + name;
             container.appendChild(title);
 
-            var comp = activeElement.components[compName];
+            var comp = activeElement.components[name];
             var hr = document.createElement('hr');
 
-            // / LEEWGL.TransformComponent
-            if (compName === LEEWGL.Component.TransformComponent) {
+            if (comp instanceof LEEWGL.Component.Transform) {
                 container.setAttribute('class', 'table-container');
                 var pos = document.createElement('h4');
                 pos.innerHTML = 'Position: ';
@@ -328,8 +328,8 @@ LEEWGL.UI = function(options) {
                 container.appendChild(this.createTable(['x', 'y', 'z'], comp.scaleVec));
 
                 container.appendChild(hr);
-            } else if (compName === LEEWGL.Component.CustomScriptComponent) {
-                container.setAttribute('id', 'custom-script-container');
+            } else if (comp instanceof LEEWGL.Component.CustomScript) {
+                container.setAttribute('id', 'custom-script-component-container');
 
                 var textfield = document.createElement('textarea');
                 textfield.setAttribute('rows', 5);
@@ -347,7 +347,7 @@ LEEWGL.UI = function(options) {
 
                 container.appendChild(textfield);
                 container.appendChild(hr);
-            } else if (compName === LEEWGL.Component.LightComponent) {
+            } else if (comp instanceof LEEWGL.Component.Light) {
                 container.setAttribute('class', 'table-container');
                 var direction = document.createElement('h4');
                 direction.setAttribute('class', 'fleft mright10');
@@ -363,6 +363,19 @@ LEEWGL.UI = function(options) {
                 // / color
                 container.appendChild(color);
                 container.appendChild(this.createTable(['r', 'g', 'b'], comp.color));
+            } else if (comp instanceof LEEWGL.Component.Texture) {
+                container.setAttribute('id', 'texture-component-container');
+
+                var fileInput = document.createElement('input');
+                fileInput.setAttribute('type', 'file');
+
+                fileInput.addEventListener('change', function(event) {
+                    var name = this.value.substr(this.value.lastIndexOf('\\') + 1, this.value.length);
+                    var path = LEEWGL.ROOT + 'texture/';
+                    comp.init(that.gl, path + name);
+                });
+
+                container.appendChild(fileInput);
             }
 
             this.inspector.appendChild(container);
@@ -650,19 +663,19 @@ LEEWGL.UI = function(options) {
     };
 
     this.save = function() {
-        for(var name in this.saved) {
+        for (var name in this.saved) {
             this.storage.setValue(name, this.saved[name]);
         }
     };
 
     this.load = function() {
-        for(var name in this.storage.all()) {
+        for (var name in this.storage.all()) {
             this.saved[name] = this.storage.getValue(name);
 
-            if(name.indexOf('custom-object-script-') !== -1) {
+            if (name.indexOf('custom-object-script-') !== -1) {
                 var id = name.substr(name.lastIndexOf('-') + 1, name.length);
                 this.addScriptToObject(id, this.saved[name]);
-            } else if(name.indexOf('custom-dom-script-') !== -1) {
+            } else if (name.indexOf('custom-dom-script-') !== -1) {
                 var id = name.substr(name.lastIndexOf('-') + 1, name.length);
                 this.addScriptToDOM(id, this.saved[name]);
             }
@@ -671,7 +684,7 @@ LEEWGL.UI = function(options) {
 
     this.preventRefresh = function() {
         window.onkeydown = function(event) {
-            if((event.keyCode || event.which) === LEEWGL.KEYS.F5) {
+            if ((event.keyCode || event.which) === LEEWGL.KEYS.F5) {
                 event.preventDefault();
             }
         };
