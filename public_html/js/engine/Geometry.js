@@ -9,27 +9,31 @@ LEEWGL.Geometry = function(options) {
         'color': [],
         'uv': []
     };
+    this.buffers = {
+        'vertex': new LEEWGL.Buffer({
+            'picking': (typeof options !== 'undefined' && typeof options.picking !== 'undefined') ? options.picking : true
+        }),
+        'normal': new LEEWGL.Buffer(),
+        'index': new LEEWGL.IndexBuffer(),
+        'color': new LEEWGL.Buffer(),
+        'texture': new LEEWGL.Buffer(),
+    };
+
     this.indices = [];
     this.boundingBox = null;
     this.boundingSphere = null;
 
-    this.vertexBuffer = new LEEWGL.Buffer({
-        'picking': (typeof options !== 'undefined' && typeof options.picking !== 'undefined') ? options.picking : true
-    });
-    this.normalBuffer = new LEEWGL.Buffer();
-    this.indexBuffer = new LEEWGL.IndexBuffer();
-    this.colorBuffer = new LEEWGL.Buffer();
-    this.textureBuffer = new LEEWGL.Buffer();
     this.facesNum = 1;
     this.faces = [];
     this.vectors = [];
 
-    this.setBuffer = function(gl) {
-        this.vertexBuffer.setData(gl, this.vertices.position, new LEEWGL.BufferInformation.VertexTypePos3());
-        this.normalBuffer.setData(gl, this.vertices.normal, new LEEWGL.BufferInformation.VertexTypePos3());
-        this.textureBuffer.setData(gl, this.vertices.uv, new LEEWGL.BufferInformation.VertexTypePos2());
-        this.indexBuffer.setData(gl, this.indices);
+    this.texture = undefined;
 
+    this.setBuffer = function(gl) {
+        this.buffers.vertex.setData(gl, this.vertices.position, new LEEWGL.BufferInformation.VertexTypePos3());
+        this.buffers.normal.setData(gl, this.vertices.normal, new LEEWGL.BufferInformation.VertexTypePos3());
+        this.buffers.texture.setData(gl, this.vertices.uv, new LEEWGL.BufferInformation.VertexTypePos2());
+        this.buffers.index.setData(gl, this.indices);
     };
 
     this.setColorBuffer = function(gl) {
@@ -38,7 +42,7 @@ LEEWGL.Geometry = function(options) {
             return false;
         }
 
-        this.colorBuffer.setData(gl, this.vertices.color, new LEEWGL.BufferInformation.VertexTypePos4());
+        this.buffers.color.setData(gl, this.vertices.color, new LEEWGL.BufferInformation.VertexTypePos4());
     };
 
     this.addColor = function(gl, colors, length) {
@@ -55,15 +59,19 @@ LEEWGL.Geometry = function(options) {
         }
     };
 
+    this.setTexture = function(texture) {
+        this.texture = texture;
+    };
+
     this.render = function(gl, shader, drawMode, indices) {
         indices = (typeof indices !== 'undefined') ? indices : true;
 
         shader.use(gl);
 
-        shader.attributes['aVertexPosition'](this.vertexBuffer);
-        shader.attributes['aTextureCoord'](this.textureBuffer);
-        // shader.attributes['aVertexColor'](this.colorBuffer);
-        shader.attributes['aVertexNormal'](this.normalBuffer);
+        shader.attributes['aVertexPosition'](this.buffers.vertex);
+        shader.attributes['aTextureCoord'](this.buffers.texture);
+        // shader.attributes['aVertexColor'](this.buffers.color);
+        shader.attributes['aVertexNormal'](this.buffers.color);
 
         if (typeof this.components['Texture'] !== 'undefined')
             this.components['Texture'].texture.bind(gl);
@@ -72,12 +80,12 @@ LEEWGL.Geometry = function(options) {
         mat4.invert(normalMatrix, this.transform.matrix());
         mat4.transpose(normalMatrix, normalMatrix);
 
-        shader.uniforms['uColorMapColor'](new Float32Array(this.vertexBuffer.colorMapColor));
+        shader.uniforms['uColorMapColor'](new Float32Array(this.buffers.vertex.colorMapColor));
         shader.uniforms['uNormalMatrix'](normalMatrix);
         shader.uniforms['uModel'](this.transform.matrix());
 
         if (indices === true) {
-            this.indexBuffer.bind(gl);
+            this.buffers.index.bind(gl);
             gl.drawElements(drawMode, this.indices.length, gl.UNSIGNED_SHORT, 0);
         } else {
             gl.drawArrays(drawMode, this.vertices.position.length, 0);
@@ -150,8 +158,10 @@ LEEWGL.Geometry.prototype.clone = function(geometry) {
     var normal = this.vertices.normal;
     var color = this.vertices.color;
     var uv = this.vertices.uv;
-    var faces = this.vertices.faces;
+    var faces = this.faces;
 
+    geometry.facesNum = this.facesNum;
+    
     for (var i = 0; i < position.length; ++i) {
         geometry.vertices.position.push(position[i]);
     }
@@ -168,15 +178,16 @@ LEEWGL.Geometry.prototype.clone = function(geometry) {
         geometry.vertices.uv.push(uv[i]);
     }
 
-    for (var i = 0; i < facesNum; ++i) {
+    for (var i = 0; i < this.facesNum; ++i) {
         geometry.faces.push(faces[i]);
     }
 
-    LEEWGL.Buffer.prototype.clone.call(this.vertexBuffer, geometry.vertexBuffer);
-    LEEWGL.Buffer.prototype.clone.call(this.normalBuffer, geometry.normalBuffer);
-    LEEWGL.Buffer.prototype.clone.call(this.indexBuffer, geometry.indexBuffer);
-    LEEWGL.Buffer.prototype.clone.call(this.colorBuffer, geometry.colorBuffer);
-    LEEWGL.Buffer.prototype.clone.call(this.textureBuffer, geometry.textureBuffer);
+
+    LEEWGL.Buffer.prototype.clone.call(this.buffers.vertex, geometry.buffers.vertex);
+    LEEWGL.Buffer.prototype.clone.call(this.buffers.normal, geometry.buffers.normal);
+    LEEWGL.Buffer.prototype.clone.call(this.buffers.index, geometry.buffers.index);
+    LEEWGL.Buffer.prototype.clone.call(this.buffers.color, geometry.buffers.color);
+    LEEWGL.Buffer.prototype.clone.call(this.buffers.texture, geometry.buffers.texture);
 
     return geometry;
 };
@@ -239,6 +250,14 @@ LEEWGL.Geometry.Triangle = function() {
         0.0, 1.0, 0.0, -1.0, -1.0, 1.0,
         1.0, -1.0, 1.0,
         1.0, -1.0, -1.0, -1.0, -1.0, -1.0
+    ];
+
+    this.vertices.uv = [
+        0.5, 1.0,
+        0.0, 0.0,
+        1.0, 0.0,
+        1.0, 0.0,
+        0.0, 0.0
     ];
 
     this.indices = [

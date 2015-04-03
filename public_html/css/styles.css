@@ -292,6 +292,17 @@ img#pause-control {
     content:url("../img/icons/pause.png");
 }
 
+div#texture-preview-container {
+    margin: 10px auto;
+    width : 250px;
+    padding: 5px;
+}
+
+div#texture-preview-container img {
+    width : 250px;
+}
+
+
 .editable {
     background-color: #47bf48 !important;
     color: #000;

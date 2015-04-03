@@ -369,13 +369,24 @@ LEEWGL.UI = function(options) {
                 var fileInput = document.createElement('input');
                 fileInput.setAttribute('type', 'file');
 
+                var imageContainer = document.createElement('div');
+                imageContainer.setAttribute('id', 'texture-preview-container');
+                var image = document.createElement('img');
+                imageContainer.appendChild(image);
+
                 fileInput.addEventListener('change', function(event) {
                     var name = this.value.substr(this.value.lastIndexOf('\\') + 1, this.value.length);
                     var path = LEEWGL.ROOT + 'texture/';
                     comp.init(that.gl, path + name);
+                    that.activeElement.setTexture(comp.texture);
+
+                    image.setAttribute('src', path + name);
                 });
 
+
+
                 container.appendChild(fileInput);
+                container.appendChild(imageContainer);
             }
 
             this.inspector.appendChild(container);
@@ -590,6 +601,7 @@ LEEWGL.UI = function(options) {
             return;
         }
         var copy = this.activeElement.clone();
+        console.log(copy);
         this.scene.add(copy);
     };
 

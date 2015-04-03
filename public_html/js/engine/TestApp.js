@@ -73,6 +73,8 @@ LEEWGL.TestApp.prototype.onCreate = function() {
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.PICKING);
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.DIRECTIONAL_AMBIENT);
 
+    this.shaderLibrary.getParameterNames();
+    
     this.shader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, this.shaderLibrary.out(LEEWGL.Shader.VERTEX));
     this.shader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, this.shaderLibrary.out(LEEWGL.Shader.FRAGMENT));
     this.shader.linkShader(this.gl);
@@ -104,22 +106,10 @@ LEEWGL.TestApp.prototype.onCreate = function() {
     if (this.picking === true)
         this.picker.initPicking(this.gl, this.canvas.width, this.canvas.height);
 
-    this.scene.add(this.camera, this.gameCamera, this.cube, this.cameraGizmo);
+    this.scene.add(this.camera, this.gameCamera, this.triangle, this.cube, this.cameraGizmo);
 
     this.gl.enable(this.gl.DEPTH_TEST);
     this.gl.depthFunc(this.gl.LEQUAL);
-
-    // var image = new Image();
-    // image.src = 'texture/texture1.jpg';
-    //
-    // this.texture.create(this.gl);
-    // this.texture.img = image;
-    //
-    // this.texture.img.onload = function() {
-    //     that.texture.bind(that.gl);
-    //     that.texture.setTextureParameters(that.gl, that.gl.TEXTURE_2D, true);
-    //     that.texture.unbind(that.gl);
-    // };
 
     // / test load collada file
     var ajax = new LEEWGL.AsynchRequest();
@@ -135,7 +125,7 @@ LEEWGL.TestApp.prototype.updatePickingList = function() {
     if (this.picking === true) {
         for (var i = 0; i < this.scene.children.length; ++i) {
             var element = this.scene.children[i];
-            if (typeof element.vertexBuffer !== 'undefined')
+            if (typeof element.buffers !== 'undefined')
                 this.picker.addToList(element);
         }
         this.picker.initPicking(this.gl, this.canvas.width, this.canvas.height);
@@ -270,6 +260,8 @@ LEEWGL.TestApp.prototype.draw = function() {
     this.shader.uniforms['uAmbient']([0.5, 0.5, 0.5]);
     this.shader.uniforms['uLightDirection'](this.light.components['Light'].direction);
     this.shader.uniforms['uLightColor'](this.light.components['Light'].color);
+
+    /// TOOD: set attributes and uniforms per mesh dynamically
 
     for (var i = 0; i < this.scene.children.length; ++i) {
         if (this.scene.children[i].render)

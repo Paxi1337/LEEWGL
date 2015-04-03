@@ -1,11 +1,11 @@
 LEEWGL.ShaderLibrary = function() {
     this.vertex = {
-        parameters: '',
-        main: ''
+        parameters: [],
+        main: []
     };
     this.fragment = {
-        parameters: '',
-        main: ''
+        parameters: [],
+        main: []
     };
 
     this.chunks = {};
@@ -71,7 +71,7 @@ LEEWGL.ShaderLibrary = function() {
     this.chunks[LEEWGL.ShaderLibrary.PICKING] = {
         vertex: {
             parameters: [],
-            main : []
+            main: []
         },
         fragment: {
             parameters: [
@@ -100,23 +100,73 @@ LEEWGL.ShaderLibrary = function() {
             parameters: [
                 LEEWGL.ShaderChunk['fragment_light_para']
             ],
-            main: [
-            ]
+            main: []
         }
     };
 
     this.addParameterChunk = function(type) {
-            this.vertex.parameters += this.chunks[type].vertex.parameters.join("\n");
-            this.vertex.main += this.chunks[type].vertex.main.join("\n");
-            this.fragment.parameters += this.chunks[type].fragment.parameters.join("\n");
-            this.fragment.main += this.chunks[type].fragment.main.join("\n");
+        this.vertex.parameters = this.vertex.parameters.concat(this.chunks[type].vertex.parameters);
+        this.vertex.main = this.vertex.main.concat(this.chunks[type].vertex.main);
+        this.fragment.parameters = this.fragment.parameters.concat(this.chunks[type].fragment.parameters);
+        this.fragment.main = this.fragment.main.concat(this.chunks[type].fragment.main);
+
+
+    };
+
+    this.getParameterNames = function() {
+        var vertex = {
+            'uniforms': [],
+            'parameters': []
+        };
+        var fragment = {
+            'uniforms': [],
+            'parameters': []
+        };
+
+        var vertexNames = [];
+        var fragmentNames = [];
+
+        for (var i = 0; i < this.vertex.parameters.length; ++i) {
+            var fullName = this.vertex.parameters[i];
+            var names = fullName.split(';');
+
+            for(var j = 0; j < names.length; ++j) {
+                if(names[j] === '\n') {
+                    names.splice(j, 1);
+                    continue;
+                }
+                /// uniform
+                if(names[j].indexOf('uniform') !== -1) {
+                    var uniformName = names[j].substr(names[j].lastIndexOf(' '), names[j].length);
+                    console.log(uniformName);
+                }
+                /// attributes
+                else if(names[j].indexOf('attribute') !== -1) {
+                    var attributeName = names[j].substr(names[j].lastIndexOf(' '), names[j].length);
+                    console.log(attributeName);
+                }
+            }
+
+
+            vertexNames.push(fullName.substr(fullName.lastIndexOf(' ') + 1, fullName.indexOf(';') - 1));
+        }
+            console.log(this.vertex.parameters);
+
+        for (var i = 0; i < this.fragment.parameters.length; ++i) {
+            var fullName = this.fragment.parameters[i];
+            fragmentNames.push(fullName.substr(fullName.lastIndexOf(' ') + 1, fullName.indexOf(';') - 1));
+        }
+
+        // console.log(vertexNames);
+        // console.log(fragmentNames);
+
     };
 
     this.out = function(type) {
         if (type === LEEWGL.Shader.VERTEX)
-            return this.vertex.parameters + this.vertex.main + '}';
+            return this.vertex.parameters.join('\n') + this.vertex.main.join('\n') + '}';
         else if (type === LEEWGL.Shader.FRAGMENT)
-            return this.fragment.parameters + this.fragment.main + '}';
+            return this.fragment.parameters.join('\n') + this.fragment.main.join('\n') + '}';
         else
             console.error('LEEWGL.ShaderLibrary.addParameterChunk: Wrong type given: ' + type + '!');
     };
