@@ -28,6 +28,7 @@ LEEWGL.Geometry = function(options) {
     this.vectors = [];
 
     this.texture = undefined;
+    this.usesTexture = false;
 
     this.setBuffer = function(gl) {
         this.buffers.vertex.setData(gl, this.vertices.position, new LEEWGL.BufferInformation.VertexTypePos3());
@@ -61,9 +62,10 @@ LEEWGL.Geometry = function(options) {
 
     this.setTexture = function(texture) {
         this.texture = texture;
+        this.usesTexture = true;
     };
 
-    this.render = function(gl, shader, drawMode, indices) {
+    this.draw = function(gl, shader, drawMode, indices) {
         indices = (typeof indices !== 'undefined') ? indices : true;
 
         shader.use(gl);
@@ -71,7 +73,7 @@ LEEWGL.Geometry = function(options) {
         shader.attributes['aVertexPosition'](this.buffers.vertex);
         shader.attributes['aVertexNormal'](this.buffers.color);
 
-        if (typeof this.components['Texture'] !== 'undefined' && typeof shader.attributes['aTextureCoord'] !== 'undefined') {
+        if (this.usesTexture === true) {
             this.components['Texture'].texture.bind(gl);
             shader.attributes['aTextureCoord'](this.buffers.texture);
         } else {

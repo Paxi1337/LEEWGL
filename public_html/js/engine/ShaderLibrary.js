@@ -82,7 +82,7 @@ LEEWGL.ShaderLibrary = function() {
                 "if(uOffscreen == 1) {",
                 LEEWGL.ShaderChunk['fragment_colormap'],
                 "return;",
-                "}",
+                "}"
             ]
         }
     };
@@ -106,6 +106,8 @@ LEEWGL.ShaderLibrary = function() {
             ]
         }
     };
+
+    console.log(this.chunks[LEEWGL.ShaderLibrary.PICKING]);
 
     this.addParameterChunk = function(type) {
         this.vertex.parameters = this.vertex.parameters.concat(this.chunks[type].vertex.parameters);
