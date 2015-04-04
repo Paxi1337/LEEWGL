@@ -1,1 +1,1 @@
-gl_FragColor = vVertexColor;
+gl_FragColor = vec4(vVertexColor.rgb, 1.0);

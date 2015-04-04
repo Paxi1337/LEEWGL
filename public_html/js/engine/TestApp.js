@@ -51,7 +51,6 @@ LEEWGL.TestApp = function(options) {
     this.colorShader = new LEEWGL.Shader();
     this.textureShader = new LEEWGL.Shader();
     this.activeShader = null;
-    this.shaderParameters = {};
 };
 
 LEEWGL.TestApp.prototype = Object.create(LEEWGL.App.prototype);
@@ -73,9 +72,9 @@ LEEWGL.TestApp.prototype.onCreate = function() {
     this.cameraGizmo.transform.setPosition([10.0, 0.0, 10.0]);
 
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.DEFAULT);
-    this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.DIRECTIONAL_AMBIENT);
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.PICKING);
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.COLOR);
+    this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.DIRECTIONAL);
 
     this.colorShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, this.shaderLibrary.out(LEEWGL.Shader.VERTEX));
     this.colorShader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, this.shaderLibrary.out(LEEWGL.Shader.FRAGMENT));
@@ -83,17 +82,14 @@ LEEWGL.TestApp.prototype.onCreate = function() {
     this.colorShader.use(this.gl);
 
     this.colorShader.createUniformSetters(this.gl);
-    this.colorShader.createAttributeSetters(this.gl);
-
-    console.log(this.shaderLibrary.out(LEEWGL.Shader.VERTEX));
-    console.log(this.shaderLibrary.out(LEEWGL.Shader.FRAGMENT));
+    this.colorShader.createAttributeSetters(this.gl);+
 
     this.shaderLibrary.reset();
 
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.DEFAULT);
-    this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.DIRECTIONAL_AMBIENT);
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.PICKING);
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.TEXTURE);
+    this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.DIRECTIONAL);
 
     this.textureShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, this.shaderLibrary.out(LEEWGL.Shader.VERTEX));
     this.textureShader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, this.shaderLibrary.out(LEEWGL.Shader.FRAGMENT));

@@ -1,1 +1,1 @@
-gl_FragColor = vec4(texColor.rgb * vLighting, texColor.a);
+gl_FragColor = vec4(texColor.rgb, texColor.a);
