@@ -5,7 +5,6 @@ LEEWGL.App = function(options) {
     this.gl = this.core.getContext();
     this.canvas = this.core.getCanvas();
 
-    this.shader = new LEEWGL.Shader();
     this.shaderLibrary = new LEEWGL.ShaderLibrary();
     this.buffers = [new LEEWGL.Buffer()];
 

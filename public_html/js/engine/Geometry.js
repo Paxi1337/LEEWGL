@@ -69,12 +69,14 @@ LEEWGL.Geometry = function(options) {
         shader.use(gl);
 
         shader.attributes['aVertexPosition'](this.buffers.vertex);
-        shader.attributes['aTextureCoord'](this.buffers.texture);
-        // shader.attributes['aVertexColor'](this.buffers.color);
         shader.attributes['aVertexNormal'](this.buffers.color);
 
-        if (typeof this.components['Texture'] !== 'undefined')
+        if (typeof this.components['Texture'] !== 'undefined' && typeof shader.attributes['aTextureCoord'] !== 'undefined') {
             this.components['Texture'].texture.bind(gl);
+            shader.attributes['aTextureCoord'](this.buffers.texture);
+        } else {
+            shader.attributes['aVertexColor'](this.buffers.color);
+        }
 
         var normalMatrix = mat4.create();
         mat4.invert(normalMatrix, this.transform.matrix());
@@ -161,7 +163,7 @@ LEEWGL.Geometry.prototype.clone = function(geometry) {
     var faces = this.faces;
 
     geometry.facesNum = this.facesNum;
-    
+
     for (var i = 0; i < position.length; ++i) {
         geometry.vertices.position.push(position[i]);
     }

@@ -43,7 +43,8 @@ LEEWGL.ShaderLibrary = function() {
                 LEEWGL.ShaderChunk['fragment_color_para']
             ],
             main: [
-                LEEWGL.ShaderChunk['fragment_color']
+                LEEWGL.ShaderChunk['fragment_color'],
+                LEEWGL.ShaderChunk['fragment_color_light']
             ]
         }
     };
@@ -100,7 +101,9 @@ LEEWGL.ShaderLibrary = function() {
             parameters: [
                 LEEWGL.ShaderChunk['fragment_light_para']
             ],
-            main: []
+            main: [
+
+            ]
         }
     };
 
@@ -109,56 +112,100 @@ LEEWGL.ShaderLibrary = function() {
         this.vertex.main = this.vertex.main.concat(this.chunks[type].vertex.main);
         this.fragment.parameters = this.fragment.parameters.concat(this.chunks[type].fragment.parameters);
         this.fragment.main = this.fragment.main.concat(this.chunks[type].fragment.main);
-
-
     };
 
     this.getParameterNames = function() {
-        var vertex = {
-            'uniforms': [],
-            'parameters': []
-        };
-        var fragment = {
-            'uniforms': [],
-            'parameters': []
-        };
+        var uniforms = [];
+        var attributes = [];
 
-        var vertexNames = [];
-        var fragmentNames = [];
+        var fModel = (function(model, shader) {
+            return that.transform.matrix;
+        });
+        var fVertexPosition = (function(that) {
+            return that.buffers.vertex;
+        });
+        var fVertexNormal = (function(that) {
+            var normalMatrix = mat4.create();
+            mat4.invert(normalMatrix, that.transform.matrix());
+            mat4.transpose(normalMatrix, normalMatrix);
+            return normalMatrix;
+        });
+        var fVertexColor = (function(that) {
+            return that.buffers.color;
+        });
+        var fTextureCoord = (function(that) {
+            return that.buffers.texture;
+        });
+        var fColorMap = (function(that) {
+            return new Float32Array(that.buffers.vertex.colorMapColor);
+        });
+        var fAmbient = (function(light, shader) {
+            shader.uniforms['uAmbient']([0.5, 0.5, 0.5]);
+        });
+        var fLightDirection = (function(light, shader) {
+            shader.uniforms['uLightDirection'](light.components['Light'].direction);
+        });
+        var fLightColor = (function(light, shader) {
+            shader.uniforms['uLightColor'](light.components['Light'].color);
+        });
 
         for (var i = 0; i < this.vertex.parameters.length; ++i) {
             var fullName = this.vertex.parameters[i];
             var names = fullName.split(';');
 
-            for(var j = 0; j < names.length; ++j) {
-                if(names[j] === '\n') {
+            for (var j = 0; j < names.length; ++j) {
+                if (names[j] === '\n') {
                     names.splice(j, 1);
                     continue;
                 }
                 /// uniform
-                if(names[j].indexOf('uniform') !== -1) {
-                    var uniformName = names[j].substr(names[j].lastIndexOf(' '), names[j].length);
-                    console.log(uniformName);
+                if (names[j].indexOf('uniform') !== -1) {
+                    var uniformName = names[j].substr(names[j].lastIndexOf(' ') + 1, names[j].length);
+
+                    uniforms[uniformName] = '';
+
+                    if (uniformName.indexOf('Model') !== -1) {
+                        uniforms[uniformName] = fModel;
+                    } else if (uniformName.indexOf('LightColor') !== -1) {
+                        uniforms[uniformName] = fLightColor;
+                    } else if (uniformName.indexOf('Ambient') !== -1) {
+                        uniforms[uniformName] = fAmbient;
+                    } else if (uniformName.indexOf('LightDirection') !== -1) {
+                        uniforms[uniformName] = fLightDirection;
+                    } else if (uniformName.indexOf('Normal') !== -1) {
+                        uniforms[uniformName] = fVertexNormal;
+                    }
                 }
                 /// attributes
-                else if(names[j].indexOf('attribute') !== -1) {
-                    var attributeName = names[j].substr(names[j].lastIndexOf(' '), names[j].length);
-                    console.log(attributeName);
+                else if (names[j].indexOf('attribute') !== -1) {
+                    var attributeName = names[j].substr(names[j].lastIndexOf(' ') + 1, names[j].length);
+
+                    attributes[attributeName] = '';
+
+                    if (attributeName.indexOf('VertexPosition') !== -1) {
+                        attributes[attributeName] = fVertexPosition;
+                    } else if (attributeName.indexOf('VertexNormal') !== -1) {
+                        attributes[attributeName] = fVertexNormal;
+                    } else if (attributeName.indexOf('VertexColor') !== -1) {
+                        attributes[attributeName] = fVertexColor;
+                    } else if (attributeName.indexOf('TextureCoord') !== -1) {
+                        attributes[attributeName] = fTextureCoord;
+                    }
                 }
             }
-
-
-            vertexNames.push(fullName.substr(fullName.lastIndexOf(' ') + 1, fullName.indexOf(';') - 1));
         }
-            console.log(this.vertex.parameters);
 
         for (var i = 0; i < this.fragment.parameters.length; ++i) {
             var fullName = this.fragment.parameters[i];
-            fragmentNames.push(fullName.substr(fullName.lastIndexOf(' ') + 1, fullName.indexOf(';') - 1));
         }
 
         // console.log(vertexNames);
         // console.log(fragmentNames);
+
+        return {
+            'uniforms' : uniforms,
+            'attributes' : attributes
+        }
 
     };
 
@@ -172,8 +219,10 @@ LEEWGL.ShaderLibrary = function() {
     };
 
     this.reset = function() {
-        this.vertex = '';
-        this.fragment = '';
+        this.vertex.parameters = [];
+        this.vertex.main = [];
+        this.fragment.parameters = [];
+        this.fragment.main = [];
     };
 };
 
