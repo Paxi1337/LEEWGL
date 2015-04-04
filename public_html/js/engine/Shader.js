@@ -157,7 +157,6 @@ LEEWGL.Shader = function() {
 
         for (var i = 0; i < numUniforms; ++i) {
             var uniformInfo = gl.getActiveUniform(_program, i);
-            console.log(uniformInfo);
             if (!uniformInfo)
                 break;
 

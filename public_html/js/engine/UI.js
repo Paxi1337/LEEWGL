@@ -489,6 +489,15 @@ LEEWGL.UI = function(options) {
         document.body.appendChild(newScript);
     };
 
+    this.displayOutlineContextMenu = function(index, event) {
+        this.popup.empty();
+        this.popup.addTitleText('Context-Menu');
+        this.popup.setPosition({
+            'x': event.clientX,
+            'y': event.clientY
+        });
+    };
+
     this.displayComponentMenu = function(index, event) {
         // / get all not already added components
         var availableComponents = this.getAvailableComponents(this.outline[index].obj);

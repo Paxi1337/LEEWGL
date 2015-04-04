@@ -73,11 +73,9 @@ LEEWGL.TestApp.prototype.onCreate = function() {
     this.cameraGizmo.transform.setPosition([10.0, 0.0, 10.0]);
 
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.DEFAULT);
-    this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.PICKING);
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.DIRECTIONAL_AMBIENT);
+    this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.PICKING);
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.COLOR);
-
-    this.shaderParameters = this.shaderLibrary.getParameterNames();
 
     this.colorShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, this.shaderLibrary.out(LEEWGL.Shader.VERTEX));
     this.colorShader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, this.shaderLibrary.out(LEEWGL.Shader.FRAGMENT));
@@ -87,11 +85,14 @@ LEEWGL.TestApp.prototype.onCreate = function() {
     this.colorShader.createUniformSetters(this.gl);
     this.colorShader.createAttributeSetters(this.gl);
 
+    console.log(this.shaderLibrary.out(LEEWGL.Shader.VERTEX));
+    console.log(this.shaderLibrary.out(LEEWGL.Shader.FRAGMENT));
+
     this.shaderLibrary.reset();
 
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.DEFAULT);
-    this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.PICKING);
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.DIRECTIONAL_AMBIENT);
+    this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.PICKING);
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.TEXTURE);
 
     this.textureShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, this.shaderLibrary.out(LEEWGL.Shader.VERTEX));
@@ -292,7 +293,7 @@ LEEWGL.TestApp.prototype.draw = function(element) {
         else
             this.activeShader.uniforms['uVP'](this.camera.viewProjMatrix);
 
-        this.activeShader.uniforms['uAmbient']([0.5, 0.5, 0.5]);
+        this.activeShader.uniforms['uAmbient']([0.2, 0.2, 0.2]);
 
         this.activeShader.uniforms['uLightDirection'](this.light.components['Light'].direction);
         this.activeShader.uniforms['uLightColor'](this.light.components['Light'].color);

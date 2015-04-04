@@ -21,7 +21,7 @@ LEEWGL.ShaderLibrary = function() {
         },
         fragment: {
             parameters: [
-                "precision mediump float;",
+                "precision highp float;",
             ],
             main: [
                 "void main() {",
@@ -43,7 +43,6 @@ LEEWGL.ShaderLibrary = function() {
                 LEEWGL.ShaderChunk['fragment_color_para']
             ],
             main: [
-                LEEWGL.ShaderChunk['fragment_color'],
                 LEEWGL.ShaderChunk['fragment_color_light']
             ]
         }
@@ -106,8 +105,6 @@ LEEWGL.ShaderLibrary = function() {
             ]
         }
     };
-
-    console.log(this.chunks[LEEWGL.ShaderLibrary.PICKING]);
 
     this.addParameterChunk = function(type) {
         this.vertex.parameters = this.vertex.parameters.concat(this.chunks[type].vertex.parameters);
