@@ -80,13 +80,11 @@ LEEWGL.Settings = {
         'a': 1.0
     },
     'DepthBuffer': true,
-    'RenderSize': {
-        'width': 512,
-        'height': 512
-    },
-    'ViewportSize': {
+    'Viewport': {
         'x': 0,
-        'y': 0
+        'y': 0,
+        'width' : 512,
+        'height' : 512
     },
     'FPS': 60
 };
@@ -205,14 +203,14 @@ LEEWGL.Core = function(options) {
         _viewportX = x;
         _viewportY = y;
 
-        LEEWGL.Settings.ViewportSize.x = x;
-        LEEWGL.Settings.ViewportSize.y = y;
+        LEEWGL.Settings.Viewport.x = x;
+        LEEWGL.Settings.Viewport.y = y;
 
         _viewportWidth = width;
         _viewportHeight = height;
 
-        LEEWGL.Settings.RenderSize.width = width;
-        LEEWGL.Settings.RenderSize.height = height;
+        LEEWGL.Settings.Viewport.width = width;
+        LEEWGL.Settings.Viewport.height = height;
 
         _gl.viewport(_viewportX, _viewportY, _viewportWidth, _viewportHeight);
     };

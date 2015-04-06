@@ -1,3 +1,7 @@
+/**
+ * [UI description]
+ * @param {object} options
+ */
 LEEWGL.UI = function(options) {
     var inspector;
 
@@ -600,15 +604,31 @@ LEEWGL.UI = function(options) {
             if (typeof LEEWGL.Settings[k] === 'object') {
                 container.appendChild(this.createTable(Object.keys(LEEWGL.Settings[k]), LEEWGL.Settings[k]));
             } else {
-                var item = document.createElement('li');
-                var content = document.createTextNode(LEEWGL.Settings[k]);
-                item.appendChild(content);
+                var input = document.createElement('input');
+                input.setAttribute('type', 'text');
+                input.setAttribute('value', LEEWGL.Settings[k]);
 
-                container.appendChild(item);
+                container.appendChild(input);
             }
-
         }
+
+        var submit = document.createElement('input');
+        submit.setAttribute('type', 'submit');
+        submit.setAttribute('class', 'submit');
+        submit.setAttribute('value', 'Update Settings');
+
+        submit.addEventListener('click', function(event) {
+            this.updateSettings();
+            event.preventDefault();
+        }.bind(this));
+
+        container.appendChild(submit);
+
         this.inspector.appendChild(container);
+    };
+
+    this.updateSettings = function() {
+        
     };
 
     /// object methods
@@ -731,9 +751,9 @@ LEEWGL.UI = function(options) {
 };
 
 /**
- * LEEWGL.UI.Popup
+ * [Popup description]
+ * @param {object} options
  */
-
 LEEWGL.UI.Popup = function(options) {
     this.pos = {
         'x': 0,

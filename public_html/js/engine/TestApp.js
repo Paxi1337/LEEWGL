@@ -155,6 +155,8 @@ LEEWGL.TestApp.prototype.updatePickingList = function() {
 LEEWGL.TestApp.prototype.onMouseDown = function(event) {
     var mouseCords = UI.getRelativeMouseCoordinates(event, this.canvas);
 
+    event.target.focus();
+
     var obj = null;
 
     if (this.picking === true) {
@@ -182,23 +184,36 @@ LEEWGL.TestApp.prototype.onMouseMove = function(event) {
         'x': 0,
         'y': 0
     };
-    this.movement.x += event.movementX;
-    this.movement.y += event.movementY;
 
-    if (event.which === 3 || event.button === LEEWGL.MOUSE.RIGHT) {
-        movement.x = (this.rotationSpeed.x * event.movementX);
-        movement.y = (this.rotationSpeed.y * event.movementY);
+    var button = null;
 
+    /// Chrome
+    if (typeof event.movementX !== 'undefined') {
+        movement.x = event.movementX;
+        movement.y += event.movementY;
+
+        button = event.button;
+    }
+    /// FF
+    else {
+        movement.x += event.mozMovementX;
+        movement.y += event.mozMovementY;
+
+        button = event.buttons;
+    }
+
+    if (event.which === 3 || button === LEEWGL.MOUSE.RIGHT) {
+        movement.x = (this.rotationSpeed.x * movement.x);
+        movement.y = (this.rotationSpeed.y * movement.y);
         this.camera.offsetOrientation(movement.y, movement.x);
-    } else if ((event.which === 1 || event.button === LEEWGL.MOUSE.LEFT) && this.activeElement !== null) {
+    } else if ((event.which === 1 || button === LEEWGL.MOUSE.LEFT) && this.activeElement !== null) {
         var forward = this.camera.forward();
 
-        movement.x = event.movementX * this.translationSpeed.x;
-        movement.y = event.movementY * this.translationSpeed.y;
+        this.movement.x = movement.x * this.translationSpeed.y;
+        this.movement.y = movement.y * this.translationSpeed.y;
 
-        var trans = [movement.x, -movement.y, 0.0];
+        var trans = [this.movement.x, -this.movement.y, 0.0];
         vec3.transformMat4(trans, trans, this.camera.orientation());
-        console.log(trans);
 
         if (event.ctrlKey)
             this.activeElement.transform.scale([this.movement.x * 0.01, this.movement.y * 0.01, 1.0]);
@@ -211,16 +226,19 @@ LEEWGL.TestApp.prototype.onMouseMove = function(event) {
 LEEWGL.TestApp.prototype.onMouseUp = function(event) {
     this.activeElement = null;
     event.preventDefault();
+    event.stopPropagation();
 };
 
 LEEWGL.TestApp.prototype.onKeyUp = function(event) {
     this.activeKeys[event.keyCode] = false;
     event.preventDefault();
+    event.stopPropagation();
 };
 
 LEEWGL.TestApp.prototype.onKeyDown = function(event) {
     this.activeKeys[event.keyCode] = true;
     event.preventDefault();
+    event.stopPropagation();
 };
 
 LEEWGL.TestApp.prototype.onUpdate = function() {
