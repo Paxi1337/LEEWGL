@@ -3,21 +3,22 @@
     position: absolute;
     background-color: #F9F9F9;
     border: 1px solid #565453;
-    padding: 15px;
-    -webkit-box-shadow: 1px 1px 10px 1px #eee;
-    box-shadow: 1px 1px 10px 1px #eee;
-    color: #000 !important;
-    min-height: 150px;
+    box-shadow: 1px 1px 10px 1px #000;
+    color: #565453 !important;
 }
 .popup-title {
     min-height: 32px;
+    background: #0a6096;
 }
 .popup-title h1 {
     text-align: center;
-    color: #000;
     font-size: 135% !important;
-    line-height: 32px;
     margin: 0 0 5px 0 !important;
+    color: #fff;
+    height: 20px;
+    line-height: 20px;
+    padding: 10px;
+    box-shadow: 0px 2px 1px 0px rgba(0, 0, 0, .55);
 }
 
 .popup-content h1 {
@@ -28,6 +29,7 @@
     color: #000 !important;
     font-size: 115%;
     margin: 10px 0;
+    padding: 10px;
 }
 .popup-button-wrapper {
     display: block;
@@ -67,25 +69,21 @@
     left: 0;
 }
 .popup-icon-wrapper {
-    width: 32px;
-    height: 32px;
+    height: 40px;
     position: relative;
+    line-height: 50px;
 }
 .popup-close-icon {
-	width: 32px;
-	height: 32px;
-	position: absolute;
-	margin: 0;
+	width: 24px;
+	height: 24px;
 	cursor: pointer;
     content:url("../img/icons/close_circle.png");
 }
 .popup-move-icon {
-	width: 32px;
-	height: 32px;
-	position: absolute;
-	margin: 0;
+	width: 24px;
+	height: 24px;
 	cursor: pointer;
-    content:url("../img/icons/anchor_half.png");
+    content:url("../img/icons/move_half.png");
 }
 li.popup-list {
     padding: 5px;

@@ -183,6 +183,8 @@ LEEWGL.Core = function(options) {
     };
 
     this.setSize = function(width, height, updateStyle) {
+        updateStyle = (typeof updateStyle !== 'undefined') ? updateStyle : true;
+
         _canvas.width = width;
         _canvas.height = height;
 
@@ -254,7 +256,7 @@ LEEWGL.Core = function(options) {
         }
 
         _canvas.onmousedown = _app.onMouseDown.bind(_app);
-        _canvas.oncontextmenu = UI.contextMenu.bind(UI);
+        _canvas.oncontextmenu = _app.onMouseDown.bind(_app);
         _canvas.onmouseup = _app.onMouseUp.bind(_app);
         _canvas.onmousemove = _app.onMouseMove.bind(_app);
         _canvas.onkeydown = _app.onKeyDown.bind(_app);
@@ -265,9 +267,6 @@ LEEWGL.Core = function(options) {
         UI.setInspector('#dynamic-inspector');
 
         this.initMouse();
-
-        this.setViewport(0, 0, 500, 500);
-        this.setSize(500, 500, true);
 
         if (_app !== null)
             _app.onCreate();

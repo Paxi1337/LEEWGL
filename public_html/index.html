@@ -6,6 +6,7 @@
     <link rel="stylesheet" type="text/css" href="css/styles.css">
     <link rel="stylesheet" type="text/css" href="css/general.css">
     <link rel="stylesheet" type="text/css" href="css/form.css">
+    <link rel="stylesheet" type="text/css" href="css/table.css">
     <link rel="stylesheet" type="text/css" href="css/popup.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -147,17 +148,17 @@
                             <div class="container-header">
                                 <h2>Editor View</h2>
                                 <div class="icon-container">
-                                    <img alt="relase window" src="img/icons/anchor_half.png" />
+                                    <img alt="relase window" src="img/icons/move_half.png" />
                                 </div>
                             </div>
-                            <canvas id="editor-canvas" width="512" height="512" tabindex="0"></canvas>
+                            <canvas id="editor-canvas" tabindex="0"></canvas>
                         </div>
                     </div>
                     <div id="outline-container" class="dynamic-container">
                         <div class="container-header">
                             <h2>Outline</h2>
                             <div class="icon-container">
-                                <img alt="relase window" src="img/icons/anchor_half.png" />
+                                <img alt="relase window" src="img/icons/move_half.png" />
                             </div>
                         </div>
                         <div id="dynamic-outline"></div>
@@ -166,7 +167,7 @@
                         <div class="container-header">
                             <h2>Inspector</h2>
                             <div class="icon-container">
-                                <img alt="relase window" src="img/icons/anchor_half.png" />
+                                <img alt="relase window" src="img/icons/move_half.png" />
                             </div>
                         </div>
                         <div id="dynamic-inspector"></div>
@@ -199,6 +200,8 @@
             LEEWGL.attachApp(testapp);
             LEEWGL.init();
             window.requestAnimationFrame(LEEWGL.run.bind(LEEWGL));
+
+            console.log(document.scripts);
         });
     </script>
 </body>

@@ -294,25 +294,25 @@ LEEWGL.UI = function(options) {
 
             container = document.createElement('div');
             title = document.createElement('h3');
-            title.innerHTML = 'Type: ' + name;
+            title.setAttribute('class', 'component-headline');
+            title.innerHTML = name;
             container.appendChild(title);
 
             var comp = activeElement.components[name];
-            var hr = document.createElement('hr');
 
             if (comp instanceof LEEWGL.Component.Transform) {
-                container.setAttribute('class', 'table-container');
+                container.setAttribute('class', 'table-container component-container');
                 var pos = document.createElement('h4');
-                pos.innerHTML = 'Position: ';
+                pos.innerHTML = 'Position';
 
                 var trans = document.createElement('h4');
-                trans.innerHTML = 'Translation: ';
+                trans.innerHTML = 'Translation';
 
                 var rot = document.createElement('h4');
-                rot.innerHTML = 'Rotation: ';
+                rot.innerHTML = 'Rotation';
 
                 var scale = document.createElement('h4');
-                scale.innerHTML = 'Scale: ';
+                scale.innerHTML = 'Scale';
 
                 // / position
                 container.appendChild(pos);
@@ -326,10 +326,9 @@ LEEWGL.UI = function(options) {
                 // / scale
                 container.appendChild(scale);
                 container.appendChild(this.createTable(['x', 'y', 'z'], comp.scaleVec));
-
-                container.appendChild(hr);
             } else if (comp instanceof LEEWGL.Component.CustomScript) {
                 container.setAttribute('id', 'custom-script-component-container');
+                container.setAttribute('class', 'component-container');
 
                 var textfield = document.createElement('textarea');
                 textfield.setAttribute('rows', 5);
@@ -346,9 +345,8 @@ LEEWGL.UI = function(options) {
                 });
 
                 container.appendChild(textfield);
-                container.appendChild(hr);
             } else if (comp instanceof LEEWGL.Component.Light) {
-                container.setAttribute('class', 'table-container');
+                container.setAttribute('class', 'table-container component-container');
                 var direction = document.createElement('h4');
                 direction.setAttribute('class', 'fleft mright10');
                 direction.innerHTML = 'Direction: ';
@@ -365,6 +363,7 @@ LEEWGL.UI = function(options) {
                 container.appendChild(this.createTable(['r', 'g', 'b'], comp.color));
             } else if (comp instanceof LEEWGL.Component.Texture) {
                 container.setAttribute('id', 'texture-component-container');
+                container.setAttribute('class', 'component-container');
 
                 var fileInput = document.createElement('input');
                 fileInput.setAttribute('type', 'file');
@@ -399,37 +398,46 @@ LEEWGL.UI = function(options) {
             return;
         }
 
-        var that = this;
         this.inspector.innerHTML = '';
-        this.activeIndex = index;
 
+        this.activeIndex = index;
         this.setActive(index);
+
+        if (index === -1) {
+            this.activeElement = null;
+            window.activeElement = this.activeElement;
+            this.update = true;
+            return;
+        }
 
         this.activeElement = this.outline[index].obj;
         window.activeElement = this.activeElement;
 
         var name = document.createElement('h3');
-        name.innerHTML = 'Name: ' + activeElement.name;
+        name.innerHTML = 'Name - ' + activeElement.name;
 
         this.inspector.appendChild(name);
         this.componentsToHTML(activeElement);
+        this.componentsButton(index);
+        this.update = true;
+    };
 
-        // / interactive GUI elements
-        // / add component
-        var interactiveControlsContainer = document.createElement('div');
-        interactiveControlsContainer.setAttribute('class', 'controls-container');
+    this.componentsButton = function(index) {
+        var that = this;
+        var componentsControlContainer = document.createElement('div');
+        componentsControlContainer.setAttribute('class', 'controls-container');
 
-        var addComponentControl = document.createElement('button');
-        addComponentControl.setAttribute('type', 'button');
-        addComponentControl.appendChild(document.createTextNode('Add Component'));
-        interactiveControlsContainer.appendChild(addComponentControl);
+        var addComponentControl = document.createElement('input');
+        addComponentControl.setAttribute('class', 'submit');
+        addComponentControl.setAttribute('type', 'submit');
+        addComponentControl.setAttribute('value', 'Add Component');
+        componentsControlContainer.appendChild(addComponentControl);
 
         addComponentControl.addEventListener('click', function(event) {
             that.displayComponentMenu(index, event);
         });
 
-        this.inspector.appendChild(interactiveControlsContainer);
-        this.update = true;
+        this.inspector.appendChild(componentsControlContainer);
     };
 
     this.dynamicContainers = function(classname_toggle, classname_container, movable_container) {
@@ -743,7 +751,7 @@ LEEWGL.UI.Popup = function(options) {
         'list-item-class': 'popup-list',
         'close-icon-enabled': true,
         'wrapper-width': 350,
-        'wrapper-height': 100,
+        'wrapper-height': 'auto',
         'center': true,
         'hidden': true,
         'movable': true
@@ -925,7 +933,7 @@ LEEWGL.UI.Popup = function(options) {
         }
 
         var iconContainer = document.createElement('div');
-        iconContainer.setAttribute('class', 'popup-icon-wrapper fright mleft10');
+        iconContainer.setAttribute('class', 'popup-icon-wrapper fright mright10');
         var clearer = document.createElement('div');
         clearer.setAttribute('class', 'clearer');
 
@@ -953,7 +961,7 @@ LEEWGL.UI.Popup = function(options) {
         var that = this;
 
         var iconContainer = document.createElement('div');
-        iconContainer.setAttribute('class', 'popup-icon-wrapper fleft mright10');
+        iconContainer.setAttribute('class', 'popup-icon-wrapper fleft mleft10');
         var clearer = document.createElement('div');
         clearer.setAttribute('class', 'clearer');
 

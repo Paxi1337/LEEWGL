@@ -1,13 +1,29 @@
+/**
+ * [Shader description]
+ *
+ * Abstraction of the WebGL-Shader with methods to load, compile and use shaders
+ */
 LEEWGL.Shader = function() {
     var _program = null;
 
     this.uniforms = [];
     this.attributes = [];
 
+    /**
+     * [getProgram description]
+     * @return {webgl program}
+     */
     this.getProgram = function() {
         return _program;
     };
 
+    /**
+     * [compile description]
+     * @param  {gl context} gl
+     * @param  {shader type} type
+     * @param  {string} code
+     * @return {webgl shader}
+     */
     this.compile = function(gl, type, code) {
         var _shader = null;
         if (type === LEEWGL.Shader.FRAGMENT) {
@@ -29,6 +45,11 @@ LEEWGL.Shader = function() {
         return _shader;
     };
 
+    /**
+     * [getShaderDOM description]
+     * @param {gl context} gl
+     * @param {string} selector
+     */
     this.getShaderDOM = function(gl, selector) {
         var _script = document.querySelector(selector);
         if (_script === null) {
@@ -38,6 +59,11 @@ LEEWGL.Shader = function() {
         return this.getShaderContentDOM(_script);
     };
 
+    /**
+     * [getShaderContentDOM description]
+     * @param {element} dom
+     * @return {string}
+     */
     this.getShaderContentDOM = function(dom) {
         var _str = '';
         var _k = dom.firstChild;
@@ -51,16 +77,30 @@ LEEWGL.Shader = function() {
         return _content;
     };
 
+    /**
+     * [linkShader description]
+     * @param {gl context} gl
+     */
     this.linkShader = function(gl) {
         gl.linkProgram(_program);
         if (!gl.getProgramParameter(_program, gl.LINK_STATUS))
             console.error("LEEWGL.Shader.linkShader(): Could not initialise shaders");
     };
 
+    /**
+     * [use description]
+     * @param  {gl context} gl
+     */
     this.use = function(gl) {
         gl.useProgram(_program);
     };
 
+    /**
+     * [createShaderFromCode description]
+     * @param {gl context} gl
+     * @param {shader type} type
+     * @param {string} code
+     */
     this.createShaderFromCode = function(gl, type, code) {
         if (_program === null)
             _program = gl.createProgram();
@@ -69,6 +109,12 @@ LEEWGL.Shader = function() {
         gl.attachShader(_program, _shader);
     };
 
+    /**
+     * [createShaderFromDOM description]
+     * @param {gl context} gl
+     * @param {shader type} type
+     * @param {string} selector
+     */
     this.createShaderFromDOM = function(gl, type, selector) {
         if (_program === null)
             _program = gl.createProgram();
@@ -77,7 +123,17 @@ LEEWGL.Shader = function() {
         gl.attachShader(_program, _shader);
     };
 
+    /**
+     * [createUniformSetters description]
+     * @param {gl context} gl
+     */
     this.createUniformSetters = function(gl) {
+        /**
+         * [createUniformSetter description]
+         * @param {gl context} gl
+         * @param {webgl uniformInfo} uniform
+         * @return {function}
+         */
         var createUniformSetter = function(gl, uniform) {
             var isArray = (uniform.size > 1 && uniform.name.substr(-3) === '[0]') ? true : false;
             var type = uniform.type;
@@ -172,7 +228,16 @@ LEEWGL.Shader = function() {
         return this.uniforms;
     };
 
+    /**
+     * [createAttributeSetters description]
+     * @param {gl context} gl
+     */
     this.createAttributeSetters = function(gl) {
+        /**
+         * [createAttributeSetter description]
+         * @param {number} index
+         * @return {function}
+         */
         var createAttributeSetter = function(index) {
             return function(buffer) {
                 var webglBuffer = buffer.getBuffer();
@@ -195,5 +260,8 @@ LEEWGL.Shader = function() {
     };
 };
 
+/**
+ * Shader Types
+ */
 LEEWGL.Shader.VERTEX = "x-shader/x-vertex";
 LEEWGL.Shader.FRAGMENT = "x-shader/x-fragment";
