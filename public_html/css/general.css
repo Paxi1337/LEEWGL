@@ -55,6 +55,12 @@
 .fleft {
     float: left;
 }
+.lh10 {
+    line-height: 10px;
+}
+.lh20 {
+    line-height: 20px;
+}
 .clearer {
     clear: both;
     float: none;

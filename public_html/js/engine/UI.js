@@ -202,8 +202,14 @@ LEEWGL.UI = function(options) {
 
         this.update = false;
     };
-
-    this.createTable = function(header, content) {
+    /**
+     * [createTable description]
+     * @param {array} header
+     * @param {array} content
+     * @param {object} title
+     */
+    this.createTable = function(header, content, title) {
+        var container = document.createElement('div');
         var table = document.createElement('table');
         var thead = document.createElement('thead');
         var tbody = document.createElement('tbody');
@@ -211,6 +217,15 @@ LEEWGL.UI = function(options) {
         var td;
 
         var that = this;
+
+        container.setAttribute('class', 'table-container');
+
+        if(typeof title !== 'undefined') {
+            var headline = document.createElement(title.type);
+            headline.setAttribute('class', title.class);
+            headline.innerHTML = title.title;
+            container.appendChild(headline);
+        }
 
         tr = document.createElement('tr');
         // / headers
@@ -282,7 +297,8 @@ LEEWGL.UI = function(options) {
         }
 
         table.appendChild(tbody);
-        return table;
+        container.appendChild(table);
+        return container;
     };
 
     this.componentsToHTML = function(activeElement) {
@@ -291,12 +307,12 @@ LEEWGL.UI = function(options) {
 
         var that = this;
 
-
         for (var name in activeElement.components) {
             if (!activeElement.components.hasOwnProperty(name))
                 continue;
 
             container = document.createElement('div');
+            container.setAttribute('class', 'component-container');
             title = document.createElement('h3');
             title.setAttribute('class', 'component-headline');
             title.innerHTML = name;
@@ -305,34 +321,16 @@ LEEWGL.UI = function(options) {
             var comp = activeElement.components[name];
 
             if (comp instanceof LEEWGL.Component.Transform) {
-                container.setAttribute('class', 'table-container component-container');
-                var pos = document.createElement('h4');
-                pos.innerHTML = 'Position';
-
-                var trans = document.createElement('h4');
-                trans.innerHTML = 'Translation';
-
-                var rot = document.createElement('h4');
-                rot.innerHTML = 'Rotation';
-
-                var scale = document.createElement('h4');
-                scale.innerHTML = 'Scale';
-
                 // / position
-                container.appendChild(pos);
-                container.appendChild(this.createTable(['x', 'y', 'z'], comp.position));
+                container.appendChild(this.createTable(['x', 'y', 'z'], comp.position, { 'title' : 'Position', 'type' : 'h4', 'class' : 'component-table-headline' }));
                 // / translation
-                container.appendChild(trans);
-                container.appendChild(this.createTable(['x', 'y', 'z'], comp.transVec));
+                container.appendChild(this.createTable(['x', 'y', 'z'], comp.transVec, { 'title' : 'Translation', 'type' : 'h4', 'class' : 'component-table-headline' }));
                 // / rotation
-                container.appendChild(rot);
-                container.appendChild(this.createTable(['x', 'y', 'z'], comp.rotVec));
+                container.appendChild(this.createTable(['x', 'y', 'z'], comp.rotVec, { 'title' : 'Rotation', 'type' : 'h4', 'class' : 'component-table-headline' }));
                 // / scale
-                container.appendChild(scale);
-                container.appendChild(this.createTable(['x', 'y', 'z'], comp.scaleVec));
+                container.appendChild(this.createTable(['x', 'y', 'z'], comp.scaleVec, { 'title' : 'Scale', 'type' : 'h4', 'class' : 'component-table-headline' }));
             } else if (comp instanceof LEEWGL.Component.CustomScript) {
                 container.setAttribute('id', 'custom-script-component-container');
-                container.setAttribute('class', 'component-container');
 
                 var textfield = document.createElement('textarea');
                 textfield.setAttribute('rows', 5);
@@ -350,24 +348,12 @@ LEEWGL.UI = function(options) {
 
                 container.appendChild(textfield);
             } else if (comp instanceof LEEWGL.Component.Light) {
-                container.setAttribute('class', 'table-container component-container');
-                var direction = document.createElement('h4');
-                direction.setAttribute('class', 'fleft mright10');
-                direction.innerHTML = 'Direction: ';
-
-                var color = document.createElement('h4');
-                color.setAttribute('class', 'fleft mright10');
-                color.innerHTML = 'Color: ';
-
                 // / direction
-                container.appendChild(direction);
-                container.appendChild(this.createTable(['x', 'y', 'z'], comp.direction));
+                container.appendChild(this.createTable(['x', 'y', 'z'], comp.direction, { 'title' : 'Position', 'type' : 'h4', 'class' : 'component-table-headline' }));
                 // / color
-                container.appendChild(color);
-                container.appendChild(this.createTable(['r', 'g', 'b'], comp.color));
+                container.appendChild(this.createTable(['r', 'g', 'b'], comp.color, { 'title' : 'Position', 'type' : 'h4', 'class' : 'component-table-headline' }));
             } else if (comp instanceof LEEWGL.Component.Texture) {
                 container.setAttribute('id', 'texture-component-container');
-                container.setAttribute('class', 'component-container');
 
                 var fileInput = document.createElement('input');
                 fileInput.setAttribute('type', 'file');
@@ -385,8 +371,6 @@ LEEWGL.UI = function(options) {
 
                     image.setAttribute('src', path + name);
                 });
-
-
 
                 container.appendChild(fileInput);
                 container.appendChild(imageContainer);
@@ -594,16 +578,13 @@ LEEWGL.UI = function(options) {
         this.inspector.innerHTML = '';
         var container = document.createElement('div');
 
-        var list = document.createElement('ul');
-
         for (var k in LEEWGL.Settings) {
-            var name = document.createElement('h4');
-            name.innerText = k;
-            container.appendChild(name);
-
             if (typeof LEEWGL.Settings[k] === 'object') {
-                container.appendChild(this.createTable(Object.keys(LEEWGL.Settings[k]), LEEWGL.Settings[k]));
+                container.appendChild(this.createTable(Object.keys(LEEWGL.Settings[k]), LEEWGL.Settings[k], {'title' : k, 'type' : 'h4', 'class' : 'component-table-headline'}));
             } else {
+                var name = document.createElement('h4');
+                name.innerText = k;
+                container.appendChild(name);
                 var input = document.createElement('input');
                 input.setAttribute('type', 'text');
                 input.setAttribute('value', LEEWGL.Settings[k]);
@@ -628,7 +609,7 @@ LEEWGL.UI = function(options) {
     };
 
     this.updateSettings = function() {
-        
+
     };
 
     /// object methods
