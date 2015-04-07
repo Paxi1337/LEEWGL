@@ -349,9 +349,9 @@ LEEWGL.UI = function(options) {
                 container.appendChild(textfield);
             } else if (comp instanceof LEEWGL.Component.Light) {
                 // / direction
-                container.appendChild(this.createTable(['x', 'y', 'z'], comp.direction, { 'title' : 'Position', 'type' : 'h4', 'class' : 'component-table-headline' }));
+                container.appendChild(this.createTable(['x', 'y', 'z'], comp.direction, { 'title' : 'Direction', 'type' : 'h4', 'class' : 'component-table-headline' }));
                 // / color
-                container.appendChild(this.createTable(['r', 'g', 'b'], comp.color, { 'title' : 'Position', 'type' : 'h4', 'class' : 'component-table-headline' }));
+                container.appendChild(this.createTable(['r', 'g', 'b'], comp.color, { 'title' : 'Color', 'type' : 'h4', 'class' : 'component-table-headline' }));
             } else if (comp instanceof LEEWGL.Component.Texture) {
                 container.setAttribute('id', 'texture-component-container');
 
