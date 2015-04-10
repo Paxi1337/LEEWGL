@@ -31,9 +31,6 @@ LEEWGL.Object3D = function(options) {
 
     this.addComponent(new LEEWGL.Component.Transform());
     this.transform = this.components['Transform'];
-
-    if (typeof UI !== 'undefined' && this.inOutline === true)
-        UI.addObjToOutline(this);
 };
 
 LEEWGL.Object3D.DefaultUp = [0.0, 1.0, 0.0];
@@ -152,6 +149,7 @@ LEEWGL.Object3D.prototype = {
             recursive = true;
 
         object.name = this.name + 'Clone';
+
         vec3.copy(object.up, this.up);
 
         LEEWGL.Component.Transform.prototype.clone.call(this.transform, object.transform);

@@ -186,7 +186,6 @@ LEEWGL.Geometry.prototype.clone = function(geometry) {
         geometry.faces.push(faces[i]);
     }
 
-
     LEEWGL.Buffer.prototype.clone.call(this.buffers.vertex, geometry.buffers.vertex);
     LEEWGL.Buffer.prototype.clone.call(this.buffers.normal, geometry.buffers.normal);
     LEEWGL.Buffer.prototype.clone.call(this.buffers.index, geometry.buffers.index);

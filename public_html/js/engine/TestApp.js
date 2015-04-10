@@ -126,15 +126,14 @@ LEEWGL.TestApp.prototype.onCreate = function() {
     // / test load collada file
     var Importer = new LEEWGL.Importer();
 
-    var model = Importer.import('models/cup.obj', this.gl);
+    // var model = Importer.import('models/cup.obj', this.gl);
 
-    console.log(model);
+    this.scene.add(this.camera, this.gameCamera, this.triangle, this.cube, this.cameraGizmo);
 
-    this.scene.add(model, this.camera, this.gameCamera, this.triangle, this.cube, this.cameraGizmo);
+    UI.addObjToOutline(this.scene.children);
 
     this.gl.enable(this.gl.DEPTH_TEST);
     this.gl.depthFunc(this.gl.LEQUAL);
-
 
     UI.setGL(this.gl);
     UI.setScene(this.scene);

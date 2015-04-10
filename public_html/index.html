@@ -69,13 +69,15 @@
                     </li>
                     <li><a href="#">Edit</a>
                         <ul>
-                            <li><a href="#">Copy</a>
+                            <li><a href="#" onclick="UI.copyObject();">Copy</a>
                             </li>
-                            <li><a href="#">Paste</a>
+                            <li><a href="#" onclick="UI.cutObject();">Cut</a>
+                            </li>
+                            <li><a href="#" onclick="UI.pasteObject();">Paste</a>
                             </li>
                             <li><a href="#" onclick="UI.duplicateObject();">Duplicate</a>
                             </li>
-                            <li><a href="#">Delete</a>
+                            <li><a href="#" onclick="UI.deleteObject();">Delete</a>
                             </li>
                         </ul>
                     </li>
@@ -184,11 +186,13 @@
     <script>
         window.addEventListener('load', function() {
             UI.dynamicContainers('.icon-container', '.dynamic-container');
+            UI.setInspector('#dynamic-inspector');
+            UI.setStatusBar('#status-bar');
+
             // UI.preventRefresh();
 
             var overallContainer = document.querySelector('#container-overall');
             var editorCanvas = document.querySelector('#editor-canvas');
-            var gameCanvas = document.querySelector('#game-canvas');
 
             var LEEWGL = new window.LEEWGL.Core({
                 'editorCanvas': editorCanvas

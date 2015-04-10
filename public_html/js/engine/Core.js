@@ -262,8 +262,6 @@ LEEWGL.Core = function(options) {
     };
 
     this.init = function() {
-        UI.setInspector('#dynamic-inspector');
-
         this.initMouse();
 
         if (_app !== null)

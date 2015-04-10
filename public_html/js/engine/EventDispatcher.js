@@ -32,6 +32,7 @@ LEEWGL.EventDispatcher.prototype = {
         return false;
     },
     removeEventListener: function(type, listener) {
+        console.log(this.listeners);
         if (this.listeners === undefined)
             return;
 
