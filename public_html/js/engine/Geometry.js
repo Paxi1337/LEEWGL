@@ -71,7 +71,7 @@ LEEWGL.Geometry = function(options) {
         shader.use(gl);
 
         shader.attributes['aVertexPosition'](this.buffers.vertex);
-        shader.attributes['aVertexNormal'](this.buffers.color);
+        shader.attributes['aVertexNormal'](this.buffers.normal);
 
         if (this.usesTexture === true) {
             this.components['Texture'].texture.bind(gl);

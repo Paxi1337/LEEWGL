@@ -75,8 +75,8 @@ LEEWGL.Settings = {
     },
     'BackgroundColor': {
         'r': 0.0,
-        'g': 1.0,
-        'b': 0.0,
+        'g': 0.6,
+        'b': 0.7,
         'a': 1.0
     },
     'DepthBuffer': true,

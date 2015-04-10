@@ -1,0 +1,33 @@
+# Blender MTL File: 'eurofighter blend.blend'
+# Material Count: 3
+newmtl Material
+Ns 689.130429
+Ka 0.000000 0.000000 0.000000
+Kd 0.568434 0.568434 0.568434
+Ks 0.324074 0.324074 0.324074
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd E:\\textures\\aircraft tex.jpg
+
+
+newmtl cockpit
+Ns 241.176471
+Ka 0.000000 0.000000 0.000000
+Kd 0.011735 0.011735 0.011735
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+
+
+newmtl nose
+Ns 897.826090
+Ka 0.000000 0.000000 0.000000
+Kd 0.025513 0.025513 0.025513
+Ks 0.354661 0.354661 0.354661
+Ni 1.000000
+d 1.000000
+illum 2
+
+

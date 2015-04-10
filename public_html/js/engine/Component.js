@@ -71,9 +71,25 @@ LEEWGL.Component.Transform.prototype.setPosition = function() {
 
     this.translate(this.position);
 };
-LEEWGL.Component.Transform.prototype.translate = function(vector) {
-    vec3.add(this.transVec, this.transVec, vector);
-    mat4.translate(this.translation, this.translation, vector);
+LEEWGL.Component.Transform.prototype.translate = function(vector, test) {
+    if(typeof test === 'undefined') {
+        vec3.add(this.transVec, this.transVec, vector);
+        mat4.translate(this.translation, this.translation, vector);
+    }
+        mat4.translate(this.translation, this.translation, vector);
+};
+
+LEEWGL.Component.Transform.prototype.rotateX = function(rad) {
+    mat4.rotateX(this.rotation, this.rotation, rad);
+};
+
+LEEWGL.Component.Transform.prototype.rotateY = function(rad) {
+
+    mat4.rotateY(this.rotation, this.rotation, rad);
+};
+
+LEEWGL.Component.Transform.prototype.rotateZ = function(rad) {
+    mat4.rotateZ(this.rotation, this.rotation, rad);
 };
 
 LEEWGL.Component.Transform.prototype.scale = function(vector) {
@@ -82,7 +98,10 @@ LEEWGL.Component.Transform.prototype.scale = function(vector) {
 };
 
 LEEWGL.Component.Transform.prototype.matrix = function() {
-    return mat4.multiply(mat4.create(), this.translation, this.scaling);
+    var mat = mat4.create();
+    mat4.multiply(mat, this.scaling, this.rotation);
+    mat4.multiply(mat, mat, this.translation);
+    return mat;
 };
 
 LEEWGL.Component.Transform.prototype.clone = function(transform) {

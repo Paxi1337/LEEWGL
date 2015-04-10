@@ -51,6 +51,8 @@ LEEWGL.TestApp = function(options) {
     this.colorShader = new LEEWGL.Shader();
     this.textureShader = new LEEWGL.Shader();
     this.activeShader = null;
+
+    this.testModel = new LEEWGL.Geometry.Triangle();
 };
 
 LEEWGL.TestApp.prototype = Object.create(LEEWGL.App.prototype);
@@ -121,16 +123,18 @@ LEEWGL.TestApp.prototype.onCreate = function() {
     this.grid.setColorBuffer(this.gl);
     this.grid.transform.translate([0.0, -5.0, 0.0]);
 
-    this.scene.add(this.camera, this.gameCamera, this.triangle, this.cube, this.cameraGizmo);
+    // / test load collada file
+    var Importer = new LEEWGL.Importer();
+
+    var model = Importer.import('models/cup.obj', this.gl);
+
+    console.log(model);
+
+    this.scene.add(model, this.camera, this.gameCamera, this.triangle, this.cube, this.cameraGizmo);
 
     this.gl.enable(this.gl.DEPTH_TEST);
     this.gl.depthFunc(this.gl.LEQUAL);
 
-    // / test load collada file
-    var ajax = new LEEWGL.AsynchRequest();
-    var ColladaImporter = new LEEWGL.Importer();
-
-    // ColladaImporter.parseCollada(ajax.send('GET', LEEWGL.ROOT + 'models/Man_Mp_Iphone.DAE', false).response.responseXML);
 
     UI.setGL(this.gl);
     UI.setScene(this.scene);
@@ -202,6 +206,8 @@ LEEWGL.TestApp.prototype.onMouseMove = function(event) {
         button = event.buttons;
     }
 
+    var rad = LEEWGL.Math.degToRad(10);
+
     if (event.which === 3 || button === LEEWGL.MOUSE.RIGHT) {
         movement.x = (this.rotationSpeed.x * movement.x);
         movement.y = (this.rotationSpeed.y * movement.y);
@@ -218,7 +224,7 @@ LEEWGL.TestApp.prototype.onMouseMove = function(event) {
         if (event.ctrlKey)
             this.activeElement.transform.scale([this.movement.x * 0.01, this.movement.y * 0.01, 1.0]);
         else
-            this.activeElement.transform.translate(trans);
+            this.activeElement.transform.rotateY(rad);
         UI.setInspectorContent(this.activeElement.id);
     }
 };
