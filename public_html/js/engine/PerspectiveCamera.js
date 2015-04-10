@@ -9,7 +9,7 @@ LEEWGL.PerspectiveCamera = function(options) {
     this.far = 1000;
     this.invertY = true;
 
-    if (typeof this.options !== 'undefined') {
+    if (typeof options !== 'undefined') {
         this.fov = (typeof options.fov !== undefined) ? options.fov : this.fov;
         this.aspect = (typeof options.aspect !== undefined) ? options.aspect : this.aspect;
         this.near = (typeof options.near !== undefined) ? options.near : this.near;

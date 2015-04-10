@@ -131,6 +131,7 @@ LEEWGL.TestApp.prototype.onCreate = function() {
     this.scene.add(this.camera, this.gameCamera, this.triangle, this.cube, this.cameraGizmo);
 
     UI.addObjToOutline(this.scene.children);
+    UI.addObjToOutline([this.light]);
 
     this.gl.enable(this.gl.DEPTH_TEST);
     this.gl.depthFunc(this.gl.LEQUAL);
