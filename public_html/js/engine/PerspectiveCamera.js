@@ -3,15 +3,24 @@ LEEWGL.PerspectiveCamera = function(options) {
 
     this.type = 'PerspectiveCamera';
 
-    this.fov = (typeof options.fov !== undefined) ? options.fov : 50;
-    this.aspect = (typeof options.aspect !== undefined) ? options.aspect : 1;
-    this.near = (typeof options.near !== undefined) ? options.near : 0.1;
-    this.far = (typeof options.far !== undefined) ? options.far : 1000;
+    this.fov = 50;
+    this.aspect = 1;
+    this.near = 0.1;
+    this.far = 1000;
+    this.invertY = true;
+
+    if (typeof this.options !== 'undefined') {
+        this.fov = (typeof options.fov !== undefined) ? options.fov : this.fov;
+        this.aspect = (typeof options.aspect !== undefined) ? options.aspect : this.aspect;
+        this.near = (typeof options.near !== undefined) ? options.near : this.near;
+        this.far = (typeof options.far !== undefined) ? options.far : this.far;
+        this.invertY = (typeof options.invertY !== undefined) ? options.invertY : this.invertY;
+    }
+
 
     this._horizontalAngle = 0.0;
     this._verticalAngle = 0.0;
 
-    this.invertY = (typeof options.invertY !== undefined) ? options.invertY : true;;
 };
 
 LEEWGL.PerspectiveCamera.prototype = Object.create(LEEWGL.Camera.prototype);
