@@ -111,7 +111,7 @@ LEEWGL.TestApp.prototype.onCreate = function() {
 
     this.cube.setBuffer(this.gl);
     this.cube.addColor(this.gl);
-    this.cube.transform.setPosition(5, 0, 0);
+    this.cube.transform.offsetPosition([5, 0, 0]);
 
     this.cube.addComponent(new LEEWGL.Component.CustomScript());
 

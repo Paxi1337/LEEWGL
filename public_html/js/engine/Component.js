@@ -27,7 +27,7 @@ LEEWGL.Component.Transform = function() {
 
     this.transVec = [0, 0, 0];
     this.rotVec = [0, 0, 0];
-    this.scaleVec = [0, 0, 0];
+    this.scaleVec = [1.0, 1.0, 1.0];
 
     // private properties - configurable tag defaults to false
     Object.defineProperties(this, {
@@ -54,7 +54,7 @@ LEEWGL.Component.Transform.prototype = Object.create(LEEWGL.Component.prototype)
 
 LEEWGL.Component.Transform.prototype.offsetPosition = function(vector) {
     vec3.add(this.position, this.position, vector);
-    this.translate(this.position);
+    mat4.translate(this.translation, this.translation, vector);
 };
 LEEWGL.Component.Transform.prototype.setPosition = function() {
     if (arguments === 'undefined') {
@@ -72,11 +72,8 @@ LEEWGL.Component.Transform.prototype.setPosition = function() {
     this.translate(this.position);
 };
 LEEWGL.Component.Transform.prototype.translate = function(vector, test) {
-    if(typeof test === 'undefined') {
-        vec3.add(this.transVec, this.transVec, vector);
-        mat4.translate(this.translation, this.translation, vector);
-    }
-        mat4.translate(this.translation, this.translation, vector);
+    this.transVec = vector;
+    mat4.translate(this.translation, this.translation, vector);
 };
 
 LEEWGL.Component.Transform.prototype.rotateX = function(rad) {
@@ -84,7 +81,6 @@ LEEWGL.Component.Transform.prototype.rotateX = function(rad) {
 };
 
 LEEWGL.Component.Transform.prototype.rotateY = function(rad) {
-
     mat4.rotateY(this.rotation, this.rotation, rad);
 };
 
@@ -93,8 +89,8 @@ LEEWGL.Component.Transform.prototype.rotateZ = function(rad) {
 };
 
 LEEWGL.Component.Transform.prototype.scale = function(vector) {
-    vec3.add(this.scaleVec, this.scaleVec, vector);
-    mat4.scale(this.scaling, mat4.create(), vector);
+    mat4.scale(this.scaling, this.scaling, vector);
+    this.scalingVec = [1.0, 1.0, 1.0];
 };
 
 LEEWGL.Component.Transform.prototype.matrix = function() {

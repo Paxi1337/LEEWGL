@@ -32,17 +32,19 @@ LEEWGL.EventDispatcher.prototype = {
         return false;
     },
     removeEventListener: function(type, listener) {
-        console.log(this.listeners);
         if (this.listeners === undefined)
             return;
 
         var listeners = this.listeners;
         var listenerArray = listeners[type];
 
+
         if (listenerArray !== undefined) {
             var index = listenerArray.indexOf(listener);
             if (index !== -1) {
                 listenerArray.splice(index, 1);
+            } else {
+                this.listeners = {};
             }
         }
     },

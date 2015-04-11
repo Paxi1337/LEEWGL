@@ -304,10 +304,14 @@ LEEWGL.UI = function(options) {
                     var num = this.getAttribute('num');
                     if (typeof content[num] === 'undefined') {
                         var keys = Object.keys(content);
-                        content[keys[index]] = this.innerText;
+                        content[keys[index]] = parseFloat(this.innerText);
                     } else {
-                        content[num] = this.innerText;
+                        content[num] = parseFloat(this.innerText);
                     }
+
+                    window.dispatchEvent({
+                        'type': 'value-edit'
+                    });
 
                     event.preventDefault();
                     event.stopPropagation();
@@ -347,6 +351,7 @@ LEEWGL.UI = function(options) {
         var title;
 
         var that = this;
+        window.removeEventListener('value-edit');
 
         for (var name in activeElement.components) {
             if (!activeElement.components.hasOwnProperty(name))
@@ -362,6 +367,16 @@ LEEWGL.UI = function(options) {
             var comp = activeElement.components[name];
 
             if (comp instanceof LEEWGL.Component.Transform) {
+                (function(component) {
+                    window.addEventListener('value-edit', function(event) {
+                        component.translate(component.transVec);
+                        component.rotateX(LEEWGL.Math.degToRad(component.rotVec[0]));
+                        component.rotateY(LEEWGL.Math.degToRad(component.rotVec[1]));
+                        component.rotateZ(LEEWGL.Math.degToRad(component.rotVec[2]));
+                        component.scale(component.scaleVec);
+                    });
+                })(comp);
+
                 // / position
                 container.appendChild(this.createTable(['x', 'y', 'z'], comp.position, {
                     'title': 'Position',
@@ -374,6 +389,12 @@ LEEWGL.UI = function(options) {
                     'type': 'h4',
                     'class': 'component-table-headline'
                 }));
+
+                /**
+                 * event dispatch gets called when table gets edited
+                 */
+
+
                 // / rotation
                 container.appendChild(this.createTable(['x', 'y', 'z'], comp.rotVec, {
                     'title': 'Rotation',
@@ -769,10 +790,16 @@ LEEWGL.UI = function(options) {
         this.statusBarToHTML();
     };
 
+    this.addCustomScriptComponent = function() {
+        this.activeElement.addComponent(new LEEWGL.Component.CustomScript());
+        this.setInspectorContent(this.activeIndex);
+    };
+
     this.insertTriangle = function() {
         var triangle = new LEEWGL.Geometry.Triangle();
         triangle.setBuffer(this.gl);
         triangle.addColor(this.gl);
+        this.addObjToOutline(triangle);
         this.scene.add(triangle);
     };
 
@@ -780,6 +807,7 @@ LEEWGL.UI = function(options) {
         var cube = new LEEWGL.Geometry.Cube();
         cube.setBuffer(this.gl);
         cube.addColor(this.gl);
+        this.addObjToOutline(cube);
         this.scene.add(cube);
     };
 
@@ -787,6 +815,7 @@ LEEWGL.UI = function(options) {
         var sphere = new LEEWGL.Geometry.Sphere();
         sphere.setBuffer(this.gl);
         sphere.addColor(this.gl);
+        this.addObjToOutline(sphere);
         this.scene.add(sphere);
     };
 
@@ -1035,178 +1064,178 @@ LEEWGL.UI.Popup = function(options) {
 
             this.pos.x = (bodyX / 2) - (size.x / 2);
             this.pos.y = (bodyY / 2) - size.y;
-    }
-
-    this.wrapper.style.top = this.pos.y + 'px';
-    this.wrapper.style.left = this.pos.x + 'px';
-};
-
-this.addText = function(text) {
-    if (this.initialized === false) {
-        console.error('LEEWGL.UI.Popup: call create() first!');
-        return;
-    }
-    var content = document.createTextNode(text);
-    this.content.appendChild(content);
-};
-
-this.addHTML = function(html) {
-    if (this.initialized === false) {
-        console.error('LEEWGL.UI.Popup: call create() first!');
-        return;
-    }
-    this.content.innerHTML += html;
-};
-
-this.addList = function(content, evFunction) {
-    var list = document.createElement('ul');
-    list.setAttribute('class', 'popup-list');
-
-    this.listItems = [];
-
-    for (var i = 0; i < content.length; ++i) {
-        var item = document.createElement('li');
-        item.innerHTML = content[i];
-        item.setAttribute('class', this.options['list-item-class']);
-
-        this.listItems.push(item);
-
-        if (typeof evFunction === 'function') {
-            (function(index) {
-                item.addEventListener('click', function(event) {
-                    evFunction(content[index]);
-                });
-            })(i);
         }
 
-        list.appendChild(item);
-    }
+        this.wrapper.style.top = this.pos.y + 'px';
+        this.wrapper.style.left = this.pos.x + 'px';
+    };
 
-    this.content.appendChild(list);
-};
-
-this.addCustomElementToTitle = function(element) {
-    this.title.appendChild(element);
-};
-
-this.addCustomElementToContent = function(element) {
-    this.content.appendChild(element);
-};
-
-this.addTitleText = function(text) {
-    if (this.initialized === false) {
-        console.error('LEEWGL.UI.Popup: call create() first!');
-        return;
-    }
-    var header = document.createElement('h1');
-    header.innerText = text;
-    this.title.appendChild(header);
-};
-
-this.addHTMLFile = function(path) {
-    if (this.initialized === false) {
-        console.error('LEEWGL.UI.Popup: call create() first!');
-        return;
-    }
-    this.content.innerHTML = this.ajax.send('GET', LEEWGL.ROOT + path, false, null).response.responseText;
-};
-
-this.addCloseIcon = function() {
-    if (this.initialized === false) {
-        console.error('LEEWGL.UI.Popup: call create() first!');
-        return;
-    }
-
-    var iconContainer = document.createElement('div');
-    iconContainer.setAttribute('class', 'popup-icon-wrapper fright mright10');
-    var clearer = document.createElement('div');
-    clearer.setAttribute('class', 'clearer');
-
-    var closeIcon = document.createElement('img');
-    closeIcon.setAttribute('alt', 'Close Popup');
-    closeIcon.setAttribute('title', 'Close Popup');
-    closeIcon.setAttribute('class', 'popup-close-icon');
-
-    iconContainer.appendChild(closeIcon);
-    iconContainer.appendChild(clearer);
-
-    closeIcon.addEventListener('click', function(event) {
-        this.hide();
-    }.bind(this));
-
-    this.title.appendChild(iconContainer);
-};
-
-this.movable = function() {
-    if (this.initialized === false) {
-        console.error('LEEWGL.UI.Popup: call create() first!');
-        return;
-    }
-
-    var that = this;
-
-    var iconContainer = document.createElement('div');
-    iconContainer.setAttribute('class', 'popup-icon-wrapper fleft mleft10');
-    var clearer = document.createElement('div');
-    clearer.setAttribute('class', 'clearer');
-
-    var moveIcon = document.createElement('img');
-    moveIcon.setAttribute('alt', 'Move Popup');
-    moveIcon.setAttribute('title', 'Move Popup');
-    moveIcon.setAttribute('class', 'popup-move-icon');
-
-    iconContainer.appendChild(moveIcon);
-    iconContainer.appendChild(clearer);
-
-    moveIcon.addEventListener('mousedown', function(event) {
-        if (event.which === 1 || event.button === LEEWGL.MOUSE.LEFT) {
-            that.wrapper.addEventListener('click', that.drag.drag(that.wrapper, event));
+    this.addText = function(text) {
+        if (this.initialized === false) {
+            console.error('LEEWGL.UI.Popup: call create() first!');
+            return;
         }
-    });
-    moveIcon.addEventListener('dblclick', function(event) {
-        that.drag.restore(that.wrapper, event);
-    });
+        var content = document.createTextNode(text);
+        this.content.appendChild(content);
+    };
 
-    this.title.appendChild(iconContainer);
-};
+    this.addHTML = function(html) {
+        if (this.initialized === false) {
+            console.error('LEEWGL.UI.Popup: call create() first!');
+            return;
+        }
+        this.content.innerHTML += html;
+    };
 
-this.show = function() {
-    if (this.initialized === false) {
-        console.error('LEEWGL.UI.Popup: call create() first!');
-        return;
-    }
+    this.addList = function(content, evFunction) {
+        var list = document.createElement('ul');
+        list.setAttribute('class', 'popup-list');
 
-    this.wrapper.style.display = 'block';
-    this.overlay.style.display = 'fixed';
-};
+        this.listItems = [];
 
-this.hide = function() {
-    if (this.initialized === false) {
-        console.error('LEEWGL.UI.Popup: call create() first!');
-        return;
-    }
+        for (var i = 0; i < content.length; ++i) {
+            var item = document.createElement('li');
+            item.innerHTML = content[i];
+            item.setAttribute('class', this.options['list-item-class']);
 
-    this.wrapper.style.display = 'none';
-    this.overlay.style.display = 'none';
-};
+            this.listItems.push(item);
 
-this.empty = function() {
-    if (this.initialized === false) {
-        console.error('LEEWGL.UI.Popup: call create() first!');
-        return;
-    }
+            if (typeof evFunction === 'function') {
+                (function(index) {
+                    item.addEventListener('click', function(event) {
+                        evFunction(content[index]);
+                    });
+                })(i);
+            }
 
-    if (this.options['title-enabled'] === true)
-        this.title.innerHTML = '';
+            list.appendChild(item);
+        }
 
-    if (this.options['close-icon-enabled'] === true)
-        this.addCloseIcon();
+        this.content.appendChild(list);
+    };
 
-    if (this.options['movable'] === true)
-        this.movable();
+    this.addCustomElementToTitle = function(element) {
+        this.title.appendChild(element);
+    };
 
-    this.content.innerHTML = '';
-};
+    this.addCustomElementToContent = function(element) {
+        this.content.appendChild(element);
+    };
+
+    this.addTitleText = function(text) {
+        if (this.initialized === false) {
+            console.error('LEEWGL.UI.Popup: call create() first!');
+            return;
+        }
+        var header = document.createElement('h1');
+        header.innerText = text;
+        this.title.appendChild(header);
+    };
+
+    this.addHTMLFile = function(path) {
+        if (this.initialized === false) {
+            console.error('LEEWGL.UI.Popup: call create() first!');
+            return;
+        }
+        this.content.innerHTML = this.ajax.send('GET', LEEWGL.ROOT + path, false, null).response.responseText;
+    };
+
+    this.addCloseIcon = function() {
+        if (this.initialized === false) {
+            console.error('LEEWGL.UI.Popup: call create() first!');
+            return;
+        }
+
+        var iconContainer = document.createElement('div');
+        iconContainer.setAttribute('class', 'popup-icon-wrapper fright mright10');
+        var clearer = document.createElement('div');
+        clearer.setAttribute('class', 'clearer');
+
+        var closeIcon = document.createElement('img');
+        closeIcon.setAttribute('alt', 'Close Popup');
+        closeIcon.setAttribute('title', 'Close Popup');
+        closeIcon.setAttribute('class', 'popup-close-icon');
+
+        iconContainer.appendChild(closeIcon);
+        iconContainer.appendChild(clearer);
+
+        closeIcon.addEventListener('click', function(event) {
+            this.hide();
+        }.bind(this));
+
+        this.title.appendChild(iconContainer);
+    };
+
+    this.movable = function() {
+        if (this.initialized === false) {
+            console.error('LEEWGL.UI.Popup: call create() first!');
+            return;
+        }
+
+        var that = this;
+
+        var iconContainer = document.createElement('div');
+        iconContainer.setAttribute('class', 'popup-icon-wrapper fleft mleft10');
+        var clearer = document.createElement('div');
+        clearer.setAttribute('class', 'clearer');
+
+        var moveIcon = document.createElement('img');
+        moveIcon.setAttribute('alt', 'Move Popup');
+        moveIcon.setAttribute('title', 'Move Popup');
+        moveIcon.setAttribute('class', 'popup-move-icon');
+
+        iconContainer.appendChild(moveIcon);
+        iconContainer.appendChild(clearer);
+
+        moveIcon.addEventListener('mousedown', function(event) {
+            if (event.which === 1 || event.button === LEEWGL.MOUSE.LEFT) {
+                that.wrapper.addEventListener('click', that.drag.drag(that.wrapper, event));
+            }
+        });
+        moveIcon.addEventListener('dblclick', function(event) {
+            that.drag.restore(that.wrapper, event);
+        });
+
+        this.title.appendChild(iconContainer);
+    };
+
+    this.show = function() {
+        if (this.initialized === false) {
+            console.error('LEEWGL.UI.Popup: call create() first!');
+            return;
+        }
+
+        this.wrapper.style.display = 'block';
+        this.overlay.style.display = 'fixed';
+    };
+
+    this.hide = function() {
+        if (this.initialized === false) {
+            console.error('LEEWGL.UI.Popup: call create() first!');
+            return;
+        }
+
+        this.wrapper.style.display = 'none';
+        this.overlay.style.display = 'none';
+    };
+
+    this.empty = function() {
+        if (this.initialized === false) {
+            console.error('LEEWGL.UI.Popup: call create() first!');
+            return;
+        }
+
+        if (this.options['title-enabled'] === true)
+            this.title.innerHTML = '';
+
+        if (this.options['close-icon-enabled'] === true)
+            this.addCloseIcon();
+
+        if (this.options['movable'] === true)
+            this.movable();
+
+        this.content.innerHTML = '';
+    };
 }
 
 window.addEventListener('load', function() {
