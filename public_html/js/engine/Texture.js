@@ -77,6 +77,24 @@ LEEWGL.Texture.prototype = {
             gl.generateMipmap(type);
     },
 
+    setFrameBuffer : function(gl, width, height) {
+        this.setParameteri(gl, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+        this.setParameteri(gl, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        this.setParameteri(gl, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        this.setParameteri(gl, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    },
+
+    setDepthBuffer : function(gl, width, height) {
+        this.setParameteri(gl, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+        this.setParameteri(gl, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        this.setParameteri(gl, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        this.setParameteri(gl, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT, width, height, 0, gl.DEPTH_COMPONENT, gl.UNSIGNED_SHORT, null);
+    },
+
     paramToGL: function(gl, param) {
         if (param === LEEWGL.WrappingRepeat)
             return gl.REPEAT;

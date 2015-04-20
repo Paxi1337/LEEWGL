@@ -1,6 +1,4 @@
-uniform vec3 uLightDirection;
-uniform vec3 uAmbient;
 uniform vec3 uLightColor;
 
-varying vec3 vVertexPosition;
-varying vec4 vVertexNormal;
+varying vec3 vLightToPoint;
+varying vec3 vEyeToPoint;

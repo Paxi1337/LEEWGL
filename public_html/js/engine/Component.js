@@ -12,7 +12,7 @@ LEEWGL.Component.prototype = {
     }
 };
 
-LEEWGL.Component.Components = ['Transform', 'CustomScript', 'Light', 'Texture'];
+LEEWGL.Component.Components = ['Transform', 'CustomScript', 'Texture'];
 
 LEEWGL.Component.Transform = function() {
     LEEWGL.Component.call(this);
@@ -112,28 +112,6 @@ LEEWGL.Component.Transform.prototype.clone = function(transform) {
     mat4.copy(transform.scaling, this.scaling);
 
     return transform;
-};
-
-LEEWGL.Component.Light = function() {
-    LEEWGL.Component.call(this);
-
-    this.type = 'Light';
-    this.direction = [0.0, 0.0, 0.0];
-    this.color = [1.0, 1.0, 1.0];
-};
-
-LEEWGL.Component.Light.prototype = Object.create(LEEWGL.Component.prototype);
-
-LEEWGL.Component.Light.prototype.clone = function(light) {
-    if (light === 'undefined')
-        light = new LEEWGL.Component.Light();
-
-    LEEWGL.Component.prototype.clone.call(this, light);
-
-    light.direction.copy(light.direction, this.direction);
-    light.color.copy(light.color, this.color);
-
-    return light;
 };
 
 LEEWGL.Component.CustomScript = function() {

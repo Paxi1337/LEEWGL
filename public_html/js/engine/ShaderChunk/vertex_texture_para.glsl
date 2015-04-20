@@ -1,2 +1,2 @@
 attribute vec2 aTextureCoord;
-varying highp vec2 vTextureCoord;
+varying vec2 vTextureCoord;

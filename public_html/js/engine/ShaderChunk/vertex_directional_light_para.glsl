@@ -1,2 +1,4 @@
-varying vec3 vVertexPosition;
-varying vec4 vVertexNormal;
+uniform vec3 uLightDirection;
+
+varying vec3 vLightToPoint;
+varying vec3 vEyeToPoint;

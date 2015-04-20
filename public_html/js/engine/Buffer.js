@@ -82,6 +82,10 @@ LEEWGL.RenderBuffer.prototype.create = function(gl) {
     return this.buffer;
 };
 
+LEEWGL.RenderBuffer.prototype.setStorage = function(gl, width, height) {
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
+};
+
 LEEWGL.RenderBuffer.prototype.bind = function(gl) {
     gl.bindRenderbuffer(gl.RENDERBUFFER, this.buffer);
 };
@@ -96,17 +100,15 @@ LEEWGL.FrameBuffer = function(gl, options) {
 
 LEEWGL.FrameBuffer.prototype = Object.create(LEEWGL.Buffer.prototype);
 
-LEEWGL.FrameBuffer.prototype.init = function(gl, width, height) {
+LEEWGL.FrameBuffer.prototype.create = function(gl, width, height) {
     width = typeof width !== 'undefined' ? width : 512;
     height = typeof height !== 'undefined' ? height : 512;
 
-    this.buffer = this.create(gl);
+    this.buffer = gl.createFramebuffer();
+    this.bind(gl);
     this.buffer.width = width;
     this.buffer.height = height;
-};
 
-LEEWGL.FrameBuffer.prototype.create = function(gl) {
-    this.buffer = gl.createFramebuffer();
     return this.buffer;
 };
 

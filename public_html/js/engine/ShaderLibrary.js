@@ -118,6 +118,46 @@ LEEWGL.ShaderLibrary = function() {
                 }
             }
         };
+
+        this.chunks[LEEWGL.ShaderLibrary.SHADOW_MAPPING] = {
+            vertex: {
+                parameters: [
+                    LEEWGL.ShaderChunk['vertex_shadow_mapping_para'],
+                ],
+                main: [
+                    LEEWGL.ShaderChunk['vertex_shadow_mapping'],
+                ]
+            },
+            fragment: {
+                parameters: [
+                    LEEWGL.ShaderChunk['fragment_shadow_mapping_para']
+                ],
+                main: [
+                    LEEWGL.ShaderChunk['fragment_shadow_mapping']
+                ]
+            }
+        };
+
+        this.chunks[LEEWGL.ShaderLibrary.DEPTH_RENDER_TARGET] = {
+            vertex: {
+                parameters: [
+                    LEEWGL.ShaderChunk['vertex_default_para'],
+                ],
+                main: [
+                    "void main() {",
+                    LEEWGL.ShaderChunk['vertex_default'],
+                ]
+            },
+            fragment: {
+                parameters: [
+                    "precision lowp float;",
+                ],
+                main: [
+                    "void main() {",
+                    LEEWGL.ShaderChunk['fragment_depth_render_target']
+                ]
+            }
+        };
     };
 
     this.addParameterChunk = function(type) {
@@ -171,3 +211,5 @@ LEEWGL.ShaderLibrary.COLOR = 1;
 LEEWGL.ShaderLibrary.TEXTURE = 2;
 LEEWGL.ShaderLibrary.PICKING = 3;
 LEEWGL.ShaderLibrary.DIRECTIONAL = 4;
+LEEWGL.ShaderLibrary.SHADOW_MAPPING = 5;
+LEEWGL.ShaderLibrary.DEPTH_RENDER_TARGET = 6;

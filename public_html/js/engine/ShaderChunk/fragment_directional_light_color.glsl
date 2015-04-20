@@ -1,2 +1,2 @@
-vec4 color = vVertexColor * light;
-gl_FragColor = color;
+finalColor += color.rgb * light;
+gl_FragColor = finalColor;

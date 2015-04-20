@@ -1,2 +1,4 @@
-vVertexPosition = aVertexPosition;
-vVertexNormal = normalize(uNormalMatrix * vec4(aVertexNormal, 1.0));
+void initLight(vec3 positionWorld) {
+    vLightToPoint = uLightDirection;
+    vEyeToPoint = -positionWorld;
+}
