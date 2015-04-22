@@ -10,7 +10,7 @@ LEEWGL.Shadowmap = function() {
     this.size = {
         'x' : 512,
         'y' : 512
-    }
+    };
 
     this.init = function(gl, width, height) {
         this.size.x = (typeof width !== 'undefined') ? width : this.size.x;
@@ -34,7 +34,7 @@ LEEWGL.Shadowmap = function() {
         this.frameBuffer.unbind(gl);
     };
 
-    this.bind(gl) {
+    this.bind = function(gl) {
         this.frameBuffer.bind(gl);
         gl.viewport(0, 0, this.size.x, this.size.y);
         gl.colorMask(false, false, false, false);

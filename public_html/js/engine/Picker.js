@@ -14,7 +14,7 @@ LEEWGL.Picker = function() {
 
         gl.enable(gl.DEPTH_TEST);
 
-        this.frameBuffer.init(gl, width, height);
+        this.frameBuffer.create(gl, width, height);
         this.frameBuffer.bind(gl);
 
         var texture = new LEEWGL.Texture();

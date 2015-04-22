@@ -1,4 +1,3 @@
-void initLight(vec3 positionWorld) {
-    vLightToPoint = uLightDirection;
-    vEyeToPoint = -positionWorld;
-}
+vVertexNormal = aVertexNormal;
+vec4 worldPosition = uModel * vec4(aVertexPosition, 1.0);
+initLight(worldPosition.xyz);
