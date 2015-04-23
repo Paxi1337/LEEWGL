@@ -5,6 +5,16 @@ LEEWGL.Light = function() {
     this.render = false;
 
     this.color = [1.0, 1.0, 1.0];
+    this.specular = 1.0;
+
+    this.editables = [{
+        'name': 'Color',
+        'table-titles': ['r', 'g', 'b'],
+        'value': this.color
+    }, {
+        'name': 'Specular',
+        'value': this.specular
+    }];
 }
 
 LEEWGL.Light.prototype = Object.create(LEEWGL.Object3D.prototype);
@@ -15,6 +25,8 @@ LEEWGL.Light.prototype.clone = function(light) {
 
     LEEWGL.Object3D.prototype.clone.call(this, light);
 
+    light.editables = this.editables.slice();
+    light.specular = this.specular;
     light.color.copy(light.color, this.color);
 
     return light;
@@ -26,7 +38,12 @@ LEEWGL.Light.DirectionalLight = function() {
 
     this.type = 'DirectionalLight';
 
-    this.direction = [0.0, 0.0, 0.0];
+    this.direction = [1.0, 0.0, 0.0];
+    this.editables.push({
+        'name': 'Direction',
+        'table-titles': ['x', 'y', 'z'],
+        'value': this.direction
+    });
 };
 
 LEEWGL.Light.DirectionalLight.prototype = Object.create(LEEWGL.Light.prototype);
@@ -47,17 +64,32 @@ LEEWGL.Light.SpotLight = function() {
 
     this.type = 'SpotLight';
 
-    this.spotDirection = [0.0, 0.0, 0.0];
-    this.radius = 10.0;
+    this.spotDirection = [1.0, 0.0, 0.0];
+    this.radius = 20.0;
     this.innerAngle = Math.PI * 0.1;
     this.outerAngle = Math.PI * 0.15;
+
+    this.editables.push({
+        'name': 'Spot direction',
+        'table-titles': ['x', 'y', 'z'],
+        'value': this.spotDirection
+    }, {
+        'name': 'Radius',
+        'value': this.radius
+    }, {
+        'name': 'Inner angle',
+        'value': this.innerAngle
+    }, {
+        'name': 'Outer angle',
+        'value': this.outerAngle
+    });
 };
 
 LEEWGL.Light.SpotLight.prototype = Object.create(LEEWGL.Light.prototype);
 
 LEEWGL.Light.SpotLight.prototype.getView = function(target) {
     var view = mat4.create();
-    mat4.lookAt(view, this.position, target, this.up);
+    mat4.lookAt(view, this.transform.position, target, this.up);
     return view;
 };
 

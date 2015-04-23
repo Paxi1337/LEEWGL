@@ -390,11 +390,6 @@ LEEWGL.UI = function(options) {
                     'class': 'component-table-headline'
                 }));
 
-                /**
-                 * event dispatch gets called when table gets edited
-                 */
-
-
                 // / rotation
                 container.appendChild(this.createTable(['x', 'y', 'z'], comp.rotVec, {
                     'title': 'Rotation',
@@ -425,19 +420,6 @@ LEEWGL.UI = function(options) {
                 });
 
                 container.appendChild(textfield);
-            } else if (comp instanceof LEEWGL.Component.Light) {
-                // / direction
-                container.appendChild(this.createTable(['x', 'y', 'z'], comp.direction, {
-                    'title': 'Direction',
-                    'type': 'h4',
-                    'class': 'component-table-headline'
-                }));
-                // / color
-                container.appendChild(this.createTable(['r', 'g', 'b'], comp.color, {
-                    'title': 'Color',
-                    'type': 'h4',
-                    'class': 'component-table-headline'
-                }));
             } else if (comp instanceof LEEWGL.Component.Texture) {
                 container.setAttribute('id', 'texture-component-container');
 
@@ -464,6 +446,39 @@ LEEWGL.UI = function(options) {
 
             this.inspector.appendChild(container);
         }
+    };
+
+    this.valuesToHTML = function(activeElement) {
+        var container;
+        var title;
+
+        var that = this;
+
+        if (activeElement instanceof LEEWGL.Light) {
+            container = document.createElement('div');
+            container.setAttribute('class', 'component-container');
+            title = document.createElement('h3');
+            title.setAttribute('class', 'component-headline');
+            title.innerHTML = 'Values';
+            container.appendChild(title);
+
+            for (var i = 0; i < activeElement.editables.length; ++i) {
+                var editable = activeElement.editables[i];
+
+                if (editable.value instanceof Array) {
+                    container.appendChild(this.createTable(editable['table-titles'], editable.value, {
+                        'title': editable.name,
+                        'type': 'h4',
+                        'class': 'component-table-headline'
+                    }));
+                } else {
+                    
+                }
+            }
+
+            this.inspector.appendChild(container);
+        }
+
     };
 
     this.setInspectorContent = function(index) {
@@ -493,6 +508,7 @@ LEEWGL.UI = function(options) {
         this.inspector.appendChild(name);
         this.componentsToHTML(activeElement);
         this.componentsButton(index);
+        this.valuesToHTML(activeElement);
         this.update = true;
     };
 

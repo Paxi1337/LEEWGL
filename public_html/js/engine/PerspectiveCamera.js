@@ -20,7 +20,6 @@ LEEWGL.PerspectiveCamera = function(options) {
 
     this._horizontalAngle = 0.0;
     this._verticalAngle = 0.0;
-
 };
 
 LEEWGL.PerspectiveCamera.prototype = Object.create(LEEWGL.Camera.prototype);

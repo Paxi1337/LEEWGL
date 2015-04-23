@@ -1,10 +1,11 @@
 uniform vec3 uLightColor;
+uniform float uSpecular;
 
 varying vec3 vLightToPoint;
 varying vec3 vEyeToPoint;
 varying vec3 vVertexNormal;
 
-vec3 calculateLight(in vec3 normal, in float specular) {
+vec3 calculateLight(vec3 normal, float specular) {
     vec3 l = normalize(vLightToPoint);
     vec3 n = normalize(normal);
     float lambert = max(dot(n, l), 0.0);

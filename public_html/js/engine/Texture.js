@@ -40,12 +40,17 @@ LEEWGL.Texture.prototype = {
     },
 
     bind: function(gl) {
-        gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, this.webglTexture);
+    },
+
+    setActive : function(gl, unit) {
+        unit = (typeof unit === 'undefined') ? 1 : unit;
+        gl.activeTexture(gl.TEXTURE0 + unit);
     },
 
     unbind: function(gl) {
         gl.bindTexture(gl.TEXTURE_2D, null);
+        gl.activeTexture(gl.TEXTURE0, null);
     },
 
     setParameteri: function(gl, name, param) {
@@ -78,8 +83,8 @@ LEEWGL.Texture.prototype = {
     },
 
     setFrameBuffer : function(gl, width, height) {
-        this.setParameteri(gl, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-        this.setParameteri(gl, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        this.setParameteri(gl, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        this.setParameteri(gl, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
         this.setParameteri(gl, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         this.setParameteri(gl, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
@@ -87,8 +92,8 @@ LEEWGL.Texture.prototype = {
     },
 
     setDepthBuffer : function(gl, width, height) {
-        this.setParameteri(gl, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-        this.setParameteri(gl, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        this.setParameteri(gl, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        this.setParameteri(gl, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
         this.setParameteri(gl, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         this.setParameteri(gl, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 

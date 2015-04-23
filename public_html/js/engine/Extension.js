@@ -11,3 +11,5 @@ LEEWGL.Extension = function() {
         return null;
     }
 };
+
+var __extensionLoader = new LEEWGL.Extension();

@@ -8,9 +8,6 @@ LEEWGL.ShaderLibrary = function() {
         main: []
     };
 
-    this.usesColor = false;
-    this.usesTexture = false;
-
     this.chunks = {};
 
     this.initializeChunks = function() {
@@ -91,13 +88,29 @@ LEEWGL.ShaderLibrary = function() {
             }
         };
 
+        this.chunks[LEEWGL.ShaderLibrary.AMBIENT] = {
+            vertex: {
+                parameters: [],
+                main: []
+            },
+            fragment: {
+                parameters: [
+                    LEEWGL.ShaderChunk['fragment_ambient_light_para']
+                ],
+                main: [
+                    LEEWGL.ShaderChunk['fragment_ambient_light']
+                ]
+            }
+        };
+
         this.chunks[LEEWGL.ShaderLibrary.DIRECTIONAL] = {
             vertex: {
                 parameters: [
-                    LEEWGL.ShaderChunk['vertex_directional_light_para'],
-                    LEEWGL.ShaderChunk['vertex_normal_para']
+                    LEEWGL.ShaderChunk['vertex_normal_para'],
+                    LEEWGL.ShaderChunk['vertex_directional_light_para']
                 ],
                 main: [
+                    LEEWGL.ShaderChunk['vertex_normal'],
                     LEEWGL.ShaderChunk['vertex_directional_light']
                 ]
             },
@@ -107,13 +120,34 @@ LEEWGL.ShaderLibrary = function() {
                 ],
                 main: [
                     LEEWGL.ShaderChunk['fragment_directional_light']
+                ]
+            }
+        };
+
+        this.chunks[LEEWGL.ShaderLibrary.SPOT] = {
+            vertex: {
+                parameters: [
+                    LEEWGL.ShaderChunk['vertex_normal_para'],
+                    LEEWGL.ShaderChunk['vertex_spot_light_para']
+                ],
+                main: [
+                    LEEWGL.ShaderChunk['vertex_normal'],
+                    LEEWGL.ShaderChunk['vertex_spot_light']
+                ]
+            },
+            fragment: {
+                parameters: [
+                    LEEWGL.ShaderChunk['fragment_spot_light_para']
+                ],
+                main: [
+                    LEEWGL.ShaderChunk['fragment_spot_light']
                 ],
                 fragColor: {
                     'texture': [
-                        LEEWGL.ShaderChunk['fragment_directional_light_texture']
+                        LEEWGL.ShaderChunk['fragment_spot_light_texture']
                     ],
                     'color': [
-                        LEEWGL.ShaderChunk['fragment_directional_light_color']
+                        LEEWGL.ShaderChunk['fragment_spot_light_color']
                     ]
                 }
             }
@@ -161,20 +195,6 @@ LEEWGL.ShaderLibrary = function() {
     };
 
     this.addParameterChunk = function(type) {
-        if (type === LEEWGL.ShaderLibrary.COLOR) {
-            this.usesColor = true;
-            this.usesTexture = false;
-        } else if (type === LEEWGL.ShaderLibrary.TEXTURE) {
-            this.usesTexture = true;
-            this.usesColor = false;
-        } else if (type === LEEWGL.ShaderLibrary.DIRECTIONAL) {
-            if (this.usesColor === true) {
-                this.chunks[LEEWGL.ShaderLibrary.DIRECTIONAL].fragment.main = this.chunks[LEEWGL.ShaderLibrary.DIRECTIONAL].fragment.main.concat(this.chunks[LEEWGL.ShaderLibrary.DIRECTIONAL].fragment.fragColor.color);
-            } else if (this.usesTexture === true) {
-                this.chunks[LEEWGL.ShaderLibrary.DIRECTIONAL].fragment.main = this.chunks[LEEWGL.ShaderLibrary.DIRECTIONAL].fragment.main.concat(this.chunks[LEEWGL.ShaderLibrary.DIRECTIONAL].fragment.fragColor.texture);
-            }
-        }
-
         this.vertex.parameters = this.vertex.parameters.concat(this.chunks[type].vertex.parameters);
         this.vertex.main = this.vertex.main.concat(this.chunks[type].vertex.main);
         this.fragment.parameters = this.fragment.parameters.concat(this.chunks[type].fragment.parameters);
@@ -210,6 +230,8 @@ LEEWGL.ShaderLibrary.DEFAULT = 0;
 LEEWGL.ShaderLibrary.COLOR = 1;
 LEEWGL.ShaderLibrary.TEXTURE = 2;
 LEEWGL.ShaderLibrary.PICKING = 3;
-LEEWGL.ShaderLibrary.DIRECTIONAL = 4;
-LEEWGL.ShaderLibrary.SHADOW_MAPPING = 5;
-LEEWGL.ShaderLibrary.DEPTH_RENDER_TARGET = 6;
+LEEWGL.ShaderLibrary.AMBIENT = 4;
+LEEWGL.ShaderLibrary.DIRECTIONAL = 5;
+LEEWGL.ShaderLibrary.SPOT = 6;
+LEEWGL.ShaderLibrary.SHADOW_MAPPING = 7;
+LEEWGL.ShaderLibrary.DEPTH_RENDER_TARGET = 8;
