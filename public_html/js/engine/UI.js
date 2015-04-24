@@ -410,7 +410,8 @@ LEEWGL.UI = function(options) {
                 textfield.setAttribute('cols', 30);
                 textfield.setAttribute('placeholder', comp.code);
 
-                textfield.value = this.saved['custom-object-script-' + activeElement.id];
+                if (typeof this.saved['custom-object-script-' + activeElement.id] !== 'undefined')
+                    textfield.value = this.saved['custom-object-script-' + activeElement.id];
 
                 textfield.addEventListener('keyup', function(event) {
                     if (event.keyCode === LEEWGL.KEYS.ENTER) {
@@ -423,6 +424,9 @@ LEEWGL.UI = function(options) {
             } else if (comp instanceof LEEWGL.Component.Texture) {
                 container.setAttribute('id', 'texture-component-container');
 
+                var fileName = document.createElement('h4');
+                fileName.setAttribute('class', 'component-sub-headline');
+
                 var fileInput = document.createElement('input');
                 fileInput.setAttribute('type', 'file');
 
@@ -431,15 +435,27 @@ LEEWGL.UI = function(options) {
                 var image = document.createElement('img');
                 imageContainer.appendChild(image);
 
+                if (typeof this.saved['object-' + this.activeIndex + '-texture-path'] !== 'undefined') {
+                    image.setAttribute('src', this.saved['object-' + this.activeIndex + '-texture-path']);
+                    fileInput.setAttribute('value', this.saved['object-' + this.activeIndex + '-texture-path']);
+                    fileName.innerText = this.saved['object-' + this.activeIndex + '-texture-path'];
+                } else {
+                    fileName.innerText = 'No Texture';
+                }
+
                 fileInput.addEventListener('change', function(event) {
                     var name = this.value.substr(this.value.lastIndexOf('\\') + 1, this.value.length);
                     var path = LEEWGL.ROOT + 'texture/';
                     comp.init(that.gl, path + name);
                     that.activeElement.setTexture(comp.texture);
 
+                    that.saved['object-' + that.activeIndex + '-texture-path'] = path + name;
+                    fileName.innerText = path + name;
+
                     image.setAttribute('src', path + name);
                 });
 
+                container.appendChild(fileName);
                 container.appendChild(fileInput);
                 container.appendChild(imageContainer);
             }
@@ -472,7 +488,7 @@ LEEWGL.UI = function(options) {
                         'class': 'component-table-headline'
                     }));
                 } else {
-                    
+
                 }
             }
 
@@ -503,6 +519,7 @@ LEEWGL.UI = function(options) {
         window.activeElement = this.activeElement;
 
         var name = document.createElement('h3');
+        name.setAttribute('class', 'component-sub-headline');
         name.innerHTML = 'Name - ' + activeElement.name;
 
         this.inspector.appendChild(name);
@@ -633,7 +650,6 @@ LEEWGL.UI = function(options) {
         this.popup.addTitleText('Add Component');
 
         var that = this;
-        var testClass = this.stringToFunction('LEEWGL.Component.' + availableComponents[0]);
 
         this.popup.addList(availableComponents, function(item) {
             var className = that.stringToFunction('LEEWGL.Component.' + item);
@@ -954,7 +970,7 @@ LEEWGL.UI.Popup = function(options) {
     this.parent = document.body;
 
     this.options = {
-        'overlay': false,
+        'overlay-enabled': false,
         'wrapper-class': 'popup',
         'title-class': 'popup-title',
         'content-class': 'popup-content',
@@ -1029,13 +1045,15 @@ LEEWGL.UI.Popup = function(options) {
         this.content = document.createElement('div');
         this.content.setAttribute('class', this.options['content-class']);
 
-        this.overlay = document.createElement('div');
-        this.overlay.setAttribute('class', this.options['overlay-class']);
-
         this.wrapper.appendChild(this.content);
 
         this.parent.appendChild(this.wrapper);
-        this.parent.appendChild(this.overlay);
+
+        if (this.options['overlay-enabled'] === true) {
+            this.overlay = document.createElement('div');
+            this.overlay.setAttribute('class', this.options['overlay-class']);
+            this.parent.appendChild(this.overlay);
+        }
 
         this.initialized = true;
 
@@ -1222,7 +1240,7 @@ LEEWGL.UI.Popup = function(options) {
         }
 
         this.wrapper.style.display = 'block';
-        this.overlay.style.display = 'fixed';
+        this.showOverlay();
     };
 
     this.hide = function() {
@@ -1232,7 +1250,18 @@ LEEWGL.UI.Popup = function(options) {
         }
 
         this.wrapper.style.display = 'none';
-        this.overlay.style.display = 'none';
+        this.hideOverlay();
+    };
+
+    this.showOverlay = function() {
+        if (this.options['overlay-enabled'] === true)
+            this.overlay.style.display = 'fixed';
+
+    };
+
+    this.hideOverlay = function() {
+        if (this.options['overlay-enabled'] === true)
+            this.overlay.style.display = 'none';
     };
 
     this.empty = function() {

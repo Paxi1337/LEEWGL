@@ -74,9 +74,10 @@ LEEWGL.Geometry = function(options) {
         shader.attributes['aVertexNormal'](this.buffers.normal);
 
         if (this.usesTexture === true) {
-            this.components['Texture'].texture.bind(gl);
-            this.components['Texture'].texture.setActive(gl);
             shader.attributes['aTextureCoord'](this.buffers.texture);
+            this.components['Texture'].texture.setActive(gl, 0);
+            this.components['Texture'].texture.bind(gl);
+            shader.uniforms['uSampler'](0);
         } else {
             shader.attributes['aVertexColor'](this.buffers.color);
         }
@@ -95,6 +96,9 @@ LEEWGL.Geometry = function(options) {
         } else {
             gl.drawArrays(drawMode, this.vertices.position.length, 0);
         }
+
+        if (this.usesTexture === true)
+            this.components['Texture'].texture.unbind(gl, 0);
     };
 };
 

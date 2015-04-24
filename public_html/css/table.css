@@ -1,4 +1,6 @@
-div.table-container {}
+div.table-container {
+    width: 100%;
+}
 table {
     font-family: sans-serif;
     color: #666;

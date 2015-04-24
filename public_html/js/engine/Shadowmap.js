@@ -39,26 +39,28 @@ LEEWGL.Shadowmap = function() {
         this.frameBuffer.unbind(gl);
     };
 
-    this.bind = function(gl, shader, light) {
+    this.bind = function(gl, shader) {
         this.frameBuffer.bind(gl);
-
-        shader.uniforms['uLightProjectionMatrix'](light.getProjection());
-        shader.uniforms['uLightViewMatrix'](light.getView([0, 0, 0]));
 
         gl.viewport(0, 0, this.size.x, this.size.y);
         gl.colorMask(false, false, false, false);
-
         gl.cullFace(gl.FRONT);
         gl.clear(gl.DEPTH_BUFFER_BIT);
     };
 
-    this.unbind = function(gl) {
+    this.unbind = function(gl, shader) {
         this.frameBuffer.unbind(gl);
+        this.depthTexture.unbind(gl, 1);
+        shader.uniforms['uShadowMap'](null);
         gl.cullFace(gl.BACK);
     };
 
-    this.draw = function(gl) {
-        this.depthTexture.setActive(gl, 0);
+    this.draw = function(gl, shader, light) {
+        this.depthTexture.setActive(gl, 1);
         this.depthTexture.bind(gl);
+
+        shader.uniforms['uLightProjectionMatrix'](light.getProjection());
+        shader.uniforms['uLightViewMatrix'](light.getView([0, 0, 0]));
+        shader.uniforms['uShadowMap'](1);
     };
 };

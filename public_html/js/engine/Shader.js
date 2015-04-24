@@ -163,7 +163,7 @@ LEEWGL.Shader = function() {
                 return function(v) {
                     gl.uniform1iv(loc, v);
                 };
-            if (type === gl.INT)
+            if (type === gl.INT || type === gl.SAMPLER_2D)
                 return function(v) {
                     gl.uniform1i(loc, v);
                 };

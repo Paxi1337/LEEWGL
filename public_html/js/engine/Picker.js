@@ -22,7 +22,6 @@ LEEWGL.Picker = function() {
         texture.bind(gl);
         texture.setParameteri(gl, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         texture.setParameteri(gl, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-        texture.generateMipmap(gl);
 
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
 

@@ -150,6 +150,7 @@ div#inspector-container {
 }
 div#dynamic-inspector {
     padding: 10px;
+    width: 94%;
 }
 div.controls-container {
     height: 35px;
@@ -280,6 +281,13 @@ div#status-bar {
     margin: 10px auto;
     text-align: center;
     background-color: #4F6573;
+    text-shadow: 1px 1px 0px #000;
+}
+.component-sub-headline {
+    padding: 3px;
+    margin: 10px auto;
+    text-align: center;
+    background-color: #79909b;
     text-shadow: 1px 1px 0px #000;
 }
 .component-table-headline {

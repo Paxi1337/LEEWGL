@@ -151,13 +151,7 @@ LEEWGL.Component.Texture.prototype.init = function(gl, src) {
     image.src = this.src;
 
     this.texture.create(gl);
-    this.texture.img = image;
-
-    this.texture.img.onload = function() {
-        that.texture.bind(gl);
-        that.texture.setTextureParameters(gl, gl.TEXTURE_2D, true);
-        that.texture.unbind(gl);
-    };
+    this.texture.setTextureImage(gl, this.src, 1);
 };
 
 LEEWGL.Component.Texture.prototype.clone = function(texture) {
