@@ -70,17 +70,17 @@ LEEWGL.Light.SpotLight = function() {
     this.outerAngle = Math.PI * 0.15;
 
     this.editables.push({
-        'name': 'Spot direction',
+        'name': 'SpotDirection',
         'table-titles': ['x', 'y', 'z'],
         'value': this.spotDirection
     }, {
         'name': 'Radius',
         'value': this.radius
     }, {
-        'name': 'Inner angle',
+        'name': 'InnerAngle',
         'value': this.innerAngle
     }, {
-        'name': 'Outer angle',
+        'name': 'OuterAngle',
         'value': this.outerAngle
     });
 };

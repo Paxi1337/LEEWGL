@@ -32,6 +32,15 @@ LEEWGL.UI = function(options) {
     });
     this.contextMenu.create();
 
+    this.confirmationPopup = new LEEWGL.UI.Popup({
+        'movable': false,
+        'close-icon-enabled': false,
+        'close-button-enabled': true,
+        'wrapper-width': 200,
+        'title-enabled': true
+    });
+    this.confirmationPopup.create();
+
     this.importedScripts = [];
     this.objectScripts = [];
 
@@ -252,6 +261,7 @@ LEEWGL.UI = function(options) {
     this.createTable = function(header, content, title) {
         var container = document.createElement('div');
         var table = document.createElement('table');
+        table.setAttribute('class', 'component-table');
         var thead = document.createElement('thead');
         var tbody = document.createElement('tbody');
         var tr;
@@ -259,13 +269,15 @@ LEEWGL.UI = function(options) {
 
         var that = this;
 
-        container.setAttribute('class', 'table-container');
+        container.setAttribute('class', 'component-detail-container');
 
         if (typeof title !== 'undefined') {
+            var headlineContainer = document.createElement('div');
             var headline = document.createElement(title.type);
             headline.setAttribute('class', title.class);
             headline.innerHTML = title.title;
-            container.appendChild(headline);
+            headlineContainer.appendChild(headline);
+            container.appendChild(headlineContainer);
         }
 
         tr = document.createElement('tr');
@@ -300,6 +312,8 @@ LEEWGL.UI = function(options) {
 
             // / html5 feature - gets called when dom elements with contenteditable = true get edited
             td.addEventListener('keydown', function(event) {
+
+
                 if (event.keyCode === LEEWGL.KEYS.ENTER) {
                     var num = this.getAttribute('num');
                     if (typeof content[num] === 'undefined') {
@@ -343,6 +357,7 @@ LEEWGL.UI = function(options) {
 
         table.appendChild(tbody);
         container.appendChild(table);
+
         return container;
     };
 
@@ -381,27 +396,28 @@ LEEWGL.UI = function(options) {
                 container.appendChild(this.createTable(['x', 'y', 'z'], comp.position, {
                     'title': 'Position',
                     'type': 'h4',
-                    'class': 'component-table-headline'
+                    'class': 'component-detail-headline'
                 }));
                 // / translation
                 container.appendChild(this.createTable(['x', 'y', 'z'], comp.transVec, {
                     'title': 'Translation',
                     'type': 'h4',
-                    'class': 'component-table-headline'
+                    'class': 'component-detail-headline'
                 }));
 
                 // / rotation
                 container.appendChild(this.createTable(['x', 'y', 'z'], comp.rotVec, {
                     'title': 'Rotation',
                     'type': 'h4',
-                    'class': 'component-table-headline'
+                    'class': 'component-detail-headline'
                 }));
                 // / scale
                 container.appendChild(this.createTable(['x', 'y', 'z'], comp.scaleVec, {
                     'title': 'Scale',
                     'type': 'h4',
-                    'class': 'component-table-headline'
+                    'class': 'component-detail-headline'
                 }));
+
             } else if (comp instanceof LEEWGL.Component.CustomScript) {
                 container.setAttribute('id', 'custom-script-component-container');
 
@@ -485,10 +501,22 @@ LEEWGL.UI = function(options) {
                     container.appendChild(this.createTable(editable['table-titles'], editable.value, {
                         'title': editable.name,
                         'type': 'h4',
-                        'class': 'component-table-headline'
+                        'class': 'component-detail-headline'
                     }));
                 } else {
+                    var containerDetail = document.createElement('div');
+                    containerDetail.setAttribute('class', 'component-detail-container');
+                    var name = document.createElement('h4');
+                    name.setAttribute('class', 'component-detail-headline');
+                    name.innerText = editable.name;
+                    containerDetail.appendChild(name);
+                    var input = document.createElement('input');
+                    input.setAttribute('type', 'text');
+                    input.setAttribute('class', 'settings-input');
+                    input.setAttribute('value', editable.value);
 
+                    containerDetail.appendChild(input);
+                    container.appendChild(containerDetail);
                 }
             }
 
@@ -519,13 +547,13 @@ LEEWGL.UI = function(options) {
         window.activeElement = this.activeElement;
 
         var name = document.createElement('h3');
-        name.setAttribute('class', 'component-sub-headline');
+        name.setAttribute('class', 'component-detail-headline');
         name.innerHTML = 'Name - ' + activeElement.name;
 
         this.inspector.appendChild(name);
+        this.valuesToHTML(activeElement);
         this.componentsToHTML(activeElement);
         this.componentsButton(index);
-        this.valuesToHTML(activeElement);
         this.update = true;
     };
 
@@ -557,11 +585,14 @@ LEEWGL.UI = function(options) {
                 toggle[index].addEventListener('mousedown', function(event) {
                     if (event.which === 1 || event.button === LEEWGL.MOUSE.LEFT) {
                         var c = container[index];
+                        c.setAttribute('class', 'movable');
                         c.addEventListener('click', that.drag.drag(c, event));
                     }
                 });
                 toggle[index].addEventListener('dblclick', function(event) {
                     var c = container[index];
+
+                    c.className = c.className.replace(/\bmovable\b/, '');
                     that.drag.restore(c, event);
                 });
             })(i);
@@ -724,23 +755,29 @@ LEEWGL.UI = function(options) {
     this.displaySettings = function() {
         this.inspector.innerHTML = '';
         var container = document.createElement('div');
+        container.setAttribute('class', 'component-container');
 
         for (var k in LEEWGL.Settings) {
             if (typeof LEEWGL.Settings[k] === 'object') {
                 container.appendChild(this.createTable(Object.keys(LEEWGL.Settings[k]), LEEWGL.Settings[k], {
                     'title': k,
                     'type': 'h4',
-                    'class': 'component-table-headline'
+                    'class': 'component-detail-headline'
                 }));
             } else {
+                var containerDetail = document.createElement('div');
+                containerDetail.setAttribute('class', 'component-detail-container');
                 var name = document.createElement('h4');
+                name.setAttribute('class', 'component-detail-headline');
                 name.innerText = k;
-                container.appendChild(name);
+                containerDetail.appendChild(name);
                 var input = document.createElement('input');
                 input.setAttribute('type', 'text');
+                input.setAttribute('class', 'settings-input');
                 input.setAttribute('value', LEEWGL.Settings[k]);
 
-                container.appendChild(input);
+                containerDetail.appendChild(input);
+                container.appendChild(containerDetail);
             }
         }
 
@@ -977,6 +1014,7 @@ LEEWGL.UI.Popup = function(options) {
         'overlay-class': 'popup-overlay',
         'list-item-class': 'popup-list',
         'close-icon-enabled': true,
+        'close-button-enabled': false,
         'wrapper-width': 350,
         'wrapper-height': 'auto',
         'center': true,
@@ -1059,6 +1097,9 @@ LEEWGL.UI.Popup = function(options) {
 
         if (this.options['close-icon-enabled'] === true)
             this.addCloseIcon();
+
+        if (this.options['close-button-enabled'] === true)
+            this.addCloseButton();
 
         if (this.options['movable'] === true)
             this.movable();
@@ -1200,6 +1241,26 @@ LEEWGL.UI.Popup = function(options) {
         this.title.appendChild(iconContainer);
     };
 
+    this.addCloseButton = function() {
+        if (this.initialized === false) {
+            console.error('LEEWGL.UI.Popup: call create() first!');
+            return;
+        }
+
+        var buttonContainer = document.createElement('div');
+        buttonContainer.setAttribute('class', 'popup-button-wrapper');
+        var button = document.createElement('input');
+        button.setAttribute('type', 'submit');
+        button.setAttribute('value', 'Close');
+        buttonContainer.appendChild(button);
+
+        button.addEventListener('click', function(event) {
+            this.hide();
+        }.bind(this));
+
+        this.content.appendChild(buttonContainer);
+    };
+
     this.movable = function() {
         if (this.initialized === false) {
             console.error('LEEWGL.UI.Popup: call create() first!');
@@ -1275,6 +1336,9 @@ LEEWGL.UI.Popup = function(options) {
 
         if (this.options['close-icon-enabled'] === true)
             this.addCloseIcon();
+
+        if (this.options['close-button-enabled'] === true)
+            this.addCloseButton();
 
         if (this.options['movable'] === true)
             this.movable();
