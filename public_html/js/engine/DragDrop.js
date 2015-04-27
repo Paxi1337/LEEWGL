@@ -16,22 +16,23 @@ LEEWGL.DragDrop = function() {
         var startX = event.clientX;
         var startY = event.clientY;
 
-        if (obj.style.position !== LEEWGL.UI.ABSOLUTE)
-            obj.style.position = LEEWGL.UI.ABSOLUTE;
+        if (obj.getStyle('position') !== LEEWGL.UI.ABSOLUTE)
+            obj.setStyle('position', LEEWGL.UI.ABSOLUTE);
+
+        var size = obj.size();
 
         // / obj to drag needs to be absolutely positioned
         // / offset parent is body
-        var origX = obj.offsetLeft;
-        var origY = obj.offsetTop;
+        var origX = size.offsetLeft;
+        var origY = size.offsetTop;
 
         var deltaX = startX - origX;
         var deltaY = startY - origY;
 
         // / events
         var moveHandler = function(e) {
-            obj.style.left = (e.clientX - deltaX) + 'px';
-            obj.style.top = (e.clientY - deltaY) + 'px';
-
+            obj.setStyle('left', (e.clientX - deltaX) + 'px');
+            obj.setStyle('top', (e.clientY - deltaY) + 'px');
             e.stopPropagation();
         };
 
@@ -58,11 +59,14 @@ LEEWGL.DragDrop = function() {
      */
     this.restore = function(obj, event) {
         event = (event !== 'undefined') ? event : document.event;
-        if (obj.style.position === LEEWGL.UI.ABSOLUTE)
-            obj.style.position = LEEWGL.UI.STATIC;
 
-        obj.style.left = '';
-        obj.style.top = '';
+        if (obj.getStyle('position') === LEEWGL.UI.ABSOLUTE)
+            obj.setStyle('position', LEEWGL.UI.STATIC);
+
+        obj.setStyles({
+            'left': '',
+            'top': ''
+        });
 
         event.stopPropagation();
         event.preventDefault();

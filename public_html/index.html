@@ -16,13 +16,14 @@
     <script type="text/javascript" src="js/gl-matrix/vec3.js"></script>
     <script type="text/javascript" src="js/gl-matrix/vec2.js"></script>
     <script type="text/javascript" src="js/engine/Core.js"></script>
+    <script type="text/javascript" src="js/engine/EventDispatcher.js"></script>
+    <script type="text/javascript" src="js/engine/DOMElement.js"></script>
     <script type="text/javascript" src="js/engine/Extension.js"></script>
     <script type="text/javascript" src="js/engine/AsynchRequest.js"></script>
     <script type="text/javascript" src="js/engine/Math.js"></script>
     <script type="text/javascript" src="js/engine/VertexDeclarations.js"></script>
     <script type="text/javascript" src="js/engine/Buffer.js"></script>
     <script type="text/javascript" src="js/engine/Shader.js"></script>
-    <script type="text/javascript" src="js/engine/EventDispatcher.js"></script>
     <script type="text/javascript" src="js/engine/Component.js"></script>
     <script type="text/javascript" src="js/engine/Object3D.js"></script>
     <script type="text/javascript" src="js/engine/Texture.js"></script>
@@ -42,7 +43,6 @@
     <script type="text/javascript" src="js/engine/Light.js"></script>
     <script type="text/javascript" src="js/engine/Scene.js"></script>
     <script type="text/javascript" src="js/engine/Shadowmap.js"></script>
-    <script type="text/javascript" src="js/engine/HTMLHelper.js"></script>
 </head>
 
 <body>
@@ -207,8 +207,6 @@
             LEEWGL.attachApp(testapp);
             LEEWGL.init();
             window.requestAnimationFrame(LEEWGL.run.bind(LEEWGL));
-
-            console.log(document.scripts);
         });
     </script>
 </body>

@@ -99,9 +99,6 @@ LEEWGL.TestApp.prototype.onCreate = function() {
     this.colorShader.createUniformSetters(this.gl);
     this.colorShader.createAttributeSetters(this.gl);
 
-    console.log(this.shaderLibrary.out(LEEWGL.Shader.VERTEX));
-    console.log(this.shaderLibrary.out(LEEWGL.Shader.FRAGMENT));
-
     this.shaderLibrary.reset();
 
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.DEFAULT);
@@ -312,7 +309,7 @@ LEEWGL.TestApp.prototype.onRender = function() {
     var viewProjection = this.camera.viewProjMatrix;
 
     if (typeof UI !== 'undefined' && UI.playing === true)
-        viewProjection = this.gameCamera.viewProjection;
+        viewProjection = this.gameCamera.viewProjMatrix;
 
     for (var i = 0; i < this.scene.children.length; ++i) {
         var element = this.scene.children[i];
@@ -363,13 +360,11 @@ LEEWGL.TestApp.prototype.draw = function(element, viewProjection) {
         this.activeShader.uniforms['uVP'](viewProjection);
         this.shadowmap.draw(this.gl, this.activeShader, this.light);
 
-
         if (this.light instanceof LEEWGL.Light.DirectionalLight) {
             this.activeShader.uniforms['uLightDirection'](this.light.direction);
 
         } else if (this.light instanceof LEEWGL.Light.SpotLight) {
             this.activeShader.uniforms['uLightPosition'](this.light.transform.position);
-
             this.activeShader.uniforms['uSpotDirection'](this.light.spotDirection);
             this.activeShader.uniforms['uSpotInnerAngle'](this.light.innerAngle);
             this.activeShader.uniforms['uSpotOuterAngle'](this.light.outerAngle);

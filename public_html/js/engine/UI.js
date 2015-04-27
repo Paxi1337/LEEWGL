@@ -24,6 +24,7 @@ LEEWGL.UI = function(options) {
     this.drag = new LEEWGL.DragDrop();
     this.popup = new LEEWGL.UI.Popup({});
     this.popup.create();
+
     this.contextMenu = new LEEWGL.UI.Popup({
         'movable': false,
         'close-icon-enabled': false,
@@ -34,13 +35,12 @@ LEEWGL.UI = function(options) {
 
     this.confirmationPopup = new LEEWGL.UI.Popup({
         'movable': false,
-        'close-icon-enabled': false,
-        'close-button-enabled': true,
+        'close-icon-enabled': true,
+        'close-button-enabled': false,
         'wrapper-width': 200,
         'title-enabled': true
     });
     this.confirmationPopup.create();
-
     this.importedScripts = [];
     this.objectScripts = [];
 
@@ -60,10 +60,12 @@ LEEWGL.UI = function(options) {
 
     this.setInspector = function(container) {
         this.inspector = (typeof container === 'string') ? document.querySelector(container) : container;
+        this.inspector = new LEEWGL.DOM.Element(this.inspector);
     };
 
     this.setStatusBar = function(container) {
         this.statusBar = (typeof container === 'string') ? document.querySelector(container) : container;
+        this.statusBar = new LEEWGL.DOM.Element(this.statusBar);
     };
 
     this.setEditable = function(index) {
@@ -134,7 +136,6 @@ LEEWGL.UI = function(options) {
     this.editable = function(obj, index, dom) {
         dom = (typeof dom !== 'undefined') ? dom : false;
         var that = this;
-
         var dblclickFunction, keydownFunction, clickFunction;
 
         if (dom === false) {
@@ -146,7 +147,7 @@ LEEWGL.UI = function(options) {
             };
 
             keydownFunction = function(element) {
-                that.activeElement.name = element.innerText;
+                that.activeElement.name = element.get('text');
                 that.setEditable(-1);
                 that.update = true;
                 that.setInspectorContent(index);
@@ -163,35 +164,33 @@ LEEWGL.UI = function(options) {
             };
         } else {
             dblclickFunction = function(element) {
-                if (element.getAttribute('contenteditable') === null) {
-                    element.setAttribute('contenteditable', true);
-                    element.setAttribute('class', 'editable');
+                if (element.get('contenteditable') === null) {
+                    element.set('contenteditable', true);
+                    element.set('class', 'editable');
                 }
             };
 
             keydownFunction = function(element) {
-                if (element.getAttribute('contenteditable') !== null) {
-                    element.removeAttribute('contenteditable');
-                    element.removeAttribute('class');
-                }
+                if (element.get('contenteditable') !== null)
+                    element.removeAttributes(['contenteditable', 'class']);
             };
 
             clickFunction = function() {};
         }
 
-        obj.addEventListener('dblclick', function(event) {
-            dblclickFunction(this);
+        obj.addEvent('dblclick', function(event) {
+            dblclickFunction(new LEEWGL.DOM.Element(this));
         });
 
-        obj.addEventListener('keydown', function(event) {
+        obj.addEvent('keydown', function(event) {
             if (event.keyCode === LEEWGL.KEYS.ENTER) {
-                keydownFunction(this);
+                keydownFunction(new LEEWGL.DOM.Element(this));
                 event.preventDefault();
                 event.stopPropagation();
             }
         });
 
-        obj.addEventListener('click', function(event) {
+        obj.addEvent('click', function(event) {
             clickFunction();
         });
     };
@@ -201,39 +200,39 @@ LEEWGL.UI = function(options) {
             return;
 
         container = (typeof container === 'string') ? document.querySelector(container) : container;
-
+        container = new LEEWGL.DOM.Element(container, {
+            'html': ''
+        });
         var that = this;
 
-        container.innerHTML = '';
-
-        var list = document.createElement('ul');
+        var list = new LEEWGL.DOM.Element('ul');
 
         for (var i in this.outline) {
             var outline = this.outline[i];
 
             var obj = outline.obj;
-            var item = document.createElement('li');
-            var element = document.createElement('a');
-            element.setAttribute('href', '#');
+            var item = new LEEWGL.DOM.Element('li');
+            var element = new LEEWGL.DOM.Element('a', {
+                'href': '#',
+                'html': obj.name
+            });
 
-            element.innerHTML = obj.name;
-
-            item.appendChild(element);
-            list.appendChild(item);
+            item.grab(element);
+            list.grab(item);
 
             if (outline.active === true)
-                item.setAttribute('class', 'active');
+                item.set('class', 'active');
 
             if (outline.editable === true) {
-                item.setAttribute('class', 'editable');
-                element.setAttribute('contenteditable', true);
+                item.set('class', 'editable');
+                element.set('contenteditable', true);
             }
 
             /// events
             this.editable(element, i);
 
             (function(index) {
-                element.addEventListener('contextmenu', function(event) {
+                element.addEvent('contextmenu', function(event) {
                     var activeOutline = that.outline[index];
 
                     if (activeOutline.active === false && activeOutline.editable === false) {
@@ -248,8 +247,7 @@ LEEWGL.UI = function(options) {
             })(i);
         }
 
-        container.appendChild(list);
-
+        container.grab(list);
         this.update = false;
     };
     /**
@@ -259,42 +257,45 @@ LEEWGL.UI = function(options) {
      * @param {object} title
      */
     this.createTable = function(header, content, title) {
-        var container = document.createElement('div');
-        var table = document.createElement('table');
-        table.setAttribute('class', 'component-table');
-        var thead = document.createElement('thead');
-        var tbody = document.createElement('tbody');
+        var container = new LEEWGL.DOM.Element('div', {
+            'class': 'component-detail-container'
+        });
+        var table = new LEEWGL.DOM.Element('table', {
+            'class': 'component-table'
+        });
+        var thead = new LEEWGL.DOM.Element('thead');
+        var tbody = new LEEWGL.DOM.Element('tbody');
         var tr;
         var td;
 
         var that = this;
 
-        container.setAttribute('class', 'component-detail-container');
-
         if (typeof title !== 'undefined') {
-            var headlineContainer = document.createElement('div');
-            var headline = document.createElement(title.type);
-            headline.setAttribute('class', title.class);
-            headline.innerHTML = title.title;
-            headlineContainer.appendChild(headline);
-            container.appendChild(headlineContainer);
+            var headlineContainer = new LEEWGL.DOM.Element('div');
+            var headline = new LEEWGL.DOM.Element(title.type, {
+                'class': title.class,
+                'html': title.title
+            });
+            headlineContainer.grab(headline);
+            container.grab(headlineContainer);
         }
 
-        tr = document.createElement('tr');
+        tr = new LEEWGL.DOM.Element('tr');
         // / headers
         for (var i = 0; i < header.length; ++i) {
-            td = document.createElement('th');
-            td.innerHTML = header[i];
-
-            tr.appendChild(td);
-            thead.appendChild(tr);
+            td = new LEEWGL.DOM.Element('th', {
+                'html': header[i]
+            });
+            tr.grab(td);
+            thead.grab(tr);
         }
 
-        table.appendChild(thead);
+        table.grab(thead);
 
         var fillTable = function(index, content) {
-            var td = document.createElement('td');
-            td.setAttribute('num', index);
+            var td = new LEEWGL.DOM.Element('td', {
+                'num': index
+            });
 
             var c = content[index];
 
@@ -306,21 +307,20 @@ LEEWGL.UI = function(options) {
             }
 
             if (typeof c === 'number')
-                td.innerHTML = c.toPrecision(LEEWGL.Settings.DisplayPrecision);
+                td.set('html', c.toPrecision(LEEWGL.Settings.DisplayPrecision));
             else
-                td.innerHTML = c;
+                td.set('html', c);
 
             // / html5 feature - gets called when dom elements with contenteditable = true get edited
-            td.addEventListener('keydown', function(event) {
-
-
+            td.addEvent('keydown', function(event) {
                 if (event.keyCode === LEEWGL.KEYS.ENTER) {
-                    var num = this.getAttribute('num');
+                    var el = new LEEWGL.DOM.Element(this);
+                    var num = el.get('num');
                     if (typeof content[num] === 'undefined') {
                         var keys = Object.keys(content);
-                        content[keys[index]] = parseFloat(this.innerText);
+                        content[keys[index]] = parseFloat(el.get('text'));
                     } else {
-                        content[num] = parseFloat(this.innerText);
+                        content[num] = parseFloat(el.get('text'));
                     }
 
                     window.dispatchEvent({
@@ -335,28 +335,28 @@ LEEWGL.UI = function(options) {
             return td;
         };
 
-        tr = document.createElement('tr');
+        tr = new LEEWGL.DOM.Element('tr');
         // / content
         if (typeof content.length === 'undefined') {
             var i = 0;
             for (var k in content) {
                 td = fillTable(i, content);
 
-                tr.appendChild(td);
-                tbody.appendChild(tr);
+                tr.grab(td);
+                tbody.grab(tr);
                 ++i;
             }
         } else {
             for (var i = 0; i < content.length; ++i) {
                 td = fillTable(i, content);
 
-                tr.appendChild(td);
-                tbody.appendChild(tr);
+                tr.grab(td);
+                tbody.grab(tr);
             }
         }
 
-        table.appendChild(tbody);
-        container.appendChild(table);
+        table.grab(tbody);
+        container.grab(table);
 
         return container;
     };
@@ -372,12 +372,14 @@ LEEWGL.UI = function(options) {
             if (!activeElement.components.hasOwnProperty(name))
                 continue;
 
-            container = document.createElement('div');
-            container.setAttribute('class', 'component-container');
-            title = document.createElement('h3');
-            title.setAttribute('class', 'component-headline');
-            title.innerHTML = name;
-            container.appendChild(title);
+            container = new LEEWGL.DOM.Element('div', {
+                'class': 'component-container'
+            });
+            title = new LEEWGL.DOM.Element('h3', {
+                'class': 'component-headline',
+                'html': name
+            });
+            container.grab(title);
 
             var comp = activeElement.components[name];
 
@@ -393,90 +395,92 @@ LEEWGL.UI = function(options) {
                 })(comp);
 
                 // / position
-                container.appendChild(this.createTable(['x', 'y', 'z'], comp.position, {
+                container.grab(this.createTable(['x', 'y', 'z'], comp.position, {
                     'title': 'Position',
                     'type': 'h4',
                     'class': 'component-detail-headline'
                 }));
                 // / translation
-                container.appendChild(this.createTable(['x', 'y', 'z'], comp.transVec, {
+                container.grab(this.createTable(['x', 'y', 'z'], comp.transVec, {
                     'title': 'Translation',
                     'type': 'h4',
                     'class': 'component-detail-headline'
                 }));
 
                 // / rotation
-                container.appendChild(this.createTable(['x', 'y', 'z'], comp.rotVec, {
+                container.grab(this.createTable(['x', 'y', 'z'], comp.rotVec, {
                     'title': 'Rotation',
                     'type': 'h4',
                     'class': 'component-detail-headline'
                 }));
                 // / scale
-                container.appendChild(this.createTable(['x', 'y', 'z'], comp.scaleVec, {
+                container.grab(this.createTable(['x', 'y', 'z'], comp.scaleVec, {
                     'title': 'Scale',
                     'type': 'h4',
                     'class': 'component-detail-headline'
                 }));
 
             } else if (comp instanceof LEEWGL.Component.CustomScript) {
-                container.setAttribute('id', 'custom-script-component-container');
+                container.set('id', 'custom-script-component-container');
 
-                var textfield = document.createElement('textarea');
-                textfield.setAttribute('rows', 5);
-                textfield.setAttribute('cols', 30);
-                textfield.setAttribute('placeholder', comp.code);
+                var textfield = new LEEWGL.DOM.Element('textarea', {
+                    'rows': 5,
+                    'cols': 30,
+                    'placeholder': comp.code
+                });
 
                 if (typeof this.saved['custom-object-script-' + activeElement.id] !== 'undefined')
-                    textfield.value = this.saved['custom-object-script-' + activeElement.id];
+                    textfield.set('value', this.saved['custom-object-script-' + activeElement.id]);
 
-                textfield.addEventListener('keyup', function(event) {
+                textfield.addEvent('keyup', function(event) {
                     if (event.keyCode === LEEWGL.KEYS.ENTER) {
                         that.addScriptToObject(activeElement.id, this.value);
                         event.stopPropagation();
                     }
                 });
 
-                container.appendChild(textfield);
+                container.grab(textfield);
             } else if (comp instanceof LEEWGL.Component.Texture) {
-                container.setAttribute('id', 'texture-component-container');
+                container.set('id', 'texture-component-container');
 
-                var fileName = document.createElement('h4');
-                fileName.setAttribute('class', 'component-sub-headline');
-
-                var fileInput = document.createElement('input');
-                fileInput.setAttribute('type', 'file');
-
-                var imageContainer = document.createElement('div');
-                imageContainer.setAttribute('id', 'texture-preview-container');
-                var image = document.createElement('img');
-                imageContainer.appendChild(image);
+                var fileName = new LEEWGL.DOM.Element('h4', {
+                    'class': 'component-sub-headline'
+                });
+                var fileInput = new LEEWGL.DOM.Element('input', {
+                    'type': 'file'
+                });
+                var imageContainer = new LEEWGL.DOM.Element('div', {
+                    'id': 'texture-preview-container'
+                });
+                var image = new LEEWGL.DOM.Element('img');
+                imageContainer.grab(image);
 
                 if (typeof this.saved['object-' + this.activeIndex + '-texture-path'] !== 'undefined') {
-                    image.setAttribute('src', this.saved['object-' + this.activeIndex + '-texture-path']);
-                    fileInput.setAttribute('value', this.saved['object-' + this.activeIndex + '-texture-path']);
-                    fileName.innerText = this.saved['object-' + this.activeIndex + '-texture-path'];
+                    image.set('src', this.saved['object-' + this.activeIndex + '-texture-path']);
+                    fileInput.set('value', this.saved['object-' + this.activeIndex + '-texture-path']);
+                    fileName.set('text', this.saved['object-' + this.activeIndex + '-texture-path']);
                 } else {
-                    fileName.innerText = 'No Texture';
+                    fileName.set('text', 'No Texture');
                 }
 
-                fileInput.addEventListener('change', function(event) {
+                fileInput.addEvent('change', function(event) {
                     var name = this.value.substr(this.value.lastIndexOf('\\') + 1, this.value.length);
                     var path = LEEWGL.ROOT + 'texture/';
                     comp.init(that.gl, path + name);
                     that.activeElement.setTexture(comp.texture);
 
                     that.saved['object-' + that.activeIndex + '-texture-path'] = path + name;
-                    fileName.innerText = path + name;
+                    fileName.set('text', path + name);
 
-                    image.setAttribute('src', path + name);
+                    image.set('src', path + name);
                 });
 
-                container.appendChild(fileName);
-                container.appendChild(fileInput);
-                container.appendChild(imageContainer);
+                container.grab(fileName);
+                container.grab(fileInput);
+                container.grab(imageContainer);
             }
 
-            this.inspector.appendChild(container);
+            this.inspector.grab(container);
         }
     };
 
@@ -487,42 +491,49 @@ LEEWGL.UI = function(options) {
         var that = this;
 
         if (activeElement instanceof LEEWGL.Light) {
-            container = document.createElement('div');
-            container.setAttribute('class', 'component-container');
-            title = document.createElement('h3');
-            title.setAttribute('class', 'component-headline');
-            title.innerHTML = 'Values';
-            container.appendChild(title);
+            container = new LEEWGL.DOM.Element('div', {
+                'class': 'component-container'
+            });
+            title = new LEEWGL.DOM.Element('h3', {
+                'class': 'component-headline1',
+                'html': 'Values'
+            });
+            container.grab(title);
 
             for (var i = 0; i < activeElement.editables.length; ++i) {
                 var editable = activeElement.editables[i];
 
                 if (editable.value instanceof Array) {
-                    container.appendChild(this.createTable(editable['table-titles'], editable.value, {
+                    container.grab(this.createTable(editable['table-titles'], editable.value, {
                         'title': editable.name,
                         'type': 'h4',
                         'class': 'component-detail-headline'
                     }));
                 } else {
-                    var containerDetail = document.createElement('div');
-                    containerDetail.setAttribute('class', 'component-detail-container');
-                    var name = document.createElement('h4');
-                    name.setAttribute('class', 'component-detail-headline');
-                    name.innerText = editable.name;
-                    containerDetail.appendChild(name);
-                    var input = document.createElement('input');
-                    input.setAttribute('type', 'text');
-                    input.setAttribute('class', 'settings-input');
-                    input.setAttribute('value', editable.value);
-
-                    containerDetail.appendChild(input);
-                    container.appendChild(containerDetail);
+                    this.createContainerDetailInput(container, editable.name, editable.value);
                 }
             }
-
-            this.inspector.appendChild(container);
+            this.inspector.grab(container);
         }
+    };
 
+    this.createContainerDetailInput = function(container, title, value) {
+        var containerDetail = new LEEWGL.DOM.Element('div', {
+            'class': 'component-detail-container'
+        });
+        var name = new LEEWGL.DOM.Element('h4', {
+            'class': 'component-detail-headline',
+            'text': title
+        });
+        var input = new LEEWGL.DOM.Element('input', {
+            'type': 'text',
+            'class': 'settings-input',
+            'value': value
+        });
+
+        containerDetail.grab(name);
+        containerDetail.grab(input);
+        container.grab(containerDetail);
     };
 
     this.setInspectorContent = function(index) {
@@ -531,7 +542,7 @@ LEEWGL.UI = function(options) {
             return;
         }
 
-        this.inspector.innerHTML = '';
+        this.inspector.set('html', '');
 
         this.activeIndex = index;
         this.setActive(index);
@@ -546,11 +557,12 @@ LEEWGL.UI = function(options) {
         this.activeElement = this.outline[index].obj;
         window.activeElement = this.activeElement;
 
-        var name = document.createElement('h3');
-        name.setAttribute('class', 'component-detail-headline');
-        name.innerHTML = 'Name - ' + activeElement.name;
+        var name = new LEEWGL.DOM.Element('h3', {
+            'class': 'component-detail-headline',
+            'text': 'Name - ' + activeElement.name
+        });
 
-        this.inspector.appendChild(name);
+        this.inspector.grab(name);
         this.valuesToHTML(activeElement);
         this.componentsToHTML(activeElement);
         this.componentsButton(index);
@@ -559,41 +571,42 @@ LEEWGL.UI = function(options) {
 
     this.componentsButton = function(index) {
         var that = this;
-        var componentsControlContainer = document.createElement('div');
-        componentsControlContainer.setAttribute('class', 'controls-container');
+        var componentsControlContainer = new LEEWGL.DOM.Element('div', {
+            'class': 'controls-container'
+        });
 
-        var addComponentControl = document.createElement('input');
-        addComponentControl.setAttribute('class', 'submit');
-        addComponentControl.setAttribute('type', 'submit');
-        addComponentControl.setAttribute('value', 'Add Component');
-        componentsControlContainer.appendChild(addComponentControl);
+        var addComponentControl = new LEEWGL.DOM.Element('input', {
+            'class': 'submit',
+            'type': 'submit',
+            'value': 'Add Component'
+        });
+        componentsControlContainer.grab(addComponentControl);
 
-        addComponentControl.addEventListener('click', function(event) {
+        addComponentControl.addEvent('click', function(event) {
             that.displayComponentMenu(index, event);
         });
 
-        this.inspector.appendChild(componentsControlContainer);
+        this.inspector.grab(componentsControlContainer);
     };
 
     this.dynamicContainers = function(classname_toggle, classname_container, movable_container) {
         var that = this;
-        var toggle = document.querySelectorAll(classname_toggle);
-        var container = document.querySelectorAll(classname_container);
+        var toggles = document.querySelectorAll(classname_toggle);
+        var containers = document.querySelectorAll(classname_container);
 
-        for (var i = 0; i < toggle.length; ++i) {
+        for (var i = 0; i < toggles.length; ++i) {
             (function(index) {
-                toggle[index].addEventListener('mousedown', function(event) {
+                var toggle = new LEEWGL.DOM.Element(toggles[index]);
+                var container = new LEEWGL.DOM.Element(containers[index]);
+                toggle.addEvent('mousedown', function(event) {
                     if (event.which === 1 || event.button === LEEWGL.MOUSE.LEFT) {
-                        var c = container[index];
-                        c.setAttribute('class', 'movable');
-                        c.addEventListener('click', that.drag.drag(c, event));
+                        container.set('class', 'movable');
+                        container.addEvent('click', that.drag.drag(container, event));
                     }
                 });
-                toggle[index].addEventListener('dblclick', function(event) {
-                    var c = container[index];
-
-                    c.className = c.className.replace(/\bmovable\b/, '');
-                    that.drag.restore(c, event);
+                toggle.addEvent('dblclick', function(event) {
+                    container.removeClass('movable');
+                    that.drag.restore(container, event);
                 });
             })(i);
         }
@@ -607,14 +620,15 @@ LEEWGL.UI = function(options) {
 
         this.saved['custom-object-script-' + id] = src;
 
-        var newScript = document.createElement('script');
-        newScript.type = 'text/javascript';
-        newScript.id = 'custom-object-script-' + id;
-
+        var newScript = new LEEWGL.DOM.Element('script', {
+            'type': 'text/javascript',
+            'id': 'custom-object-script-' + id
+        });
+        var container = new LEEWGL.DOM.Element(document.body);
         var code = 'UI.outline[' + id + '].obj.addEventListener("custom", function() { if(UI.playing === true) {' + src + '}});';
 
-        newScript.appendChild(document.createTextNode(code));
-        document.body.appendChild(newScript);
+        newScript.grab(document.createTextNode(code));
+        container.grab(newScript);
     };
 
     this.addScriptToDOM = function(id, src) {
@@ -625,14 +639,15 @@ LEEWGL.UI = function(options) {
 
         this.saved['custom-dom-script-' + id] = src;
 
-        var newScript = document.createElement('script');
-        newScript.type = 'text/javascript';
-        newScript.id = 'custom-dom-script-' + id;
-
+        var newScript = new LEEWGL.DOM.Element('script', {
+            'type': 'text/javascript',
+            'id': 'custom-dom-script-' + id
+        });
+        var container = new LEEWGL.DOM.Element(document.body);
         var code = 'Window.prototype.addEventListener("custom", function() { if(UI.playing === true) {' + src + '}}.bind(this));';
 
-        newScript.appendChild(document.createTextNode(code));
-        document.body.appendChild(newScript);
+        newScript.grab(document.createTextNode(code));
+        container.grab(newScript);
     };
 
     this.displayOutlineContextMenu = function(index, event) {
@@ -720,15 +735,19 @@ LEEWGL.UI = function(options) {
     this.play = function(element) {
         this.playing = true;
 
-        if (element.getAttribute('id') === 'play-control') {
-            element.setAttribute('id', 'pause-control');
+        if(element instanceof LEEWGL.DOM.Element === false)
+            element = new LEEWGL.DOM.Element(element);
+
+        if (element.get('id') === 'play-control') {
+            element.set('id', 'pause-control');
         } else {
-            element.setAttribute('id', 'play-control');
+            element.set('id', 'play-control');
             return;
         }
 
-        for (var i = 0; i < Object.keys(this.outline).length; ++i) {
-            this.outline[i].obj.dispatchEvent({
+        var indices = Object.keys(this.outline);
+        for (var i = 0; i < indices.length; ++i) {
+            this.outline[indices[i]].obj.dispatchEvent({
                 'type': 'custom'
             });
         }
@@ -746,54 +765,43 @@ LEEWGL.UI = function(options) {
 
     this.stop = function() {
         var playIcon;
-        if ((playIcon = document.getElementById('pause-control')) !== null)
-            playIcon.setAttribute('id', 'play-control');
+        if ((playIcon = new LEEWGL.DOM.Element(document.getElementById('pause-control'))) !== null)
+            playIcon.set('id', 'play-control');
 
         this.playing = false;
     };
 
     this.displaySettings = function() {
-        this.inspector.innerHTML = '';
-        var container = document.createElement('div');
-        container.setAttribute('class', 'component-container');
+        this.inspector.set('html', '');
+        var container = new LEEWGL.DOM.Element('div', {
+            'class': 'component-container'
+        });
 
         for (var k in LEEWGL.Settings) {
             if (typeof LEEWGL.Settings[k] === 'object') {
-                container.appendChild(this.createTable(Object.keys(LEEWGL.Settings[k]), LEEWGL.Settings[k], {
+                container.grab(this.createTable(Object.keys(LEEWGL.Settings[k]), LEEWGL.Settings[k], {
                     'title': k,
                     'type': 'h4',
                     'class': 'component-detail-headline'
                 }));
             } else {
-                var containerDetail = document.createElement('div');
-                containerDetail.setAttribute('class', 'component-detail-container');
-                var name = document.createElement('h4');
-                name.setAttribute('class', 'component-detail-headline');
-                name.innerText = k;
-                containerDetail.appendChild(name);
-                var input = document.createElement('input');
-                input.setAttribute('type', 'text');
-                input.setAttribute('class', 'settings-input');
-                input.setAttribute('value', LEEWGL.Settings[k]);
-
-                containerDetail.appendChild(input);
-                container.appendChild(containerDetail);
+                this.createContainerDetailInput(container, k, LEEWGL.Settings[k]);
             }
         }
 
-        var submit = document.createElement('input');
-        submit.setAttribute('type', 'submit');
-        submit.setAttribute('class', 'submit');
-        submit.setAttribute('value', 'Update Settings');
+        var submit = new LEEWGL.DOM.Element('input', {
+            'type': 'submit',
+            'class': 'submit',
+            'value': 'Update Settings'
+        });
 
-        submit.addEventListener('click', function(event) {
+        submit.addEvent('click', function(event) {
             this.updateSettings();
             event.preventDefault();
         }.bind(this));
 
-        container.appendChild(submit);
-
-        this.inspector.appendChild(container);
+        container.grab(submit);
+        this.inspector.grab(container);
     };
 
     this.updateSettings = function() {
@@ -987,9 +995,9 @@ LEEWGL.UI = function(options) {
     this.statusBarToHTML = function() {
         if (this.statusBar !== null) {
             if (this.clipBoard !== null)
-                this.statusBar.innerHTML = '1 Element selected';
+                this.statusBar.set('html', '1 Element selected');
             else
-                this.statusBar.innerHTML = 'Nothing selected';
+                this.statusBar.set('html', 'Nothing selected');
         }
     };
 };
@@ -999,12 +1007,15 @@ LEEWGL.UI = function(options) {
  * @param {object} options
  */
 LEEWGL.UI.Popup = function(options) {
+    /**
+     * Variables
+     */
     this.pos = {
         'x': 0,
         'y': 0
     };
 
-    this.parent = document.body;
+    this.parent = new LEEWGL.DOM.Element(document.body);
 
     this.options = {
         'overlay-enabled': false,
@@ -1031,10 +1042,15 @@ LEEWGL.UI.Popup = function(options) {
     this.listItems = [];
 
     this.initialized = false;
+    this.isDisplayed = false;
 
     this.drag = new LEEWGL.DragDrop();
     this.ajax = new LEEWGL.AsynchRequest();
 
+    /**
+     * [setOptions description]
+     * @param {Array} options
+     */
     this.setOptions = function(options) {
         if (typeof options !== 'undefined') {
             for (var attribute in this.options) {
@@ -1044,14 +1060,20 @@ LEEWGL.UI.Popup = function(options) {
         }
     };
 
+    this.setOptions(options);
+
+    /**
+     * [setDimensions description]
+     */
     this.setDimensions = function() {
-        this.wrapper.style.width = (typeof this.options['wrapper-width'] === 'number') ? this.options['wrapper-width'] + 'px' : this.options['wrapper-width'];
-        this.wrapper.style.height = (typeof this.options['wrapper-height'] === 'number') ? this.options['wrapper-height'] + 'px' : this.options['wrapper-height'];
+        this.wrapper.setStyle('width', (typeof this.options['wrapper-width'] === 'number') ? this.options['wrapper-width'] + 'px' : this.options['wrapper-width']);
+        this.wrapper.setStyle('height', (typeof this.options['wrapper-height'] === 'number') ? this.options['wrapper-height'] + 'px' : this.options['wrapper-height']);
         this.position();
     };
 
-    this.setOptions(options);
-
+    /**
+     * [setPosition description]
+     */
     this.setPosition = function() {
         if (arguments.length === 1) {
             this.pos = arguments[0];
@@ -1064,33 +1086,36 @@ LEEWGL.UI.Popup = function(options) {
         this.position();
     };
 
+    /**
+     * [create description]
+     */
     this.create = function() {
         if (typeof this.wrapper !== 'undefined')
             return;
 
-        if (this.parent === null)
-            this.parent = document.body;
-
-        this.wrapper = document.createElement('div');
-        this.wrapper.setAttribute('class', this.options['wrapper-class']);
+        this.wrapper = new LEEWGL.DOM.Element('div', {
+            'class': this.options['wrapper-class']
+        });
 
         if (this.options['title-enabled'] === true) {
-            this.title = document.createElement('div');
-            this.title.setAttribute('class', this.options['title-class']);
-            this.wrapper.appendChild(this.title);
+            this.title = new LEEWGL.DOM.Element('div', {
+                'class': this.options['title-class']
+            });
+            this.wrapper.grab(this.title);
         }
 
-        this.content = document.createElement('div');
-        this.content.setAttribute('class', this.options['content-class']);
+        this.content = new LEEWGL.DOM.Element('div', {
+            'class': this.options['content-class']
+        });
 
-        this.wrapper.appendChild(this.content);
-
-        this.parent.appendChild(this.wrapper);
+        this.wrapper.grab(this.content);
+        this.parent.grab(this.wrapper);
 
         if (this.options['overlay-enabled'] === true) {
-            this.overlay = document.createElement('div');
-            this.overlay.setAttribute('class', this.options['overlay-class']);
-            this.parent.appendChild(this.overlay);
+            this.overlay = new LEEWGL.DOM.Element('div', {
+                'class': this.options['overlay-class']
+            });
+            this.parent.grab(this.overlay);
         }
 
         this.initialized = true;
@@ -1108,159 +1133,225 @@ LEEWGL.UI.Popup = function(options) {
             this.hide();
 
         this.setDimensions();
-        this.position();
     };
 
+    /**
+     * [center description]
+     */
     this.center = function() {
         this.options['center'] = true;
         this.position();
     };
 
+    /**
+     * [getSize description]
+     */
     this.getSize = function() {
         var x = 0,
             y = 0;
 
-        this.show();
-        x = this.wrapper.offsetWidth;
-        y = this.wrapper.offsetHeight;
-        this.hide();
+        var size = this.wrapper.size(this.isDisplayed, this.parent);
+
         return {
-            'x': parseInt(x),
-            'y': parseInt(y)
+            'width': size.width,
+            'height': size.height
         };
     };
 
+    /**
+     * [position description]
+     */
     this.position = function() {
         var size = this.getSize();
 
         if (this.options['center'] === true) {
-            var bodyX = document.body.offsetWidth;
-            var bodyY = document.body.offsetHeight;
-
-            this.pos.x = (bodyX / 2) - (size.x / 2);
-            this.pos.y = (bodyY / 2) - size.y;
+            var parentSize = this.parent.size();
+            this.pos.x = (parentSize.width / 2) - (size.width / 2);
+            this.pos.y = (parentSize.height / 2) - size.height;
         }
 
-        this.wrapper.style.top = this.pos.y + 'px';
-        this.wrapper.style.left = this.pos.x + 'px';
-    };
+        this.wrapper.setStyles({
+            'top': this.pos.y + 'px',
+            'left': this.pos.x + 'px'
+        });
+    }
 
+    /**
+     * [addText description]
+     * @param {String} text
+     */
     this.addText = function(text) {
         if (this.initialized === false) {
             console.error('LEEWGL.UI.Popup: call create() first!');
             return;
         }
-        var content = document.createTextNode(text);
-        this.content.appendChild(content);
+        var content = new LEEWGL.DOM.Element('p', {
+            'text': text
+        });
+        this.content.grab(content);
     };
 
+    /**
+     * [addHTML description]
+     * @param {String} html
+     */
     this.addHTML = function(html) {
         if (this.initialized === false) {
             console.error('LEEWGL.UI.Popup: call create() first!');
             return;
         }
-        this.content.innerHTML += html;
+        this.content.appendHTML(html);
     };
 
+    /**
+     * [addList description]
+     * @param {Array} content
+     * @param {Function} evFunction
+     */
     this.addList = function(content, evFunction) {
-        var list = document.createElement('ul');
-        list.setAttribute('class', 'popup-list');
-
+        var list = new LEEWGL.DOM.Element('ul', {
+            'class': 'popup-list'
+        });
         this.listItems = [];
 
         for (var i = 0; i < content.length; ++i) {
-            var item = document.createElement('li');
-            item.innerHTML = content[i];
-            item.setAttribute('class', this.options['list-item-class']);
-
+            var item = new LEEWGL.DOM.Element('li', {
+                'class': this.options['list-item-class'],
+                'html': content[i]
+            });
             this.listItems.push(item);
 
             if (typeof evFunction === 'function') {
                 (function(index) {
-                    item.addEventListener('click', function(event) {
+                    item.addEvent('click', function(event) {
                         evFunction(content[index]);
                     });
                 })(i);
             }
-
-            list.appendChild(item);
+            list.grab(item);
         }
 
-        this.content.appendChild(list);
+        this.content.grab(list);
     };
 
+    /**
+     * [addCustomElementToTitle description]
+     * @param {DOM Element} element
+     */
     this.addCustomElementToTitle = function(element) {
-        this.title.appendChild(element);
+        this.title.grab(element);
     };
 
+    /**
+     * [addCustomElementToContent description]
+     * @param {DOM Element} element
+     */
     this.addCustomElementToContent = function(element) {
-        this.content.appendChild(element);
+        this.content.grab(element);
     };
 
+    /**
+     * [addTitleText description]
+     * @param {String} text
+     */
     this.addTitleText = function(text) {
         if (this.initialized === false) {
             console.error('LEEWGL.UI.Popup: call create() first!');
             return;
         }
-        var header = document.createElement('h1');
-        header.innerText = text;
-        this.title.appendChild(header);
+        var header = new LEEWGL.DOM.Element('h1', {
+            'text': text
+        });
+        this.title.grab(header);
     };
 
+    /**
+     * [addHTMLFile description]
+     * @param {String} path
+     */
     this.addHTMLFile = function(path) {
         if (this.initialized === false) {
             console.error('LEEWGL.UI.Popup: call create() first!');
             return;
         }
-        this.content.innerHTML = this.ajax.send('GET', LEEWGL.ROOT + path, false, null).response.responseText;
+
+        this.content.set('html', this.ajax.send('GET', LEEWGL.ROOT + path, false, null).response.responseText);
     };
 
+    /**
+     * [addCloseIcon description]
+     */
     this.addCloseIcon = function() {
         if (this.initialized === false) {
             console.error('LEEWGL.UI.Popup: call create() first!');
             return;
         }
 
-        var iconContainer = document.createElement('div');
-        iconContainer.setAttribute('class', 'popup-icon-wrapper fright mright10');
-        var clearer = document.createElement('div');
-        clearer.setAttribute('class', 'clearer');
+        var iconContainer = new LEEWGL.DOM.Element('div', {
+            'class': 'popup-icon-wrapper fright mright10'
+        });
+        var clearer = new LEEWGL.DOM.Element('div', {
+            'class': 'clearer'
+        });
 
-        var closeIcon = document.createElement('img');
-        closeIcon.setAttribute('alt', 'Close Popup');
-        closeIcon.setAttribute('title', 'Close Popup');
-        closeIcon.setAttribute('class', 'popup-close-icon');
+        var closeIcon = new LEEWGL.DOM.Element('img', {
+            'alt': 'Close Popup',
+            'title': 'Close Popup',
+            'class': 'popup-close-icon'
+        });
 
-        iconContainer.appendChild(closeIcon);
-        iconContainer.appendChild(clearer);
+        iconContainer.grab(closeIcon);
+        iconContainer.grab(clearer);
 
-        closeIcon.addEventListener('click', function(event) {
+        closeIcon.addEvent('click', function(event) {
             this.hide();
         }.bind(this));
 
-        this.title.appendChild(iconContainer);
+        this.title.grab(iconContainer);
     };
 
+    /**
+     * [addButton description]
+     * @param {String}   value
+     * @param {Function} callback
+     */
+    this.addButton = function(value, callback) {
+        if (this.initialized === false) {
+            console.error('LEEWGL.UI.Popup: call create() first!');
+            return;
+        }
+
+        var buttonContainer = new LEEWGL.DOM.Element('div', {
+            'class': 'popup-button-wrapper'
+        });
+        var button = new LEEWGL.DOM.Element('input', {
+            'type': 'submit',
+            'value': value
+        });
+        buttonContainer.grab(button);
+        button.addEvent('click', callback);
+        this.content.grab(buttonContainer);
+    };
+
+    /**
+     * [addCloseButton description]
+     */
     this.addCloseButton = function() {
         if (this.initialized === false) {
             console.error('LEEWGL.UI.Popup: call create() first!');
             return;
         }
 
-        var buttonContainer = document.createElement('div');
-        buttonContainer.setAttribute('class', 'popup-button-wrapper');
-        var button = document.createElement('input');
-        button.setAttribute('type', 'submit');
-        button.setAttribute('value', 'Close');
-        buttonContainer.appendChild(button);
-
-        button.addEventListener('click', function(event) {
+        var hideFunction = (function() {
             this.hide();
         }.bind(this));
 
-        this.content.appendChild(buttonContainer);
+        this.addButton('Close', hideFunction);
     };
 
+    /**
+     * [movable description]
+     */
     this.movable = function() {
         if (this.initialized === false) {
             console.error('LEEWGL.UI.Popup: call create() first!');
@@ -1269,62 +1360,87 @@ LEEWGL.UI.Popup = function(options) {
 
         var that = this;
 
-        var iconContainer = document.createElement('div');
-        iconContainer.setAttribute('class', 'popup-icon-wrapper fleft mleft10');
-        var clearer = document.createElement('div');
-        clearer.setAttribute('class', 'clearer');
+        var iconContainer = new LEEWGL.DOM.Element('div', {
+            'class': 'popup-icon-wrapper fleft mleft10'
+        });
+        var clearer = new LEEWGL.DOM.Element('div', {
+            'class': 'clearer'
+        });
 
-        var moveIcon = document.createElement('img');
-        moveIcon.setAttribute('alt', 'Move Popup');
-        moveIcon.setAttribute('title', 'Move Popup');
-        moveIcon.setAttribute('class', 'popup-move-icon');
+        var moveIcon = new LEEWGL.DOM.Element('img', {
+            'alt': 'Move Popup',
+            'title': 'Move Popup',
+            'class': 'popup-move-icon'
+        });
 
-        iconContainer.appendChild(moveIcon);
-        iconContainer.appendChild(clearer);
+        iconContainer.grab(moveIcon);
+        iconContainer.grab(clearer);
 
-        moveIcon.addEventListener('mousedown', function(event) {
+        moveIcon.addEvent('mousedown', function(event) {
             if (event.which === 1 || event.button === LEEWGL.MOUSE.LEFT) {
-                that.wrapper.addEventListener('click', that.drag.drag(that.wrapper, event));
+                that.wrapper.addEvent('click', that.drag.drag(that.wrapper, event));
             }
         });
-        moveIcon.addEventListener('dblclick', function(event) {
+        moveIcon.addEvent('dblclick', function(event) {
             that.drag.restore(that.wrapper, event);
         });
 
-        this.title.appendChild(iconContainer);
+        this.title.grab(iconContainer);
     };
 
+    /**
+     * [show description]
+     *
+     * Displays popup
+     */
     this.show = function() {
         if (this.initialized === false) {
             console.error('LEEWGL.UI.Popup: call create() first!');
             return;
         }
 
-        this.wrapper.style.display = 'block';
+        this.wrapper.setStyle('display', 'block');
+        this.isDisplayed = true;
         this.showOverlay();
     };
 
+    /**
+     * [hide description]
+     * Hides popup
+     */
     this.hide = function() {
         if (this.initialized === false) {
             console.error('LEEWGL.UI.Popup: call create() first!');
             return;
         }
 
-        this.wrapper.style.display = 'none';
+        this.isDisplayed = false;
+        this.wrapper.setStyle('display', 'none');
         this.hideOverlay();
     };
 
+    /**
+     * [showOverlay description]
+     * Displays overlay div
+     */
     this.showOverlay = function() {
         if (this.options['overlay-enabled'] === true)
-            this.overlay.style.display = 'fixed';
-
+            this.overlay.setStyle('display', 'fixed');
     };
 
+    /**
+     * [hideOverlay description]
+     * Hide overlay div
+     */
     this.hideOverlay = function() {
         if (this.options['overlay-enabled'] === true)
-            this.overlay.style.display = 'none';
+            this.overlay.setStyle('display', 'none');
     };
 
+    /**
+     * [empty description]
+     * Resets the popup
+     */
     this.empty = function() {
         if (this.initialized === false) {
             console.error('LEEWGL.UI.Popup: call create() first!');
@@ -1332,7 +1448,7 @@ LEEWGL.UI.Popup = function(options) {
         }
 
         if (this.options['title-enabled'] === true)
-            this.title.innerHTML = '';
+            this.title.set('html', '');
 
         if (this.options['close-icon-enabled'] === true)
             this.addCloseIcon();
@@ -1343,14 +1459,21 @@ LEEWGL.UI.Popup = function(options) {
         if (this.options['movable'] === true)
             this.movable();
 
-        this.content.innerHTML = '';
+        this.content.set('html', '');
     };
 }
 
+/**
+ * [description]
+ * Create global variable at dom ready
+ */
 window.addEventListener('load', function() {
     var UI = new LEEWGL.UI();
     window.UI = UI;
 });
 
+/**
+ * Constants
+ */
 LEEWGL.UI.STATIC = 'static';
 LEEWGL.UI.ABSOLUTE = 'absolute';
