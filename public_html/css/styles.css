@@ -94,9 +94,6 @@ div#wrapper {
     background-color: #565656;
 }
 div#container-overall {
-    -webkit-box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.2);
-    -moz-box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.2);
-    box-shadow: 0 8px 6px -6px rgba(0, 0, 0, 0.2);
 }
 div#container {
     position: relative;
@@ -105,9 +102,6 @@ div#container {
     min-height: 1400px;
 }
 div#content {
-    /*width: 1060px;*/
-    /*float: left;*/
-    /*margin: 0 auto;*/
 }
 div#controls-container-overall {
     margin: 20px auto;
@@ -124,10 +118,7 @@ div#render-container {
 }
 div#editor-view-container {
     margin-bottom: 10px;
-    border: solid 2px #000;
-}
-div#game-view-container {
-    border: solid 2px #000;
+    border: solid 1px #000;
 }
 div#outline-container {
     width: auto;
@@ -177,12 +168,12 @@ div#header-bar-overall {
     font-style: normal;
     font-variant: normal;
     font-weight: normal;
-    left: 0px;
+    left: 0;
 }
 #header-bar ul {
     min-width: 642px;
-    padding: 0 0 0 0;
-    box-shadow: 0px 2px 1px 0px rgba(0, 0, 0, .55);
+    padding: 0;
+    box-shadow: 0px 2px 1px 0px rgba(0, 0, 0, 0.55);
     margin: 0;
     width: 100%;
     list-style: none;
@@ -202,7 +193,7 @@ div#header-bar-overall {
     background-color: #83b4d3 !important;
     color: #000 !important;
     font-weight: bold;
-    border-radius: 0px;
+    border-radius: 0;
     position: relative;
     z-index: 9;
 }
@@ -302,7 +293,7 @@ div.movable {
 }
 .component-headline {
     padding: 6px 10px 7px 10px;
-    margin: 0px auto;
+    margin: 0 auto;
     text-align: center;
     background-color: #2e3f68;
     text-shadow: 1px 1px 0px #000;
