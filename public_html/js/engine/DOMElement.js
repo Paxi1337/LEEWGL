@@ -127,15 +127,26 @@ LEEWGL.DOM.Element.prototype = {
 
     getStyle: function(name) {
         var defaultView = document.defaultView;
-        return defaultView.getComputedStyle(this.e, null).getPropertyValue(name);
+        var style = window.getComputedStyle(this.e, null).getPropertyValue(name);
+
+        if (style === '' || style === null)
+            return null;
+        else
+            return style;
     },
 
-    getStyles: function(names) {
-        var styles = [];
-        for (var i = 0; i < names.length; ++i) {
-            styles.push(this.getStyle(names[i]));
+    getStyles: function() {
+        if (arguments.length === 0) {
+            var defaultView = document.defaultView;
+            var style = defaultView.getComputedStyle(this.e, null);
+            return style;
+        } else {
+            var styles = [];
+            for (var i = 0; i < names.length; ++i) {
+                styles.push(this.getStyle(names[i]));
+            }
+            return styles;
         }
-        return styles;
     },
 
     set: function() {
@@ -156,32 +167,43 @@ LEEWGL.DOM.Element.prototype = {
         }.bind(this));
 
         if (typeof arguments[0] === 'object') {
-            var attributes = arguments[0];
+            var types = arguments[0];
 
-            for (var type in arguments[0]) {
-                if (arguments[0].hasOwnProperty(type)) {
-                    var value = attributes[type];
+            for (var type in types) {
+                if (types.hasOwnProperty(type)) {
+                    var value = types[type];
                     dispatch(type, value);
                 }
             }
         } else {
-            var type = arguments[0];
-            var value = arguments[1];
-            dispatch(type, value);
+            var t = arguments[0];
+            var v = arguments[1];
+            dispatch(t, v);
         }
     },
 
-    get: function(name) {
-        var dispatch = (function(name) {
-            if (name === 'html')
+    get: function() {
+        var dispatch = (function(type) {
+            if (type === 'html')
                 return this.e.innerHTML;
-            else if (name === 'text')
+            else if (type === 'text')
                 return this.e.innerText;
+            else if (this.getAttribute(type) !== null)
+                return this.getAttribute(type);
             else
-                return this.getAttribute(name);
+                return this.getStyle(type);
         }.bind(this));
 
-        return dispatch(name);
+        if (arguments[0] instanceof Array) {
+            var types = arguments[0];
+
+            for (var i = 0; i < types.length; ++i) {
+                dispatch(types[i]);
+            }
+        } else {
+            var type = arguments[0];
+            return dispatch(type);
+        }
     },
 
     grab: function(parent, before) {
@@ -222,7 +244,12 @@ LEEWGL.DOM.Element.prototype = {
         var element = this.e;
 
         if (inserted === false) {
-            element = new LEEWGL.DOM.Element(this.e.cloneNode());
+            element = new LEEWGL.DOM.Element(this.e.cloneNode(true), {
+                'style': {
+                    'display': 'block',
+                    'position': 'static'
+                }
+            });
             parent.grab(element);
             element = element.e;
         }
@@ -234,14 +261,29 @@ LEEWGL.DOM.Element.prototype = {
             'display-height': parseInt(element.clientHeight),
             'scroll-width': parseInt(element.scrollWidth),
             'scroll-height': parseInt(element.scrollHeight),
-            'offsetLeft' : parseInt(element.offsetLeft),
-            'offsetTop' : parseInt(element.offsetTop)
-        }
+        };
 
         if (inserted === false)
             element.remove();
 
         return size;
+    },
+
+    position: function() {
+        var element = this.e;
+
+        var pos = {
+            'x': 0,
+            'y': 0
+        };
+
+        while (element) {
+            pos.x += (element.offsetLeft - element.scrollLeft + element.clientLeft);
+            pos.y += (element.offsetTop - element.scrollTop + element.clientTop);
+            element = element.offsetParent;
+        }
+
+        return pos;
     },
 
     addEvent: function(type, callback) {

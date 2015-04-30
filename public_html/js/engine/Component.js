@@ -14,6 +14,8 @@ LEEWGL.Component.prototype = {
 
 LEEWGL.Component.Components = ['Transform', 'CustomScript', 'Texture'];
 
+LEEWGL.EventDispatcher.prototype.apply(LEEWGL.Component.prototype);
+
 LEEWGL.Component.Transform = function() {
     LEEWGL.Component.call(this);
 
@@ -48,6 +50,28 @@ LEEWGL.Component.Transform = function() {
             value: scaling
         }
     });
+
+
+    this.addEventListener('update-all', function(event) {
+        var trans = event['data']['translation'];
+        var rot = event['data']['rotation'];
+        var scale = event['data']['scale'];
+
+        this.translate(trans);
+        this.rotateX(LEEWGL.Math.degToRad(rot[0]));
+        this.rotateY(LEEWGL.Math.degToRad(rot[1]));
+        this.rotateZ(LEEWGL.Math.degToRad(rot[2]));
+        this.scale(scale);
+    }.bind(this));
+
+    this.addEventListener('update-rotation', function(event) {
+        var rot = event['data']['rotation'];
+
+        this.rotateX(LEEWGL.Math.degToRad(rot[0]));
+        this.rotateY(LEEWGL.Math.degToRad(rot[1]));
+        this.rotateZ(LEEWGL.Math.degToRad(rot[2]));
+    }.bind(this));
+
 };
 
 LEEWGL.Component.Transform.prototype = Object.create(LEEWGL.Component.prototype);
@@ -71,8 +95,8 @@ LEEWGL.Component.Transform.prototype.setPosition = function() {
 
     this.translate(this.position);
 };
-LEEWGL.Component.Transform.prototype.translate = function(vector, test) {
-    this.transVec = vector;
+LEEWGL.Component.Transform.prototype.translate = function(vector) {
+    vec3.add(this.position, this.position, vector);
     mat4.translate(this.translation, this.translation, vector);
 };
 
@@ -90,7 +114,7 @@ LEEWGL.Component.Transform.prototype.rotateZ = function(rad) {
 
 LEEWGL.Component.Transform.prototype.scale = function(vector) {
     mat4.scale(this.scaling, this.scaling, vector);
-    this.scalingVec = [1.0, 1.0, 1.0];
+    this.scaleVec = [1.0, 1.0, 1.0];
 };
 
 LEEWGL.Component.Transform.prototype.matrix = function() {

@@ -49,7 +49,7 @@
     <div id="wrapper">
         <div id="header-bar-overall">
             <div id="header-bar">
-                <ul>
+                <ul class="background-gradient-blue">
                     <li><a href="#">File</a>
                         <ul>
                             <li><a href="#" onclick="UI.load();">Load</a></li>
@@ -144,13 +144,21 @@
         <div id="container-overall">
             <div id="container">
                 <div id="content">
-                    <div id="controls-container" class="padding10">
-                        <img id="play-control" class="icon-big mright35 pointer" alt="play" onclick="UI.play(this);" />
-                        <img class="icon-big pointer" src="img/icons/stop.png" alt="stop" onclick="UI.stop();" />
+                    <div id="controls-container-overall" class="dynamic-container">
+                        <div class="container-header-small background-gradient-blue mbot10">
+                            <h2>Controls</h2>
+                            <div class="icon-container">
+                                <img alt="relase window" src="img/icons/move_half.png" />
+                            </div>
+                        </div>
+                        <div id="controls-container">
+                            <img id="play-control" class="icon-big mright35 pointer" alt="play" onclick="UI.play(this);" />
+                            <img class="icon-big pointer" src="img/icons/stop.png" alt="stop" onclick="UI.stop();" />
+                        </div>
                     </div>
                     <div id="render-container">
                         <div id="editor-view-container" class="dynamic-container">
-                            <div class="container-header">
+                            <div class="container-header background-gradient-blue">
                                 <h2>Editor View</h2>
                                 <div class="icon-container">
                                     <img alt="relase window" src="img/icons/move_half.png" />
@@ -160,7 +168,7 @@
                         </div>
                     </div>
                     <div id="outline-container" class="dynamic-container">
-                        <div class="container-header">
+                        <div class="container-header background-gradient-blue">
                             <h2>Outline</h2>
                             <div class="icon-container">
                                 <img alt="relase window" src="img/icons/move_half.png" />
@@ -169,7 +177,7 @@
                         <div id="dynamic-outline"></div>
                     </div>
                     <div id="inspector-container" class="dynamic-container">
-                        <div class="container-header">
+                        <div class="container-header background-gradient-blue">
                             <h2>Inspector</h2>
                             <div class="icon-container">
                                 <img alt="relase window" src="img/icons/move_half.png" />
@@ -181,7 +189,7 @@
                 </div>
             </div>
         </div>
-        <div id="status-bar-overall">
+        <div id="status-bar-overall" class="background-gradient-blue">
             <div id="status-bar">STATUS BAR</div>
         </div>
     </div>
@@ -191,7 +199,6 @@
             UI.dynamicContainers('.icon-container', '.dynamic-container');
             UI.setInspector('#dynamic-inspector');
             UI.setStatusBar('#status-bar');
-
             // UI.preventRefresh();
 
             var overallContainer = document.querySelector('#container-overall');

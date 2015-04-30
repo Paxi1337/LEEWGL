@@ -2,6 +2,8 @@ LEEWGL.Light = function() {
     LEEWGL.Object3D.call(this);
 
     this.type = 'Light';
+    this.lightType = 'Base';
+
     this.render = false;
 
     this.color = [1.0, 1.0, 1.0];
@@ -14,6 +16,9 @@ LEEWGL.Light = function() {
     }, {
         'name': 'Specular',
         'value': this.specular
+    }, {
+        'name' : 'Type',
+        'value' : this.lightType
     }];
 }
 
@@ -26,6 +31,7 @@ LEEWGL.Light.prototype.clone = function(light) {
     LEEWGL.Object3D.prototype.clone.call(this, light);
 
     light.editables = this.editables.slice();
+    light.lightType = this.lightType;
     light.specular = this.specular;
     light.color.copy(light.color, this.color);
 
@@ -37,6 +43,7 @@ LEEWGL.Light.DirectionalLight = function() {
     LEEWGL.Light.call(this);
 
     this.type = 'DirectionalLight';
+    this.lightType = 'Directional';
 
     this.direction = [1.0, 0.0, 0.0];
     this.editables.push({
@@ -63,6 +70,7 @@ LEEWGL.Light.SpotLight = function() {
     LEEWGL.Light.call(this);
 
     this.type = 'SpotLight';
+    this.lightType = 'Spot';
 
     this.spotDirection = [1.0, 0.0, 0.0];
     this.radius = 20.0;

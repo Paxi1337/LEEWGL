@@ -109,10 +109,14 @@ div#content {
     /*float: left;*/
     /*margin: 0 auto;*/
 }
-div#controls-container {
+div#controls-container-overall {
     margin: 20px auto;
+    width: 150px;
+    border: solid 1px #000;
+}
+div#controls-container {
     width: 110px;
-    border: solid 2px #000;
+    margin: 15px auto;
 }
 div#render-container {
     float: left;
@@ -127,6 +131,7 @@ div#game-view-container {
 }
 div#outline-container {
     width: auto;
+    min-height: 200px;
     min-width: 150px;
     max-width: 240px;
     float: left;
@@ -144,7 +149,8 @@ div#dynamic-outline a:hover {
     background-color: #83b4d3;
     color: #000;
 }
-div#inspector-container {
+#inspector-container {
+    min-height: 200px;
     width: auto;
     min-width: 300px;
     float: left;
@@ -174,13 +180,6 @@ div#header-bar-overall {
     left: 0px;
 }
 #header-bar ul {
-    background: #2e3f68;
-    background: -moz-linear-gradient(top, #2e3f68 0%, #1e5289 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #2e3f68), color-stop(100%, #1e5289));
-    background: -webkit-linear-gradient(top, #2e3f68 0%, #1e5289 100%);
-    background: -o-linear-gradient(top, #2e3f68 0%, #1e5289 100%);
-    background: -ms-linear-gradient(top, #2e3f68 0%, #1e5289 100%);
-    background: linear-gradient(to bottom, #2e3f68 0%, #1e5289 100%);
     min-width: 642px;
     padding: 0 0 0 0;
     box-shadow: 0px 2px 1px 0px rgba(0, 0, 0, .55);
@@ -273,13 +272,6 @@ div#header-bar-overall {
     top: 0;
 }
 div#status-bar-overall {
-    background: #2e3f68;
-    background: -moz-linear-gradient(top, #2e3f68 0%, #1e5289 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #2e3f68), color-stop(100%, #1e5289));
-    background: -webkit-linear-gradient(top, #2e3f68 0%, #1e5289 100%);
-    background: -o-linear-gradient(top, #2e3f68 0%, #1e5289 100%);
-    background: -ms-linear-gradient(top, #2e3f68 0%, #1e5289 100%);
-    background: linear-gradient(to bottom, #2e3f68 0%, #1e5289 100%);
     width: 100%;
     font-size: 17px;
     text-align: center;
@@ -317,19 +309,21 @@ div.movable {
 }
 .container-header {
     text-shadow: 0px 1px 0px rgba(0, 0, 0, .83);
-    background: #2e3f68;
-    background: -moz-linear-gradient(top, #2e3f68 0%, #1e5289 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #2e3f68), color-stop(100%, #1e5289));
-    background: -webkit-linear-gradient(top, #2e3f68 0%, #1e5289 100%);
-    background: -o-linear-gradient(top, #2e3f68 0%, #1e5289 100%);
-    background: -ms-linear-gradient(top, #2e3f68 0%, #1e5289 100%);
-    background: linear-gradient(to bottom, #2e3f68 0%, #1e5289 100%);
     text-align: center;
     color: #fff;
     box-shadow: 0px 2px 1px 0px rgba(0, 0, 0, .55);
     margin: 0px 0 5px 0;
     height: 40px;
     line-height: 40px;
+}
+.container-header-small {
+    text-shadow: 0px 1px 0px rgba(0, 0, 0, .83);
+    text-align: center;
+    color: #fff;
+    box-shadow: 0px 2px 1px 0px rgba(0, 0, 0, .55);
+    margin: 0;
+    height: 35px;
+    line-height: 35px;
 }
 img#play-control {
     content: url("../img/icons/play.png");
@@ -362,7 +356,7 @@ div#texture-preview-container img {
     color: #000;
     font-weight: bold;
 }
-div.popup-container {
+popup-container {
     position: absolute;
     width: 400px;
     border: 1px solid #000;
