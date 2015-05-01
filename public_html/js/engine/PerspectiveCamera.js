@@ -10,16 +10,38 @@ LEEWGL.PerspectiveCamera = function(options) {
     this.invertY = true;
 
     if (typeof options !== 'undefined') {
-        this.fov = (typeof options.fov !== undefined) ? options.fov : this.fov;
-        this.aspect = (typeof options.aspect !== undefined) ? options.aspect : this.aspect;
-        this.near = (typeof options.near !== undefined) ? options.near : this.near;
-        this.far = (typeof options.far !== undefined) ? options.far : this.far;
-        this.invertY = (typeof options.invertY !== undefined) ? options.invertY : this.invertY;
+        this.fov = (typeof options.fov !== 'undefined') ? options.fov : this.fov;
+        this.aspect = (typeof options.aspect !== 'undefined') ? options.aspect : this.aspect;
+        this.near = (typeof options.near !== 'undefined') ? options.near : this.near;
+        this.far = (typeof options.far !== 'undefined') ? options.far : this.far;
+        this.invertY = (typeof options.invertY !== 'undefined') ? options.invertY : this.invertY;
     }
-
 
     this._horizontalAngle = 0.0;
     this._verticalAngle = 0.0;
+
+    this.editables = [{
+        'name': 'Field of View',
+        'value': this.fov
+    }, {
+        'name': 'Aspect Ratio',
+        'value': this.aspect
+    }, {
+        'name': 'Near',
+        'value': this.near
+    }, {
+        'name': 'Far',
+        'value': this.far
+    }, {
+        'name' : 'Invert Y Axis',
+        'value' : this.invertY
+    }, {
+        'name' : 'Horizontal Angle',
+        'value' : this._horizontalAngle
+    }, {
+        'name' : 'Vertical Angle',
+        'value' : this._verticalAngle
+    }];
 };
 
 LEEWGL.PerspectiveCamera.prototype = Object.create(LEEWGL.Camera.prototype);
@@ -98,6 +120,8 @@ LEEWGL.PerspectiveCamera.prototype.clone = function() {
 
     camera._horizontalAngle = this._horizontalAngle;
     camera._verticalAngle = this._verticalAngle;
+
+    camera.editables = this.editables.slice();
 
     return camera;
 };

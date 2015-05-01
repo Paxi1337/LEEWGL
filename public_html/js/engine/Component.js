@@ -101,14 +101,17 @@ LEEWGL.Component.Transform.prototype.translate = function(vector) {
 };
 
 LEEWGL.Component.Transform.prototype.rotateX = function(rad) {
+    this.rotVec[0] = (this.rotVec[0] + LEEWGL.Math.radToDeg(rad)) % 360.0;
     mat4.rotateX(this.rotation, this.rotation, rad);
 };
 
 LEEWGL.Component.Transform.prototype.rotateY = function(rad) {
+    this.rotVec[1] = (this.rotVec[1] + LEEWGL.Math.radToDeg(rad)) % 360.0;
     mat4.rotateY(this.rotation, this.rotation, rad);
 };
 
 LEEWGL.Component.Transform.prototype.rotateZ = function(rad) {
+    this.rotVec[2] = (this.rotVec[2] + LEEWGL.Math.radToDeg(rad)) % 360.0;
     mat4.rotateZ(this.rotation, this.rotation, rad);
 };
 

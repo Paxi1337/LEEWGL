@@ -20,7 +20,7 @@ LEEWGL.Light = function() {
         'name' : 'Type',
         'value' : this.lightType
     }];
-}
+};
 
 LEEWGL.Light.prototype = Object.create(LEEWGL.Object3D.prototype);
 

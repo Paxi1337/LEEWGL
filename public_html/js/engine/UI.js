@@ -459,6 +459,17 @@ LEEWGL.UI = function(options) {
                     'placeholder': comp.code
                 });
 
+                var position = container.position(false);
+
+
+                var appliedScripts = new LEEWGL.DOM.ELement('div', {
+                    'styles' : {
+                        'top' : position.y,
+                        'left' : 500,
+                        'position' : 'absolute'
+                    }
+                });
+
                 if (typeof this.saved['custom-object-script-' + activeElement.id] !== 'undefined')
                     textfield.set('value', this.saved['custom-object-script-' + activeElement.id]);
 
@@ -520,12 +531,12 @@ LEEWGL.UI = function(options) {
 
         var that = this;
 
-        if (activeElement instanceof LEEWGL.Light) {
+        if(typeof activeElement.editables !== 'undefined') {
             container = new LEEWGL.DOM.Element('div', {
                 'class': 'component-container'
             });
             title = new LEEWGL.DOM.Element('h3', {
-                'class': 'component-headline1',
+                'class': 'component-headline',
                 'html': 'Values'
             });
             container.grab(title);
@@ -1198,6 +1209,7 @@ LEEWGL.UI.Popup = function(options) {
             y = 0;
 
         var size = this.wrapper.size(this.isDisplayed, this.parent);
+
         return {
             'width': size.width,
             'height': size.height

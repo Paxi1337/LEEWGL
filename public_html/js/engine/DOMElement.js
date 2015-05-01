@@ -228,6 +228,9 @@ LEEWGL.DOM.Element.prototype = {
 
     remove: function(parent) {
         parent = (typeof parent !== 'undefined') ? parent : this.e.parentNode;
+        if (parent instanceof LEEWGL.DOM.Element)
+            parent = parent.e;
+
         parent.removeChild(this.e);
         return this.e;
     },
@@ -241,47 +244,63 @@ LEEWGL.DOM.Element.prototype = {
         inserted = (typeof inserted !== 'undefined') ? inserted : true;
         parent = (typeof parent !== 'undefined') ? parent : new LEEWGL.DOM.Element(document.body);
 
-        var element = this.e;
+        var tmp = this.clone();
 
         if (inserted === false) {
-            element = new LEEWGL.DOM.Element(this.e.cloneNode(true), {
+            tmp = new LEEWGL.DOM.Element(tmp.e.cloneNode(true), {
                 'style': {
                     'display': 'block',
                     'position': 'static'
                 }
             });
-            parent.grab(element);
-            element = element.e;
+            parent.grab(tmp);
         }
 
         var size = {
-            'width': parseInt(element.offsetWidth),
-            'height': parseInt(element.offsetHeight),
-            'display-width': parseInt(element.clientWidth),
-            'display-height': parseInt(element.clientHeight),
-            'scroll-width': parseInt(element.scrollWidth),
-            'scroll-height': parseInt(element.scrollHeight),
+            'width': parseInt(tmp.e.offsetWidth),
+            'height': parseInt(tmp.e.offsetHeight),
+            'display-width': parseInt(tmp.e.clientWidth),
+            'display-height': parseInt(tmp.e.clientHeight),
+            'scroll-width': parseInt(tmp.e.scrollWidth),
+            'scroll-height': parseInt(tmp.e.scrollHeight),
         };
 
         if (inserted === false)
-            element.remove();
+            tmp.remove(parent);
 
         return size;
     },
 
-    position: function() {
+    position: function(inserted, parent) {
+        inserted = (typeof inserted !== 'undefined') ? inserted : true;
+        parent = (typeof parent !== 'undefined') ? parent : new LEEWGL.DOM.Element(document.body);
+
         var element = this.e;
+        var tmp = this.clone();
+
+        if (inserted === false) {
+            tmp = new LEEWGL.DOM.Element(this.e.cloneNode(true), {
+                'style': {
+                    'display': 'block',
+                    'position': 'static'
+                }
+            });
+            parent.grab(tmp);
+        }
 
         var pos = {
             'x': 0,
             'y': 0
         };
 
-        while (element) {
-            pos.x += (element.offsetLeft - element.scrollLeft + element.clientLeft);
-            pos.y += (element.offsetTop - element.scrollTop + element.clientTop);
-            element = element.offsetParent;
+        while (tmp.e) {
+            pos.x += (tmp.e.offsetLeft - tmp.e.scrollLeft + tmp.e.clientLeft);
+            pos.y += (tmp.e.offsetTop - tmp.e.scrollTop + tmp.e.clientTop);
+            tmp.e = tmp.e.offsetParent;
         }
+
+        if (inserted === false)
+            element.remove(parent);
 
         return pos;
     },
@@ -298,6 +317,14 @@ LEEWGL.DOM.Element.prototype = {
 
     removeEvent: function(type, callback) {
         this.e.removeEventListener(type, callback);
+    },
+
+    clone: function(element) {
+        if (typeof element === 'undefined')
+            element = new LEEWGL.DOM.Element(this.e);
+
+        element.e = this.e;
+        return element;
     }
 };
 

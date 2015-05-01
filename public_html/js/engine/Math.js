@@ -1,6 +1,10 @@
 LEEWGL.Math = {
     degToRad: function(deg) {
-        return deg * Math.PI / 180.0;
+        return deg * (Math.PI / 180.0);
+    },
+
+    radToDeg: function(rad) {
+        return rad * (180.0 / Math.PI);
     },
 
     calculateSurfaceNormal: function(v1, v2, v3) {
@@ -29,7 +33,7 @@ LEEWGL.Math = {
         vec3.subtract(v2, c, a);
 
         /// TODO: add weight
-        
+
         var n = [];
         vec3.cross(n, v1, v2);
         return vec3.normalize(n, n);
