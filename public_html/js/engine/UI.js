@@ -461,14 +461,26 @@ LEEWGL.UI = function(options) {
 
                 var position = container.position(false);
 
-
-                var appliedScripts = new LEEWGL.DOM.ELement('div', {
-                    'styles' : {
-                        'top' : position.y,
-                        'left' : 500,
-                        'position' : 'absolute'
-                    }
+                var appliedScriptsContainer = new LEEWGL.DOM.Element('div', {
+                    'class' : 'component-detail-container'
                 });
+                var appliedScriptsHeadline = new LEEWGL.DOM.Element('h4', {
+                    'class': 'component-detail-headline',
+                    'text' : 'Applied Scripts'
+                });
+
+                appliedScriptsContainer.grab(appliedScriptsHeadline);
+
+                var customScriptContainer = new LEEWGL.DOM.Element('div', {
+                    'class' : 'component-detail-container'
+                });
+                var customScriptHeadline = new LEEWGL.DOM.Element('h4', {
+                    'class': 'component-detail-headline',
+                    'text' : 'Custom Script'
+                });
+
+                customScriptContainer.grab(customScriptHeadline);
+                customScriptContainer.grab(textfield);
 
                 if (typeof this.saved['custom-object-script-' + activeElement.id] !== 'undefined')
                     textfield.set('value', this.saved['custom-object-script-' + activeElement.id]);
@@ -480,7 +492,8 @@ LEEWGL.UI = function(options) {
                     }
                 });
 
-                container.grab(textfield);
+                container.grab(appliedScriptsContainer);
+                container.grab(customScriptContainer);
             } else if (comp instanceof LEEWGL.Component.Texture) {
                 container.set('id', 'texture-component-container');
 
