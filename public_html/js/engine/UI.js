@@ -634,6 +634,7 @@ LEEWGL.UI = function(options) {
                     if (event.which === 1 || event.button === LEEWGL.MOUSE.LEFT) {
                         container.set('class', 'movable');
                         container.addEvent('click', that.drag.drag(container, event));
+                        // container.dispatchEvent({'type' : 'click'});
                     }
                 });
                 toggle.addEvent('dblclick', function(event) {
@@ -1522,3 +1523,4 @@ window.addEventListener('load', function() {
  */
 LEEWGL.UI.STATIC = 'static';
 LEEWGL.UI.ABSOLUTE = 'absolute';
+LEEWGL.UI.FIXED = 'fixed';
