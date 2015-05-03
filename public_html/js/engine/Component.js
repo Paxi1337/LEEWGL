@@ -93,7 +93,14 @@ LEEWGL.Component.Transform.prototype.setPosition = function() {
 
     this.translate(this.position);
 };
-LEEWGL.Component.Transform.prototype.translate = function(vector) {
+LEEWGL.Component.Transform.prototype.translate = function() {
+    var vector = this.transVec;
+
+    if (arguments.length > 0) {
+        vector = arguments[0];
+        this.transVec = vector;
+    }
+
     vec3.add(this.position, this.position, vector);
     mat4.translate(this.translation, this.translation, vector);
 };
@@ -137,7 +144,14 @@ LEEWGL.Component.Transform.prototype.rotateZ = function() {
     mat4.rotateZ(this.rotation, this.rotation, angle);
 };
 
-LEEWGL.Component.Transform.prototype.scale = function(vector) {
+LEEWGL.Component.Transform.prototype.scale = function() {
+    var vector = this.scaleVec;
+
+    if (arguments.length > 0) {
+        vector = arguments[0];
+        this.scaleVec = vector;
+    }
+
     mat4.scale(this.scaling, this.scaling, vector);
     this.scaleVec = [1.0, 1.0, 1.0];
 };
