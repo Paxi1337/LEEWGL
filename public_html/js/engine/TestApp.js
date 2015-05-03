@@ -246,7 +246,8 @@ LEEWGL.TestApp.prototype.onMouseMove = function(event) {
         if (event.ctrlKey)
             this.activeElement.transform.scale([this.movement.x * 0.01, this.movement.y * 0.01, 1.0]);
         else
-            this.activeElement.transform.rotateY(rad);
+            this.activeElement.transform.rotateY(rad, true);
+            
         UI.setInspectorContent(this.activeElement.id);
     }
 };

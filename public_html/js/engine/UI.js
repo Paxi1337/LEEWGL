@@ -8,9 +8,9 @@ LEEWGL.UI = function(options) {
 
     this.outline = {};
 
-    this.update = false;
+    this.updateOutline = false;
 
-    this.activeElement = undefined;
+    this.activeElement = null;
     this.storage = new LEEWGL.LocalStorage();
     this.playing = undefined;
 
@@ -44,7 +44,7 @@ LEEWGL.UI = function(options) {
     this.updatePopup.create();
     this.updatePopup.addTitleText('Update values');
     this.updatePopup.addButton('Update', (function() {
-        if(this.settingsDisplayed === true) {
+        if (this.settingsDisplayed === true) {
 
         } else {
             var trans = this.activeElement.transform.transVec;
@@ -60,7 +60,6 @@ LEEWGL.UI = function(options) {
                 }
             });
 
-            this.update = true;
             this.setInspectorContent(this.activeIndex);
         }
     }.bind(this)));
@@ -128,12 +127,12 @@ LEEWGL.UI = function(options) {
             add(obj);
         }
 
-        this.update = true;
+        this.updateOutline = true;
     };
 
     this.removeObjFromOutline = function(index) {
         delete this.outline[index];
-        this.update = true;
+        this.updateOutline = true;
     };
 
     this.getRelativeMouseCoordinates = function(event, start) {
@@ -168,15 +167,21 @@ LEEWGL.UI = function(options) {
             dblclickFunction = function() {
                 if (that.outline[index].editable === false) {
                     that.setEditable(index);
-                    that.update = true;
+                    that.updateOutline = true;
                 }
             };
 
-            keydownFunction = function(element) {
-                that.activeElement.name = element.get('text');
-                that.setEditable(-1);
-                that.update = true;
-                that.setInspectorContent(index);
+
+            keydownFunction = function(event, element) {
+                if (event.keyCode === LEEWGL.KEYS.ENTER) {
+                    that.activeElement.name = element.get('text');
+                    that.setEditable(-1);
+                    that.updateOutline = true;
+                    that.setInspectorContent(index);
+
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
             };
 
             clickFunction = function() {
@@ -184,7 +189,7 @@ LEEWGL.UI = function(options) {
                 if (activeOutline.active === false && activeOutline.editable === false) {
                     that.setActive(index);
                     that.setEditable(-1);
-                    that.update = true;
+                    that.updateOutline = true;
                     that.setInspectorContent(index);
                 }
             };
@@ -198,9 +203,11 @@ LEEWGL.UI = function(options) {
                 that.displayUpdatePopup();
             };
 
-            keydownFunction = function(element) {
-                if (element.get('contenteditable') !== null)
-                    element.removeAttributes(['contenteditable', 'class']);
+            keydownFunction = function(event, element) {
+                if (event.keyCode === LEEWGL.KEYS.ENTER) {
+                    if (element.get('contenteditable') !== null)
+                        element.removeAttributes(['contenteditable', 'class']);
+                }
             };
 
             clickFunction = function() {};
@@ -211,11 +218,7 @@ LEEWGL.UI = function(options) {
         });
 
         obj.addEvent('keydown', function(event) {
-            if (event.keyCode === LEEWGL.KEYS.ENTER) {
-                keydownFunction(new LEEWGL.DOM.Element(this));
-                event.preventDefault();
-                event.stopPropagation();
-            }
+            keydownFunction(event, new LEEWGL.DOM.Element(this));
         });
 
         obj.addEvent('click', function(event) {
@@ -224,7 +227,7 @@ LEEWGL.UI = function(options) {
     };
 
     this.outlineToHTML = function(container) {
-        if (this.update === false)
+        if (this.updateOutline === false)
             return;
 
         container = (typeof container === 'string') ? document.querySelector(container) : container;
@@ -266,7 +269,7 @@ LEEWGL.UI = function(options) {
                     if (activeOutline.active === false && activeOutline.editable === false) {
                         that.setActive(index);
                         that.setEditable(-1);
-                        that.update = true;
+                        that.updateOutline = true;
                         that.setInspectorContent(index);
                     }
 
@@ -276,15 +279,20 @@ LEEWGL.UI = function(options) {
         }
 
         container.grab(list);
-        this.update = false;
+        this.updateOutline = false;
     };
     /**
      * [createTable description]
      * @param {array} header
-     * @param {array} content
+     * @param {object} content
      * @param {object} title
+     * @param {function} keydown
+     * @param {function} keyup
      */
-    this.createTable = function(header, content, title) {
+    this.createTable = function(header, content, title, keydown, keyup) {
+        keydown = (typeof keydown !== 'undefined') ? keydown : (function() {});
+        keyup = (typeof keyup !== 'undefined') ? keyup : (function() {});
+
         var container = new LEEWGL.DOM.Element('div', {
             'class': 'component-detail-container'
         });
@@ -295,6 +303,7 @@ LEEWGL.UI = function(options) {
         var tbody = new LEEWGL.DOM.Element('tbody');
         var tr;
         var td;
+        var i = 0;
 
         var that = this;
 
@@ -309,8 +318,9 @@ LEEWGL.UI = function(options) {
         }
 
         tr = new LEEWGL.DOM.Element('tr');
+
         // / headers
-        for (var i = 0; i < header.length; ++i) {
+        for (i = 0; i < header.length; ++i) {
             td = new LEEWGL.DOM.Element('th', {
                 'html': header[i]
             });
@@ -325,13 +335,13 @@ LEEWGL.UI = function(options) {
                 'num': index
             });
 
-            var c = content[index];
+            var c = content.value[index];
 
             that.editable(td, index, true);
 
             if (typeof c === 'undefined') {
-                var keys = Object.keys(content);
-                c = content[keys[index]];
+                var keys = Object.keys(content.value);
+                c = content.value[keys[index]];
             }
 
             if (typeof c === 'number')
@@ -339,47 +349,23 @@ LEEWGL.UI = function(options) {
             else
                 td.set('html', c);
 
-            // / html5 feature - gets called when dom elements with contenteditable = true get edited
             td.addEvent('keydown', function(event) {
-                if (event.keyCode === LEEWGL.KEYS.ENTER) {
-                    var el = new LEEWGL.DOM.Element(this);
-                    var num = el.get('num');
-                    if (typeof content[num] === 'undefined') {
-                        var keys = Object.keys(content);
-                        content[keys[index]] = parseFloat(el.get('text'));
-                    } else {
-                        content[num] = parseFloat(el.get('text'));
-                    }
+                keydown(event, this, content);
+            });
 
-                    var trans = that.activeElement.transform.transVec;
-                    var rot = that.activeElement.transform.rotVec;
-                    var scale = that.activeElement.transform.scaleVec;
-
-                    that.activeElement.transform.dispatchEvent({
-                        'type': 'update-all',
-                        'data': {
-                            'translation': trans,
-                            'rotation': rot,
-                            'scale': scale
-                        }
-                    });
-
-                    that.update = true;
-                    that.setInspectorContent(that.activeIndex);
-
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
+            td.addEvent('keyup', function(event) {
+                keyup(event, this, content);
             });
 
             return td;
         };
 
         tr = new LEEWGL.DOM.Element('tr');
+
         // / content
-        if (typeof content.length === 'undefined') {
-            var i = 0;
-            for (var k in content) {
+        i = 0;
+        if (typeof content.value.length === 'undefined') {
+            for (var k in content.value) {
                 td = fillTable(i, content);
 
                 tr.grab(td);
@@ -387,7 +373,7 @@ LEEWGL.UI = function(options) {
                 ++i;
             }
         } else {
-            for (var i = 0; i < content.length; ++i) {
+            for (i = 0; i < content.value.length; ++i) {
                 td = fillTable(i, content);
 
                 tr.grab(td);
@@ -401,15 +387,123 @@ LEEWGL.UI = function(options) {
         return container;
     };
 
-    this.componentsToHTML = function(activeElement) {
+    this.dispatchTypes = function(value, type, num) {
+        console.log(type);
+        if (type === 'position') {
+            this.activeElement.transform.position[num] = value;
+        } else if (type === 'translation') {
+            this.activeElement.transform.transVec[num] = value;
+        } else if (type === 'rotation') {
+            this.activeElement.transform.rotVec[num] = value;
+        } else if (type === 'scale') {
+            this.activeElement.transform.scaleVec[num] = value;
+        }
+
+    };
+
+    this.transformToHTML = function(element) {
+        var container = new LEEWGL.DOM.Element('div', {
+            'class': 'component-container'
+        });
+        var title = new LEEWGL.DOM.Element('h3', {
+            'class': 'component-headline',
+            'html': 'Transform'
+        });
+        container.grab(title);
+
+        var transform = element.components['Transform'];
+        var that = this;
+
+        var keydown = (function(event, td, vector) {
+            var el = new LEEWGL.DOM.Element(td);
+            var num = el.get('num');
+            var value = parseFloat(el.get('text'));
+            vector = vector.value;
+
+            if (event.keyCode === LEEWGL.KEYS.ENTER) {
+                if (typeof vector[num] === 'undefined') {
+                    var keys = Object.keys(vector);
+                    vector[keys[index]] = value;
+                } else {
+                    vector[num] = value;
+                }
+
+                var trans = element.transform.transVec;
+                var rot = element.transform.rotVec;
+                var scale = element.transform.scaleVec;
+
+                element.transform.dispatchEvent({
+                    'type': 'update-all',
+                    'data': {
+                        'translation': trans,
+                        'rotation': rot,
+                        'scale': scale
+                    }
+                });
+
+                that.setInspectorContent(element.id);
+
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        });
+
+        var keyup = (function(event, td, vector) {
+            var el = new LEEWGL.DOM.Element(td);
+            var num = el.get('num');
+            var value = parseFloat(el.get('text'));
+            that.dispatchTypes(value, vector.type, num);
+        });
+
+        // / position
+        container.grab(this.createTable(['x', 'y', 'z'], {
+            'value': transform.position,
+            'type': 'position'
+        }, {
+            'title': 'Position',
+            'type': 'h4',
+            'class': 'component-detail-headline'
+        }, keydown, keyup));
+        // / translation
+        container.grab(this.createTable(['x', 'y', 'z'], {
+            'value': transform.transVec,
+            'type': 'translation'
+        }, {
+            'title': 'Translation',
+            'type': 'h4',
+            'class': 'component-detail-headline'
+        }, keydown, keyup));
+
+        // / rotation
+        container.grab(this.createTable(['x', 'y', 'z'], {
+            'value': transform.rotVec,
+            'type': 'rotation'
+        }, {
+            'title': 'Rotation',
+            'type': 'h4',
+            'class': 'component-detail-headline'
+        }, keydown, keyup));
+        // / scale
+        container.grab(this.createTable(['x', 'y', 'z'], {
+            'value': transform.scaleVec,
+            'type': 'scale'
+        }, {
+            'title': 'Scale',
+            'type': 'h4',
+            'class': 'component-detail-headline'
+        }, keydown, keyup));
+
+        return container;
+    };
+
+    this.componentsToHTML = function(element) {
         var container;
         var title;
 
         var that = this;
-        // window.removeEventListener('value-edit');
 
-        for (var name in activeElement.components) {
-            if (!activeElement.components.hasOwnProperty(name))
+        for (var name in element.components) {
+            if (!element.components.hasOwnProperty(name))
                 continue;
 
             container = new LEEWGL.DOM.Element('div', {
@@ -421,35 +515,10 @@ LEEWGL.UI = function(options) {
             });
             container.grab(title);
 
-            var comp = activeElement.components[name];
+            var comp = element.components[name];
 
             if (comp instanceof LEEWGL.Component.Transform) {
-                // / position
-                container.grab(this.createTable(['x', 'y', 'z'], comp.position, {
-                    'title': 'Position',
-                    'type': 'h4',
-                    'class': 'component-detail-headline'
-                }));
-                // / translation
-                container.grab(this.createTable(['x', 'y', 'z'], comp.transVec, {
-                    'title': 'Translation',
-                    'type': 'h4',
-                    'class': 'component-detail-headline'
-                }));
-
-                // / rotation
-                container.grab(this.createTable(['x', 'y', 'z'], comp.rotVec, {
-                    'title': 'Rotation',
-                    'type': 'h4',
-                    'class': 'component-detail-headline'
-                }));
-                // / scale
-                container.grab(this.createTable(['x', 'y', 'z'], comp.scaleVec, {
-                    'title': 'Scale',
-                    'type': 'h4',
-                    'class': 'component-detail-headline'
-                }));
-
+                container = this.transformToHTML(element);
             } else if (comp instanceof LEEWGL.Component.CustomScript) {
                 container.set('id', 'custom-script-component-container');
 
@@ -462,32 +531,32 @@ LEEWGL.UI = function(options) {
                 var position = container.position(false);
 
                 var appliedScriptsContainer = new LEEWGL.DOM.Element('div', {
-                    'class' : 'component-detail-container'
+                    'class': 'component-detail-container'
                 });
                 var appliedScriptsHeadline = new LEEWGL.DOM.Element('h4', {
                     'class': 'component-detail-headline',
-                    'text' : 'Applied Scripts'
+                    'text': 'Applied Scripts'
                 });
 
                 appliedScriptsContainer.grab(appliedScriptsHeadline);
 
                 var customScriptContainer = new LEEWGL.DOM.Element('div', {
-                    'class' : 'component-detail-container'
+                    'class': 'component-detail-container'
                 });
                 var customScriptHeadline = new LEEWGL.DOM.Element('h4', {
                     'class': 'component-detail-headline',
-                    'text' : 'Custom Script'
+                    'text': 'Custom Script'
                 });
 
                 customScriptContainer.grab(customScriptHeadline);
                 customScriptContainer.grab(textfield);
 
-                if (typeof this.saved['custom-object-script-' + activeElement.id] !== 'undefined')
-                    textfield.set('value', this.saved['custom-object-script-' + activeElement.id]);
+                if (typeof this.saved['custom-object-script-' + element.id] !== 'undefined')
+                    textfield.set('value', this.saved['custom-object-script-' + element.id]);
 
                 textfield.addEvent('keyup', function(event) {
                     if (event.keyCode === LEEWGL.KEYS.ENTER) {
-                        that.addScriptToObject(activeElement.id, this.value);
+                        that.addScriptToObject(element.id, this.value);
                         event.stopPropagation();
                     }
                 });
@@ -521,7 +590,7 @@ LEEWGL.UI = function(options) {
                     var name = this.value.substr(this.value.lastIndexOf('\\') + 1, this.value.length);
                     var path = LEEWGL.ROOT + 'texture/';
                     comp.init(that.gl, path + name);
-                    that.activeElement.setTexture(comp.texture);
+                    element.setTexture(comp.texture);
 
                     that.saved['object-' + that.activeIndex + '-texture-path'] = path + name;
                     fileName.set('text', path + name);
@@ -544,7 +613,7 @@ LEEWGL.UI = function(options) {
 
         var that = this;
 
-        if(typeof activeElement.editables !== 'undefined') {
+        if (typeof activeElement.editables !== 'undefined') {
             container = new LEEWGL.DOM.Element('div', {
                 'class': 'component-container'
             });
@@ -558,7 +627,10 @@ LEEWGL.UI = function(options) {
                 var editable = activeElement.editables[i];
 
                 if (editable.value instanceof Array) {
-                    container.grab(this.createTable(editable['table-titles'], editable.value, {
+                    container.grab(this.createTable(editable['table-titles'], {
+                        'value': editable.value,
+                        'type': editable.type
+                    }, {
                         'title': editable.name,
                         'type': 'h4',
                         'class': 'component-detail-headline'
@@ -596,6 +668,11 @@ LEEWGL.UI = function(options) {
             return;
         }
 
+        // if (this.activeElement !== null) {
+        //     if (index === this.activeIndex)
+        //         return;
+        // }
+
         this.settingsDisplayed = false;
 
         this.inspector.set('html', '');
@@ -606,7 +683,7 @@ LEEWGL.UI = function(options) {
         if (index === -1) {
             this.activeElement = null;
             window.activeElement = this.activeElement;
-            this.update = true;
+            this.updateOutline = true;
             return;
         }
 
@@ -622,7 +699,8 @@ LEEWGL.UI = function(options) {
         this.valuesToHTML(activeElement);
         this.componentsToHTML(activeElement);
         this.componentsButton(index);
-        this.update = true;
+
+        this.updateOutline = true;
     };
 
     this.componentsButton = function(index) {
@@ -848,7 +926,10 @@ LEEWGL.UI = function(options) {
 
         for (var k in LEEWGL.Settings) {
             if (typeof LEEWGL.Settings[k] === 'object') {
-                container.grab(this.createTable(Object.keys(LEEWGL.Settings[k]), LEEWGL.Settings[k], {
+                container.grab(this.createTable(Object.keys(LEEWGL.Settings[k]), {
+                    'value': LEEWGL.Settings[k],
+                    'type': k
+                }, {
                     'title': k,
                     'type': 'h4',
                     'class': 'component-detail-headline'

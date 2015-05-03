@@ -275,17 +275,18 @@ LEEWGL.DOM.Element.prototype = {
         inserted = (typeof inserted !== 'undefined') ? inserted : true;
         parent = (typeof parent !== 'undefined') ? parent : new LEEWGL.DOM.Element(document.body);
 
-        var element = this.e;
+        var element = this;
         var tmp = this.clone();
 
         if (inserted === false) {
-            tmp = new LEEWGL.DOM.Element(this.e.cloneNode(true), {
-                'style': {
+            element = new LEEWGL.DOM.Element(element.e.cloneNode(true), {
+                'styles': {
                     'display': 'block',
                     'position': 'static'
                 }
             });
-            parent.grab(tmp);
+            parent.grab(element);
+            tmp = element.clone();
         }
 
         var pos = {
