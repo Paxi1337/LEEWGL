@@ -2,19 +2,46 @@ LEEWGL.DOM = {};
 
 LEEWGL.DOM.Element = function(type, attributes) {
     this.e = null;
+
     if (typeof type === 'object') {
-        //     if (typeof type.length === 'undefined')
-        //         this.e = type.cloneNode(true);
-        //     else
-        this.e = type;
-    } else
+        if (typeof type.length !== 'undefined') {} else {
+            this.e = type;
+        }
+    } else {
         this.e = document.createElement(type);
+    }
 
     this.set(attributes);
 };
 
 LEEWGL.DOM.Element.prototype = {
     constructor: LEEWGL.DOM.Element,
+
+    getParent: function() {
+        if (typeof this.e.parentNode !== 'undefined')
+            return new LEEWGL.DOM.Element(this.e.parentNode);
+        else
+            console.error('LEEWGL.DOM.Element.getParent(): Element has no parent!');
+        return null;
+    },
+
+    getChildren: function(search) {
+        if (typeof this.e.children !== 'undefined') {
+            var children = [];
+            for (var i = 0; i < this.e.children.length; ++i) {
+                if (typeof search !== 'undefined') {
+                    if (this.e.children[i].tagName.toLowerCase() === search.toLowerCase())
+                        children.push(new LEEWGL.DOM.Element(this.e.children[i]));
+                } else {
+                        children.push(new LEEWGL.DOM.Element(this.e.children[i]));
+                }
+            }
+            return children;
+        } else {
+            console.error('LEEWGL.DOM.Element.getParent(): Element has no child nodes!');
+            return null;
+        }
+    },
 
     addClass: function(classname) {
         this.e.className += ' ' + classname;
@@ -206,24 +233,27 @@ LEEWGL.DOM.Element.prototype = {
         }
     },
 
-    grab: function(parent, before) {
-        before = (typeof before !== 'undefined') ? before : false;
-        var p = (parent instanceof LEEWGL.DOM.Element) ? parent.e : parent;
-
-        if (before === true)
-            this.e.insertBefore(p);
-        else
-            this.e.appendChild(p);
+    insert: function(parent, child, where) {
+        if (where === 'bottom')
+            parent.appendChild(child);
+        else if (where === 'top')
+            parent.insertBefore(child, parent.firstChild);
+        else if (where === 'before')
+            parent.insertBefore(child, parent.lastChild);
     },
 
-    inject: function(element, before) {
-        before = (typeof before !== 'undefined') ? before : false;
-        var e = (element instanceof LEEWGL.DOM.Element) ? element.e : element;
+    grab: function(element, where) {
+        where = (typeof where !== 'undefined') ? where : 'bottom';
+        var el = (element instanceof LEEWGL.DOM.Element) ? element.e : element;
 
-        if (before === true)
-            e.insertBefore(this.e);
-        else
-            e.appendChild(this.e);
+        this.insert(this.e, el, where);
+    },
+
+    inject: function(parent, where) {
+        where = (typeof where !== 'undefined') ? where : 'bottom';
+        var p = (parent instanceof LEEWGL.DOM.Element) ? parent.e : parent;
+
+        this.insert(p, this.e, where);
     },
 
     remove: function(parent) {

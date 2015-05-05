@@ -539,8 +539,84 @@ LEEWGL.UI = function(options) {
 
         var that = this;
 
-        if (typeof this.saved['custom-object-script-' + element.id] !== 'undefined')
+        /**
+         * Applied Scripts
+         */
+        if (typeof this.saved['custom-object-script-' + element.id] !== 'undefined') {
             textfield.set('value', this.saved['custom-object-script-' + element.id]);
+
+            if (typeof this.saved['applied-scripts-data-toggled-' + element.id] === 'undefined')
+                this.saved['applied-scripts-data-toggled-' + element.id] = 'false';
+
+            var height = '0px';
+            var opacity = 0;
+            var icon = LEEWGL.ROOT + 'img/icons/plus_half_white.png';
+            if(this.saved['applied-scripts-data-toggled-' + element.id] === 'true') {
+                height = '150px';
+                opacity = 1;
+                icon = LEEWGL.ROOT + 'img/icons/minus_half_white.png';
+            }
+
+            var iconContainer = new LEEWGL.DOM.Element('div', {
+                'class': 'icon-container-small fright',
+                'data-toggled': this.saved['applied-scripts-data-toggled-' + element.id]
+            });
+
+            var toggleAppliedScript = new LEEWGL.DOM.Element('img', {
+                'src': icon,
+                'alt': 'Toggle Applied Scripts',
+                'title': 'Toggle Applied Scripts'
+            });
+
+            var clearer = new LEEWGL.DOM.Element('div', {
+                'class': 'clearer'
+            });
+
+            var appliedScriptsInnerContainer = new LEEWGL.DOM.Element('div', {
+                'styles': {
+                    'height': height
+                }
+            });
+
+            var appliedScriptsTextArea = new LEEWGL.DOM.Element('textarea', {
+                'rows': 5,
+                'cols': 30,
+                'text': this.saved['custom-object-script-' + element.id],
+                'styles': {
+                    'opacity': opacity
+                }
+            });
+
+            iconContainer.grab(toggleAppliedScript);
+            appliedScriptsContainer.grab(iconContainer, 'top');
+            appliedScriptsContainer.grab(clearer);
+            appliedScriptsInnerContainer.grab(appliedScriptsTextArea);
+            appliedScriptsContainer.grab(appliedScriptsInnerContainer);
+v
+            var animation = new LEEWGL.DOM.Animator();
+
+            iconContainer.addEvent('click', function(event) {
+                if (iconContainer.get('data-toggled') === 'false') {
+                    animation.animate(appliedScriptsInnerContainer, {
+                        'height': '150px'
+                    }, 0.5, function() {
+                        animation.fade('toggle', appliedScriptsTextArea, 0.5);
+                        toggleAppliedScript.set('src', LEEWGL.ROOT + 'img/icons/minus_half_white.png');
+                    });
+                    iconContainer.set('data-toggled', 'true');
+                    that.saved['applied-scripts-data-toggled-' + element.id] = 'true';
+                } else {
+                    animation.fade('out', appliedScriptsTextArea, 0.5, function() {
+                        animation.animate(appliedScriptsInnerContainer, {
+                            'height': '0px'
+                        }, 0.5);
+                        toggleAppliedScript.set('src', LEEWGL.ROOT + 'img/icons/plus_half_white.png');
+                    });
+                    iconContainer.set('data-toggled', 'false');
+                    that.saved['applied-scripts-data-toggled-' + element.id] = 'false';
+                }
+            });
+        }
 
         textfield.addEvent('keyup', function(event) {
             if (event.keyCode === LEEWGL.KEYS.ENTER) {
@@ -576,7 +652,9 @@ LEEWGL.UI = function(options) {
         var imageContainer = new LEEWGL.DOM.Element('div', {
             'id': 'texture-preview-container'
         });
-        var image = new LEEWGL.DOM.Element('img');
+        var image = new LEEWGL.DOM.Element('img', {
+            'class' : 'lightbox'
+        });
         imageContainer.grab(image);
 
         if (typeof this.saved['object-' + element.id + '-texture-path'] !== 'undefined') {
@@ -1148,6 +1226,8 @@ LEEWGL.UI = function(options) {
                 this.addScriptToDOM(id, this.saved[name]);
             }
         }
+
+        this.setInspectorContent(this.activeIndex);
     };
 
     this.preventRefresh = function() {
@@ -1223,18 +1303,8 @@ LEEWGL.UI.Popup = function(options) {
     this.drag = new LEEWGL.DragDrop();
     this.ajax = new LEEWGL.AsynchRequest();
 
-    /**
-     * [setOptions description]
-     * @param {Array} options
-     */
-    this.setOptions = function(options) {
-        if (typeof options !== 'undefined') {
-            for (var attribute in this.options) {
-                if (options.hasOwnProperty(attribute))
-                    this.options[attribute] = options[attribute];
-            }
-        }
-    };
+    var extend = new LEEWGL.Class();
+    extend.extend(LEEWGL.UI.Popup.prototype, LEEWGL.Options.prototype);
 
     this.setOptions(options);
 

@@ -1,4 +1,17 @@
 LEEWGL.DOM.Animator = function() {
+    this.fade = function(type, element, duration, adjacentFunction, steps) {
+        if (type === 'in') {
+            this.fadeIn(element, duration, adjacentFunction, steps);
+        } else if (type === 'out') {
+            this.fadeOut(element, duration, adjacentFunction, steps);
+        } else if (type === 'toggle') {
+            if (parseInt(element.getStyle('opacity')) === 0)
+                this.fadeIn(element, duration, adjacentFunction, steps);
+            else
+                this.fadeOut(element, duration, adjacentFunction, steps);
+        }
+    };
+
     this.fadeIn = function(element, duration, adjacentFunction, steps) {
         this.animate(element, {
             'opacity': 1
