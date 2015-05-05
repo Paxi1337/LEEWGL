@@ -496,6 +496,118 @@ LEEWGL.UI = function(options) {
         return container;
     };
 
+    this.customScriptToHTML = function(element) {
+        var script = element.components['CustomScript'];
+        var container = new LEEWGL.DOM.Element('div', {
+            'class': 'component-container',
+            'id': 'custom-script-component-container'
+        });
+        var title = new LEEWGL.DOM.Element('h3', {
+            'class': 'component-headline',
+            'html': 'Custom Script'
+        });
+        container.grab(title);
+
+        var textfield = new LEEWGL.DOM.Element('textarea', {
+            'rows': 5,
+            'cols': 30,
+            'placeholder': script.code
+        });
+
+        var position = container.position(false);
+
+        var appliedScriptsContainer = new LEEWGL.DOM.Element('div', {
+            'class': 'component-detail-container'
+        });
+        var appliedScriptsHeadline = new LEEWGL.DOM.Element('h4', {
+            'class': 'component-detail-headline',
+            'text': 'Applied Scripts'
+        });
+
+        appliedScriptsContainer.grab(appliedScriptsHeadline);
+
+        var customScriptContainer = new LEEWGL.DOM.Element('div', {
+            'class': 'component-detail-container'
+        });
+        var customScriptHeadline = new LEEWGL.DOM.Element('h4', {
+            'class': 'component-detail-headline',
+            'text': 'Custom Script'
+        });
+
+        customScriptContainer.grab(customScriptHeadline);
+        customScriptContainer.grab(textfield);
+
+        var that = this;
+
+        if (typeof this.saved['custom-object-script-' + element.id] !== 'undefined')
+            textfield.set('value', this.saved['custom-object-script-' + element.id]);
+
+        textfield.addEvent('keyup', function(event) {
+            if (event.keyCode === LEEWGL.KEYS.ENTER) {
+                that.addScriptToObject(element.id, this.value);
+                event.stopPropagation();
+            }
+        });
+
+        container.grab(appliedScriptsContainer);
+        container.grab(customScriptContainer);
+
+        return container;
+    };
+
+    this.textureToHTML = function(element) {
+        var texture = element.components['Texture'];
+        var container = new LEEWGL.DOM.Element('div', {
+            'class': 'component-container',
+            'id': 'texture-component-container'
+        });
+        var title = new LEEWGL.DOM.Element('h3', {
+            'class': 'component-headline',
+            'html': 'Texture'
+        });
+        container.grab(title);
+
+        var fileName = new LEEWGL.DOM.Element('h4', {
+            'class': 'component-sub-headline'
+        });
+        var fileInput = new LEEWGL.DOM.Element('input', {
+            'type': 'file'
+        });
+        var imageContainer = new LEEWGL.DOM.Element('div', {
+            'id': 'texture-preview-container'
+        });
+        var image = new LEEWGL.DOM.Element('img');
+        imageContainer.grab(image);
+
+        if (typeof this.saved['object-' + element.id + '-texture-path'] !== 'undefined') {
+            image.set('src', this.saved['object-' + element.id + '-texture-path']);
+            fileInput.set('value', this.saved['object-' + element.id + '-texture-path']);
+            fileName.set('text', this.saved['object-' + element.id + '-texture-path']);
+        } else {
+            fileName.set('text', 'No Texture');
+        }
+
+        var that = this;
+
+        fileInput.addEvent('change', function(event) {
+            var name = this.value.substr(this.value.lastIndexOf('\\') + 1, this.value.length);
+            var path = LEEWGL.ROOT + 'texture/';
+            texture.init(that.gl, path + name);
+            element.setTexture(texture);
+
+            that.saved['object-' + element.id + '-texture-path'] = path + name;
+            fileName.set('text', path + name);
+
+            image.set('src', path + name);
+        });
+
+        container.grab(fileName);
+        container.grab(fileInput);
+        container.grab(imageContainer);
+
+        return container;
+    };
+
     this.componentsToHTML = function(element) {
         var container;
         var title;
@@ -506,102 +618,14 @@ LEEWGL.UI = function(options) {
             if (!element.components.hasOwnProperty(name))
                 continue;
 
-            container = new LEEWGL.DOM.Element('div', {
-                'class': 'component-container'
-            });
-            title = new LEEWGL.DOM.Element('h3', {
-                'class': 'component-headline',
-                'html': name
-            });
-            container.grab(title);
+            var component = element.components[name];
 
-            var comp = element.components[name];
-
-            if (comp instanceof LEEWGL.Component.Transform) {
+            if (component instanceof LEEWGL.Component.Transform)
                 container = this.transformToHTML(element);
-            } else if (comp instanceof LEEWGL.Component.CustomScript) {
-                container.set('id', 'custom-script-component-container');
-
-                var textfield = new LEEWGL.DOM.Element('textarea', {
-                    'rows': 5,
-                    'cols': 30,
-                    'placeholder': comp.code
-                });
-
-                var position = container.position(false);
-
-                var appliedScriptsContainer = new LEEWGL.DOM.Element('div', {
-                    'class': 'component-detail-container'
-                });
-                var appliedScriptsHeadline = new LEEWGL.DOM.Element('h4', {
-                    'class': 'component-detail-headline',
-                    'text': 'Applied Scripts'
-                });
-
-                appliedScriptsContainer.grab(appliedScriptsHeadline);
-
-                var customScriptContainer = new LEEWGL.DOM.Element('div', {
-                    'class': 'component-detail-container'
-                });
-                var customScriptHeadline = new LEEWGL.DOM.Element('h4', {
-                    'class': 'component-detail-headline',
-                    'text': 'Custom Script'
-                });
-
-                customScriptContainer.grab(customScriptHeadline);
-                customScriptContainer.grab(textfield);
-
-                if (typeof this.saved['custom-object-script-' + element.id] !== 'undefined')
-                    textfield.set('value', this.saved['custom-object-script-' + element.id]);
-
-                textfield.addEvent('keyup', function(event) {
-                    if (event.keyCode === LEEWGL.KEYS.ENTER) {
-                        that.addScriptToObject(element.id, this.value);
-                        event.stopPropagation();
-                    }
-                });
-
-                container.grab(appliedScriptsContainer);
-                container.grab(customScriptContainer);
-            } else if (comp instanceof LEEWGL.Component.Texture) {
-                container.set('id', 'texture-component-container');
-
-                var fileName = new LEEWGL.DOM.Element('h4', {
-                    'class': 'component-sub-headline'
-                });
-                var fileInput = new LEEWGL.DOM.Element('input', {
-                    'type': 'file'
-                });
-                var imageContainer = new LEEWGL.DOM.Element('div', {
-                    'id': 'texture-preview-container'
-                });
-                var image = new LEEWGL.DOM.Element('img');
-                imageContainer.grab(image);
-
-                if (typeof this.saved['object-' + this.activeIndex + '-texture-path'] !== 'undefined') {
-                    image.set('src', this.saved['object-' + this.activeIndex + '-texture-path']);
-                    fileInput.set('value', this.saved['object-' + this.activeIndex + '-texture-path']);
-                    fileName.set('text', this.saved['object-' + this.activeIndex + '-texture-path']);
-                } else {
-                    fileName.set('text', 'No Texture');
-                }
-
-                fileInput.addEvent('change', function(event) {
-                    var name = this.value.substr(this.value.lastIndexOf('\\') + 1, this.value.length);
-                    var path = LEEWGL.ROOT + 'texture/';
-                    comp.init(that.gl, path + name);
-                    element.setTexture(comp.texture);
-
-                    that.saved['object-' + that.activeIndex + '-texture-path'] = path + name;
-                    fileName.set('text', path + name);
-
-                    image.set('src', path + name);
-                });
-
-                container.grab(fileName);
-                container.grab(fileInput);
-                container.grab(imageContainer);
-            }
+            else if (component instanceof LEEWGL.Component.CustomScript)
+                container = this.customScriptToHTML(element);
+            else if (component instanceof LEEWGL.Component.Texture)
+                container = this.textureToHTML(element);
 
             this.inspector.grab(container);
         }
