@@ -93,16 +93,14 @@ hr {
 div#wrapper {
     background-color: #565656;
 }
-div#container-overall {
-}
+div#container-overall {}
 div#container {
     position: relative;
     margin: 0 auto;
     width: 1200px;
     min-height: 1400px;
 }
-div#content {
-}
+div#content {}
 div#controls-container-overall {
     margin: 20px auto;
     width: 150px;
@@ -358,9 +356,24 @@ div.icon-container {
     width: 35px;
     height: 40px;
     line-height: 50px;
-    float: left;
 }
 div.icon-container:hover {
+    background-color: #83b4d3;
+}
+div.icon-container-small {
+    width: 30px;
+    height: 27px;
+    position: relative;
+}
+div.icon-container-small img {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+}
+div.icon-container-small:hover {
     background-color: #83b4d3;
 }
 img.icon-big {

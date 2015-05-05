@@ -16,6 +16,8 @@
     <script type="text/javascript" src="js/gl-matrix/vec3.js"></script>
     <script type="text/javascript" src="js/gl-matrix/vec2.js"></script>
     <script type="text/javascript" src="js/engine/Core.js"></script>
+    <script type="text/javascript" src="js/engine/Class.js"></script>
+    <script type="text/javascript" src="js/engine/Options.js"></script>
     <script type="text/javascript" src="js/engine/EventDispatcher.js"></script>
     <script type="text/javascript" src="js/engine/DOMElement.js"></script>
     <script type="text/javascript" src="js/engine/DOMAnimator.js"></script>
@@ -44,6 +46,7 @@
     <script type="text/javascript" src="js/engine/Light.js"></script>
     <script type="text/javascript" src="js/engine/Scene.js"></script>
     <script type="text/javascript" src="js/engine/Shadowmap.js"></script>
+    <script type="text/javascript" src="js/engine/Lightbox.js"></script>
 </head>
 
 <body>
@@ -148,7 +151,7 @@
                     <div id="controls-container-overall" class="dynamic-container">
                         <div class="container-header background-gradient-blue mbot10">
                             <h2>Controls</h2>
-                            <div class="icon-container">
+                            <div class="icon-container fleft">
                                 <img alt="Release Window" title="Release Window" src="img/icons/move_half.png" />
                             </div>
                         </div>
@@ -161,7 +164,7 @@
                         <div id="editor-view-container" class="dynamic-container">
                             <div class="container-header background-gradient-blue">
                                 <h2>Editor View</h2>
-                                <div class="icon-container">
+                                <div class="icon-container fleft">
                                     <img alt="Release Window" title="Release Window" src="img/icons/move_half.png" />
                                 </div>
                             </div>
@@ -171,7 +174,7 @@
                     <div id="outline-container" class="dynamic-container">
                         <div class="container-header background-gradient-blue">
                             <h2>Outline</h2>
-                            <div class="icon-container">
+                            <div class="icon-container fleft">
                                 <img alt="Release Window" title="Release Window" src="img/icons/move_half.png" />
                             </div>
                         </div>
@@ -180,7 +183,7 @@
                     <div id="inspector-container" class="dynamic-container">
                         <div class="container-header background-gradient-blue">
                             <h2>Inspector</h2>
-                            <div class="icon-container">
+                            <div class="icon-container fleft">
                                 <img alt="Release Window" title="Release Window" src="img/icons/move_half.png" />
                             </div>
                         </div>
@@ -234,6 +237,9 @@
             // });
 
             // animator.animate(testContent, {'width' : '500px'}, 5, undefined, 100);
+            //
+            //
+            var lightbox = new window.LEEWGL.Lightbox({'anchor' : 'div.icon-container'});
         });
     </script>
 </body>

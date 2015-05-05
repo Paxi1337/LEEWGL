@@ -1,0 +1,176 @@
+div.lb {
+    font-family: PFDinDisplayPro-Light, sans-serif;
+    position: absolute;
+    left: 0;
+    width: 100%;
+    z-index: 10000;
+    line-height: 0;
+}
+div.lb-outer {
+    position: relative;
+    background-color: rgba(0, 0, 0, 0);
+    background-color: transparent;
+    margin: 0 auto;
+}
+div.lb-inner {
+    padding: 0;
+}
+div.lb-inner img {
+    -webkit-box-shadow: 1px 1px 10px 1px #000;
+    box-shadow: 1px 1px 10px 1px #000;
+}
+div.lb-data {
+    margin: 0 auto;
+    width: 100%;
+    padding: 15px 0 15px 0;
+    background-color: #000;
+    color: #e0e1de;
+    -webkit-box-shadow: 1px 1px 10px 1px #000;
+    box-shadow: 1px 1px 10px 1px #000;
+}
+div.lb-title {
+    font-family: PFDinDisplayPro-Bold, sans-serif;
+    padding: 10px 0 0 10px;
+    font-size: 1.3em;
+    height: 25px;
+}
+div.lb-desc {
+    font-size: 1em;
+    padding: 10px 0 0 10px;
+}
+div.lb-desc p {
+    font-size: 100%;
+    line-height: 15px;
+}
+div.lb-overlay {
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 9999;
+    background: #000;
+}
+img.lb-image {
+    width: 300px;
+    padding: 0 10px 0 0;
+}
+div.lb-gallery {
+    margin: 0 auto;
+    overflow: hidden;
+    white-space: nowrap;
+}
+img.lb-galleryimage {
+    margin-right: 10px;
+    padding: 0;
+    opacity: 0.75;
+    -moz-transition: opacity .3s ease-out;
+    -webkit-transition: opacity .3s ease-out;
+    -o-transition: opacity .3s ease-out;
+    transition: opacity .3s ease-out;
+    -webkit-box-shadow: 1px 1px 10px 1px #000;
+    box-shadow: 1px 1px 10px 1px #000;
+}
+img.active {
+    opacity: 0.3;
+}
+img.lb-galleryimage:hover {
+    opacity: 1;
+}
+img.last {
+    margin: 0;
+}
+div.lb-loading {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    background: transparent url(images/general/48/loader.gif) no-repeat 45% 50%;
+    background: rgba(0, 0, 0, 0) url(images/general/48/loader.gif) no-repeat 45% 50%;
+    z-index: 10001;
+}
+a.lb-next {
+    display: block;
+    position: absolute;
+    width: 40%;
+    right: 0;
+    top: 35px;
+    background: transparent url(images/lightbox/next_light.png) no-repeat 85% 50%;
+    background: rgba(0, 0, 0, 0) url(images/lightbox/next_light.png) no-repeat 85% 50%;
+    opacity: 0.5;
+    -moz-transition: opacity .3s ease-out;
+    -webkit-transition: opacity .3s ease-out;
+    -o-transition: opacity .3s ease-out;
+    transition: opacity .3s ease-out;
+}
+a.lb-prev {
+    display: block;
+    position: absolute;
+    width: 40%;
+    left: 0;
+    top: 35px;
+    background: rgba(0, 0, 0, 0) url(images/lightbox/prev_light.png) no-repeat 15% 50%;
+    background: transparent url(images/lightbox/prev_light.png) no-repeat 15% 50%;
+    opacity: 0.5;
+    -moz-transition: opacity .3s ease-out;
+    -webkit-transition: opacity .3s ease-out;
+    -o-transition: opacity .3s ease-out;
+    transition: opacity .3s ease-out;
+}
+a.lb-next:hover {
+    opacity: 1;
+}
+a.lb-prev:hover {
+    opacity: 1;
+}
+a.lb-gallery-next {
+    display: block;
+    position: absolute;
+    width: 23%;
+    height: 100px;
+    right: 0;
+    opacity: 0.5;
+    background: rgba(0, 0, 0, 0) url(images/lightbox/next_small_light.png) no-repeat 20% 50%;
+    background: transparent url(images/lightbox/next_small_light.png) no-repeat 20% 50%;
+    -moz-transition: opacity .3s ease-out;
+    -webkit-transition: opacity .3s ease-out;
+    -o-transition: opacity .3s ease-out;
+    transition: opacity .3s ease-out;
+}
+a.lb-gallery-prev {
+    display: block;
+    position: absolute;
+    width: 23%;
+    height: 100px;
+    left: 0;
+    opacity: 0.5;
+    background: rgba(0, 0, 0, 0) url(images/lightbox/prev_small_light.png) no-repeat 80% 50%;
+    background: transparent url(images/lightbox/prev_small_light.png) no-repeat 80% 50%;
+    -moz-transition: opacity .3s ease-out;
+    -webkit-transition: opacity .3s ease-out;
+    -o-transition: opacity .3s ease-out;
+    transition: opacity .3s ease-out;
+}
+a.lb-gallery-next:hover {
+    opacity: 1;
+}
+a.lb-gallery-prev:hover {
+    opacity: 1;
+}
+div.lb-close-icon {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    top: -12px;
+    right: -11px;
+    margin: 0;
+    cursor: pointer;
+    opacity: 0.5;
+    -moz-transition: opacity .3s ease-out;
+    -webkit-transition: opacity .3s ease-out;
+    -o-transition: opacity .3s ease-out;
+    transition: opacity .3s ease-out;
+}
+div.lb-close-icon:hover {
+    opacity: 1;
+}
