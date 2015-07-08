@@ -120,3 +120,58 @@ LEEWGL.Light.SpotLight.prototype.clone = function(spotLight) {
 
     return spotLight;
 };
+
+LEEWGL.Light.PointLight = function() {
+    LEEWGL.Light.call(this);
+
+    this.type = 'PointLight';
+    this.lightType = 'Point';
+
+    this.spotDirection = [1.0, 0.0, 0.0];
+    this.radius = 20.0;
+    this.innerAngle = Math.PI * 0.1;
+    this.outerAngle = Math.PI * 0.15;
+
+    this.editables.push({
+        'name': 'SpotDirection',
+        'table-titles': ['x', 'y', 'z'],
+        'value': this.spotDirection
+    }, {
+        'name': 'Radius',
+        'value': this.radius
+    }, {
+        'name': 'InnerAngle',
+        'value': this.innerAngle
+    }, {
+        'name': 'OuterAngle',
+        'value': this.outerAngle
+    });
+};
+
+LEEWGL.Light.PointLight.prototype = Object.create(LEEWGL.Light.prototype);
+
+LEEWGL.Light.PointLight.prototype.getView = function(target) {
+    var view = mat4.create();
+    mat4.lookAt(view, this.transform.position, target, this.up);
+    return view;
+};
+
+LEEWGL.Light.PointLight.prototype.getProjection = function() {
+    var projection = mat4.create();
+    mat4.perspective(projection, LEEWGL.Math.degToRad(this.outerAngle), 1.0, 1.0, 256);
+    return projection;
+};
+
+LEEWGL.Light.PointLight.prototype.clone = function(pointLight) {
+    if (pointLight === 'undefined')
+        pointLight = new LEEWGL.Light.PointLight();
+
+    LEEWGL.Light.prototype.clone.call(this, pointLight);
+
+    pointLight.spotDirection.copy(pointLight.spotDirection, this.spotDirection);
+    pointLight.radius = this.radius;
+    pointLight.innerAngle = this.innerAngle;
+    pointLight.outerAngle = this.outerAngle;
+
+    return pointLight;
+};
