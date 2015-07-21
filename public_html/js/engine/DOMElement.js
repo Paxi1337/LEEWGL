@@ -178,7 +178,7 @@ LEEWGL.DOM.Element.prototype = {
 
     set: function() {
         var dispatch = (function(type, value) {
-            if (typeof type === 'undefined' || typeof value === 'undefined')
+            if (typeof type === 'undefined' || typeof value === 'undefined' || value === null)
                 return;
 
             if (type === 'styles')

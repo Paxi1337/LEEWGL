@@ -67,7 +67,8 @@ LEEWGL.Settings = {
     'DisplayPrecision': 4,
     'TranslationSpeed': {
         'x': 0.1,
-        'y': 0.1
+        'y': 0.1,
+        'z': 0.1
     },
     'RotationSpeed': {
         'x': 0.1,
