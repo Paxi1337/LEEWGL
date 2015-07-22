@@ -367,6 +367,8 @@ LEEWGL.UI = function(options) {
 
     // / content
     i = 0;
+    // console.log(content);
+    // console.log(title);
     if (typeof content.value.length === 'undefined') {
       for (var k in content.value) {
         td = fillTable(k, content);
@@ -404,7 +406,7 @@ LEEWGL.UI = function(options) {
     keyup = (typeof keyup !== 'undefined') ? keyup : (function() {});
 
     var containerDetail = new LEEWGL.DOM.Element('div', {
-      'id' : id,
+      'id': id,
       'class': 'component-detail-container'
     });
     var name = new LEEWGL.DOM.Element('h4', {
@@ -766,20 +768,17 @@ LEEWGL.UI = function(options) {
       });
       container.grab(title);
 
-      for (var i = 0; i < activeElement.editables.length; ++i) {
-        var editable = activeElement.editables[i];
-
+      for (var e in activeElement.editables) {
+        var editable = activeElement.editables[e];
         if (editable.value instanceof Array) {
-          container.grab(this.createTable(editable['table-titles'], {
-            'value': editable.value,
-            'type': editable.type
-          }, {
+          console.log(editable);
+          container.grab(this.createTable(null, editable['table-titles'], editable, {
             'title': editable.name,
             'type': 'h4',
             'class': 'component-detail-headline'
           }));
         } else {
-          this.createContainerDetailInput(container, editable.name, editable.value);
+          this.createContainerDetailInput(null, container, editable.name, editable.value);
         }
       }
       this.inspector.grab(container);

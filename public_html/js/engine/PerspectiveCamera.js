@@ -18,39 +18,44 @@ LEEWGL.PerspectiveCamera = function(options) {
 
   this.setOptions(options);
 
+  this.fov = this.options.fov;
+  this.aspect = this.options.aspect;
+  this.near = this.options.near;
+  this.far = this.options.far;
+  this.invertY = this.options['invert-y'];
+  this.horizontalAngle = this.options['horizontal-angle'];
+  this.verticalAngle = this.options['vertical-angle'];
+
   this.editables = {
     'fov': {
       'name': 'Field of View',
-      'value': this.options.fov
+      'value': this.fov
     },
     'aspect': {
       'name': 'Aspect Ratio',
-      'value': this.options.aspect
+      'value': this.aspect
     },
     'near': {
       'name': 'Near',
-      'value': this.options.near
+      'value': this.near
     },
     'far': {
       'name': 'Far',
-      'value': this.options.far
+      'value': this.far
     },
     'invertY': {
       'name': 'Invert Y Axis',
-      'value': this.options['invert-y']
+      'value': this.invertY
     },
     'horizontalAngle': {
       'name': 'Horizontal Angle',
-      'value': this.options['horizontal-angle']
+      'value': this.horizontalAngle
     },
     'verticalAngle': {
       'name': 'Vertical Angle',
-      'value': this.options['vertical-angle']
+      'value': this.verticalAngle
     }
   };
-
-  this.horizontalAngle = this.editables.horizontalAngle;
-  this.verticalAngle = this.editables.verticalAngle;
 };
 
 LEEWGL.PerspectiveCamera.prototype = Object.create(LEEWGL.Camera.prototype);
@@ -121,6 +126,13 @@ LEEWGL.PerspectiveCamera.prototype.clone = function() {
   var camera = new LEEWGL.PerspectiveCamera(this.options);
   LEEWGL.Camera.prototype.clone.call(this, camera);
 
+  camera.fov = this.fov;
+  camera.aspect = this.aspect;
+  camera.near = this.near;
+  camera.far = this.far;
+  camera.invertY = this.invertY;
+  camera.horizontalAngle = this.horizontalAngle;
+  camera.verticalAngle = this.verticalAngle;
   camera.editables = this.editables;
 
   return camera;

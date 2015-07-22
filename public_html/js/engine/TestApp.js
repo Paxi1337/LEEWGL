@@ -53,7 +53,7 @@ LEEWGL.TestApp = function(options) {
   this.activeShader = null;
 
   this.shadowmap = new LEEWGL.Shadowmap();
-  this.useShadows = true;
+  this.useShadows = false;
 
   this.testModel = new LEEWGL.Geometry.Triangle();
 };
@@ -87,6 +87,8 @@ LEEWGL.TestApp.prototype.onCreate = function() {
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.SPOT);
   else if (this.light instanceof LEEWGL.Light.DirectionalLight)
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.DIRECTIONAL);
+  else if (this.light instanceof LEEWGL.Light.PointLight)
+    this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.POINT);
 
   if (this.useShadows === true)
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.SHADOW_MAPPING);
@@ -110,6 +112,8 @@ LEEWGL.TestApp.prototype.onCreate = function() {
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.SPOT);
   else if (this.light instanceof LEEWGL.Light.DirectionalLight)
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.DIRECTIONAL);
+  else if (this.light instanceof LEEWGL.Light.PointLight)
+    this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.POINT);
 
   if (this.useShadows === true)
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.SHADOW_MAPPING);
@@ -165,6 +169,8 @@ LEEWGL.TestApp.prototype.onCreate = function() {
 
   if (this.useShadows === true)
     this.shadowmap.init(this.gl, 1024, 1024);
+
+  console.log(this.light);
 };
 
 LEEWGL.TestApp.prototype.updatePickingList = function() {
@@ -357,9 +363,10 @@ LEEWGL.TestApp.prototype.clear = function() {
 LEEWGL.TestApp.prototype.draw = function(element, viewProjection) {
   if (element.render === true) {
     this.activeShader.use(this.gl);
-
     this.activeShader.uniforms['uVP'](viewProjection);
-    this.shadowmap.draw(this.gl, this.activeShader, this.light);
+
+    if (this.useShadows === true)
+      this.shadowmap.draw(this.gl, this.activeShader, this.light);
 
     if (this.light instanceof LEEWGL.Light.DirectionalLight) {
       this.activeShader.uniforms['uLightDirection'](this.light.direction);
@@ -370,12 +377,13 @@ LEEWGL.TestApp.prototype.draw = function(element, viewProjection) {
       this.activeShader.uniforms['uSpotInnerAngle'](this.light.innerAngle);
       this.activeShader.uniforms['uSpotOuterAngle'](this.light.outerAngle);
       this.activeShader.uniforms['uLightRadius'](this.light.radius);
+    } else if (this.light instanceof LEEWGL.Light.PointLight) {
+      this.activeShader.uniforms['uLightPosition'](this.light.position);
+      this.activeShader.uniforms['uLightRadius'](this.light.radius);
     }
-
     this.activeShader.uniforms['uAmbient']([0.2, 0.2, 0.2]);
     this.activeShader.uniforms['uSpecular'](this.light.specular);
     this.activeShader.uniforms['uLightColor'](this.light.color);
-
     element.draw(this.gl, this.activeShader, this.gl.TRIANGLES);
   }
 };
