@@ -32,6 +32,9 @@ button {
     padding: 0;
     border: 0;
 }
+.textarea-small {
+  font-size: 60%;
+}
 .submit {
     font-size: 115%;
     color: #565453;

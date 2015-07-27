@@ -2,246 +2,248 @@
 <html>
 
 <head>
-    <title>LEEWGL Editor View</title>
-    <link rel="stylesheet" type="text/css" href="css/styles.css">
-    <link rel="stylesheet" type="text/css" href="css/general.css">
-    <link rel="stylesheet" type="text/css" href="css/form.css">
-    <link rel="stylesheet" type="text/css" href="css/table.css">
-    <link rel="stylesheet" type="text/css" href="css/popup.css">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="text/javascript" src="js/gl-matrix/common.js"></script>
-    <script type="text/javascript" src="js/gl-matrix/mat4.js"></script>
-    <script type="text/javascript" src="js/gl-matrix/vec4.js"></script>
-    <script type="text/javascript" src="js/gl-matrix/vec3.js"></script>
-    <script type="text/javascript" src="js/gl-matrix/vec2.js"></script>
-    <script type="text/javascript" src="js/engine/Core.js"></script>
-    <script type="text/javascript" src="js/engine/Class.js"></script>
-    <script type="text/javascript" src="js/engine/Options.js"></script>
-    <script type="text/javascript" src="js/engine/EventDispatcher.js"></script>
-    <script type="text/javascript" src="js/engine/DOMElement.js"></script>
-    <script type="text/javascript" src="js/engine/DOMAnimator.js"></script>
-    <script type="text/javascript" src="js/engine/Extension.js"></script>
-    <script type="text/javascript" src="js/engine/AsynchRequest.js"></script>
-    <script type="text/javascript" src="js/engine/Math.js"></script>
-    <script type="text/javascript" src="js/engine/VertexDeclarations.js"></script>
-    <script type="text/javascript" src="js/engine/Buffer.js"></script>
-    <script type="text/javascript" src="js/engine/Shader.js"></script>
-    <script type="text/javascript" src="js/engine/Component.js"></script>
-    <script type="text/javascript" src="js/engine/Object3D.js"></script>
-    <script type="text/javascript" src="js/engine/Texture.js"></script>
-    <script type="text/javascript" src="js/engine/Geometry.js"></script>
-    <script type="text/javascript" src="js/engine/Camera.js"></script>
-    <script type="text/javascript" src="js/engine/PerspectiveCamera.js"></script>
-    <script type="text/javascript" src="js/engine/App.js"></script>
-    <script type="text/javascript" src="js/engine/TestApp.js"></script>
-    <script type="text/javascript" src="js/engine/Picker.js"></script>
-    <script type="text/javascript" src="js/engine/Storage.js"></script>
-    <script type="text/javascript" src="js/engine/DragDrop.js"></script>
-    <script type="text/javascript" src="js/engine/UI.js"></script>
-    <script type="text/javascript" src="js/engine/UniformLibrary.js"></script>
-    <script type="text/javascript" src="js/engine/ShaderChunk.js"></script>
-    <script type="text/javascript" src="js/engine/ShaderLibrary.js"></script>
-    <script type="text/javascript" src="js/engine/Importer.js"></script>
-    <script type="text/javascript" src="js/engine/Light.js"></script>
-    <script type="text/javascript" src="js/engine/Scene.js"></script>
-    <script type="text/javascript" src="js/engine/Shadowmap.js"></script>
-    <script type="text/javascript" src="js/engine/Lightbox.js"></script>
+  <title>LEEWGL Editor View</title>
+  <link rel="stylesheet" type="text/css" href="css/styles.css">
+  <link rel="stylesheet" type="text/css" href="css/general.css">
+  <link rel="stylesheet" type="text/css" href="css/form.css">
+  <link rel="stylesheet" type="text/css" href="css/table.css">
+  <link rel="stylesheet" type="text/css" href="css/popup.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script type="text/javascript" src="js/gl-matrix/common.js"></script>
+  <script type="text/javascript" src="js/gl-matrix/mat4.js"></script>
+  <script type="text/javascript" src="js/gl-matrix/vec4.js"></script>
+  <script type="text/javascript" src="js/gl-matrix/vec3.js"></script>
+  <script type="text/javascript" src="js/gl-matrix/vec2.js"></script>
+  <script type="text/javascript" src="js/engine/Core.js"></script>
+  <script type="text/javascript" src="js/engine/Class.js"></script>
+  <script type="text/javascript" src="js/engine/Options.js"></script>
+  <script type="text/javascript" src="js/engine/EventDispatcher.js"></script>
+  <script type="text/javascript" src="js/engine/DOMElement.js"></script>
+  <script type="text/javascript" src="js/engine/DOMAnimator.js"></script>
+  <script type="text/javascript" src="js/engine/Extension.js"></script>
+  <script type="text/javascript" src="js/engine/AsynchRequest.js"></script>
+  <script type="text/javascript" src="js/engine/Math.js"></script>
+  <script type="text/javascript" src="js/engine/VertexDeclarations.js"></script>
+  <script type="text/javascript" src="js/engine/Buffer.js"></script>
+  <script type="text/javascript" src="js/engine/Shader.js"></script>
+  <script type="text/javascript" src="js/engine/Component.js"></script>
+  <script type="text/javascript" src="js/engine/Object3D.js"></script>
+  <script type="text/javascript" src="js/engine/Texture.js"></script>
+  <script type="text/javascript" src="js/engine/Geometry.js"></script>
+  <script type="text/javascript" src="js/engine/Camera.js"></script>
+  <script type="text/javascript" src="js/engine/PerspectiveCamera.js"></script>
+  <script type="text/javascript" src="js/engine/App.js"></script>
+  <script type="text/javascript" src="js/engine/EditorApp.js"></script>
+  <script type="text/javascript" src="js/engine/Picker.js"></script>
+  <script type="text/javascript" src="js/engine/Storage.js"></script>
+  <script type="text/javascript" src="js/engine/DragDrop.js"></script>
+  <script type="text/javascript" src="js/engine/UI.js"></script>
+  <script type="text/javascript" src="js/engine/UniformLibrary.js"></script>
+  <script type="text/javascript" src="js/engine/ShaderChunk.js"></script>
+  <script type="text/javascript" src="js/engine/ShaderLibrary.js"></script>
+  <script type="text/javascript" src="js/engine/Importer.js"></script>
+  <script type="text/javascript" src="js/engine/Light.js"></script>
+  <script type="text/javascript" src="js/engine/Scene.js"></script>
+  <script type="text/javascript" src="js/engine/Shadowmap.js"></script>
+  <script type="text/javascript" src="js/engine/Lightbox.js"></script>
 </head>
 
 <body>
-    <div id="wrapper">
-        <div id="header-bar-overall">
-            <div id="header-bar">
-                <ul class="background-gradient-blue">
-                    <li><a href="#">File</a>
-                        <ul>
-                            <li><a href="#" onclick="UI.load();">Load</a></li>
-                            <li><a href="#" onclick="UI.save();">Save</a></li>
-                            <li><a href="#">Import</a>
-                                <ul>
-                                    <li><a href="#" onclick="UI.displayImportModel();">Model</a>
-                                    </li>
-                                    <li><a href="#" onclick="UI.displayImportScript();">Script</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><a href="#">Export</a>
-                            </li>
-                            <li><a href="#" onclick="UI.resetScene();">Reset Scene</a>
-                            </li>
-                            <li><a href="#" onclick="UI.displaySettings();">Settings</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li><a href="#">Edit</a>
-                        <ul>
-                            <li><a href="#" onclick="UI.copyObject();">Copy</a>
-                            </li>
-                            <li><a href="#" onclick="UI.cutObject();">Cut</a>
-                            </li>
-                            <li><a href="#" onclick="UI.pasteObject();">Paste</a>
-                            </li>
-                            <li><a href="#" onclick="UI.duplicateObject();">Duplicate</a>
-                            </li>
-                            <li><a href="#" onclick="UI.deleteObject();">Delete</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li><a href="#">GameObject</a>
-                        <ul>
-                            <li><a href="#">3D-Object</a>
-                                <ul>
-                                    <li><a href="#" onclick="UI.insertSphere();">Sphere</a>
-                                    </li>
-                                    <li><a href="#" onclick="UI.insertCube();">Cube</a>
-                                    </li>
-                                    <li><a href="#" onclick="UI.insertTriangle();">Triangle</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><a href="#">Light</a>
-                                <ul>
-                                    <li><a href="#" onclick="UI.insertLight({'type' : 'Directional'});">Directional Light</a>
-                                    </li>
-                                    <li><a href="#" onclick="UI.insertLight({'type' : 'Point'});">Point Light</a>
-                                    </li>
-                                    <li><a href="#" onclick="UI.insertLight({'type' : 'Spot'});">Spot Light</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><a href="#" onclick="UI.insertCamera();">Camera</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li><a href="#">Component</a>
-                        <ul>
-                            <li><a href="#">Rendering</a>
-                                <ul>
-                                    <li><a href="#" onclick="UI.addTexture();">Texture</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><a href="#" onclick="UI.addCustomScriptComponent();">Script</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li><a href="#">Window</a>
-                        <ul>
-                            <li><a href="#">Layout</a>
-                                <ul>
-                                    <li><a href="#">Default</a>
-                                    </li>
-                                    <li><a href="#">Wide</a>
-                                    </li>
-                                    <li><a href="#">Small</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><a href="#" onclick="UI.displayAbout()">About</a>
-                            </li>
-                        </ul>
-                    </li>
+  <div id="wrapper">
+    <div id="header-bar-overall">
+      <div id="header-bar">
+        <ul class="background-gradient-blue">
+          <li><a href="#">File</a>
+            <ul>
+              <li><a href="#" onclick="UI.load();">Load</a></li>
+              <li><a href="#" onclick="UI.save();">Save</a></li>
+              <li><a href="#">Import</a>
+                <ul>
+                  <li><a href="#" onclick="UI.displayImportModel();">Model</a>
+                  </li>
+                  <li><a href="#" onclick="UI.displayImportScript();">Script</a>
+                  </li>
                 </ul>
-            </div>
-        </div>
-        <div id="container-overall">
-            <div id="container">
-                <div id="content">
-                    <div id="controls-container-overall" class="dynamic-container">
-                        <div class="container-header background-gradient-blue mbot10">
-                            <h2>Controls</h2>
-                            <div class="icon-container fleft">
-                                <img alt="Release Window" title="Release Window" src="img/icons/move_half.png" />
-                            </div>
-                        </div>
-                        <div id="controls-container">
-                            <img id="play-control" class="icon-big mright35 pointer" alt="Play" title="Play" onclick="UI.play(this);" />
-                            <img class="icon-big pointer" src="img/icons/stop.png" alt="Stop" title="Stop" onclick="UI.stop();" />
-                        </div>
-                    </div>
-                    <div id="render-container">
-                        <div id="editor-view-container" class="dynamic-container">
-                            <div class="container-header background-gradient-blue">
-                                <h2>Editor View</h2>
-                                <div class="icon-container fleft">
-                                    <img alt="Release Window" title="Release Window" src="img/icons/move_half.png" />
-                                </div>
-                            </div>
-                            <canvas id="editor-canvas" tabindex="1"></canvas>
-                        </div>
-                    </div>
-                    <div id="outline-container" class="dynamic-container">
-                        <div class="container-header background-gradient-blue">
-                            <h2>Outline</h2>
-                            <div class="icon-container fleft">
-                                <img alt="Release Window" title="Release Window" src="img/icons/move_half.png" />
-                            </div>
-                        </div>
-                        <div id="dynamic-outline"></div>
-                    </div>
-                    <div id="inspector-container" class="dynamic-container">
-                        <div class="container-header background-gradient-blue">
-                            <h2>Inspector</h2>
-                            <div class="icon-container fleft">
-                                <img alt="Release Window" title="Release Window" src="img/icons/move_half.png" />
-                            </div>
-                        </div>
-                        <div id="dynamic-inspector"></div>
-                    </div>
-                    <div class="clearer"></div>
-                </div>
-            </div>
-        </div>
-        <div id="status-bar-overall" class="background-gradient-blue">
-            <div id="status-bar">STATUS BAR</div>
-        </div>
+              </li>
+              <li><a href="#" onclick="UI.displayExport();">Export</a>
+              </li>
+              <li><a href="#" onclick="UI.resetScene();">Reset Scene</a>
+              </li>
+              <li><a href="#" onclick="UI.displaySettings();">Settings</a>
+              </li>
+            </ul>
+          </li>
+          <li><a href="#">Edit</a>
+            <ul>
+              <li><a href="#" onclick="UI.copyObject();">Copy</a>
+              </li>
+              <li><a href="#" onclick="UI.cutObject();">Cut</a>
+              </li>
+              <li><a href="#" onclick="UI.pasteObject();">Paste</a>
+              </li>
+              <li><a href="#" onclick="UI.duplicateObject();">Duplicate</a>
+              </li>
+              <li><a href="#" onclick="UI.deleteObject();">Delete</a>
+              </li>
+            </ul>
+          </li>
+          <li><a href="#">GameObject</a>
+            <ul>
+              <li><a href="#">3D-Object</a>
+                <ul>
+                  <li><a href="#" onclick="UI.insertSphere();">Sphere</a>
+                  </li>
+                  <li><a href="#" onclick="UI.insertCube();">Cube</a>
+                  </li>
+                  <li><a href="#" onclick="UI.insertTriangle();">Triangle</a>
+                  </li>
+                </ul>
+              </li>
+              <li><a href="#">Light</a>
+                <ul>
+                  <li><a href="#" onclick="UI.insertLight({'type' : 'Directional'});">Directional Light</a>
+                  </li>
+                  <li><a href="#" onclick="UI.insertLight({'type' : 'Point'});">Point Light</a>
+                  </li>
+                  <li><a href="#" onclick="UI.insertLight({'type' : 'Spot'});">Spot Light</a>
+                  </li>
+                </ul>
+              </li>
+              <li><a href="#" onclick="UI.insertCamera();">Camera</a>
+              </li>
+            </ul>
+          </li>
+          <li><a href="#">Component</a>
+            <ul>
+              <li><a href="#">Rendering</a>
+                <ul>
+                  <li><a href="#" onclick="UI.addTexture();">Texture</a>
+                  </li>
+                </ul>
+              </li>
+              <li><a href="#" onclick="UI.addCustomScriptComponent();">Script</a>
+              </li>
+            </ul>
+          </li>
+          <li><a href="#">Window</a>
+            <ul>
+              <li><a href="#">Layout</a>
+                <ul>
+                  <li><a href="#">Default</a>
+                  </li>
+                  <li><a href="#">Wide</a>
+                  </li>
+                  <li><a href="#">Small</a>
+                  </li>
+                </ul>
+              </li>
+              <li><a href="#" onclick="UI.displayAbout()">About</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
     </div>
+    <div id="container-overall">
+      <div id="container">
+        <div id="content">
+          <div id="controls-container-overall" class="dynamic-container">
+            <div class="container-header background-gradient-blue mbot10">
+              <h2>Controls</h2>
+              <div class="icon-container fleft">
+                <img alt="Release Window" title="Release Window" src="img/icons/move_half.png" />
+              </div>
+            </div>
+            <div id="controls-container">
+              <img id="play-control" class="icon-big mright35 pointer" alt="Play" title="Play" onclick="UI.play(this);" />
+              <img class="icon-big pointer" src="img/icons/stop.png" alt="Stop" title="Stop" onclick="UI.stop();" />
+            </div>
+          </div>
+          <div id="render-container">
+            <div id="editor-view-container" class="dynamic-container">
+              <div class="container-header background-gradient-blue">
+                <h2>Editor View</h2>
+                <div class="icon-container fleft">
+                  <img alt="Release Window" title="Release Window" src="img/icons/move_half.png" />
+                </div>
+              </div>
+              <canvas id="editor-canvas" tabindex="1"></canvas>
+            </div>
+          </div>
+          <div id="outline-container" class="dynamic-container">
+            <div class="container-header background-gradient-blue">
+              <h2>Outline</h2>
+              <div class="icon-container fleft">
+                <img alt="Release Window" title="Release Window" src="img/icons/move_half.png" />
+              </div>
+            </div>
+            <div id="dynamic-outline"></div>
+          </div>
+          <div id="inspector-container" class="dynamic-container">
+            <div class="container-header background-gradient-blue">
+              <h2>Inspector</h2>
+              <div class="icon-container fleft">
+                <img alt="Release Window" title="Release Window" src="img/icons/move_half.png" />
+              </div>
+            </div>
+            <div id="dynamic-inspector"></div>
+          </div>
+          <div class="clearer"></div>
+        </div>
+      </div>
+    </div>
+    <div id="status-bar-overall" class="background-gradient-blue">
+      <div id="status-bar">STATUS BAR</div>
+    </div>
+  </div>
 
-    <script>
-        window.addEventListener('load', function() {
-            UI.dynamicContainers('.icon-container', '.dynamic-container');
-            UI.setInspector('#dynamic-inspector');
-            UI.setStatusBar('#status-bar');
-            // UI.preventRefresh();
+  <script>
+    var init = function() {
+      UI.dynamicContainers('.icon-container', '.dynamic-container');
+      UI.setInspector('#dynamic-inspector');
+      UI.setStatusBar('#status-bar');
+      // UI.preventRefresh();
 
-            var overallContainer = document.querySelector('#container-overall');
-            var editorCanvas = document.querySelector('#editor-canvas');
+      var overallContainer = document.querySelector('#container-overall');
+      var editorCanvas = document.querySelector('#editor-canvas');
 
-            var LEEWGL = new window.LEEWGL.Core({
-                'editorCanvas': editorCanvas
-            });
-            var testapp = new window.LEEWGL.TestApp({
-                'core': LEEWGL
-            });
+      var LEEWGL = new window.LEEWGL.Core({
+        'editorCanvas': editorCanvas
+      });
+      var editorApp = new window.LEEWGL.EditorApp({
+        'core': LEEWGL
+      });
 
+      LEEWGL.attachApp(editorApp);
+      LEEWGL.init();
+      window.requestAnimationFrame(LEEWGL.run.bind(LEEWGL));
 
-            LEEWGL.attachApp(testapp);
-            LEEWGL.init();
-            window.requestAnimationFrame(LEEWGL.run.bind(LEEWGL));
+      // var testContent = new window.LEEWGL.DOM.Element('div', {
+      //     'styles': {
+      //         'position': 'absolute',
+      //         'top': '100px',
+      //         'left': '500px',
+      //         'width': '200px',
+      //         'height': '200px',
+      //         'background-color': 'black',
+      //     }
+      // });
+      // testContent.inject(document.body);
+      // var animator = new window.LEEWGL.DOM.Animator();
+      // animator.fadeOut(testContent, 5, function() {
+      //     animator.fadeIn(testContent, 5)
+      // });
 
-            // var testContent = new window.LEEWGL.DOM.Element('div', {
-            //     'styles': {
-            //         'position': 'absolute',
-            //         'top': '100px',
-            //         'left': '500px',
-            //         'width': '200px',
-            //         'height': '200px',
-            //         'background-color': 'black',
-            //     }
-            // });
-            // testContent.inject(document.body);
-            // var animator = new window.LEEWGL.DOM.Animator();
-            // animator.fadeOut(testContent, 5, function() {
-            //     animator.fadeIn(testContent, 5)
-            // });
-
-            // animator.animate(testContent, {'width' : '500px'}, 5, undefined, 100);
-            //
-            //
-            var lightbox = new window.LEEWGL.Lightbox({'anchor' : 'div.icon-container'});
-        });
-    </script>
+      // animator.animate(testContent, {'width' : '500px'}, 5, undefined, 100);
+      //
+      //
+      var lightbox = new window.LEEWGL.Lightbox({
+        'anchor': 'div.icon-container'
+      });
+    };
+    addLoadEvent(init);
+  </script>
 </body>
 
 </html>

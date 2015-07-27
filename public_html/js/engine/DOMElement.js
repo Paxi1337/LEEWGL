@@ -3,7 +3,7 @@ LEEWGL.DOM = {};
 LEEWGL.DOM.Element = function(type, attributes) {
     this.e = null;
 
-    if (typeof type === 'object') {
+    if (typeof type === 'object' && type !== null) {
         if (typeof type.length !== 'undefined') {} else {
             this.e = type;
         }

@@ -85,7 +85,7 @@ LEEWGL.Lightbox = function(options) {
                 this.anchor[i].set('count', i);
 
 
-                this.anchor[i].addEvent('click', function(event) {
+                this.anchor[i].addEvent('click', function(e) {
                     var element = event.target;
 
                     if (this.options.link === true) {

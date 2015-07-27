@@ -367,8 +367,6 @@ LEEWGL.UI = function(options) {
 
     // / content
     i = 0;
-    // console.log(content);
-    // console.log(title);
     if (typeof content.value.length === 'undefined') {
       for (var k in content.value) {
         td = fillTable(k, content);
@@ -1174,7 +1172,6 @@ LEEWGL.UI = function(options) {
 
   /**
    * Insert Objects
-   *
    */
 
   this.insertTriangle = function() {
@@ -1227,6 +1224,10 @@ LEEWGL.UI = function(options) {
     if (options.type === 'Perspective')
       camera = new LEEWGL.Camera.PerspectiveCamera();
   };
+
+  /**
+   * UI exposed methods
+   */
 
   this.displayImportScript = function() {
     this.popup.empty();
@@ -1308,6 +1309,62 @@ LEEWGL.UI = function(options) {
     }
 
     this.setInspectorContent(this.activeIndex);
+  };
+
+  this.displayExport = function() {
+    this.popup.empty();
+    this.popup.setOptions({
+      'wrapper-width': '500px'
+    });
+    this.popup.setDimensions();
+
+    this.popup.addTitleText('Export');
+    this.popup.addHTMLFile('html/export.html');
+    this.popup.center();
+    this.popup.show();
+
+    this.export();
+  };
+
+  this.export = function() {
+    var vertex_shaders = document.getElementsByClassName('vertex-shaders');
+    var fragment_shaders = document.getElementsByClassName('fragment-shaders');
+
+    var textarea_vertex_shaders = new LEEWGL.DOM.Element(document.getElementById('export-vertex-shaders'));
+    var textarea_fragment_shaders = new LEEWGL.DOM.Element(document.getElementById('export-fragment-shaders'));
+    textarea_vertex_shaders.set('html', vertex_shaders[0].innerHTML);
+    textarea_fragment_shaders.set('html', fragment_shaders[0].innerHTML);
+
+    var textarea_export = new LEEWGL.DOM.Element(document.getElementById('export'));
+
+    var code_export_init = " \
+    var body = new LEEWGL.DOM.Element(document.body); \n \
+    var canvas = new LEEWGL.DOM.Element('canvas', { \n \
+        'styles' : { \n \
+          'width' : '512px', \n \
+          'height' : '512px' \n \
+        } \n \
+    }); \n \
+    body.grab(canvas); \n \
+    var core = new window.LEEWGL.Core({ \n \
+      'editorCanvas': canvas.e \n \
+    }); \n \
+    var testapp = new window.LEEWGL.TestApp({ \n \
+      'core': core \n \
+    }); \n \
+    core.attachApp(testapp); \n \
+    core.init(); \n \
+    window.requestAnimationFrame(core.run.bind(LEEWGL)); \n \
+    var gl = core.getContext(); \n \
+    ".trim();
+
+    /// shaders
+    var code_export_shader = " \
+    var vertex_shader0 = new LEEWGL.Shader(); \n \
+    vertex_shader0.createShaderFromCode(gl, LEEWGL.Shader.VERTEX, ) \n \
+    ".trim();
+
+    textarea_export.set('html', code_export_init + '\n\n' + code_export_shader);
   };
 
   this.preventRefresh = function() {
@@ -1477,7 +1534,6 @@ LEEWGL.UI.Popup = function(options) {
       y = 0;
 
     var size = this.wrapper.size(this.isDisplayed, this.parent);
-
     return {
       'width': size.width,
       'height': size.height

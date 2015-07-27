@@ -233,7 +233,6 @@ LEEWGL.ShaderLibrary = function() {
     this.usesTexture = false;
 
     this.initializeChunks();
-
   };
 
   this.initializeChunks();

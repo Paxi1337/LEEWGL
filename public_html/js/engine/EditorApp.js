@@ -1,4 +1,4 @@
-LEEWGL.TestApp = function(options) {
+LEEWGL.EditorApp = function(options) {
   LEEWGL.App.call(this, options);
 
   this.camera = new LEEWGL.PerspectiveCamera({
@@ -58,9 +58,9 @@ LEEWGL.TestApp = function(options) {
   this.testModel = new LEEWGL.Geometry.Triangle();
 };
 
-LEEWGL.TestApp.prototype = Object.create(LEEWGL.App.prototype);
+LEEWGL.EditorApp.prototype = Object.create(LEEWGL.App.prototype);
 
-LEEWGL.TestApp.prototype.onCreate = function() {
+LEEWGL.EditorApp.prototype.onCreate = function() {
   var that = this;
 
   var head = new LEEWGL.DOM.Element(document.head);
@@ -207,7 +207,7 @@ LEEWGL.TestApp.prototype.onCreate = function() {
   console.log(this.scene.children);
 };
 
-LEEWGL.TestApp.prototype.updatePickingList = function() {
+LEEWGL.EditorApp.prototype.updatePickingList = function() {
   if (this.picking === true) {
     for (var i = 0; i < this.scene.children.length; ++i) {
       var element = this.scene.children[i];
@@ -218,7 +218,7 @@ LEEWGL.TestApp.prototype.updatePickingList = function() {
   }
 };
 
-LEEWGL.TestApp.prototype.onMouseDown = function(event) {
+LEEWGL.EditorApp.prototype.onMouseDown = function(event) {
   var mouseCords = UI.getRelativeMouseCoordinates(event, this.canvas);
 
   event.target.focus();
@@ -245,7 +245,7 @@ LEEWGL.TestApp.prototype.onMouseDown = function(event) {
   event.stopPropagation();
 };
 
-LEEWGL.TestApp.prototype.onMouseMove = function(event) {
+LEEWGL.EditorApp.prototype.onMouseMove = function(event) {
   var movement = {
     'x': 0,
     'y': 0
@@ -292,25 +292,25 @@ LEEWGL.TestApp.prototype.onMouseMove = function(event) {
   }
 };
 
-LEEWGL.TestApp.prototype.onMouseUp = function(event) {
+LEEWGL.EditorApp.prototype.onMouseUp = function(event) {
   this.activeElement = null;
   event.preventDefault();
   event.stopPropagation();
 };
 
-LEEWGL.TestApp.prototype.onKeyUp = function(event) {
+LEEWGL.EditorApp.prototype.onKeyUp = function(event) {
   this.activeKeys[event.keyCode] = false;
   event.preventDefault();
   event.stopPropagation();
 };
 
-LEEWGL.TestApp.prototype.onKeyDown = function(event) {
+LEEWGL.EditorApp.prototype.onKeyDown = function(event) {
   this.activeKeys[event.keyCode] = true;
   event.preventDefault();
   event.stopPropagation();
 };
 
-LEEWGL.TestApp.prototype.onUpdate = function() {
+LEEWGL.EditorApp.prototype.onUpdate = function() {
   this.camera.update();
   this.gameCamera.update();
   this.handleKeyInput();
@@ -321,7 +321,7 @@ LEEWGL.TestApp.prototype.onUpdate = function() {
   }
 };
 
-LEEWGL.TestApp.prototype.handleKeyInput = function() {
+LEEWGL.EditorApp.prototype.handleKeyInput = function() {
   if (typeof UI !== 'undefined' && UI.playing === true)
     return;
 
@@ -344,7 +344,7 @@ LEEWGL.TestApp.prototype.handleKeyInput = function() {
   }
 };
 
-LEEWGL.TestApp.prototype.onRender = function() {
+LEEWGL.EditorApp.prototype.onRender = function() {
   this.clear();
 
   var viewProjection = this.camera.viewProjMatrix;
@@ -387,14 +387,14 @@ LEEWGL.TestApp.prototype.onRender = function() {
   }
 };
 
-LEEWGL.TestApp.prototype.clear = function() {
+LEEWGL.EditorApp.prototype.clear = function() {
   this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
   this.gl.clearColor(LEEWGL.Settings.BackgroundColor.r, LEEWGL.Settings.BackgroundColor.g, LEEWGL.Settings.BackgroundColor.b, LEEWGL.Settings.BackgroundColor.a);
   this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
   this.gl.colorMask(true, true, true, true);
 };
 
-LEEWGL.TestApp.prototype.draw = function(element, viewProjection) {
+LEEWGL.EditorApp.prototype.draw = function(element, viewProjection) {
   if (element.render === true) {
     this.activeShader.use(this.gl);
     this.activeShader.uniforms['uVP'](viewProjection);
