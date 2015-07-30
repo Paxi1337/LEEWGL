@@ -3,6 +3,7 @@ LEEWGL.REQUIRES.push('Geometry');
 LEEWGL.Geometry = function(options) {
   LEEWGL.Object3D.call(this, options);
 
+  this.name = 'LEEWGL.Geometry';
   this.type = 'Geometry';
 
   this.vertices = {
@@ -205,14 +206,21 @@ LEEWGL.Geometry.prototype.clone = function(geometry) {
 LEEWGL.Geometry.Plane = function() {
   LEEWGL.Geometry.call(this);
 
-  this.distance = 0.0;
+  this.name = 'LEEWGL.Geometry.Plane';
+  this.dist = 0.0;
 };
 
 LEEWGL.Geometry.Plane.prototype = Object.create(LEEWGL.Geometry.prototype);
 
+LEEWGL.Geometry.Plane.prototype.distance = function(origin) {
+  return vec3.dot(this.normal, origin) + this.dist;
+};
+
 // / FIXME: not working [indices]
 LEEWGL.Geometry.Grid = function() {
   LEEWGL.Geometry.call(this);
+
+  this.name = 'LEEWGL.Geometry.Grid';
 
   this.generateGrid = function(width, height, margin) {
     for (var z = 0; z < height; ++z) {
@@ -241,7 +249,6 @@ LEEWGL.Geometry.Grid = function() {
         // / degenerate triangle
         if (z !== height - 2)
           this.indices.push((x + 1) + (z * width));
-
       }
     }
   };
@@ -249,12 +256,10 @@ LEEWGL.Geometry.Grid = function() {
 
 LEEWGL.Geometry.Grid.prototype = Object.create(LEEWGL.Geometry.prototype);
 
-LEEWGL.Geometry.Plane.prototype.distance = function(origin) {
-  return vec3.dot(this.normal, origin) + this.distance;
-};
-
 LEEWGL.Geometry.Triangle = function() {
   LEEWGL.Geometry.call(this);
+
+  this.name = 'LEEWGL.Geometry.Triangle';
 
   this.vertices.position = [
     0.0, 1.0, 0.0, -1.0, -1.0, 1.0,
@@ -324,6 +329,8 @@ LEEWGL.Geometry.Triangle.prototype.clone = function(triangle) {
 
 LEEWGL.Geometry.Cube = function() {
   LEEWGL.Geometry.call(this);
+
+  this.name = 'LEEWGL.Geometry.Cube';
 
   this.vertices.position = [
     // Front face
@@ -412,6 +419,8 @@ LEEWGL.Geometry.Cube.prototype.clone = function(cube) {
 LEEWGL.Geometry.Sphere = function(options) {
   LEEWGL.Geometry.call(this, options);
 
+  this.name = 'LEEWGL.Geometry.Sphere';
+
   var latitudeBands = 10;
   var longitudeBands = 10;
   var radius = 1;
@@ -458,8 +467,6 @@ LEEWGL.Geometry.Sphere = function(options) {
       this.facesNum++;
     }
   }
-
-
   // this.calculateFaces();
   // this.calculateNormals();
 };
@@ -467,11 +474,9 @@ LEEWGL.Geometry.Sphere = function(options) {
 LEEWGL.Geometry.Sphere.prototype = Object.create(LEEWGL.Geometry.prototype);
 
 LEEWGL.Geometry.Sphere.prototype.clone = function(sphere) {
-  if (typeof sphere === 'undefined') {
+  if (typeof sphere === 'undefined')
     sphere = new LEEWGL.Geometry.Sphere();
-  }
 
   LEEWGL.Geometry.prototype.clone.call(this, sphere);
-
   return sphere;
 };

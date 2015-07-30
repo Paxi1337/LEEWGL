@@ -5,7 +5,6 @@ LEEWGL.Mesh = function() {
     value: LEEWGL.MeshCount++
   });
 
-  this.name = '';
   this.type = 'Mesh';
 
   this.vertices = [];

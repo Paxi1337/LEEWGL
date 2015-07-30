@@ -1,7 +1,6 @@
 LEEWGL.REQUIRES.push('Importer');
 
 LEEWGL.Importer = function() {
-
   var ajax = new LEEWGL.AsynchRequest();
 
   this.parseCollada = function(xml) {
@@ -121,7 +120,7 @@ LEEWGL.Importer = function() {
         }
       }
 
-      geometry.name = 'Imported Model ' + geometry.id;
+      geometry.alias = 'Imported Model ' + geometry.id;
       geometry.vertices.position = result.vertices;
       geometry.indices = result.indices;
       geometry.vertices.normal = result.normals;

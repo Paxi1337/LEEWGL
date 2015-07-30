@@ -77,6 +77,9 @@ LEEWGL.UI = function(options) {
 
   this.body = new LEEWGL.DOM.Element(document.body);
 
+  var extend = new LEEWGL.Class();
+  extend.extend(LEEWGL.UI.prototype, LEEWGL.Options.prototype);
+
   this.setGL = function(gl) {
     this.gl = gl;
   };
@@ -176,7 +179,7 @@ LEEWGL.UI = function(options) {
 
       keydownFunction = function(event, element) {
         if (event.keyCode === LEEWGL.KEYS.ENTER) {
-          that.activeElement.name = element.get('text');
+          that.activeElement.alias = element.get('text');
           that.setEditable(-1);
           that.updateOutline = true;
           that.setInspectorContent(index);
@@ -247,7 +250,7 @@ LEEWGL.UI = function(options) {
       var item = new LEEWGL.DOM.Element('li');
       var element = new LEEWGL.DOM.Element('a', {
         'href': '#',
-        'html': obj.name
+        'html': obj.alias
       });
 
       item.grab(element);
@@ -773,12 +776,12 @@ LEEWGL.UI = function(options) {
         if (editable.value instanceof Array) {
           console.log(editable);
           container.grab(this.createTable(null, editable['table-titles'], editable, {
-            'title': editable.name,
+            'title': editable.alias,
             'type': 'h4',
             'class': 'component-detail-headline'
           }));
         } else {
-          this.createContainerDetailInput(null, container, editable.name, editable.value);
+          this.createContainerDetailInput(null, container, editable.alias, editable.value);
         }
       }
       this.inspector.grab(container);
@@ -815,7 +818,7 @@ LEEWGL.UI = function(options) {
 
     var name = new LEEWGL.DOM.Element('h3', {
       'class': 'component-detail-headline',
-      'text': 'Name - ' + activeElement.name
+      'text': 'Name - ' + activeElement.alias
     });
 
     this.inspector.grab(name);
@@ -955,7 +958,7 @@ LEEWGL.UI = function(options) {
     var that = this;
 
     this.popup.addList(availableComponents, function(item) {
-      var className = that.stringToFunction('LEEWGL.Component.' + item);
+      var className = extend.fromString('LEEWGL.Component.' + item);
       that.activeElement.addComponent(new className());
       that.setInspectorContent(that.activeElement.id);
       that.popup.hide();
@@ -1375,16 +1378,6 @@ LEEWGL.UI = function(options) {
         event.preventDefault();
       }
     };
-  };
-
-  this.stringToFunction = function(str) {
-    var arr = str.split(".");
-    var fn = window;
-    for (var i = 0; i < arr.length; ++i) {
-      fn = fn[arr[i]];
-    }
-
-    return fn;
   };
 
   this.statusBarToHTML = function() {

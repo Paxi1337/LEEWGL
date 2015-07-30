@@ -5,8 +5,10 @@ LEEWGL.REQUIRES.push('Object3D');
  * @param  {object} options
  */
 LEEWGL.Object3D = function(options) {
+  this.name = 'LEEWGL.Object3D';
+
   this.options = {
-    'name': 'Object3D_' + LEEWGL.Object3DCount,
+    'alias': 'Object3D_' + LEEWGL.Object3DCount,
     'parent': 'undefined',
     'children': [],
     'components': {},
@@ -28,8 +30,8 @@ LEEWGL.Object3D = function(options) {
       value: LEEWGL.Object3DCount++,
       enumerable: false
     },
-    'name': {
-      value: this.options.name,
+    'alias': {
+      value: this.options.alias,
       enumerable: false,
       writable: true
     },
@@ -166,13 +168,13 @@ LEEWGL.Object3D.prototype = {
     }
     return 'undefined';
   },
-  getObjectByName: function(name, recursive) {
-    if (this.name === name)
+  getObjectByAlias: function(alias, recursive) {
+    if (this.alias === alias)
       return this;
 
     for (var i = 0; i < this.children.length; ++i) {
       var child = this.children[i];
-      var object = child.getObjectByName(name, recursive);
+      var object = child.getObjectByAlias(alias, recursive);
       if (object !== 'undefined') {
         return object;
       }
@@ -201,7 +203,7 @@ LEEWGL.Object3D.prototype = {
     recursive = (typeof recursive !== 'undefined') ? recursive : true;
 
     LEEWGL.Component.Transform.prototype.clone.call(this.transform, object.transform);
-    object.name = this.name + 'Clone';
+    object.alias = this.alias + 'Clone';
     object.parent = this.parent;
 
     for (var component in this.components) {
@@ -245,21 +247,25 @@ LEEWGL.Object3D.prototype = {
 
     var json = {};
 
+    console.log(nonenum_only);
+
     for (var i = 0; i < nonenum_only.length; ++i) {
       json[nonenum_only[i]] = this[nonenum_only[i]];
     }
 
     console.log(LEEWGL.REQUIRES);
-
-    console.log(json);
     var stringified = JSON.stringify(json);
-    console.log(JSON.parse(stringified));
+    console.log(json);
+    // console.log(stringified);
+
+    this.import(stringified);
 
     // var arr = [10, 20, 30, 40];
     // console.log(JSON.stringify(arr));
   },
-  import: function(json) {
-
+  import: function(stringified_json) {
+    var json = JSON.parse(stringified_json);
+    console.log(json);
   }
 };
 

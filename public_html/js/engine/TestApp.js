@@ -4,7 +4,7 @@ LEEWGL.TestApp = function(options) {
   LEEWGL.App.call(this, options);
 
   this.camera = new LEEWGL.PerspectiveCamera({
-    'name': 'EditorCamera',
+    'alias': 'EditorCamera',
     'fov': 90,
     'aspect': 512 / 512,
     'near': 1,
@@ -12,7 +12,7 @@ LEEWGL.TestApp = function(options) {
     'inOutline': false
   });
   this.gameCamera = new LEEWGL.PerspectiveCamera({
-    'name': 'GameCamera',
+    'alias': 'GameCamera',
     'fov': 90,
     'aspect': 512 / 512,
     'near': 1,
@@ -70,10 +70,10 @@ LEEWGL.TestApp.prototype.onCreate = function() {
   this.core.setViewport(0, 0, 512, 512);
   this.core.setSize(512, 512);
 
-  this.triangle.name = 'Triangle';
-  this.cube.name = 'Cube';
-  this.grid.name = 'Grid';
-  this.light.name = 'Light';
+  this.triangle.alias = 'Triangle';
+  this.cube.alias = 'Cube';
+  this.grid.alias = 'Grid';
+  this.light.alias = 'Light';
 
   this.camera.transform.setPosition([0.0, 0.0, 10.0]);
   this.camera.setLookAt([0.0, 0.0, -1.0]);
