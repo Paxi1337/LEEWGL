@@ -398,21 +398,6 @@ LEEWGL.EditorApp.prototype.draw = function(element, shader, viewProjection) {
     if (this.useShadows === true)
       this.shadowmap.draw(this.gl, shader, this.light);
 
-    if (this.light instanceof LEEWGL.Light.DirectionalLight) {
-      shader.uniforms['uLightDirection'](this.light.direction);
-    } else if (this.light instanceof LEEWGL.Light.SpotLight) {
-      shader.uniforms['uLightPosition'](this.light.transform.position);
-      shader.uniforms['uSpotDirection'](this.light.spotDirection);
-      shader.uniforms['uSpotInnerAngle'](this.light.innerAngle);
-      shader.uniforms['uSpotOuterAngle'](this.light.outerAngle);
-      shader.uniforms['uLightRadius'](this.light.radius);
-    } else if (this.light instanceof LEEWGL.Light.PointLight) {
-      shader.uniforms['uLightPosition'](this.light.position);
-      shader.uniforms['uLightRadius'](this.light.radius);
-    }
-    shader.uniforms['uAmbient']([0.2, 0.2, 0.2]);
-    shader.uniforms['uSpecular'](this.light.specular);
-    shader.uniforms['uLightColor'](this.light.color);
     element.draw(this.gl, shader, this.gl.TRIANGLES);
   }
 };

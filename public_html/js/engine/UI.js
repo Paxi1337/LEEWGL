@@ -1342,6 +1342,8 @@ LEEWGL.UI = function(options) {
 
     var textarea_export = new LEEWGL.DOM.Element(document.getElementById('export'));
 
+    console.log(this.scene.shaders.color.code);
+
     var code_export_init = " \
     var body = new LEEWGL.DOM.Element(document.body); \n \
     var canvas = new LEEWGL.DOM.Element('canvas', { \n \

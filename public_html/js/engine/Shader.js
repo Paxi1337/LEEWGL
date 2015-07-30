@@ -9,6 +9,7 @@ LEEWGL.Shader = function() {
   this.program = null;
   this.uniforms = [];
   this.attributes = [];
+  this.code = {};
 
   /**
    * [getProgram description]
@@ -29,8 +30,10 @@ LEEWGL.Shader = function() {
     var _shader = null;
     if (type === LEEWGL.Shader.FRAGMENT) {
       _shader = gl.createShader(gl.FRAGMENT_SHADER);
+      this.code.fragment = code;
     } else if (type === LEEWGL.Shader.VERTEX) {
       _shader = gl.createShader(gl.VERTEX_SHADER);
+      this.code.vertex = code;
     } else {
       console.error('LEEWGL.Shader.compile(): unknown type given');
       return null;
@@ -42,7 +45,6 @@ LEEWGL.Shader = function() {
       console.error('LEEWGL.Shader.compile(): compile error: ' + gl.getShaderInfoLog(_shader));
       return null;
     }
-
     return _shader;
   };
 
@@ -267,6 +269,8 @@ LEEWGL.Shader = function() {
       shader = new LEEWGL.Shader();
 
     shader.program = this.program;
+    shader.code = this.code;
+
     for (var name in this.uniforms) {
       if (this.uniforms.hasOwnProperty(name)) {
         shader.uniforms[name] = this.uniforms[name];
