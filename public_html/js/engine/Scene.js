@@ -5,12 +5,17 @@ LEEWGL.Scene = function() {
   this.name = 'LEEWGL.Scene';
   this.type = 'Scene';
   this.shaders = {};
+  this.activeShader;
 };
 
 LEEWGL.Scene.prototype = Object.create(LEEWGL.Object3D.prototype);
 
 LEEWGL.Scene.prototype.addShader = function(name, shader) {
   this.shaders[name] = shader;
+};
+
+LEEWGL.Scene.prototype.setActiveShader = function(name) {
+  this.activeShader = this.shaders[name];
 };
 
 LEEWGL.Scene.prototype.clone = function(scene) {

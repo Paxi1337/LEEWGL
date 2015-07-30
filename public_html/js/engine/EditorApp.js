@@ -100,22 +100,6 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   colorShader.createUniformSetters(this.gl);
   colorShader.createAttributeSetters(this.gl);
 
-  /// insert shader into html to be able to export it later
-  var vertexHTML0 = new LEEWGL.DOM.Element('script', {
-    'id': 'vertex-shader-0',
-    'type': 'x-shader/x-vertex',
-    'class': 'vertex-shaders',
-    'html': this.shaderLibrary.vertex.parameters.join('\n') + this.shaderLibrary.vertex.main.join('\n') + '}'
-  });
-  var fragmentHTML0 = new LEEWGL.DOM.Element('script', {
-    'id': 'fragment-shader-0',
-    'type': 'x-shader/x-fragment',
-    'class': 'fragment-shaders',
-    'html': this.shaderLibrary.fragment.parameters.join('\n') + this.shaderLibrary.fragment.main.join('\n') + '}'
-  });
-  head.grab(vertexHTML0);
-  head.grab(fragmentHTML0);
-
   this.shaderLibrary.reset();
 
   this.shaderLibrary.addParameterChunks([LEEWGL.ShaderLibrary.DEFAULT, LEEWGL.ShaderLibrary.PICKING, LEEWGL.ShaderLibrary.TEXTURE, LEEWGL.ShaderLibrary.AMBIENT]);
@@ -142,22 +126,6 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
 
   this.scene.addShader('color', colorShader);
   this.scene.addShader('texture', textureShader);
-
-  /// insert shader into html to be able to export it later
-  var vertexHTML1 = new LEEWGL.DOM.Element('script', {
-    'id': 'vertex-shader-1',
-    'type': 'x-shader/x-vertex',
-    'class': 'vertex-shaders',
-    'html': this.shaderLibrary.vertex.parameters.join('\n') + this.shaderLibrary.vertex.main.join('\n') + '}'
-  });
-  var fragmentHTML1 = new LEEWGL.DOM.Element('script', {
-    'id': 'fragment-shader-1',
-    'type': 'x-shader/x-fragment',
-    'class': 'fragment-shaders',
-    'html': this.shaderLibrary.fragment.parameters.join('\n') + this.shaderLibrary.fragment.main.join('\n') + '}'
-  });
-  head.grab(vertexHTML1);
-  head.grab(fragmentHTML1);
 
   this.cameraGizmo.setBuffer(this.gl);
   this.cameraGizmo.addColor(this.gl);
@@ -352,10 +320,13 @@ LEEWGL.EditorApp.prototype.onRender = function() {
 
   for (var i = 0; i < this.scene.children.length; ++i) {
     var element = this.scene.children[i];
-    if (element.usesTexture === true)
+    if (element.usesTexture === true) {
       activeShader = this.scene.shaders['texture'];
-    else
+      this.scene.setActiveShader('texture');
+    } else {
       activeShader = this.scene.shaders['color'];
+      this.scene.setActiveShader('color');
+    }
 
     activeShader.use(this.gl);
 

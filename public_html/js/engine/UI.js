@@ -1332,17 +1332,12 @@ LEEWGL.UI = function(options) {
   };
 
   this.export = function() {
-    var vertex_shaders = document.getElementsByClassName('vertex-shaders');
-    var fragment_shaders = document.getElementsByClassName('fragment-shaders');
-
     var textarea_vertex_shaders = new LEEWGL.DOM.Element(document.getElementById('export-vertex-shaders'));
     var textarea_fragment_shaders = new LEEWGL.DOM.Element(document.getElementById('export-fragment-shaders'));
-    textarea_vertex_shaders.set('html', vertex_shaders[0].innerHTML);
-    textarea_fragment_shaders.set('html', fragment_shaders[0].innerHTML);
+    textarea_vertex_shaders.set('html', this.scene.activeShader.code.vertex);
+    textarea_fragment_shaders.set('html', this.scene.activeShader.code.fragment);
 
     var textarea_export = new LEEWGL.DOM.Element(document.getElementById('export'));
-
-    console.log(this.scene.shaders.color.code);
 
     var code_export_init = " \
     var body = new LEEWGL.DOM.Element(document.body); \n \
