@@ -1,15 +1,17 @@
-LEEWGL.Extension = function() {
-    this.vendorPrefixes = ["", "WEBKIT_", "MOZ_"];
+LEEWGL.REQUIRES.push('Extension');
 
-    this.getExtension = function(gl, name) {
-        var prefix, ext;
-        for (prefix in this.vendorPrefixes) {
-            ext = gl.getExtension(this.vendorPrefixes[prefix] + name);
-            if (ext)
-                return ext;
-        }
-        return null;
+LEEWGL.Extension = function() {
+  this.vendorPrefixes = ["", "WEBKIT_", "MOZ_"];
+
+  this.getExtension = function(gl, name) {
+    var prefix, ext;
+    for (prefix in this.vendorPrefixes) {
+      ext = gl.getExtension(this.vendorPrefixes[prefix] + name);
+      if (ext)
+        return ext;
     }
+    return null;
+  }
 };
 
 var __extensionLoader = new LEEWGL.Extension();

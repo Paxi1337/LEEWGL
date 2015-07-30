@@ -1,3 +1,5 @@
+LEEWGL.REQUIRES.push('UI');
+
 /**
  * [UI description]
  * @param {object} options

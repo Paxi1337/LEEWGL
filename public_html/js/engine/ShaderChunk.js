@@ -1,3 +1,5 @@
+  LEEWGL.REQUIRES.push('ShaderChunk');
+
   var init = function() {
     LEEWGL.ShaderChunk = {};
     var ajax = new LEEWGL.AsynchRequest();

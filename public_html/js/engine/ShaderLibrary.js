@@ -1,3 +1,5 @@
+LEEWGL.REQUIRES.push('ShaderLibrary');
+
 LEEWGL.ShaderLibrary = function() {
   this.vertex = {
     parameters: [],

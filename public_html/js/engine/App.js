@@ -1,3 +1,5 @@
+LEEWGL.REQUIRES.push('App');
+
 LEEWGL.App = function(options) {
   this.type = 'App';
 
@@ -13,7 +15,7 @@ LEEWGL.App = function(options) {
 
 LEEWGL.App.prototype = {
   constructor: LEEWGL.App,
-  
+
   onCreate: function() {},
 
   onUpdate: function() {},

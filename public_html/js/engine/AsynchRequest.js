@@ -1,18 +1,20 @@
+LEEWGL.REQUIRES.push('AsynchRequest');
+
 LEEWGL.AsynchRequest = function() {
-    this.request;
-    this.response = {};
-    this.type = LEEWGL.AsynchRequest.HTML;
+  this.request;
+  this.response = {};
+  this.type = LEEWGL.AsynchRequest.HTML;
 
-    if (window.XMLHttpRequest) {
-        this.request = new XMLHttpRequest();
-    } else if (window.ActiveXObject) {
-        this.request = new ActiveXObject("Microsoft.XMLHTTP");
-    } else {
-        console.error('LEEWGL.AsynchRequest: Cannot create a XMLHTTP Request.');
-        return false;
-    }
+  if (window.XMLHttpRequest) {
+    this.request = new XMLHttpRequest();
+  } else if (window.ActiveXObject) {
+    this.request = new ActiveXObject("Microsoft.XMLHTTP");
+  } else {
+    console.error('LEEWGL.AsynchRequest: Cannot create a XMLHTTP Request.');
+    return false;
+  }
 
-    this.request.onreadystatechange = this.onReadyStateChange.bind(this);
+  this.request.onreadystatechange = this.onReadyStateChange.bind(this);
 };
 
 LEEWGL.AsynchRequest.UNINITIALIZED = 0;
@@ -28,37 +30,37 @@ LEEWGL.AsynchRequest.JSON = 101;
 
 
 LEEWGL.AsynchRequest.prototype = {
-    constructor: LEEWGL.AsynchRequest,
-    onRequest: function() {},
-    onSuccess: function() {},
-    onError: function() {
+  constructor: LEEWGL.AsynchRequest,
+  onRequest: function() {},
+  onSuccess: function() {},
+  onError: function() {
 
-    },
-    onReadyStateChange: function() {
-        if (this.request.readyState === LEEWGL.AsynchRequest.LOADING) {
-            this.onRequest();
-        } else if (this.request.readyState === LEEWGL.AsynchRequest.COMPLETE) {
-            if (this.request.status === LEEWGL.AsynchRequest.HTTPSTATUS_COMPLETE) {
-                this.response['response'] = this.request.response;
-                this.response['responseText'] = this.request.responseText;
-                this.response['responseHTML'] = this.request.responseHTML;
-                this.response['responseXML'] = this.request.responseXML;
+  },
+  onReadyStateChange: function() {
+    if (this.request.readyState === LEEWGL.AsynchRequest.LOADING) {
+      this.onRequest();
+    } else if (this.request.readyState === LEEWGL.AsynchRequest.COMPLETE) {
+      if (this.request.status === LEEWGL.AsynchRequest.HTTPSTATUS_COMPLETE) {
+        this.response['response'] = this.request.response;
+        this.response['responseText'] = this.request.responseText;
+        this.response['responseHTML'] = this.request.responseHTML;
+        this.response['responseXML'] = this.request.responseXML;
 
-                if(this.type === LEEWGL.AsynchRequest.JSON)
-                    this.response['responseJSON'] = JSON.parse(this.request.responseText);
+        if (this.type === LEEWGL.AsynchRequest.JSON)
+          this.response['responseJSON'] = JSON.parse(this.request.responseText);
 
-                this.onSuccess();
-            }
-        } else {
-            this.onError();
-        }
-    },
-    send: function(method, loc, asynch, data, type) {
-        this.type = (typeof type !== 'undefined') ? type : LEEWGL.AsynchRequest.HTML;
-
-        this.request.open(method.toUpperCase(), loc, asynch);
-        this.request.send(data);
-
-        return this;
+        this.onSuccess();
+      }
+    } else {
+      this.onError();
     }
+  },
+  send: function(method, loc, asynch, data, type) {
+    this.type = (typeof type !== 'undefined') ? type : LEEWGL.AsynchRequest.HTML;
+
+    this.request.open(method.toUpperCase(), loc, asynch);
+    this.request.send(data);
+
+    return this;
+  }
 };

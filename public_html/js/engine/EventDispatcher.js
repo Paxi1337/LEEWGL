@@ -11,6 +11,8 @@ function addLoadEvent(func) {
   }
 }
 
+LEEWGL.REQUIRES.push('EventDispatcher');
+
 LEEWGL.EventDispatcher = function() {};
 
 LEEWGL.EventDispatcher.prototype = {

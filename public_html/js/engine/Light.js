@@ -1,3 +1,5 @@
+LEEWGL.REQUIRES.push('Light');
+
 /**
  * !!FIXME: Maybe problems with clone method because of this.editables shallow copy?
  */
@@ -41,7 +43,7 @@ LEEWGL.Light = function(options) {
 LEEWGL.Light.prototype = Object.create(LEEWGL.Object3D.prototype);
 
 LEEWGL.Light.prototype.clone = function(light) {
-  if (light === 'undefined')
+  if (typeof light === 'undefined')
     light = new LEEWGL.Light();
 
   LEEWGL.Object3D.prototype.clone.call(this, light);
@@ -76,7 +78,7 @@ LEEWGL.Light.DirectionalLight = function(options) {
 LEEWGL.Light.DirectionalLight.prototype = Object.create(LEEWGL.Light.prototype);
 
 LEEWGL.Light.DirectionalLight.prototype.clone = function(directionalLight) {
-  if (directionalLight === 'undefined')
+  if (typeof directionalLight === 'undefined')
     directionalLight = new LEEWGL.Light.DirectionalLight();
 
   LEEWGL.Light.prototype.clone.call(this, directionalLight);
@@ -138,7 +140,7 @@ LEEWGL.Light.SpotLight.prototype.getProjection = function() {
 };
 
 LEEWGL.Light.SpotLight.prototype.clone = function(spotLight) {
-  if (spotLight === 'undefined')
+  if (typeof spotLight === 'undefined')
     spotLight = new LEEWGL.Light.SpotLight();
 
   LEEWGL.Light.prototype.clone.call(this, spotLight);
@@ -163,7 +165,7 @@ LEEWGL.Light.PointLight = function(options) {
   this.position = this.options.position;
   this.editables.position = {
     'name': 'Position',
-    'table-titles' : ['x', 'y', 'z'],
+    'table-titles': ['x', 'y', 'z'],
     'value': this.position
   };
   this.editables.type.value = this.lightType;
@@ -184,7 +186,7 @@ LEEWGL.Light.PointLight.prototype.getProjection = function() {
 };
 
 LEEWGL.Light.PointLight.prototype.clone = function(pointLight) {
-  if (pointLight === 'undefined')
+  if (typeof pointLight === 'undefined')
     pointLight = new LEEWGL.Light.PointLight();
 
   LEEWGL.Light.prototype.clone.call(this, pointLight);

@@ -1,3 +1,5 @@
+LEEWGL.REQUIRES.push('EditorApp');
+
 LEEWGL.EditorApp = function(options) {
   LEEWGL.App.call(this, options);
 
@@ -105,16 +107,16 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
 
   /// insert shader into html to be able to export it later
   var vertexHTML0 = new LEEWGL.DOM.Element('script', {
-    'id' : 'vertex-shader-0',
-    'type' : 'x-shader/x-vertex',
-    'class' : 'vertex-shaders',
-    'html' : this.shaderLibrary.vertex.parameters.join('\n') + this.shaderLibrary.vertex.main.join('\n') + '}'
+    'id': 'vertex-shader-0',
+    'type': 'x-shader/x-vertex',
+    'class': 'vertex-shaders',
+    'html': this.shaderLibrary.vertex.parameters.join('\n') + this.shaderLibrary.vertex.main.join('\n') + '}'
   });
   var fragmentHTML0 = new LEEWGL.DOM.Element('script', {
-    'id' : 'fragment-shader-0',
-    'type' : 'x-shader/x-fragment',
-    'class' : 'fragment-shaders',
-    'html' : this.shaderLibrary.fragment.parameters.join('\n') + this.shaderLibrary.fragment.main.join('\n') + '}'
+    'id': 'fragment-shader-0',
+    'type': 'x-shader/x-fragment',
+    'class': 'fragment-shaders',
+    'html': this.shaderLibrary.fragment.parameters.join('\n') + this.shaderLibrary.fragment.main.join('\n') + '}'
   });
   head.grab(vertexHTML0);
   head.grab(fragmentHTML0);
@@ -146,16 +148,16 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
 
   /// insert shader into html to be able to export it later
   var vertexHTML1 = new LEEWGL.DOM.Element('script', {
-    'id' : 'vertex-shader-1',
-    'type' : 'x-shader/x-vertex',
-    'class' : 'vertex-shaders',
-    'html' : this.shaderLibrary.vertex.parameters.join('\n') + this.shaderLibrary.vertex.main.join('\n') + '}'
+    'id': 'vertex-shader-1',
+    'type': 'x-shader/x-vertex',
+    'class': 'vertex-shaders',
+    'html': this.shaderLibrary.vertex.parameters.join('\n') + this.shaderLibrary.vertex.main.join('\n') + '}'
   });
   var fragmentHTML1 = new LEEWGL.DOM.Element('script', {
-    'id' : 'fragment-shader-1',
-    'type' : 'x-shader/x-fragment',
-    'class' : 'fragment-shaders',
-    'html' : this.shaderLibrary.fragment.parameters.join('\n') + this.shaderLibrary.fragment.main.join('\n') + '}'
+    'id': 'fragment-shader-1',
+    'type': 'x-shader/x-fragment',
+    'class': 'fragment-shaders',
+    'html': this.shaderLibrary.fragment.parameters.join('\n') + this.shaderLibrary.fragment.main.join('\n') + '}'
   });
   head.grab(vertexHTML1);
   head.grab(fragmentHTML1);
@@ -204,7 +206,7 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   if (this.useShadows === true)
     this.shadowmap.init(this.gl, 1024, 1024);
 
-  console.log(this.scene.children);
+  this.cube.export();
 };
 
 LEEWGL.EditorApp.prototype.updatePickingList = function() {
@@ -228,7 +230,6 @@ LEEWGL.EditorApp.prototype.onMouseDown = function(event) {
   if (this.picking === true) {
     this.picker.bind(this.gl);
     obj = this.picker.pick(this.gl, mouseCords.x, mouseCords.y);
-
     if (obj !== null) {
       this.activeElement = obj;
       this.movement.x = 0;
@@ -354,7 +355,6 @@ LEEWGL.EditorApp.prototype.onRender = function() {
 
   for (var i = 0; i < this.scene.children.length; ++i) {
     var element = this.scene.children[i];
-
     if (element.usesTexture === true)
       this.activeShader = this.textureShader;
     else

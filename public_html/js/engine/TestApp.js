@@ -1,3 +1,5 @@
+LEEWGL.REQUIRES.push('TestApp');
+
 LEEWGL.TestApp = function(options) {
   LEEWGL.App.call(this, options);
 
@@ -105,16 +107,16 @@ LEEWGL.TestApp.prototype.onCreate = function() {
 
   /// insert shader into html to be able to export it later
   var vertexHTML0 = new LEEWGL.DOM.Element('script', {
-    'id' : 'vertex-shader-0',
-    'type' : 'x-shader/x-vertex',
-    'class' : 'vertex-shaders',
-    'html' : this.shaderLibrary.vertex.parameters.join('\n') + this.shaderLibrary.vertex.main.join('\n') + '}'
+    'id': 'vertex-shader-0',
+    'type': 'x-shader/x-vertex',
+    'class': 'vertex-shaders',
+    'html': this.shaderLibrary.vertex.parameters.join('\n') + this.shaderLibrary.vertex.main.join('\n') + '}'
   });
   var fragmentHTML0 = new LEEWGL.DOM.Element('script', {
-    'id' : 'fragment-shader-0',
-    'type' : 'x-shader/x-fragment',
-    'class' : 'fragment-shaders',
-    'html' : this.shaderLibrary.fragment.parameters.join('\n') + this.shaderLibrary.fragment.main.join('\n') + '}'
+    'id': 'fragment-shader-0',
+    'type': 'x-shader/x-fragment',
+    'class': 'fragment-shaders',
+    'html': this.shaderLibrary.fragment.parameters.join('\n') + this.shaderLibrary.fragment.main.join('\n') + '}'
   });
   head.grab(vertexHTML0);
   head.grab(fragmentHTML0);
@@ -146,16 +148,16 @@ LEEWGL.TestApp.prototype.onCreate = function() {
 
   /// insert shader into html to be able to export it later
   var vertexHTML1 = new LEEWGL.DOM.Element('script', {
-    'id' : 'vertex-shader-1',
-    'type' : 'x-shader/x-vertex',
-    'class' : 'vertex-shaders',
-    'html' : this.shaderLibrary.vertex.parameters.join('\n') + this.shaderLibrary.vertex.main.join('\n') + '}'
+    'id': 'vertex-shader-1',
+    'type': 'x-shader/x-vertex',
+    'class': 'vertex-shaders',
+    'html': this.shaderLibrary.vertex.parameters.join('\n') + this.shaderLibrary.vertex.main.join('\n') + '}'
   });
   var fragmentHTML1 = new LEEWGL.DOM.Element('script', {
-    'id' : 'fragment-shader-1',
-    'type' : 'x-shader/x-fragment',
-    'class' : 'fragment-shaders',
-    'html' : this.shaderLibrary.fragment.parameters.join('\n') + this.shaderLibrary.fragment.main.join('\n') + '}'
+    'id': 'fragment-shader-1',
+    'type': 'x-shader/x-fragment',
+    'class': 'fragment-shaders',
+    'html': this.shaderLibrary.fragment.parameters.join('\n') + this.shaderLibrary.fragment.main.join('\n') + '}'
   });
   head.grab(vertexHTML1);
   head.grab(fragmentHTML1);

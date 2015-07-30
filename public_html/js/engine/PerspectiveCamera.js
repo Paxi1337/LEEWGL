@@ -1,3 +1,5 @@
+LEEWGL.REQUIRES.push('PerspectiveCamera');
+
 LEEWGL.PerspectiveCamera = function(options) {
   LEEWGL.Camera.call(this, options);
 
