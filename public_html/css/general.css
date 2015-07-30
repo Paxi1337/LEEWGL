@@ -1,76 +1,76 @@
 .padding10 {
-    padding: 10px;
+  padding: 10px;
 }
 .mtop10 {
-    margin-top: 10px;
+  margin-top: 10px;
 }
 .mtop35 {
-    margin-top: 35px;
+  margin-top: 35px;
 }
 .mbot10 {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 .mtop35 {
-    margin-bottom: 35px;
+  margin-bottom: 35px;
 }
 .margin10 {
-    margin: 10px;
+  margin: 10px;
 }
 .margin15 {
-    margin: 15px;
+  margin: 15px;
 }
 .margin20 {
-    margin: 20px;
+  margin: 20px;
 }
 .mtopbot10 {
-    margin: 10px 0;
+  margin: 10px 0;
 }
 .mtopbot15 {
-    margin: 15px 0;
+  margin: 15px 0;
 }
 .mtopbot20 {
-    margin: 20px 0;
+  margin: 20px 0;
 }
 .margin20 {
-    margin: 20px;
+  margin: 20px;
 }
 .mright10 {
-    margin-right: 10px;
+  margin-right: 10px;
 }
 .mright35 {
-    margin-right: 35px;
+  margin-right: 35px;
 }
 .mleft10 {
-    margin-left: 10px;
+  margin-left: 10px;
 }
 .mleft35 {
-    margin-left: 35px;
+  margin-left: 35px;
 }
 .pointer {
-    cursor: pointer;
+  cursor: pointer;
 }
 .fright {
-    float: right;
+  float: right;
 }
 .fleft {
-    float: left;
+  float: left;
 }
 .lh10 {
-    line-height: 10px;
+  line-height: 10px;
 }
 .lh20 {
-    line-height: 20px;
+  line-height: 20px;
 }
 .clearer {
-    clear: both;
-    float: none;
+  clear: both;
+  float: none;
 }
 .background-gradient-blue {
-    background: #2e3f68;
-    background: -moz-linear-gradient(top, #2e3f68 0%, #1e5289 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #2e3f68), color-stop(100%, #1e5289));
-    background: -webkit-linear-gradient(top, #2e3f68 0%, #1e5289 100%);
-    background: -o-linear-gradient(top, #2e3f68 0%, #1e5289 100%);
-    background: -ms-linear-gradient(top, #2e3f68 0%, #1e5289 100%);
-    background: linear-gradient(to bottom, #2e3f68 0%, #1e5289 100%);
+  background: #2e3f68;
+  background: -moz-linear-gradient(top, #2e3f68 0%, #1e5289 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #2e3f68), color-stop(100%, #1e5289));
+  background: -webkit-linear-gradient(top, #2e3f68 0%, #1e5289 100%);
+  background: -o-linear-gradient(top, #2e3f68 0%, #1e5289 100%);
+  background: -ms-linear-gradient(top, #2e3f68 0%, #1e5289 100%);
+  background: linear-gradient(to bottom, #2e3f68 0%, #1e5289 100%);
 }

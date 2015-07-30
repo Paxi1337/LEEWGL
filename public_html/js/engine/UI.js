@@ -1668,7 +1668,7 @@ LEEWGL.UI.Popup = function(options) {
       'class': 'clearer'
     });
 
-    var closeIcon = new LEEWGL.DOM.Element('img', {
+    var closeIcon = new LEEWGL.DOM.Element('a', {
       'alt': 'Close Popup',
       'title': 'Close Popup',
       'class': 'popup-close-icon'
@@ -1741,7 +1741,7 @@ LEEWGL.UI.Popup = function(options) {
       'class': 'clearer'
     });
 
-    var moveIcon = new LEEWGL.DOM.Element('img', {
+    var moveIcon = new LEEWGL.DOM.Element('a', {
       'alt': 'Move Popup',
       'title': 'Move Popup',
       'class': 'popup-move-icon'
