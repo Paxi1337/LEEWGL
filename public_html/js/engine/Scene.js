@@ -2,21 +2,32 @@ LEEWGL.REQUIRES.push('Scene');
 
 LEEWGL.Scene = function() {
   LEEWGL.Object3D.call(this);
-
+  this.name = 'LEEWGL.Scene';
   this.type = 'Scene';
-
-  this.autoUpdate = true;
+  this.shaders = {};
 };
 
 LEEWGL.Scene.prototype = Object.create(LEEWGL.Object3D.prototype);
 
-LEEWGL.Scene.prototype.clone = function(object) {
-  if (object === undefined)
-    object = new LEEWGL.Scene();
+LEEWGL.Scene.prototype.setActiveShader = function(num) {
+  this.activeShader = num;
+};
 
-  LEEWGL.Object3D.prototype.clone.call(this, object);
+LEEWGL.Scene.prototype.addShader = function(name, shader) {
+  this.shaders[name] = shader;
+};
 
-  object.autoUpdate = this.autoUpdate;
+LEEWGL.Scene.prototype.clone = function(scene) {
+  if (typeof scene === 'undefined')
+    scene = new LEEWGL.Scene();
 
-  return object;
+  LEEWGL.Object3D.prototype.clone.call(this, scene);
+
+  for (var name in this.shaders) {
+    if (this.shaders.hasOwnProperty(name)) {
+      scene.shaders[name] = this.shaders[name];
+    }
+  }
+
+  return scene;
 };

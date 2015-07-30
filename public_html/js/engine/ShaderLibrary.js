@@ -216,6 +216,12 @@ LEEWGL.ShaderLibrary = function() {
     this.fragment.main = this.fragment.main.concat(this.chunks[type].fragment.main);
   };
 
+  this.addParameterChunks = function(types) {
+    for(var i = 0; i < types.length; ++i) {
+      this.addParameterChunk(types[i]);
+    }
+  };
+
   this.out = function(type) {
     if (type === LEEWGL.Shader.VERTEX)
       return this.vertex.parameters.join('\n') + this.vertex.main.join('\n') + '}';

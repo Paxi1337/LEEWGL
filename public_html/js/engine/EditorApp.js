@@ -4,7 +4,7 @@ LEEWGL.EditorApp = function(options) {
   LEEWGL.App.call(this, options);
 
   this.camera = new LEEWGL.PerspectiveCamera({
-    'name': 'EditorCamera',
+    'alias': 'EditorCamera',
     'fov': 90,
     'aspect': 512 / 512,
     'near': 1,
@@ -12,7 +12,7 @@ LEEWGL.EditorApp = function(options) {
     'inOutline': false
   });
   this.gameCamera = new LEEWGL.PerspectiveCamera({
-    'name': 'GameCamera',
+    'alias': 'GameCamera',
     'fov': 90,
     'aspect': 512 / 512,
     'near': 1,
@@ -50,10 +50,6 @@ LEEWGL.EditorApp = function(options) {
   this.scene = new LEEWGL.Scene();
   this.activeElement = null;
 
-  this.colorShader = new LEEWGL.Shader();
-  this.textureShader = new LEEWGL.Shader();
-  this.activeShader = null;
-
   this.shadowmap = new LEEWGL.Shadowmap();
   this.useShadows = false;
 
@@ -70,10 +66,10 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   this.core.setViewport(0, 0, 512, 512);
   this.core.setSize(512, 512);
 
-  this.triangle.name = 'Triangle';
-  this.cube.name = 'Cube';
-  this.grid.name = 'Grid';
-  this.light.name = 'Light';
+  this.triangle.alias = 'Triangle';
+  this.cube.alias = 'Cube';
+  this.grid.alias = 'Grid';
+  this.light.alias = 'Light';
 
   this.camera.transform.setPosition([0.0, 0.0, 10.0]);
   this.camera.setLookAt([0.0, 0.0, -1.0]);
@@ -82,10 +78,7 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   this.gameCamera.setLookAt([0.0, 0.0, -1.0]);
   this.cameraGizmo.transform.setPosition([10.0, 0.0, 10.0]);
 
-  this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.DEFAULT);
-  this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.PICKING);
-  this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.COLOR);
-  this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.AMBIENT);
+  this.shaderLibrary.addParameterChunks([LEEWGL.ShaderLibrary.DEFAULT, LEEWGL.ShaderLibrary.PICKING, LEEWGL.ShaderLibrary.COLOR, LEEWGL.ShaderLibrary.AMBIENT]);
 
   if (this.light instanceof LEEWGL.Light.SpotLight)
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.SPOT);
@@ -97,13 +90,15 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   if (this.useShadows === true)
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.SHADOW_MAPPING);
 
-  this.colorShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, this.shaderLibrary.out(LEEWGL.Shader.VERTEX));
-  this.colorShader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, this.shaderLibrary.out(LEEWGL.Shader.FRAGMENT));
-  this.colorShader.linkShader(this.gl);
-  this.colorShader.use(this.gl);
+  var colorShader = new LEEWGL.Shader();
 
-  this.colorShader.createUniformSetters(this.gl);
-  this.colorShader.createAttributeSetters(this.gl);
+  colorShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, this.shaderLibrary.out(LEEWGL.Shader.VERTEX));
+  colorShader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, this.shaderLibrary.out(LEEWGL.Shader.FRAGMENT));
+  colorShader.linkShader(this.gl);
+  colorShader.use(this.gl);
+
+  colorShader.createUniformSetters(this.gl);
+  colorShader.createAttributeSetters(this.gl);
 
   /// insert shader into html to be able to export it later
   var vertexHTML0 = new LEEWGL.DOM.Element('script', {
@@ -123,10 +118,7 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
 
   this.shaderLibrary.reset();
 
-  this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.DEFAULT);
-  this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.PICKING);
-  this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.TEXTURE);
-  this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.AMBIENT);
+  this.shaderLibrary.addParameterChunks([LEEWGL.ShaderLibrary.DEFAULT, LEEWGL.ShaderLibrary.PICKING, LEEWGL.ShaderLibrary.TEXTURE, LEEWGL.ShaderLibrary.AMBIENT]);
 
   if (this.light instanceof LEEWGL.Light.SpotLight)
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.SPOT);
@@ -138,13 +130,18 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   if (this.useShadows === true)
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.SHADOW_MAPPING);
 
-  this.textureShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, this.shaderLibrary.out(LEEWGL.Shader.VERTEX));
-  this.textureShader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, this.shaderLibrary.out(LEEWGL.Shader.FRAGMENT));
-  this.textureShader.linkShader(this.gl);
-  this.textureShader.use(this.gl);
+  var textureShader = new LEEWGL.Shader();
 
-  this.textureShader.createUniformSetters(this.gl);
-  this.textureShader.createAttributeSetters(this.gl);
+  textureShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, this.shaderLibrary.out(LEEWGL.Shader.VERTEX));
+  textureShader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, this.shaderLibrary.out(LEEWGL.Shader.FRAGMENT));
+  textureShader.linkShader(this.gl);
+  textureShader.use(this.gl);
+
+  textureShader.createUniformSetters(this.gl);
+  textureShader.createAttributeSetters(this.gl);
+
+  this.scene.addShader('color', colorShader);
+  this.scene.addShader('texture', textureShader);
 
   /// insert shader into html to be able to export it later
   var vertexHTML1 = new LEEWGL.DOM.Element('script', {
@@ -197,8 +194,6 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
 
   UI.setGL(this.gl);
   UI.setScene(this.scene);
-
-  this.activeShader = this.colorShader;
 
   if (this.picking === true)
     this.picker.initPicking(this.gl, this.canvas.width, this.canvas.height);
@@ -353,37 +348,38 @@ LEEWGL.EditorApp.prototype.onRender = function() {
   if (typeof UI !== 'undefined' && UI.playing === true)
     viewProjection = this.gameCamera.viewProjMatrix;
 
+  var activeShader = null;
+
   for (var i = 0; i < this.scene.children.length; ++i) {
     var element = this.scene.children[i];
     if (element.usesTexture === true)
-      this.activeShader = this.textureShader;
+      activeShader = this.scene.shaders['texture'];
     else
-      this.activeShader = this.colorShader;
+      activeShader = this.scene.shaders['color'];
 
-    this.activeShader.use(this.gl);
+    activeShader.use(this.gl);
 
     if (this.picking === true) {
       this.picker.bind(this.gl);
 
-      this.activeShader.uniforms['uOffscreen'](1);
+      activeShader.uniforms['uOffscreen'](1);
 
-      this.draw(element, viewProjection);
+      this.draw(element, activeShader, viewProjection);
       this.picker.unbind(this.gl);
     }
 
-    this.activeShader.uniforms['uOffscreen'](0);
+    activeShader.uniforms['uOffscreen'](0);
 
     if (this.useShadows === true) {
-      this.shadowmap.bind(this.gl, this.activeShader);
+      this.shadowmap.bind(this.gl, activeShader);
       var shadowVP = mat4.create();
       mat4.multiply(shadowVP, this.light.getProjection(), this.light.getView([0, 0, 0]));
-      this.draw(element, shadowVP);
+      this.draw(element, activeShader, shadowVP);
 
-      this.shadowmap.unbind(this.gl, this.activeShader);
+      this.shadowmap.unbind(this.gl, activeShader);
       this.clear();
     }
-
-    this.draw(element, viewProjection);
+    this.draw(element, activeShader, viewProjection);
   }
 };
 
@@ -394,30 +390,29 @@ LEEWGL.EditorApp.prototype.clear = function() {
   this.gl.colorMask(true, true, true, true);
 };
 
-LEEWGL.EditorApp.prototype.draw = function(element, viewProjection) {
+LEEWGL.EditorApp.prototype.draw = function(element, shader, viewProjection) {
   if (element.render === true) {
-    this.activeShader.use(this.gl);
-    this.activeShader.uniforms['uVP'](viewProjection);
+    shader.use(this.gl);
+    shader.uniforms['uVP'](viewProjection);
 
     if (this.useShadows === true)
-      this.shadowmap.draw(this.gl, this.activeShader, this.light);
+      this.shadowmap.draw(this.gl, shader, this.light);
 
     if (this.light instanceof LEEWGL.Light.DirectionalLight) {
-      this.activeShader.uniforms['uLightDirection'](this.light.direction);
-
+      shader.uniforms['uLightDirection'](this.light.direction);
     } else if (this.light instanceof LEEWGL.Light.SpotLight) {
-      this.activeShader.uniforms['uLightPosition'](this.light.transform.position);
-      this.activeShader.uniforms['uSpotDirection'](this.light.spotDirection);
-      this.activeShader.uniforms['uSpotInnerAngle'](this.light.innerAngle);
-      this.activeShader.uniforms['uSpotOuterAngle'](this.light.outerAngle);
-      this.activeShader.uniforms['uLightRadius'](this.light.radius);
+      shader.uniforms['uLightPosition'](this.light.transform.position);
+      shader.uniforms['uSpotDirection'](this.light.spotDirection);
+      shader.uniforms['uSpotInnerAngle'](this.light.innerAngle);
+      shader.uniforms['uSpotOuterAngle'](this.light.outerAngle);
+      shader.uniforms['uLightRadius'](this.light.radius);
     } else if (this.light instanceof LEEWGL.Light.PointLight) {
-      this.activeShader.uniforms['uLightPosition'](this.light.position);
-      this.activeShader.uniforms['uLightRadius'](this.light.radius);
+      shader.uniforms['uLightPosition'](this.light.position);
+      shader.uniforms['uLightRadius'](this.light.radius);
     }
-    this.activeShader.uniforms['uAmbient']([0.2, 0.2, 0.2]);
-    this.activeShader.uniforms['uSpecular'](this.light.specular);
-    this.activeShader.uniforms['uLightColor'](this.light.color);
-    element.draw(this.gl, this.activeShader, this.gl.TRIANGLES);
+    shader.uniforms['uAmbient']([0.2, 0.2, 0.2]);
+    shader.uniforms['uSpecular'](this.light.specular);
+    shader.uniforms['uLightColor'](this.light.color);
+    element.draw(this.gl, shader, this.gl.TRIANGLES);
   }
 };
