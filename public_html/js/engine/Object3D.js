@@ -5,19 +5,17 @@ LEEWGL.REQUIRES.push('Object3D');
  * @param  {object} options
  */
 LEEWGL.Object3D = function(options) {
-  this.name = 'LEEWGL.Object3D';
-
   this.options = {
     'alias': 'Object3D_' + LEEWGL.Object3DCount,
-    'parent': 'undefined',
+    'parent': undefined,
     'children': [],
     'components': {},
     'up': vec3.clone(LEEWGL.Object3D.DefaultUp),
-    'in-outline': true,
+    'inOutline': true,
     'draggable': true,
     'visible': true,
     'render': true,
-    'needs-update': true
+    'needsUpdate': true
   };
 
   var extend = new LEEWGL.Class();
@@ -32,12 +30,12 @@ LEEWGL.Object3D = function(options) {
     },
     'alias': {
       value: this.options.alias,
-      enumerable: false,
+      enumerable: true,
       writable: true
     },
     'type': {
       value: 'Object3D',
-      enumerable: false,
+      enumerable: true,
       writable: true
     },
     'parent': {
@@ -47,42 +45,42 @@ LEEWGL.Object3D = function(options) {
     },
     'children': {
       value: this.options.children,
-      enumerable: false,
+      enumerable: true,
       writable: true
     },
     'components': {
-      value: this.options['components'],
-      enumerable: false,
+      value: this.options.components,
+      enumerable: true,
       writable: true
     },
     'up': {
       value: this.options.up,
-      enumerable: false,
+      enumerable: true,
       writable: true
     },
     'inOutline': {
-      value: this.options['in-outline'],
-      enumerable: false,
+      value: this.options.inOutline,
+      enumerable: true,
       writable: true
     },
     'draggable': {
       value: this.options.draggable,
-      enumerable: false,
+      enumerable: true,
       writable: true
     },
     'visible': {
       value: this.options.visible,
-      enumerable: false,
+      enumerable: true,
       writable: true
     },
     'render': {
       value: this.options.render,
-      enumerable: false,
+      enumerable: true,
       writable: true
     },
     'needsUpdate': {
-      value: this.options['needs-update'],
-      enumerable: false,
+      value: this.options.needsUpdate,
+      enumerable: true,
       writable: true
     }
   });
@@ -109,7 +107,7 @@ LEEWGL.Object3D.prototype = {
     }
 
     if (object instanceof LEEWGL.Object3D) {
-      if (object.parent !== 'undefined') {
+      if (typeof object.parent !== 'undefined') {
         object.parent.remove(object);
       }
       object.parent = this;
@@ -121,10 +119,10 @@ LEEWGL.Object3D.prototype = {
     return this;
   },
   addComponent: function(component) {
-    this.components[component.type] = component;
+    this.components[component.type.substr('Component.'.length)] = component;
   },
   removeComponent: function(component) {
-    this.components[component.type] = null;
+    this.components[component.type.substr('Component.'.length)] = null;
   },
   remove: function(object) {
     if (arguments.length > 1) {
@@ -137,7 +135,7 @@ LEEWGL.Object3D.prototype = {
 
     var index = this.children.indexOf(object);
     if (index !== -1) {
-      object.parent = 'undefined';
+      object.parent = undefined;
       this.children.splice(index, 1);
     }
 
@@ -198,9 +196,10 @@ LEEWGL.Object3D.prototype = {
     }
   },
   clone: function(object, recursive) {
+    recursive = (typeof recursive !== 'undefined') ? recursive : true;
+
     if (typeof object === 'undefined')
       object = new LEEWGL.Object3D();
-    recursive = (typeof recursive !== 'undefined') ? recursive : true;
 
     LEEWGL.Component.Transform.prototype.clone.call(this.transform, object.transform);
     object.alias = this.alias + 'Clone';
@@ -227,45 +226,60 @@ LEEWGL.Object3D.prototype = {
   },
   /**
    * [export description]
-   * Object variables are set to non-enumerable to be able to differ between
-   * variable names and function names
    *
-   * @return {json} The object which can be imported later
+   * @return {string} A string-form of the object which can be imported later
    */
   export: function() {
-    /// get enumerable and non-enumerable property names to filter
-    /// out the non-enumerable property names [no functions]
-    var enum_and_nonenum = Object.getOwnPropertyNames(this);
-    var enum_only = Object.keys(this);
-    var nonenum_only = enum_and_nonenum.filter(function(key) {
-      var index = enum_only.indexOf(key);
-      if (index === -1)
-        return true;
-      else
-        return false;
-    });
-
     var json = {};
 
-    console.log(nonenum_only);
-
-    for (var i = 0; i < nonenum_only.length; ++i) {
-      json[nonenum_only[i]] = this[nonenum_only[i]];
+    for (var prop in this) {
+      if (this.hasOwnProperty(prop))
+        json[prop] = this[prop];
     }
 
-    console.log(LEEWGL.REQUIRES);
     var stringified = JSON.stringify(json);
-    console.log(json);
-    // console.log(stringified);
-
-    this.import(stringified);
-
-    // var arr = [10, 20, 30, 40];
-    // console.log(JSON.stringify(arr));
+    return stringified;
   },
-  import: function(stringified_json) {
+  /**
+   * [import description]
+   *
+   * @return {json} imported object
+   */
+  import: function(stringified_json, recursive, object) {
+    recursive = (typeof recursive !== 'undefined') ? recursive : true;
+
+    if (typeof object === 'undefined')
+      object = new LEEWGL.Object3D();
+
     var json = JSON.parse(stringified_json);
+
     console.log(json);
+    console.log(object);
+    console.log(this);
+
+
+    // LEEWGL.Component.Transform.prototype.clone.call(this.transform, object.transform);
+    // object.alias = this.alias + 'Clone';
+    // object.parent = this.parent;
+    //
+    // for (var component in this.components) {
+    //   if (this.components.hasOwnProperty(component))
+    //     object.components[component] = this.components[component].clone();
+    // }
+    // vec3.copy(object.up, this.up);
+    // object.inOutline = this.inOutline;
+    // object.draggable = this.draggable;
+    // object.visible = this.visible;
+    // object.render = this.render;
+    //
+    // if (recursive === true) {
+    //   for (var i = 0; i < this.children.length; ++i) {
+    //     var child = this.children[i];
+    //     object.add(child.clone());
+    //   }
+    // }
+
+    return object;
   }
 };
 

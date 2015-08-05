@@ -1,7 +1,6 @@
 LEEWGL.REQUIRES.push('Component');
 
 LEEWGL.Component = function() {
-  this.name = 'LEEWGL.Component';
   this.type = 'Component';
 };
 
@@ -21,8 +20,7 @@ LEEWGL.EventDispatcher.prototype.apply(LEEWGL.Component.prototype);
 LEEWGL.Component.Transform = function() {
   LEEWGL.Component.call(this);
 
-  this.name = 'LEEWGL.Component.Transform';
-  this.type = 'Transform';
+  this.type = 'Component.Transform';
 
   var position = [0.0, 0.0, 0.0];
 
@@ -37,20 +35,20 @@ LEEWGL.Component.Transform = function() {
   // private properties - configurable tag defaults to false
   Object.defineProperties(this, {
     position: {
-      enumerable: false,
-      value: position
+      value: position,
+      enumerable: false
     },
     translation: {
-      enumerable: false,
-      value: translation
+      value: translation,
+      enumerable: false
     },
     rotation: {
-      enumerable: false,
-      value: rotation
+      value: rotation,
+      enumerable: false
     },
     scaling: {
-      enumerable: false,
-      value: scaling
+      value: scaling,
+      enumerable: false
     }
   });
 
@@ -183,8 +181,7 @@ LEEWGL.Component.Transform.prototype.clone = function(transform) {
 LEEWGL.Component.CustomScript = function() {
   LEEWGL.Component.call(this);
 
-  this.name = 'LEEWGL.Component.CustomScript';
-  this.type = 'CustomScript';
+  this.type = 'Component.CustomScript';
   this.code = 'Type your custom code in here!';
 };
 
@@ -204,8 +201,7 @@ LEEWGL.Component.CustomScript.prototype.clone = function(customScript) {
 LEEWGL.Component.Texture = function() {
   LEEWGL.Component.call(this);
 
-  this.name = 'LEEWGL.Component.Texture';
-  this.type = 'Texture';
+  this.type = 'Component.Texture';
   this.texture = new LEEWGL.Texture();
   this.src = '';
 };

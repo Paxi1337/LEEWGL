@@ -3,7 +3,6 @@ LEEWGL.REQUIRES.push('PerspectiveCamera');
 LEEWGL.PerspectiveCamera = function(options) {
   LEEWGL.Camera.call(this, options);
 
-  this.name = 'LEEWGL.PerspectiveCamera';
   this.options = {
     'fov': 50,
     'aspect': 1,

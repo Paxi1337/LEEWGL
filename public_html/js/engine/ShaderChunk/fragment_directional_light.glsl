@@ -1,3 +1,4 @@
 vec3 light = calculateLight(vVertexNormal, uSpecular);
-finalColor.rgb += color.rgb * light;
+color = vec4(color.rgb * light, color.a);
+finalColor = color;
 gl_FragColor = finalColor;

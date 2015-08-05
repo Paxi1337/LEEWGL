@@ -4,7 +4,7 @@ LEEWGL.REQUIRES.push('Light');
  * !!FIXME: Maybe problems with clone method because of this.editables shallow copy?
  */
 LEEWGL.Light = function(options) {
-  LEEWGL.Object3D.call(this);
+  LEEWGL.Object3D.call(this, options);
 
   this.options = {
     'ambient' : [0.2, 0.2, 0.2],
@@ -14,7 +14,6 @@ LEEWGL.Light = function(options) {
 
   this.type = 'Light';
   this.lightType = 'Base';
-  this.render = true;
 
   var extend = new LEEWGL.Class();
   extend.extend(LEEWGL.Light.prototype, LEEWGL.Options.prototype);
@@ -71,13 +70,12 @@ LEEWGL.Light.prototype.clone = function(light) {
 };
 
 LEEWGL.Light.DirectionalLight = function(options) {
-  LEEWGL.Light.call(this);
+  LEEWGL.Light.call(this, options);
 
   this.options.direction = [1.0, 0.0, 0.0];
-
   this.setOptions(options);
 
-  this.type = 'DirectionalLight';
+  this.type = 'Light.DirectionalLight';
   this.lightType = 'Directional';
 
   this.direction = [1.0, 0.0, 0.0];
@@ -107,14 +105,14 @@ LEEWGL.Light.DirectionalLight.prototype.clone = function(directionalLight) {
 };
 
 LEEWGL.Light.SpotLight = function(options) {
-  LEEWGL.Light.call(this);
+  LEEWGL.Light.call(this, options);
 
   this.options['spot-direction'] = [1.0, 0.0, 0.0];
   this.options.radius = 20;
   this.options['inner-angle'] = Math.PI * 0.1;
   this.options['outer-angle'] = Math.PI * 0.15;
 
-  this.type = 'SpotLight';
+  this.type = 'Light.SpotLight';
   this.lightType = 'Spot';
 
   this.setOptions(options);
@@ -182,12 +180,12 @@ LEEWGL.Light.SpotLight.prototype.clone = function(spotLight) {
 };
 
 LEEWGL.Light.PointLight = function(options) {
-  LEEWGL.Light.call(this);
+  LEEWGL.Light.call(this, options);
 
   this.options.position = [0.0, 0.0, 0.0];
-  this.setOptions();
+  this.setOptions(options);
 
-  this.type = 'PointLight';
+  this.type = 'Light.PointLight';
   this.lightType = 'Point';
 
   this.position = this.options.position;

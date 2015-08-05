@@ -2,7 +2,6 @@ LEEWGL.REQUIRES.push('Camera');
 
 LEEWGL.Camera = function(options) {
   LEEWGL.Object3D.call(this, options);
-  this.name = 'LEEWGL.Camera';
   this.type = 'Camera';
   this.render = false;
 

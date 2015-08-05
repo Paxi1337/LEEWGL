@@ -6,19 +6,41 @@ LEEWGL.REQUIRES.push('Shader');
  * Abstraction of the WebGL-Shader with methods to load, compile, use shaders etc.
  */
 LEEWGL.Shader = function() {
-  this.program = null;
-  this.uniforms = [];
-  this.attributes = [];
-  this.code = {};
+
+  Object.defineProperties(this, {
+    'program': {
+      value: null,
+      enumerable: false,
+      writable: true
+    },
+    'uniforms': {
+      value: {},
+      enumerable: false,
+      writable: true
+    },
+    'attributes': {
+      value: {},
+      enumerable: false,
+      writable: true
+    },
+    'code': {
+      value: {},
+      enumerable: true,
+      writable: true
+    }
+  });
+};
+
+LEEWGL.Shader.prototype = {
+  constructor: LEEWGL.Shader,
 
   /**
    * [getProgram description]
    * @return {webgl program}
    */
-  this.getProgram = function() {
+  getProgram : function() {
     return this.program;
-  };
-
+  },
   /**
    * [compile description]
    * @param  {gl context} gl
@@ -26,7 +48,7 @@ LEEWGL.Shader = function() {
    * @param  {string} code
    * @return {webgl shader}
    */
-  this.compile = function(gl, type, code) {
+  compile : function(gl, type, code) {
     var _shader = null;
     if (type === LEEWGL.Shader.FRAGMENT) {
       _shader = gl.createShader(gl.FRAGMENT_SHADER);
@@ -46,28 +68,26 @@ LEEWGL.Shader = function() {
       return null;
     }
     return _shader;
-  };
-
+  },
   /**
    * [getShaderDOM description]
    * @param {gl context} gl
    * @param {string} selector
    */
-  this.getShaderDOM = function(gl, selector) {
+  getShaderDOM : function(gl, selector) {
     var _script = document.querySelector(selector);
     if (_script === null) {
       console.error("LEEWGL.Shader.getShaderDOM(): No shader with selector " + selector + " found.");
     }
 
     return this.getShaderContentDOM(_script);
-  };
-
+  },
   /**
    * [getShaderContentDOM description]
    * @param {element} dom
    * @return {string}
    */
-  this.getShaderContentDOM = function(dom) {
+  getShaderContentDOM : function(dom) {
     var _str = '';
     var _k = dom.firstChild;
     var _content = '';
@@ -78,59 +98,54 @@ LEEWGL.Shader = function() {
     }
 
     return _content;
-  };
-
+  },
   /**
    * [linkShader description]
    * @param {gl context} gl
    */
-  this.linkShader = function(gl) {
+  linkShader : function(gl) {
     gl.linkProgram(this.program);
     if (!gl.getProgramParameter(this.program, gl.LINK_STATUS))
       console.error("LEEWGL.Shader.linkShader(): Could not initialise shaders");
-  };
-
+  },
   /**
    * [use description]
    * @param  {gl context} gl
    */
-  this.use = function(gl) {
+  use : function(gl) {
     gl.useProgram(this.program);
-  };
-
+  },
   /**
    * [createShaderFromCode description]
    * @param {gl context} gl
    * @param {shader type} type
    * @param {string} code
    */
-  this.createShaderFromCode = function(gl, type, code) {
+  createShaderFromCode : function(gl, type, code) {
     if (this.program === null)
       this.program = gl.createProgram();
 
     var _shader = this.compile(gl, type, code);
     gl.attachShader(this.program, _shader);
-  };
-
+  },
   /**
    * [createShaderFromDOM description]
    * @param {gl context} gl
    * @param {shader type} type
    * @param {string} selector
    */
-  this.createShaderFromDOM = function(gl, type, selector) {
+  createShaderFromDOM : function(gl, type, selector) {
     if (this.program === null)
       this.program = gl.createProgram();
 
     var _shader = this.compile(gl, type, code);
     gl.attachShader(this.program, _shader);
-  };
-
+  },
   /**
    * [createUniformSetters description]
    * @param {gl context} gl
    */
-  this.createUniformSetters = function(gl) {
+  createUniformSetters : function(gl) {
     var that = this;
 
     /**
@@ -231,13 +246,12 @@ LEEWGL.Shader = function() {
     }
 
     return this.uniforms;
-  };
-
+  },
   /**
    * [createAttributeSetters description]
    * @param {gl context} gl
    */
-  this.createAttributeSetters = function(gl) {
+  createAttributeSetters : function(gl) {
     /**
      * [createAttributeSetter description]
      * @param {number} index
@@ -262,11 +276,29 @@ LEEWGL.Shader = function() {
       var index = gl.getAttribLocation(this.program, attributeInfo.name);
       this.attributes[attributeInfo.name] = createAttributeSetter(index);
     }
-  };
-
-  this.clone = function(shader) {
+  },
+  clone : function(shader) {
     if (typeof shader === 'undefined')
       shader = new LEEWGL.Shader();
+
+    shader.program = this.program;
+    shader.code = this.code;
+
+    for (var name in this.uniforms) {
+      if (this.uniforms.hasOwnProperty(name)) {
+        shader.uniforms[name] = this.uniforms[name];
+      }
+    }
+    for (var name in this.attributes) {
+      if (this.attributes.hasOwnProperty(name)) {
+        shader.attributes[name] = this.attributes[name];
+      }
+    }
+
+    return shader;
+  },
+  import : function(json) {
+    var shader = new LEEWGL.Shader();
 
     shader.program = this.program;
     shader.code = this.code;
