@@ -18,9 +18,8 @@ vec3 calculateLight(vec3 normal, float specular) {
     if(lambert < 0.0) {
         return vec3(0.0, 0.0, 0.0);
     }
-
     float lightDistance = length(vLightToPoint);
-    float d = max(lightDistance - uLightRadius, 0.0) / uLightRadius + 1.0;
+    float d = (max(lightDistance - uLightRadius, 0.0) / uLightRadius + 1.0);
     float lightAttenuation = 1.0 / (d * d);
 
     vec3 spotDistance = normalize(uSpotDirection);

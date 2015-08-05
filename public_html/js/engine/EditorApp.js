@@ -71,8 +71,6 @@ LEEWGL.EditorApp.prototype = Object.create(LEEWGL.App.prototype);
 LEEWGL.EditorApp.prototype.onCreate = function() {
   var that = this;
 
-  var head = new LEEWGL.DOM.Element(document.head);
-
   this.core.setViewport(0, 0, 512, 512);
   this.core.setSize(512, 512);
 
@@ -178,20 +176,18 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
 
   var test = this.scene.export();
 
-  console.log(test);
+  // console.log(encodeURI(test));
 
-  var something = this.ajax.send('POST', LEEWGL.ROOT + 'php/write_to_file.php', false, 'code=' + test);
+  var something = this.ajax.send('POST', LEEWGL.ROOT + 'php/write_to_file.php', false, "code=" + encodeURIComponent(test));
 
-  // console.log(test);
-  console.log(this.scene.import(test));
-  console.log(this.scene);
+  console.log(something.response.responseText);
+  // console.log(this.scene.shaders.color.code.fragment);
+  // console.log(colorShader.code.fragment == this.scene.shaders.color.code.fragment);
 
   var json = JSON.parse(test);
 
-  console.log(this.scene.shaders);
-  console.log(json.shaders);
-
-  console.log(this.scene.import(test) == this.scene);
+  // console.log(this.scene.shaders);
+  // console.log(json.shaders.color.code.fragment);
 };
 
 LEEWGL.EditorApp.prototype.updatePickingList = function() {

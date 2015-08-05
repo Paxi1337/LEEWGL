@@ -6,7 +6,6 @@ LEEWGL.REQUIRES.push('Shader');
  * Abstraction of the WebGL-Shader with methods to load, compile, use shaders etc.
  */
 LEEWGL.Shader = function() {
-
   Object.defineProperties(this, {
     'program': {
       value: null,
@@ -46,7 +45,7 @@ LEEWGL.Shader.prototype = {
    * @param  {gl context} gl
    * @param  {shader type} type
    * @param  {string} code
-   * @return {webgl shader}
+   * @return {webgl} shader
    */
   compile : function(gl, type, code) {
     var _shader = null;
@@ -64,6 +63,7 @@ LEEWGL.Shader.prototype = {
     gl.shaderSource(_shader, code);
     gl.compileShader(_shader);
     if (!gl.getShaderParameter(_shader, gl.COMPILE_STATUS)) {
+      console.log(_shader);
       console.error('LEEWGL.Shader.compile(): compile error: ' + gl.getShaderInfoLog(_shader));
       return null;
     }
