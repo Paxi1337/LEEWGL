@@ -17,5 +17,13 @@ LEEWGL.Options.prototype = {
           this.options[attribute] = options[attribute];
       }
     }
+  },
+  addOptions: function(options) {
+    if (typeof options !== 'undefined') {
+      for (var attribute in options) {
+        if (options.hasOwnProperty(attribute))
+          this.options[attribute] = options[attribute];
+      }
+    }
   }
 };

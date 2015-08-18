@@ -78,7 +78,7 @@ LEEWGL.Component.Transform.prototype = Object.create(LEEWGL.Component.prototype)
 
 LEEWGL.Component.Transform.prototype.offsetPosition = function(vector) {
   vec3.add(this.position, this.position, vector);
-  mat4.translate(this.translation, this.translation, vector);
+  this.translate(vector);
 };
 LEEWGL.Component.Transform.prototype.setPosition = function() {
   if (arguments === 'undefined') {
@@ -94,15 +94,7 @@ LEEWGL.Component.Transform.prototype.setPosition = function() {
 
   this.translate(this.position);
 };
-LEEWGL.Component.Transform.prototype.translate = function() {
-  var vector = this.transVec;
-
-  if (arguments.length > 0) {
-    vector = arguments[0];
-    this.transVec = vector;
-  }
-
-  vec3.add(this.position, this.position, vector);
+LEEWGL.Component.Transform.prototype.translate = function(vector) {
   mat4.translate(this.translation, this.translation, vector);
 };
 
@@ -116,6 +108,7 @@ LEEWGL.Component.Transform.prototype.rotateX = function() {
     angle = (rad === false) ? LEEWGL.Math.degToRad(arguments[0] % 360.0) : arguments[0];
     this.rotVec[0] = (rad === false) ? arguments[0] : LEEWGL.Math.radToDeg(arguments[0]);
   }
+
   mat4.rotateX(this.rotation, this.rotation, angle);
 };
 
@@ -129,6 +122,7 @@ LEEWGL.Component.Transform.prototype.rotateY = function() {
     angle = (rad === false) ? LEEWGL.Math.degToRad(arguments[0] % 360.0) : arguments[0];
     this.rotVec[1] = (rad === false) ? arguments[0] : LEEWGL.Math.radToDeg(arguments[0]);
   }
+
   mat4.rotateY(this.rotation, this.rotation, angle);
 };
 
@@ -142,6 +136,7 @@ LEEWGL.Component.Transform.prototype.rotateZ = function() {
     angle = (rad === false) ? LEEWGL.Math.degToRad(arguments[0] % 360.0) : arguments[0];
     this.rotVec[2] = (rad === false) ? arguments[0] : LEEWGL.Math.radToDeg(arguments[0]);
   }
+
   mat4.rotateZ(this.rotation, this.rotation, angle);
 };
 
@@ -159,8 +154,10 @@ LEEWGL.Component.Transform.prototype.scale = function() {
 
 LEEWGL.Component.Transform.prototype.matrix = function() {
   var mat = mat4.create();
-  mat4.multiply(mat, this.scaling, this.rotation);
+  var negated = vec3.negate(vec3.create(), this.position);
   mat4.multiply(mat, mat, this.translation);
+  mat4.multiply(mat, mat, this.rotation);
+  mat4.multiply(mat, mat, mat4.translate(mat4.create(), this.translation, negated));
   return mat;
 };
 

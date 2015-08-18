@@ -4,8 +4,7 @@ LEEWGL.Geometry = function(options) {
   LEEWGL.Object3D.call(this, options);
 
   this.type = 'Geometry';
-
-  this.options = {
+  var ext_options = {
     'vertices': {
       'position': [],
       'normal': [],
@@ -16,9 +15,7 @@ LEEWGL.Geometry = function(options) {
     'picking': true
   };
 
-  var extend = new LEEWGL.Class();
-  extend.extend(LEEWGL.Object3D.prototype, LEEWGL.Options.prototype);
-
+  this.addOptions(ext_options);
   this.setOptions(options);
 
   Object.defineProperties(this, {

@@ -14,6 +14,8 @@ LEEWGL.TestApp.prototype.onCreate = function() {
   var stringified = this.ajax.send('POST', LEEWGL.ROOT + 'php/get_file_content.php', false, null).response.responseText;
   this.scene = this.scene.import(stringified);
 
+  console.log(this.scene);
+
   this.core.setViewport(0, 0, 512, 512);
   this.core.setSize(512, 512);
 
@@ -39,7 +41,6 @@ LEEWGL.TestApp.prototype.onCreate = function() {
 
   textureShader.createUniformSetters(this.gl);
   textureShader.createAttributeSetters(this.gl);
-
 
   this.scene.shaders.color = colorShader;
   this.scene.shaders.texture = textureShader;

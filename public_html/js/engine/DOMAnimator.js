@@ -35,6 +35,7 @@ LEEWGL.DOM.Animator = function() {
 
     steps = (typeof steps !== 'undefined') ? steps : 10;
 
+    var that = this;
     var invert = false;
     var pixel = false;
 
@@ -43,8 +44,8 @@ LEEWGL.DOM.Animator = function() {
       element.animation[property].start = (element.get(property) !== null) ? parseFloat(element.get(property)) : 0;
       element.animation[property].end = parseFloat(properties[property]);
 
-      if (typeof properties[property] === 'string') {
-        if (properties[property].indexOf('px') !== -1)
+      if (typeof element.get(property) === 'string') {
+        if (element.get(property).indexOf('px') !== -1)
           pixel = true;
       }
 
@@ -60,6 +61,7 @@ LEEWGL.DOM.Animator = function() {
         if (invert === true) {
           element.animation[property].start -= element.animation[property].increment;
           element.animation[property].start = Math.round(element.animation[property].start * 100) / 100;
+
           if (element.animation[property].start >= element.animation[property].end) {
             if (pixel === true)
               element.setStyle(property, element.animation[property].start + 'px');
@@ -91,7 +93,7 @@ LEEWGL.DOM.Animator = function() {
   };
 
   this.isRunning = function(element) {
-    if (typeof element.animation.running === 'undefined')
+    if (typeof element.animation === 'undefined')
       return false;
 
     return element.animation.running;

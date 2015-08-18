@@ -1,3 +1,6 @@
+a {
+  color: #fff;
+}
 .padding10 {
   padding: 10px;
 }
@@ -34,11 +37,17 @@
 .margin20 {
   margin: 20px;
 }
+.mright5 {
+  margin-right: 5px;
+}
 .mright10 {
   margin-right: 10px;
 }
 .mright35 {
   margin-right: 35px;
+}
+.mleft5 {
+  margin-left: 5px;
 }
 .mleft10 {
   margin-left: 10px;
@@ -65,12 +74,30 @@
   clear: both;
   float: none;
 }
-.background-gradient-blue {
-  background: #2e3f68;
-  background: -moz-linear-gradient(top, #2e3f68 0%, #1e5289 100%);
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #2e3f68), color-stop(100%, #1e5289));
-  background: -webkit-linear-gradient(top, #2e3f68 0%, #1e5289 100%);
-  background: -o-linear-gradient(top, #2e3f68 0%, #1e5289 100%);
-  background: -ms-linear-gradient(top, #2e3f68 0%, #1e5289 100%);
-  background: linear-gradient(to bottom, #2e3f68 0%, #1e5289 100%);
+.dark-primary-color {
+  background: #303F9F;
+}
+.default-primary-color {
+  background: #3F51B5;
+}
+.light-primary-color {
+  background: #C5CAE9;
+}
+.text-primary-color {
+  color: #FFFFFF;
+}
+.text-primary-color a {
+  color: #FFFFFF;
+}
+.accent-color {
+  background: #607D8B;
+}
+.primary-text-color {
+  color: #212121;
+}
+.secondary-text-color {
+  color: #727272;
+}
+.divider-color {
+  border-color: #B6B6B6;
 }

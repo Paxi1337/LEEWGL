@@ -8,6 +8,7 @@
   <link rel="stylesheet" type="text/css" href="css/form.css">
   <link rel="stylesheet" type="text/css" href="css/table.css">
   <link rel="stylesheet" type="text/css" href="css/popup.css">
+  <link rel="stylesheet" type="text/css" href="css/sidebar.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script type="text/javascript" src="js/gl-matrix/common.js"></script>
@@ -18,6 +19,8 @@
   <script type="text/javascript" src="js/engine/Core.js"></script>
   <script type="text/javascript" src="js/engine/Class.js"></script>
   <script type="text/javascript" src="js/engine/Options.js"></script>
+  <script type="text/javascript" src="js/engine/Settings.js"></script>
+  <script type="text/javascript" src="js/engine/HTMLHelper.js"></script>
   <script type="text/javascript" src="js/engine/EventDispatcher.js"></script>
   <script type="text/javascript" src="js/engine/DOMElement.js"></script>
   <script type="text/javascript" src="js/engine/DOMAnimator.js"></script>
@@ -51,8 +54,8 @@
 <body>
   <div id="wrapper">
     <div id="header-bar-overall">
-      <div id="header-bar">
-        <ul class="background-gradient-blue">
+      <div id="header-bar" class="dark-primary-color text-primary-color">
+        <ul>
           <li><a href="#">File</a>
             <ul>
               <li><a href="#" onclick="UI.load();">Load</a></li>
@@ -137,10 +140,11 @@
                   </li>
                 </ul>
               </li>
-              <li><a href="#" onclick="UI.displayAbout()">About</a>
-              </li>
+              <li><a href="#" onclick="UI.displaySidebar()">Toggle Sidebar</a>
+                <li><a href="#" onclick="UI.displayAbout(true)">About</a>
+                </li>
             </ul>
-          </li>
+            </li>
         </ul>
       </div>
     </div>
@@ -148,21 +152,21 @@
       <div id="container">
         <div id="content">
           <div id="controls-container-overall" class="dynamic-container">
-            <div class="container-header background-gradient-blue mbot10">
+            <div class="container-header dark-primary-color mbot10">
               <h2>Controls</h2>
               <div class="icon-container fleft">
                 <img alt="Release Window" title="Release Window" src="img/icons/move_half.png" />
               </div>
             </div>
             <div id="controls-container">
-              <a id="play-control" class="icon-big mright35 pointer fleft" alt="Play" onclick="UI.play(this);"></a>
+              <img id="play-control" src="img/icons/play.png" class="icon-big mright35 pointer fleft" alt="Play" title="Play" onclick="UI.play(this);" />
               <img class="icon-big pointer" src="img/icons/stop.png" alt="Stop" title="Stop" onclick="UI.stop();" />
               <div class="clearer"></div>
             </div>
           </div>
           <div id="render-container">
             <div id="editor-view-container" class="dynamic-container">
-              <div class="container-header background-gradient-blue">
+              <div class="container-header dark-primary-color">
                 <h2>Editor View</h2>
                 <div class="icon-container fleft">
                   <img alt="Release Window" title="Release Window" src="img/icons/move_half.png" />
@@ -172,7 +176,7 @@
             </div>
           </div>
           <div id="outline-container" class="dynamic-container">
-            <div class="container-header background-gradient-blue">
+            <div class="container-header dark-primary-color">
               <h2>Outline</h2>
               <div class="icon-container fleft">
                 <img alt="Release Window" title="Release Window" src="img/icons/move_half.png" />
@@ -181,7 +185,7 @@
             <div id="dynamic-outline"></div>
           </div>
           <div id="inspector-container" class="dynamic-container">
-            <div class="container-header background-gradient-blue">
+            <div class="container-header dark-primary-color">
               <h2>Inspector</h2>
               <div class="icon-container fleft">
                 <img alt="Release Window" title="Release Window" src="img/icons/move_half.png" />
@@ -193,13 +197,20 @@
         </div>
       </div>
     </div>
-    <div id="status-bar-overall" class="background-gradient-blue">
+    <div id="status-bar-overall" class="dark-primary-color">
       <div id="status-bar">STATUS BAR</div>
     </div>
   </div>
 
   <script>
     var init = function() {
+      var ui = new window.LEEWGL.UI();
+      var settings = new window.LEEWGL.Settings();
+      var htmlHelper = new window.LEEWGL.HTMLHelper();
+      window.UI = ui;
+      window.SETTINGS = settings;
+      window.HTMLHELPER = htmlHelper;
+
       UI.dynamicContainers('.icon-container', '.dynamic-container');
       UI.setInspector('#dynamic-inspector');
       UI.setStatusBar('#status-bar');
@@ -208,16 +219,16 @@
       var overallContainer = document.querySelector('#container-overall');
       var editorCanvas = document.querySelector('#editor-canvas');
 
-      var LEEWGL = new window.LEEWGL.Core({
-        'editorCanvas': editorCanvas
+      var core = new window.LEEWGL.Core({
+        'canvas': editorCanvas
       });
       var editorApp = new window.LEEWGL.EditorApp({
-        'core': LEEWGL
+        'core': core
       });
 
-      LEEWGL.attachApp(editorApp);
-      LEEWGL.init();
-      window.requestAnimationFrame(LEEWGL.run.bind(LEEWGL));
+      core.attachApp(editorApp);
+      core.init();
+      window.requestAnimationFrame(core.run.bind(core));
 
       // var testContent = new window.LEEWGL.DOM.Element('div', {
       //     'styles': {
@@ -238,9 +249,9 @@
       // animator.animate(testContent, {'width' : '500px'}, 5, undefined, 100);
       //
       //
-      var lightbox = new window.LEEWGL.Lightbox({
-        'anchor': 'div.icon-container'
-      });
+      // var lightbox = new window.LEEWGL.Lightbox({
+      //   'anchor': 'div.icon-container'
+      // });
     };
     addLoadEvent(init);
   </script>

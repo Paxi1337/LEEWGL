@@ -7,7 +7,6 @@
   <link rel="stylesheet" type="text/css" href="../css/general.css">
   <link rel="stylesheet" type="text/css" href="../css/form.css">
   <link rel="stylesheet" type="text/css" href="../css/table.css">
-  <link rel="stylesheet" type="text/css" href="../css/popup.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script type="text/javascript" src="../js/gl-matrix/common.js"></script>
@@ -37,7 +36,6 @@
   <script type="text/javascript" src="../js/engine/TestApp.js"></script>
   <script type="text/javascript" src="../js/engine/Picker.js"></script>
   <script type="text/javascript" src="../js/engine/Storage.js"></script>
-  <script type="text/javascript" src="../js/engine/UI.js"></script>
   <script type="text/javascript" src="../js/engine/DragDrop.js"></script>
   <script type="text/javascript" src="../js/engine/ShaderChunk.js"></script>
   <script type="text/javascript" src="../js/engine/ShaderLibrary.js"></script>
@@ -61,7 +59,7 @@
       });
       body.grab(canvas);
       var core = new window.LEEWGL.Core({
-        'editorCanvas': canvas.e
+        'canvas': canvas.e
       });
       var testapp = new window.LEEWGL.TestApp({
         'core': core
