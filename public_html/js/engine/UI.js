@@ -509,7 +509,6 @@ LEEWGL.UI = function(options) {
       appliedScriptsContainer.grab(clearer);
       appliedScriptsInnerContainer.grab(appliedScriptsTextArea);
       appliedScriptsContainer.grab(appliedScriptsInnerContainer);
-      v
       var animation = new LEEWGL.DOM.Animator();
 
       iconContainer.addEvent('click', function(event) {
@@ -653,7 +652,7 @@ LEEWGL.UI = function(options) {
             'class': 'component-detail-headline'
           }));
         } else {
-          container.grab(HTMLHELPER.createContainerDetailInput(null, editable.alias, editable.value));
+          container.grab(HTMLHELPER.createContainerDetailInput(null, editable.name, editable.value));
         }
       }
       this.inspector.grab(container);
@@ -889,10 +888,8 @@ LEEWGL.UI = function(options) {
 
     if (element.get('id') === 'play-control') {
       element.set('id', 'pause-control');
-      element.set('src', LEEWGL.ROOT + 'img/icons/pause.png');
     } else {
       element.set('id', 'play-control');
-      element.set('src', LEEWGL.ROOT + 'img/icons/play.png');
       return;
     }
 
@@ -916,10 +913,9 @@ LEEWGL.UI = function(options) {
 
   this.stop = function() {
     var playIcon;
-    if ((playIcon = new LEEWGL.DOM.Element(document.getElementById('pause-control'))) !== null) {
+    if ((playIcon = new LEEWGL.DOM.Element(document.getElementById('pause-control'))) !== null)
       playIcon.set('id', 'play-control');
-      playIcon.set('src', 'img/icons/play.png');
-    }
+
 
     this.playing = false;
   };
@@ -1558,11 +1554,10 @@ LEEWGL.UI.Popup.prototype.addCloseIcon = function() {
     'class': 'clearer'
   });
 
-  var closeIcon = new LEEWGL.DOM.Element('img', {
+  var closeIcon = new LEEWGL.DOM.Element('a', {
     'alt': 'Close Popup',
     'title': 'Close Popup',
-    'src': 'img/icons/close_circle_half.png',
-    'class': 'mleft5'
+    'class' : 'closeable'
   });
 
   iconContainer.grab(closeIcon);
@@ -1632,11 +1627,10 @@ LEEWGL.UI.Popup.prototype.movable = function() {
     'class': 'clearer'
   });
 
-  var moveIcon = new LEEWGL.DOM.Element('img', {
+  var moveIcon = new LEEWGL.DOM.Element('a', {
     'alt': 'Move Popup',
     'title': 'Move Popup',
-    'src': 'img/icons/move_half.png',
-    'class': 'mleft5'
+    'class': 'movable'
   });
 
   iconContainer.grab(moveIcon);
@@ -1753,11 +1747,10 @@ LEEWGL.UI.Sidebar.prototype.addToggleButton = function() {
   var clearer = new LEEWGL.DOM.Element('div', {
     'class': 'clearer'
   });
-  this.toggleIcon = new LEEWGL.DOM.Element('img', {
+  this.toggleIcon = new LEEWGL.DOM.Element('a', {
     'alt': 'Toggle Sidebar',
     'title': 'Toggle Sidebar',
-    'src': 'img/icons/chevron_right_half.png',
-    'class': 'mleft10'
+    'class': 'toggleable-hide'
   });
 
   this.toggleIconContainer.grab(this.toggleIcon);
@@ -1789,7 +1782,7 @@ LEEWGL.UI.Sidebar.prototype.show = function() {
       'left': '0px',
       'position': 'relative'
     });
-    this.toggleIcon.set('src', 'img/icons/chevron_left_half.png');
+    this.toggleIcon.set('class', 'toggleable-hide');
   }
 
   if (this.pos.x < 0) {
@@ -1823,7 +1816,7 @@ LEEWGL.UI.Sidebar.prototype.hide = function() {
       'left': size.width + 'px',
       'position': 'absolute'
     });
-    this.toggleIcon.set('src', 'img/icons/chevron_right_half.png');
+    this.toggleIcon.set('class', 'toggleable-show');
   }
 
   if (this.options.animated === true) {

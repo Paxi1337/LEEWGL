@@ -253,6 +253,84 @@ div#status-bar {
 div.movable {
   box-shadow: 1px 1px 10px 1px #212121;
 }
+a.movable {
+  background-image: url('../img/icons/move_half.png');
+  background-repeat: no-repeat;
+  display: block;
+  width: 40px;
+  height: 40px;
+  margin-left: 5px;
+  margin-top: 7px;
+}
+a.movable:hover {
+  background-image: url('../img/icons/move_half_black.png');
+}
+a#play-control {
+  background-image: url('../img/icons/play.png');
+  background-repeat: no-repeat;
+  display: block;
+  width: 40px;
+  height: 40px;
+}
+a#play-control:hover {
+  background-image: url('../img/icons/play_black.png');
+}
+a#pause-control {
+  background-image: url('../img/icons/pause.png');
+  background-repeat: no-repeat;
+  display: block;
+  width: 40px;
+  height: 40px;
+}
+a#pause-control:hover {
+  background-image: url('../img/icons/pause_black.png');
+}
+a#stop-control {
+  background-image: url('../img/icons/stop.png');
+  background-repeat: no-repeat;
+  display: block;
+  width: 40px;
+  height: 40px;
+}
+a#stop-control:hover {
+  background-image: url('../img/icons/stop_black.png');
+}
+a.closeable {
+  background-image: url('../img/icons/close_circle_half.png');
+  background-repeat: no-repeat;
+  display: block;
+  width: 40px;
+  height: 40px;
+  margin-top: 6px;
+  margin-left: 5px;
+}
+a.closeable:hover {
+  background-image: url('../img/icons/close_circle_half_black.png');
+}
+a.toggleable-hide {
+  background-image: url('../img/icons/chevron_left_half.png');
+  background-repeat: no-repeat;
+  display: block;
+  width: 40px;
+  height: 40px;
+  margin-top: 8px;
+  margin-left: 8px;
+}
+a.toggleable-hide:hover {
+  background-image: url('../img/icons/chevron_left_half_black.png');
+}
+a.toggleable-show {
+  background-image: url('../img/icons/chevron_right_half.png');
+  background-repeat: no-repeat;
+  display: block;
+  width: 40px;
+  height: 40px;
+  margin-top: 8px;
+  margin-left: 10px;
+}
+a.toggleable-show:hover {
+  background-image: url('../img/icons/chevron_right_half_black.png');
+}
 .component-container {
   padding: 5px;
 }

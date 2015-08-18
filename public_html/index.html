@@ -155,12 +155,12 @@
             <div class="container-header dark-primary-color mbot10">
               <h2>Controls</h2>
               <div class="icon-container fleft">
-                <img alt="Release Window" title="Release Window" src="img/icons/move_half.png" />
+                <a alt="Release Window" title="Release Window" class="movable"></a>
               </div>
             </div>
             <div id="controls-container">
-              <img id="play-control" src="img/icons/play.png" class="icon-big mright35 pointer fleft" alt="Play" title="Play" onclick="UI.play(this);" />
-              <img class="icon-big pointer" src="img/icons/stop.png" alt="Stop" title="Stop" onclick="UI.stop();" />
+              <a id="play-control" class="icon-big pointer fleft" alt="Play" title="Play" onclick="UI.play(this);"></a>
+              <a id="stop-control" class="icon-big pointer fright" alt="Stop" title="Stop" onclick="UI.stop();"></a>
               <div class="clearer"></div>
             </div>
           </div>
@@ -169,7 +169,7 @@
               <div class="container-header dark-primary-color">
                 <h2>Editor View</h2>
                 <div class="icon-container fleft">
-                  <img alt="Release Window" title="Release Window" src="img/icons/move_half.png" />
+                  <a alt="Release Window" title="Release Window" class="movable"></a>
                 </div>
               </div>
               <canvas id="editor-canvas" tabindex="1"></canvas>
@@ -179,7 +179,7 @@
             <div class="container-header dark-primary-color">
               <h2>Outline</h2>
               <div class="icon-container fleft">
-                <img alt="Release Window" title="Release Window" src="img/icons/move_half.png" />
+                <a alt="Release Window" title="Release Window" class="movable"></a>
               </div>
             </div>
             <div id="dynamic-outline"></div>
@@ -188,7 +188,7 @@
             <div class="container-header dark-primary-color">
               <h2>Inspector</h2>
               <div class="icon-container fleft">
-                <img alt="Release Window" title="Release Window" src="img/icons/move_half.png" />
+                <a alt="Release Window" title="Release Window" class="movable"></a>
               </div>
             </div>
             <div id="dynamic-inspector"></div>
