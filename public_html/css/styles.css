@@ -259,8 +259,7 @@ a.movable {
   display: block;
   width: 40px;
   height: 40px;
-  margin-left: 5px;
-  margin-top: 7px;
+  background-position: 5px 7px;
 }
 a.movable:hover {
   background-image: url('../img/icons/move_half_black.png');
@@ -301,8 +300,7 @@ a.closeable {
   display: block;
   width: 40px;
   height: 40px;
-  margin-top: 6px;
-  margin-left: 5px;
+  background-position: 5px 6px;
 }
 a.closeable:hover {
   background-image: url('../img/icons/close_circle_half_black.png');
@@ -313,8 +311,7 @@ a.toggleable-hide {
   display: block;
   width: 40px;
   height: 40px;
-  margin-top: 8px;
-  margin-left: 8px;
+  background-position: 8px 8px;
 }
 a.toggleable-hide:hover {
   background-image: url('../img/icons/chevron_left_half_black.png');
@@ -325,8 +322,7 @@ a.toggleable-show {
   display: block;
   width: 40px;
   height: 40px;
-  margin-top: 8px;
-  margin-left: 10px;
+  background-position: 10px 8px;
 }
 a.toggleable-show:hover {
   background-image: url('../img/icons/chevron_right_half_black.png');
