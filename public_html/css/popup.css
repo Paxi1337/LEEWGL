@@ -91,10 +91,4 @@
 }
 li.popup-list {
   padding: 5px;
-  cursor: pointer;
-}
-li.popup-list:hover {
-  background-color: #C5CAE9;
-  color: #212121;
-  font-weight: bold;
 }

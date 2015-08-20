@@ -20,7 +20,9 @@ LEEWGL.EventDispatcher.prototype = {
   apply: function(object) {
     object.addEventListener = LEEWGL.EventDispatcher.prototype.addEventListener;
     object.hasEventListener = LEEWGL.EventDispatcher.prototype.hasEventListener;
+    object.hasEventListenerType = LEEWGL.EventDispatcher.prototype.hasEventListenerType;
     object.removeEventListener = LEEWGL.EventDispatcher.prototype.removeEventListener;
+    object.removeEventListenerType = LEEWGL.EventDispatcher.prototype.removeEventListenerType;
     object.dispatchEvent = LEEWGL.EventDispatcher.prototype.dispatchEvent;
   },
   addEventListener: function(type, listener) {
@@ -39,10 +41,17 @@ LEEWGL.EventDispatcher.prototype = {
       return false;
     var listeners = this.listeners;
 
-    if (listeners[type] !== undefined && listeners[type].indexOf(listener) !== -1) {
+    if (listeners[type] !== undefined && listeners[type].indexOf(listener) !== -1)
       return true;
-    }
+    return false;
+  },
+  hasEventListenerType: function(type) {
+    if (this.listeners === undefined)
+      return false;
+    var listeners = this.listeners;
 
+    if (listeners[type] !== undefined)
+      return true;
     return false;
   },
   removeEventListener: function(type, listener) {
@@ -52,15 +61,23 @@ LEEWGL.EventDispatcher.prototype = {
     var listeners = this.listeners;
     var listenerArray = listeners[type];
 
-
     if (listenerArray !== undefined) {
       var index = listenerArray.indexOf(listener);
-      if (index !== -1) {
+      if (index !== -1)
         listenerArray.splice(index, 1);
-      } else {
+      else
         this.listeners = {};
-      }
     }
+  },
+  removeEventListenerType: function(type) {
+    if (this.listeners === undefined)
+      return;
+
+    var listeners = this.listeners;
+    var listenerArray = listeners[type];
+
+    if (listenerArray !== undefined)
+      this.listeners[type] = [];
   },
   dispatchEvent: function(event) {
     if (this.listeners === undefined)

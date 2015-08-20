@@ -6,11 +6,12 @@ form {
 }
 input[type='text'], input[type='password'], input[type='file'] {
   border: 0;
-  padding: 0;
+  padding: 4px 0 0 7px;
   margin: 0;
-  width: 100%;
+  width: 97%;
   height: 100%;
-  font-size: 80%;
+  font-size: 85%;
+  line-height: 20px;
 }
 textarea {
   width: 97%;
@@ -49,6 +50,23 @@ button {
   padding: 0;
 }
 .submit:hover {
+  font-weight: bold;
+  color: #212121;
+  background-color: #C5CAE9;
+}
+.submit-small {
+  font-size: 100%;
+  color: #FFFFFF;
+  border: 1px solid #212121;
+  background-color: #607D8B;
+  cursor: pointer;
+  width: 125px;
+  height: 25px;
+  line-height: 25px;
+  margin: 0;
+  padding: 0;
+}
+.submit-small:hover {
   font-weight: bold;
   color: #212121;
   background-color: #C5CAE9;

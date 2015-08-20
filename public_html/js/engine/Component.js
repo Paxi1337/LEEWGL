@@ -180,9 +180,15 @@ LEEWGL.Component.CustomScript = function() {
 
   this.type = 'Component.CustomScript';
   this.code = 'Type your custom code in here!';
+
+  this.applied = {};
 };
 
 LEEWGL.Component.CustomScript.prototype = Object.create(LEEWGL.Component.prototype);
+
+LEEWGL.Component.CustomScript.prototype.addScript = function(id, script) {
+  this.applied[id] = script;
+};
 
 LEEWGL.Component.CustomScript.prototype.clone = function(customScript) {
   if (typeof customScript === 'undefined')

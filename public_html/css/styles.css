@@ -305,7 +305,7 @@ a.closeable {
 a.closeable:hover {
   background-image: url('../img/icons/close_circle_half_black.png');
 }
-a.toggleable-hide {
+a.toggle-left {
   background-image: url('../img/icons/chevron_left_half.png');
   background-repeat: no-repeat;
   display: block;
@@ -313,10 +313,10 @@ a.toggleable-hide {
   height: 40px;
   background-position: 8px 8px;
 }
-a.toggleable-hide:hover {
+a.toggle-left:hover {
   background-image: url('../img/icons/chevron_left_half_black.png');
 }
-a.toggleable-show {
+a.toggle-right {
   background-image: url('../img/icons/chevron_right_half.png');
   background-repeat: no-repeat;
   display: block;
@@ -324,13 +324,59 @@ a.toggleable-show {
   height: 40px;
   background-position: 10px 8px;
 }
-a.toggleable-show:hover {
+a.toggle-right:hover {
   background-image: url('../img/icons/chevron_right_half_black.png');
+}
+a.toggle-down {
+  background-image: url('../img/icons/chevron_down_half.png');
+  background-repeat: no-repeat;
+  display: block;
+  width: 30px;
+  height: 27px;
+  background-position: 4px 7px;
+}
+a.toggle-down:hover {
+  background-image: url('../img/icons/chevron_down_half_black.png');
+}
+a.toggle-up {
+  background-image: url('../img/icons/chevron_up_half.png');
+  background-repeat: no-repeat;
+  display: block;
+  width: 30px;
+  height: 27px;
+  background-position: 4px 6px;
+}
+a.toggle-up:hover {
+  background-image: url('../img/icons/chevron_up_half_black.png');
+}
+a.edit-icon {
+  background-image: url('../img/icons/edit_half.png');
+  background-repeat: no-repeat;
+  display: block;
+  width: 24px;
+  height: 24px;
+  background-position: 0px 0px;
+}
+a.edit-icon:hover {
+  background-image: url('../img/icons/edit_half_black.png');
+}
+a.delete-icon {
+  background-image: url('../img/icons/minus_half.png');
+  background-repeat: no-repeat;
+  display: block;
+  width: 24px;
+  height: 24px;
+  background-position: 0px 2px;
+}
+a.delete-icon:hover {
+  background-image: url('../img/icons/minus_half_black.png');
 }
 .component-container {
   padding: 5px;
+  border-bottom: 1px solid #212121;
 }
 .component-detail-container {
+  width: 290px;
   margin: 10px 0;
 }
 .component-detail-headline {
@@ -343,8 +389,7 @@ a.toggleable-show:hover {
   padding: 6px 10px 7px 10px;
   margin: 0;
   text-align: center;
-  border-bottom: 1px solid #212121;
-  border-top: 1px solid #212121;
+  font-weight: bold;
 }
 .container-header {
   margin-bottom: 1px;

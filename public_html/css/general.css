@@ -1,6 +1,9 @@
 a {
   color: #fff;
 }
+a:hover {
+  color: #212121;
+}
 .padding10 {
   padding: 10px;
 }
