@@ -1872,9 +1872,14 @@ LEEWGL.UI.Sidebar.prototype.addToggleButton = function() {
   }
 
   var that = this;
+  var size = this.getSize();
 
   this.toggleIconContainer = new LEEWGL.DOM.Element('div', {
-    'class': 'icon-container fright'
+    'class': 'icon-container fright',
+    'styles': {
+      'left': this.options['wrapper-width'] + 'px',
+      'position': 'absolute'
+    }
   });
   var clearer = new LEEWGL.DOM.Element('div', {
     'class': 'clearer'
@@ -1882,7 +1887,7 @@ LEEWGL.UI.Sidebar.prototype.addToggleButton = function() {
   this.toggleIcon = new LEEWGL.DOM.Element('a', {
     'alt': 'Toggle Sidebar',
     'title': 'Toggle Sidebar',
-    'class': 'toggle-right'
+    'class': 'toggle-right',
   });
 
   this.toggleIconContainer.grab(this.toggleIcon);

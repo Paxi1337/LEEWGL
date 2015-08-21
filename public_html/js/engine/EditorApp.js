@@ -186,8 +186,6 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
 
   // console.log(this.scene.shaders);
   // console.log(json.shaders.color.code.fragment);
-
-  UI.displaySidebar();
 };
 
 LEEWGL.EditorApp.prototype.updatePickingList = function() {
