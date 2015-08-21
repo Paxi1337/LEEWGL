@@ -537,6 +537,7 @@ LEEWGL.UI = function(options) {
 
             updateScript.addEvent('click', function(event) {
               that.addScriptToObject(id, element.id, codeContainer.e.value);
+              that.setInspectorContent(element.id);
               event.preventDefault();
               event.stopPropagation();
             });
@@ -548,6 +549,11 @@ LEEWGL.UI = function(options) {
               'word-wrap': 'break-word'
             });
             that.popup.show();
+          });
+
+          deleteAppliedScript.addEvent('click', function(event) {
+            that.removeScriptFromObject(id, element.id);
+            that.setInspectorContent(element.id);
           });
         })(appliedScript, scriptID);
 
@@ -627,6 +633,7 @@ LEEWGL.UI = function(options) {
       if (scriptID === '')
         scriptID = 'custom-object-' + element.id + '-script-' + that.appliedScripts;
       that.addScriptToObject(scriptID, element.id, newScriptContent.e.value);
+      that.setInspectorContent(element.id);
       event.preventDefault();
       event.stopPropagation();
     });
@@ -861,6 +868,14 @@ LEEWGL.UI = function(options) {
         func();
       }
     });
+  };
+
+  this.removeScriptFromObject = function(scriptID, elementID) {
+    var element = this.outline[elementID].obj;
+
+    element.components['CustomScript'].removeScript(scriptID);
+    if (element.hasEventListenerType(scriptID))
+      element.removeEventListenerType(scriptID);
   };
 
   this.addScriptToDOM = function(id, src) {

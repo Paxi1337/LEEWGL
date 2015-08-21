@@ -190,6 +190,10 @@ LEEWGL.Component.CustomScript.prototype.addScript = function(id, script) {
   this.applied[id] = script;
 };
 
+LEEWGL.Component.CustomScript.prototype.removeScript = function(id) {
+  delete this.applied[id];
+};
+
 LEEWGL.Component.CustomScript.prototype.clone = function(customScript) {
   if (typeof customScript === 'undefined')
     customScript = new LEEWGL.Component.CustomScript();
