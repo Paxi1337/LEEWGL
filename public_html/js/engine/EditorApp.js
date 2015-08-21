@@ -135,11 +135,11 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
 
   this.triangle.setBuffer(this.gl);
   this.triangle.addColor(this.gl);
-  this.triangle.transform.setPosition([-5, 0, 0]);
+  this.triangle.transform.setPosition([0, 0, 0]);
 
   this.cube.setBuffer(this.gl);
   this.cube.addColor(this.gl);
-  this.cube.transform.offsetPosition([5, 0, 0]);
+  this.cube.transform.setPosition([5, 0, 0]);
 
   this.cube.addComponent(new LEEWGL.Component.CustomScript());
 
@@ -197,6 +197,8 @@ LEEWGL.EditorApp.prototype.updatePickingList = function() {
     }
     this.picker.initPicking(this.gl, this.canvas.width, this.canvas.height);
   }
+
+  UI.setTransformationMode('translation');
 };
 
 LEEWGL.EditorApp.prototype.onMouseDown = function(event) {
@@ -257,16 +259,34 @@ LEEWGL.EditorApp.prototype.onMouseMove = function(event) {
   } else if ((event.which === 1 || button === LEEWGL.MOUSE.LEFT) && this.activeElement !== null) {
     var forward = this.camera.forward();
 
+    var mode = UI.transformationMode;
+
     this.movement.x = movement.x * this.translationSpeed.y;
     this.movement.y = movement.y * this.translationSpeed.y;
 
-    var trans = [this.movement.x, -this.movement.y, 0.0];
-    vec3.transformMat4(trans, trans, this.camera.orientation());
+    var movement = [this.movement.x, -this.movement.y, 0.0];
+    // vec3.transformMat4(trans, trans, this.activeElement.transform.rotation);
 
-    if (event.ctrlKey)
-      this.activeElement.transform.scale([this.movement.x * 0.01, this.movement.y * 0.01, 1.0]);
-    else
-      this.activeElement.transform.rotateY(rad, true);
+    if (mode === 'translation') {
+      if (event.altKey)
+        this.activeElement.transform.translate(movement, 'local');
+      else
+        this.activeElement.transform.translate(movement);
+    } else if (mode === 'rotation') {
+      if (event.ctrlKey)
+        this.activeElement.transform.rotateX(rad, true);
+      else if (event.altKey)
+        this.activeElement.transform.rotateZ(rad, true);
+      else
+        this.activeElement.transform.rotateY(rad, true);
+    } else if (mode === 'scale') {
+      if (event.ctrlKey)
+        this.activeElement.transform.scale([movement[0], 0, 0]);
+      else if (event.altKey)
+        this.activeElement.transform.scale([0, 0, movement[0]]);
+      else
+        this.activeElement.transform.scale([0, movement[0], 0]);
+    }
 
     UI.setInspectorContent(this.activeElement.id);
   }

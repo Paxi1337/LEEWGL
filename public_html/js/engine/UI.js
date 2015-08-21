@@ -27,6 +27,8 @@ LEEWGL.UI = function(options) {
 
   this.drag = new LEEWGL.DragDrop();
 
+  this.transformationMode = 'translation';
+
   this.popup = new LEEWGL.UI.Popup({});
   this.popup.create();
 
@@ -51,6 +53,7 @@ LEEWGL.UI = function(options) {
     if (this.settingsDisplayed === true) {
       SETTINGS.updateFromHTML();
     } else {
+      var pos = this.activeElement.transform.position;
       var trans = this.activeElement.transform.transVec;
       var rot = this.activeElement.transform.rotVec;
       var scale = this.activeElement.transform.scaleVec;
@@ -58,6 +61,7 @@ LEEWGL.UI = function(options) {
       this.activeElement.transform.dispatchEvent({
         'type': 'update-all',
         'data': {
+          'position': pos,
           'translation': trans,
           'rotation': rot,
           'scale': scale
@@ -307,15 +311,20 @@ LEEWGL.UI = function(options) {
     this.updateOutline = false;
   };
 
-  this.dispatchTypes = function(value, type, num) {
-    if (type === 'position') {
-      this.activeElement.transform.position[num] = value;
-    } else if (type === 'translation') {
-      this.activeElement.transform.transVec[num] = value;
-    } else if (type === 'rotation') {
-      this.activeElement.transform.rotVec[num] = value;
-    } else if (type === 'scale') {
-      this.activeElement.transform.scaleVec[num] = value;
+  this.dispatchTypes = function(vector, type, num) {
+    if (type === 'transform-position') {
+      this.activeElement.transform.setPosition(vector);
+    } else if (type === 'transform-translation') {
+      this.activeElement.transform.translate(vector);
+    } else if (type === 'transform-rotation') {
+      if (num === 0)
+        this.activeElement.transform.rotateX(vector[num]);
+      else if (num === 1)
+        this.activeElement.transform.rotateY(vector[num]);
+      else if (num === 2)
+        this.activeElement.transform.rotateZ(vector[num]);
+    } else if (type === 'transform-scale') {
+      this.activeElement.transform.scale(vector);
     }
   };
 
@@ -333,32 +342,19 @@ LEEWGL.UI = function(options) {
     var that = this;
 
     var keydown = (function(event, td, vector) {
-      var el = new LEEWGL.DOM.Element(td);
-      var num = el.get('num');
-      var value = parseFloat(el.get('text'));
+      var num = parseInt(td.get('num'));
+      var value = parseFloat(td.get('text'));
+      var keys = Object.keys(vector);
       vector = vector.value;
 
       if (event.keyCode === LEEWGL.KEYS.ENTER) {
         if (typeof vector[num] === 'undefined') {
-          var keys = Object.keys(vector);
           vector[keys[index]] = value;
         } else {
           vector[num] = value;
         }
 
-        var trans = element.transform.transVec;
-        var rot = element.transform.rotVec;
-        var scale = element.transform.scaleVec;
-
-        element.transform.dispatchEvent({
-          'type': 'update-all',
-          'data': {
-            'translation': trans,
-            'rotation': rot,
-            'scale': scale
-          }
-        });
-
+        that.dispatchTypes(vector, td.get('identifier'), num);
         that.setInspectorContent(element.id);
 
         event.preventDefault();
@@ -367,15 +363,22 @@ LEEWGL.UI = function(options) {
     });
 
     var keyup = (function(event, td, vector) {
-      var el = new LEEWGL.DOM.Element(td);
-      var num = el.get('num');
-      var value = parseFloat(el.get('text'));
-      that.dispatchTypes(value, vector.type, num);
+      var num = parseInt(td.get('num'));
+      var value = parseFloat(td.get('text'));
+      var keys = Object.keys(vector);
+      vector = vector.value;
+
+      if (typeof vector[num] === 'undefined') {
+        vector[keys[index]] = value;
+      } else {
+        vector[num] = value;
+      }
+      that.dispatchTypes(vector, td.get('identifier'), num);
     });
 
     // / position
-    container.grab(HTMLHELPER.createTable(null, ['x', 'y', 'z'], {
-      'value': transform.position,
+    container.grab(HTMLHELPER.createTable('transform-position', ['x', 'y', 'z'], {
+      'value': vec3.clone(transform.position),
       'type': 'position'
     }, {
       'title': 'Position',
@@ -383,8 +386,8 @@ LEEWGL.UI = function(options) {
       'class': 'component-detail-headline'
     }, keydown, keyup));
     // / translation
-    container.grab(HTMLHELPER.createTable(null, ['x', 'y', 'z'], {
-      'value': transform.transVec,
+    container.grab(HTMLHELPER.createTable('transform-translation', ['x', 'y', 'z'], {
+      'value': vec3.clone(transform.transVec),
       'type': 'translation'
     }, {
       'title': 'Translation',
@@ -393,8 +396,8 @@ LEEWGL.UI = function(options) {
     }, keydown, keyup));
 
     // / rotation
-    container.grab(HTMLHELPER.createTable(null, ['x', 'y', 'z'], {
-      'value': transform.rotVec,
+    container.grab(HTMLHELPER.createTable('transform-rotation', ['x', 'y', 'z'], {
+      'value': vec3.clone(transform.rotVec),
       'type': 'rotation'
     }, {
       'title': 'Rotation',
@@ -402,8 +405,8 @@ LEEWGL.UI = function(options) {
       'class': 'component-detail-headline'
     }, keydown, keyup));
     // / scale
-    container.grab(HTMLHELPER.createTable(null, ['x', 'y', 'z'], {
-      'value': transform.scaleVec,
+    container.grab(HTMLHELPER.createTable('transform-scale', ['x', 'y', 'z'], {
+      'value': vec3.clone(transform.scaleVec),
       'type': 'scale'
     }, {
       'title': 'Scale',
@@ -996,6 +999,24 @@ LEEWGL.UI = function(options) {
     else
       this.sidebar.hide();
   };
+
+  /**
+   * Transformation Control
+   */
+
+  this.setTransformationMode = function(mode) {
+    var activeControl = new LEEWGL.DOM.Element(document.querySelector('#' + mode + '-control'));
+    activeControl.set('id', mode + '-control-active');
+    if (mode !== this.transformationMode) {
+      var oldControl = new LEEWGL.DOM.Element(document.querySelector('#' + this.transformationMode + '-control-active'));
+      oldControl.set('id', this.transformationMode + '-control');
+    }
+    this.transformationMode = mode;
+  };
+
+  /**
+   * Scene Management
+   */
 
   this.play = function(playControl) {
     this.playing = true;

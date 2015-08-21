@@ -36,31 +36,33 @@ LEEWGL.Component.Transform = function() {
   Object.defineProperties(this, {
     position: {
       value: position,
-      enumerable: false
+      enumerable: true
     },
     translation: {
       value: translation,
-      enumerable: false
+      enumerable: true
     },
     rotation: {
       value: rotation,
-      enumerable: false
+      enumerable: true
     },
     scaling: {
       value: scaling,
-      enumerable: false
+      enumerable: true
     }
   });
 
   this.addEventListener('update-all', function(event) {
+    var pos = event['data']['position'];
     var trans = event['data']['translation'];
     var rot = event['data']['rotation'];
     var scale = event['data']['scale'];
 
+    this.setPosition(pos);
     this.translate(trans);
-    this.rotateX();
-    this.rotateY();
-    this.rotateZ();
+    this.rotateX(rot[0]);
+    this.rotateY(rot[1]);
+    this.rotateZ(rot[2]);
     this.scale(scale);
   }.bind(this));
 
@@ -78,8 +80,15 @@ LEEWGL.Component.Transform.prototype = Object.create(LEEWGL.Component.prototype)
 
 LEEWGL.Component.Transform.prototype.offsetPosition = function(vector) {
   vec3.add(this.position, this.position, vector);
-  this.translate(vector);
+  this.translate(vector, 'world');
 };
+
+LEEWGL.Component.Transform.prototype.normalizeAngles = function() {
+  for (var i = 0; i < this.rotVec.length; ++i) {
+    this.rotVec[i] = this.rotVec[i] % 360;
+  }
+};
+
 LEEWGL.Component.Transform.prototype.setPosition = function() {
   if (arguments === 'undefined') {
     console.error('LEEWGL.Transform.setPosition(): no arguments given!');
@@ -91,24 +100,30 @@ LEEWGL.Component.Transform.prototype.setPosition = function() {
   } else {
     vec3.set(this.position, arguments[0], arguments[1], arguments[2]);
   }
-
-  this.translate(this.position);
+  vec3.copy(this.transVec, this.position);
+  mat4.translate(this.translation, mat4.create(), this.position);
 };
-LEEWGL.Component.Transform.prototype.translate = function(vector) {
-  mat4.translate(this.translation, this.translation, vector);
+LEEWGL.Component.Transform.prototype.translate = function(vector, space) {
+  var vec = vector;
+  if (space === 'local')
+    vec = vec4.transformMat4(vec4.create(), [vector[0], vector[1], vector[2], 1], mat4.invert(mat4.create(), this.rotation));
+
+  vec3.add(this.transVec, this.transVec, vec);
+  mat4.translate(this.translation, this.translation, vec);
 };
 
 LEEWGL.Component.Transform.prototype.rotateX = function() {
   var rad = false;
   var angle = 0;
   if (arguments.length === 0) {
-    angle = (rad === false) ? LEEWGL.Math.degToRad(this.rotVec[0] % 360.0) : this.rotVec[0];
+    angle = (rad === false) ? LEEWGL.Math.degToRad(this.rotVec[0]) : this.rotVec[0];
   } else {
-    rad = arguments[1];
-    angle = (rad === false) ? LEEWGL.Math.degToRad(arguments[0] % 360.0) : arguments[0];
-    this.rotVec[0] = (rad === false) ? arguments[0] : LEEWGL.Math.radToDeg(arguments[0]);
+    if (typeof arguments[1] !== 'undefined')
+      rad = arguments[1];
+    angle = (rad === false) ? LEEWGL.Math.degToRad(arguments[0]) : arguments[0];
+    this.rotVec[0] += (rad === false) ? arguments[0] : LEEWGL.Math.radToDeg(arguments[0]);
+    this.normalizeAngles();
   }
-
   mat4.rotateX(this.rotation, this.rotation, angle);
 };
 
@@ -116,11 +131,13 @@ LEEWGL.Component.Transform.prototype.rotateY = function() {
   var rad = false;
   var angle = 0;
   if (arguments.length === 0) {
-    angle = (rad === false) ? LEEWGL.Math.degToRad(this.rotVec[1] % 360.0) : this.rotVec[1];
+    angle = (rad === false) ? LEEWGL.Math.degToRad(this.rotVec[1]) : this.rotVec[1];
   } else {
-    rad = arguments[1];
-    angle = (rad === false) ? LEEWGL.Math.degToRad(arguments[0] % 360.0) : arguments[0];
-    this.rotVec[1] = (rad === false) ? arguments[0] : LEEWGL.Math.radToDeg(arguments[0]);
+    if (typeof arguments[1] !== 'undefined')
+      rad = arguments[1];
+    angle = (rad === false) ? LEEWGL.Math.degToRad(arguments[0]) : arguments[0];
+    this.rotVec[1] += (rad === false) ? arguments[0] : LEEWGL.Math.radToDeg(arguments[0]);
+    this.normalizeAngles();
   }
 
   mat4.rotateY(this.rotation, this.rotation, angle);
@@ -130,11 +147,13 @@ LEEWGL.Component.Transform.prototype.rotateZ = function() {
   var rad = false;
   var angle = 0;
   if (arguments.length === 0) {
-    angle = (rad === false) ? LEEWGL.Math.degToRad(this.rotVec[2] % 360.0) : this.rotVec[2];
+    angle = (rad === false) ? LEEWGL.Math.degToRad(this.rotVec[2]) : this.rotVec[2];
   } else {
-    rad = arguments[1];
-    angle = (rad === false) ? LEEWGL.Math.degToRad(arguments[0] % 360.0) : arguments[0];
-    this.rotVec[2] = (rad === false) ? arguments[0] : LEEWGL.Math.radToDeg(arguments[0]);
+    if (typeof arguments[1] !== 'undefined')
+      rad = arguments[1];
+    angle = (rad === false) ? LEEWGL.Math.degToRad(arguments[0]) : arguments[0];
+    this.rotVec[2] += (rad === false) ? arguments[0] : LEEWGL.Math.radToDeg(arguments[0]);
+    this.normalizeAngles();
   }
 
   mat4.rotateZ(this.rotation, this.rotation, angle);
@@ -142,10 +161,10 @@ LEEWGL.Component.Transform.prototype.rotateZ = function() {
 
 LEEWGL.Component.Transform.prototype.scale = function() {
   var vector = this.scaleVec;
-
-  if (arguments.length > 0) {
-    vector = arguments[0];
-    this.scaleVec = vector;
+  if (typeof arguments[0] === 'object') {
+    vec3.copy(vector, arguments[0]);
+  } else {
+    vec3.set(vector, arguments[0], arguments[1], arguments[2]);
   }
 
   mat4.scale(this.scaling, this.scaling, vector);
@@ -154,9 +173,10 @@ LEEWGL.Component.Transform.prototype.scale = function() {
 
 LEEWGL.Component.Transform.prototype.matrix = function() {
   var mat = mat4.create();
-  var negated = vec3.negate(vec3.create(), this.position);
+  var negated = vec3.negate(vec3.create(), this.transVec);
   mat4.multiply(mat, mat, this.translation);
   mat4.multiply(mat, mat, this.rotation);
+  mat4.multiply(mat, mat, this.scaling);
   mat4.multiply(mat, mat, mat4.translate(mat4.create(), this.translation, negated));
   return mat;
 };

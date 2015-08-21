@@ -84,15 +84,23 @@ div#container {
   width: 1200px;
 }
 div#controls-container-overall {
-  height: 105px;
+  height: auto;
   width: 150px;
   background-color: #3F51B5;
   border: 1px solid #212121;
   margin: 20px auto;
 }
 div#controls-container {
-  width: 110px;
+  width: 120px;
   margin: 15px auto;
+}
+div#scene-controls-container {
+  width: 100px;
+  margin: 10px auto;
+}
+div#object-controls-container {
+  width: 120px;
+  margin: 10px auto;
 }
 div#render-container {
   float: left;
@@ -253,6 +261,103 @@ div#status-bar {
 div.movable {
   box-shadow: 1px 1px 10px 1px #212121;
 }
+.component-container {
+  padding: 5px;
+  border-bottom: 1px solid #212121;
+}
+.component-detail-container {
+  width: 290px;
+  margin: 10px 0;
+}
+.component-detail-headline {
+  padding: 3px;
+  text-align: center;
+  margin: 0;
+  color: #FFFFFF;
+}
+.component-headline {
+  padding: 6px 10px 7px 10px;
+  margin: 0;
+  text-align: center;
+  font-weight: bold;
+}
+.container-header {
+  margin-bottom: 1px;
+  text-align: center;
+  height: 40px;
+  line-height: 40px;
+  -webkit-box-shadow: 0px 1px 5px 0px rgba(33, 33, 33, 0.75);
+  -moz-box-shadow: 0px 1px 5px 0px rgba(33, 33, 33, 0.75);
+  box-shadow: 0px 1px 5px 0px rgba(33, 33, 33, 0.75);
+}
+.container-header-small {
+  text-align: center;
+  margin: 0;
+  height: 35px;
+  line-height: 35px;
+  -webkit-box-shadow: 0px 1px 5px 0px rgba(33, 33, 33, 0.75);
+  -moz-box-shadow: 0px 1px 5px 0px rgba(33, 33, 33, 0.75);
+  box-shadow: 0px 1px 5px 0px rgba(33, 33, 33, 0.75);
+}
+div#texture-preview-container {
+  margin: 10px auto;
+  width: 250px;
+  padding: 5px;
+}
+div#texture-preview-container img {
+  width: 250px;
+}
+.edited {
+  background-color: #47bf48 !important;
+  color: #212121;
+  font-weight: bold;
+}
+.edited a {
+  color: #212121;
+  font-weight: bold;
+}
+.active {
+  background-color: #C5CAE9;
+  font-weight: bold;
+  color: #212121 !important;
+}
+.active a {
+  color: #212121;
+}
+div.icon-container {
+  width: 35px;
+  height: 40px;
+  line-height: 50px;
+  cursor: pointer;
+}
+div.icon-container:hover {
+  background-color: #C5CAE9;
+}
+div.icon-container-small {
+  width: 30px;
+  height: 27px;
+  position: relative;
+}
+div.icon-container-small img {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+div.icon-container-small:hover {
+  background-color: #C5CAE9;
+}
+.icon-big {
+  width: 35px;
+  height: 35px;
+}
+
+/**
+ * icons
+ */
+
 a.movable {
   background-image: url('../img/icons/move_half.png');
   background-repeat: no-repeat;
@@ -366,100 +471,74 @@ a.delete-icon {
   display: block;
   width: 24px;
   height: 24px;
-  background-position: 0px 2px;
+  background-position: 0px 0px;
 }
 a.delete-icon:hover {
   background-image: url('../img/icons/minus_half_black.png');
 }
-.component-container {
-  padding: 5px;
-  border-bottom: 1px solid #212121;
+a#translation-control {
+  background-image: url('../img/icons/translate_half.png');
+  background-repeat: no-repeat;
+  display: block;
+  width: 26px;
+  height: 26px;
+  background-position: 0px 0px;
 }
-.component-detail-container {
-  width: 290px;
-  margin: 10px 0;
+a#translation-control:hover {
+  background-image: url('../img/icons/translate_half_black.png');
 }
-.component-detail-headline {
-  padding: 3px;
-  text-align: center;
-  margin: 0;
-  color: #FFFFFF;
+a#translation-control-active {
+  background-image: url('../img/icons/translate_half_black.png');
+  background-repeat: no-repeat;
+  display: block;
+  width: 26px;
+  height: 26px;
+  background-position: 0px 0px;
 }
-.component-headline {
-  padding: 6px 10px 7px 10px;
-  margin: 0;
-  text-align: center;
-  font-weight: bold;
+a#translation-control-active:hover {
+  background-image: url('../img/icons/translate_half.png');
 }
-.container-header {
-  margin-bottom: 1px;
-  text-align: center;
-  height: 40px;
-  line-height: 40px;
-  -webkit-box-shadow: 0px 1px 5px 0px rgba(33, 33, 33, 0.75);
-  -moz-box-shadow: 0px 1px 5px 0px rgba(33, 33, 33, 0.75);
-  box-shadow: 0px 1px 5px 0px rgba(33, 33, 33, 0.75);
+a#rotation-control {
+  background-image: url('../img/icons/rotate_half.png');
+  background-repeat: no-repeat;
+  display: block;
+  width: 26px;
+  height: 26px;
+  background-position: 0px 0px;
 }
-.container-header-small {
-  text-align: center;
-  margin: 0;
-  height: 35px;
-  line-height: 35px;
-  -webkit-box-shadow: 0px 1px 5px 0px rgba(33, 33, 33, 0.75);
-  -moz-box-shadow: 0px 1px 5px 0px rgba(33, 33, 33, 0.75);
-  box-shadow: 0px 1px 5px 0px rgba(33, 33, 33, 0.75);
+a#rotation-control:hover {
+  background-image: url('../img/icons/rotate_half_black.png');
 }
-div#texture-preview-container {
-  margin: 10px auto;
-  width: 250px;
-  padding: 5px;
+a#rotation-control-active {
+  background-image: url('../img/icons/rotate_half_black.png');
+  background-repeat: no-repeat;
+  display: block;
+  width: 26px;
+  height: 26px;
+  background-position: 0px 0px;
 }
-div#texture-preview-container img {
-  width: 250px;
+a#rotation-control-active:hover {
+  background-image: url('../img/icons/rotate_half.png');
 }
-.edited {
-  background-color: #47bf48 !important;
-  color: #212121;
-  font-weight: bold;
+a#scale-control {
+  background-image: url('../img/icons/scale_half.png');
+  background-repeat: no-repeat;
+  display: block;
+  width: 26px;
+  height: 26px;
+  background-position: 0px 0px;
 }
-.edited a {
-  color: #212121;
-  font-weight: bold;
+a#scale-control:hover {
+  background-image: url('../img/icons/scale_half_black.png');
 }
-.active {
-  background-color: #C5CAE9;
-  font-weight: bold;
-  color: #212121 !important;
+a#scale-control-active {
+  background-image: url('../img/icons/scale_half_black.png');
+  background-repeat: no-repeat;
+  display: block;
+  width: 26px;
+  height: 26px;
+  background-position: 0px 0px;
 }
-.active a {
-  color: #212121;
-}
-div.icon-container {
-  width: 35px;
-  height: 40px;
-  line-height: 50px;
-  cursor: pointer;
-}
-div.icon-container:hover {
-  background-color: #C5CAE9;
-}
-div.icon-container-small {
-  width: 30px;
-  height: 27px;
-  position: relative;
-}
-div.icon-container-small img {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: auto;
-}
-div.icon-container-small:hover {
-  background-color: #C5CAE9;
-}
-.icon-big {
-  width: 35px;
-  height: 35px;
+a#scale-control-active:hover {
+  background-image: url('../img/icons/scale_half.png');
 }
