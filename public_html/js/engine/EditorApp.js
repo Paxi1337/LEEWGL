@@ -105,7 +105,7 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
 
   this.shaderLibrary.reset();
 
-  this.shaderLibrary.addParameterChunks([LEEWGL.ShaderLibrary.DEFAULT, LEEWGL.ShaderLibrary.PICKING, LEEWGL.ShaderLibrary.TEXTURE, LEEWGL.ShaderLibrary.AMBIENT]);
+  this.shaderLibrary.addParameterChunks([LEEWGL.ShaderLibrary.DEFAULT, LEEWGL.ShaderLibrary.PICKING, LEEWGL.ShaderLibrary.TEXTURE]);
 
   if (this.light instanceof LEEWGL.Light.SpotLight)
     this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.SPOT);
@@ -123,6 +123,9 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   textureShader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, this.shaderLibrary.out(LEEWGL.Shader.FRAGMENT));
   textureShader.linkShader(this.gl);
   textureShader.use(this.gl);
+
+  console.log(textureShader.code.fragment);
+  console.log(textureShader.code.vertex);
 
   textureShader.createUniformSetters(this.gl);
   textureShader.createAttributeSetters(this.gl);
