@@ -7,7 +7,7 @@ LEEWGL.Light = function(options) {
   LEEWGL.Object3D.call(this, options);
 
   this.options = {
-    'ambient' : [0.2, 0.2, 0.2],
+    'ambient': [0.2, 0.2, 0.2],
     'color': [1.0, 1.0, 1.0],
     'specular': 1.0,
   };
@@ -51,9 +51,9 @@ LEEWGL.Light.prototype = Object.create(LEEWGL.Object3D.prototype);
 
 LEEWGL.Light.prototype.draw = function(gl, shader) {
   shader.use(gl);
-  shader.uniforms['uAmbient'](this.ambient);
-  shader.uniforms['uSpecular'](this.specular);
-  shader.uniforms['uLightColor'](this.color);
+  shader.uniforms['uAmbient'](this.editables.ambient.value);
+  shader.uniforms['uSpecular'](this.editables.specular.value);
+  shader.uniforms['uLightColor'](this.editables.color.value);
 };
 
 LEEWGL.Light.prototype.clone = function(light) {
@@ -92,7 +92,7 @@ LEEWGL.Light.DirectionalLight.prototype = Object.create(LEEWGL.Light.prototype);
 
 LEEWGL.Light.DirectionalLight.prototype.draw = function(gl, shader) {
   LEEWGL.Light.prototype.draw.call(this, gl, shader);
-  shader.uniforms['uLightDirection'](this.direction);
+  shader.uniforms['uLightDirection'](this.editables.direction.value);
 };
 
 LEEWGL.Light.DirectionalLight.prototype.clone = function(directionalLight) {
@@ -122,6 +122,9 @@ LEEWGL.Light.SpotLight = function(options) {
   this.radius = this.options.radius;
   this.innerAngle = this.options['inner-angle'];
   this.outerAngle = this.options['outer-angle'];
+
+  /// in javascript primitive types like int, string get passed by value while
+  /// objects get passed by reference
 
   this.editables.spotDirection = {
     'name': 'SpotDirection',
@@ -160,10 +163,10 @@ LEEWGL.Light.SpotLight.prototype.getProjection = function() {
 LEEWGL.Light.SpotLight.prototype.draw = function(gl, shader) {
   LEEWGL.Light.prototype.draw.call(this, gl, shader);
   shader.uniforms['uLightPosition'](this.transform.position);
-  shader.uniforms['uSpotDirection'](this.spotDirection);
-  shader.uniforms['uSpotInnerAngle'](this.innerAngle);
-  shader.uniforms['uSpotOuterAngle'](this.outerAngle);
-  shader.uniforms['uLightRadius'](this.radius);
+  shader.uniforms['uSpotDirection'](this.editables.spotDirection.value);
+  shader.uniforms['uSpotInnerAngle'](this.editables.innerAngle.value);
+  shader.uniforms['uSpotOuterAngle'](this.editables.outerAngle.value);
+  shader.uniforms['uLightRadius'](this.editables.radius.value);
 };
 
 LEEWGL.Light.SpotLight.prototype.clone = function(spotLight) {
@@ -183,17 +186,16 @@ LEEWGL.Light.SpotLight.prototype.clone = function(spotLight) {
 LEEWGL.Light.PointLight = function(options) {
   LEEWGL.Light.call(this, options);
 
-  this.options.position = [0.0, 0.0, 0.0];
-  this.setOptions(options);
+  this.options.radius = 20;
 
   this.type = 'Light.PointLight';
   this.lightType = 'Point';
+  this.radius = this.options.radius;
 
   this.position = this.options.position;
-  this.editables.position = {
-    'name': 'Position',
-    'table-titles': ['x', 'y', 'z'],
-    'value': this.position
+  this.editables.radius = {
+    'name': 'Radius',
+    'value': this.radius
   };
   this.editables.type.value = this.lightType;
 };
@@ -214,8 +216,8 @@ LEEWGL.Light.PointLight.prototype.getProjection = function() {
 
 LEEWGL.Light.PointLight.prototype.draw = function(gl, shader) {
   LEEWGL.Light.prototype.draw.call(this, gl, shader);
-  shader.uniforms['uLightPosition'](this.position);
-  shader.uniforms['uLightRadius'](this.radius);
+  shader.uniforms['uLightPosition'](this.transform.position);
+  shader.uniforms['uLightRadius'](this.editables.radius.value);
 };
 
 LEEWGL.Light.PointLight.prototype.clone = function(pointLight) {
@@ -223,7 +225,6 @@ LEEWGL.Light.PointLight.prototype.clone = function(pointLight) {
     pointLight = new LEEWGL.Light.PointLight();
 
   LEEWGL.Light.prototype.clone.call(this, pointLight);
-  vec3.copy(pointLight.position, this.position);
   pointLight.editables = this.editables;
   return pointLight;
 };

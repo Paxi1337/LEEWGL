@@ -744,20 +744,56 @@ LEEWGL.UI = function(options) {
       });
       container.grab(title);
 
+      /// FIXME: necessary?
+      var keydown = (function(event, element, value) {
+        // var num = parseInt(td.get('num'));
+        // var value = parseFloat(td.get('text'));
+        // var keys = Object.keys(vector);
+        // vector = vector.value;
+        //
+        // if (event.keyCode === LEEWGL.KEYS.ENTER) {
+        //   if (typeof vector[num] === 'undefined') {
+        //     vector[keys[index]] = value;
+        //   } else {
+        //     vector[num] = value;
+        //   }
+        //
+        //   that.dispatchTypes(vector, td.get('identifier'), num);
+        //   that.setInspectorContent(element.id);
+        //
+        //   event.preventDefault();
+        //   event.stopPropagation();
+        // }
+      });
+
+      var keyup = (function(event, element, vector) {
+        var num = parseInt(element.get('num'));
+        vector = vector.value;
+        var id = element.get('identifier');
+        if (typeof vector === 'object') {
+          var value = parseFloat(element.get('text'));
+          var num = parseInt(element.get('num'));
+          activeElement.editables[id].value[num] = value;
+        } else {
+          var value = parseFloat(element.e.value);
+          activeElement.editables[id].value = value;
+        }
+      });
+
       for (var e in activeElement.editables) {
         var editable = activeElement.editables[e];
         if (editable.value instanceof Array) {
-          container.grab(HTMLHELPER.createTable(null, editable['table-titles'], editable, {
+          container.grab(HTMLHELPER.createTable(e, editable['table-titles'], editable, {
             'title': editable.name,
             'type': 'h4',
             'class': 'component-detail-headline'
-          }));
+          }, keydown, keyup));
         } else {
-          container.grab(HTMLHELPER.createContainerDetailInput(null, editable.name, editable.value));
+          container.grab(HTMLHELPER.createContainerDetailInput(e, editable.name, editable.value, keydown, keyup));
         }
       }
-      this.editableDOM();
       this.inspector.grab(container);
+      this.editableDOM();
     }
   };
 

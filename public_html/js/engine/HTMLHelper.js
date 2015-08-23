@@ -10,7 +10,7 @@ LEEWGL.HTMLHelper = function() {
    */
   this.createTable = function(id, header, content, title, keydown, keyup) {
     keydown = (typeof keydown !== 'undefined' && keydown !== null) ? keydown : (function() {});
-    keyup = (typeof keyup !== 'undefined' && keyup !== null) ? keyup : (function() {});
+    keyup = (typeof keyup !== 'undefined') ? keyup : (function() {});
 
     var container = new LEEWGL.DOM.Element('div', {
       'class': 'component-detail-container'
@@ -118,7 +118,7 @@ LEEWGL.HTMLHelper = function() {
    * @param {function} keyup
    */
   this.createContainerDetailInput = function(id, title, content, keydown, keyup) {
-    keydown = (typeof keydown !== 'undefined') ? keydown : (function() {});
+    keydown = (typeof keydown !== 'undefined' && keydown !== null) ? keydown : (function() {});
     keyup = (typeof keyup !== 'undefined') ? keyup : (function() {});
 
     var container = new LEEWGL.DOM.Element('div', {
@@ -135,14 +135,15 @@ LEEWGL.HTMLHelper = function() {
       'value': content
     });
 
-    input.setAttribute('identifier', id);
+    if (id !== null)
+      input.setAttribute('identifier', id);
 
     input.addEvent('keydown', function(event) {
-      keydown(event, this, content);
+      keydown(event, input, content);
     });
 
     input.addEvent('keyup', function(event) {
-      keyup(event, this, content);
+      keyup(event, input, content);
     });
 
     container.grab(name);
