@@ -21,9 +21,9 @@ LEEWGL.Component.Transform = function() {
   LEEWGL.Component.call(this);
 
   this.type = 'Component.Transform';
+  this.mat = mat4.create();
 
   var position = [0.0, 0.0, 0.0];
-
   var translation = mat4.create();
   var rotation = mat4.create();
   var scaling = mat4.create();
@@ -78,6 +78,15 @@ LEEWGL.Component.Transform = function() {
 
 LEEWGL.Component.Transform.prototype = Object.create(LEEWGL.Component.prototype);
 
+LEEWGL.Component.Transform.prototype.applyMatrix = function(matrix) {
+  mat4.multiply(this.mat, this.mat, matrix);
+};
+
+LEEWGL.Component.Transform.prototype.lookAt = function(vector, up) {
+  var matrix = mat4.create();
+  mat4.lookAt(matrix, vector, this.position, up);
+  return matrix;
+};
 LEEWGL.Component.Transform.prototype.offsetPosition = function(vector) {
   vec3.add(this.position, this.position, vector);
   this.translate(vector, 'world');
@@ -178,6 +187,8 @@ LEEWGL.Component.Transform.prototype.matrix = function() {
   mat4.multiply(mat, mat, this.rotation);
   mat4.multiply(mat, mat, this.scaling);
   mat4.multiply(mat, mat, mat4.translate(mat4.create(), this.translation, negated));
+
+  this.mat = mat;
   return mat;
 };
 
@@ -188,6 +199,10 @@ LEEWGL.Component.Transform.prototype.clone = function(transform) {
   LEEWGL.Component.prototype.clone.call(this, transform);
 
   vec3.copy(transform.position, this.position);
+  vec3.copy(transform.transVec, this.transVec);
+  vec3.copy(transform.rotVec, this.rotVec);
+  vec3.copy(transform.scaleVec, this.scaleVec);
+  mat4.copy(transform.mat, this.matrix);
   mat4.copy(transform.translation, this.translation);
   mat4.copy(transform.rotation, this.rotation);
   mat4.copy(transform.scaling, this.scaling);
@@ -221,6 +236,10 @@ LEEWGL.Component.CustomScript.prototype.clone = function(customScript) {
   LEEWGL.Component.prototype.clone.call(this, customScript);
 
   customScript.code = this.code;
+
+  for (var scriptID in this.applied) {
+    customScript.applied[scriptID] = this.applied[scriptID];
+  }
 
   return customScript;
 };

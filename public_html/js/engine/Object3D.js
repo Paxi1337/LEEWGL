@@ -26,7 +26,8 @@ LEEWGL.Object3D = function(options) {
   Object.defineProperties(this, {
     'id': {
       value: LEEWGL.Object3DCount++,
-      enumerable: false
+      enumerable: false,
+      writable: true
     },
     'alias': {
       value: this.options.alias,
@@ -93,6 +94,15 @@ LEEWGL.Object3D.DefaultUp = [0.0, 1.0, 0.0];
 
 LEEWGL.Object3D.prototype = {
   constructor: LEEWGL.Object3D,
+  onInit: function() {
+
+  },
+  onUpdate: function() {
+
+  },
+  onRender: function() {
+
+  },
   add: function(object) {
     if (arguments.length > 1) {
       for (var i = 0; i < arguments.length; ++i) {
@@ -141,18 +151,6 @@ LEEWGL.Object3D.prototype = {
 
     this.needsUpdate = true;
   },
-  applyMatrix: function(matrix) {
-    mat4.multiply(this.matrix, this.matrix, matrix);
-  },
-  localToWorld: function(vector) {},
-  worldToLocal: function() {
-
-  },
-  lookAt: function(vector) {
-    var matrix = mat4.create();
-    mat4.lookAt(matrix, vector, this.position, this.up);
-    return matrix;
-  },
   getObjectById: function(id, recursive) {
     if (this.id === id)
       return this;
@@ -195,7 +193,8 @@ LEEWGL.Object3D.prototype = {
       child.traverseVisible(callback);
     }
   },
-  clone: function(object, recursive) {
+  clone: function(object, cloneID, recursive) {
+    cloneID = (typeof cloneID !== 'undefined') ? cloneID : false;
     recursive = (typeof recursive !== 'undefined') ? recursive : true;
 
     if (typeof object === 'undefined')
@@ -205,10 +204,21 @@ LEEWGL.Object3D.prototype = {
     object.alias = this.alias + 'Clone';
     object.parent = this.parent;
 
+    if (cloneID === true)
+      object.id = this.id;
+
     for (var component in this.components) {
       if (this.components.hasOwnProperty(component))
-        object.components[component] = this.components[component].clone();
+        object.components[component] = LEEWGL.Component[component].prototype.clone.call(this.components[component], object.components[component]);
     }
+
+    if (typeof this.listeners !== 'undefined') {
+      object.listeners = {};
+      for (var listener in this.listeners) {
+        object.listeners[listener] = this.listeners[listener];
+      }
+    }
+
     vec3.copy(object.up, this.up);
     object.inOutline = this.inOutline;
     object.draggable = this.draggable;

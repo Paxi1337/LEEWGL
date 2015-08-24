@@ -13,7 +13,9 @@ function addLoadEvent(func) {
 
 LEEWGL.REQUIRES.push('EventDispatcher');
 
-LEEWGL.EventDispatcher = function() {};
+LEEWGL.EventDispatcher = function() {
+  this.listeners = undefined;
+};
 
 LEEWGL.EventDispatcher.prototype = {
   constructor: LEEWGL.EventDispatcher,
@@ -79,15 +81,17 @@ LEEWGL.EventDispatcher.prototype = {
     if (listenerArray !== undefined)
       this.listeners[type] = [];
   },
-  dispatchEvent: function(event) {
+  dispatchEvent: function(event, bind) {
     if (this.listeners === undefined)
       return;
+
+    bind = (typeof bind !== 'undefined') ? bind : this;
 
     var listeners = this.listeners;
     var listenerArray = listeners[event.type];
 
     if (listenerArray !== undefined) {
-      event.target = this;
+      event.target = bind;
 
       var array = [];
       var length = listenerArray.length;
@@ -97,7 +101,7 @@ LEEWGL.EventDispatcher.prototype = {
       }
 
       for (i = 0; i < length; ++i) {
-        array[i].call(this, event);
+        array[i].call(bind, event);
       }
     }
   }

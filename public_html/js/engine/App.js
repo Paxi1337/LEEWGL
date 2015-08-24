@@ -8,7 +8,6 @@ LEEWGL.App = function(options) {
   this.canvas = this.core.getCanvas();
 
   this.shaderLibrary = new LEEWGL.ShaderLibrary();
-  this.buffers = [new LEEWGL.Buffer()];
 
   this.mouseVector = vec3.create();
 };
@@ -29,6 +28,8 @@ LEEWGL.App.prototype = {
   onMouseDown: function(event) {},
   onMouseUp: function(event) {},
   onMouseMove: function(event) {},
+  onPlay: function() {},
+  onStop: function() {},
   clear: function() {
     this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
     this.gl.clearColor(SETTINGS.get('background-color').r, SETTINGS.get('background-color').g, SETTINGS.get('background-color').b, SETTINGS.get('background-color').a);

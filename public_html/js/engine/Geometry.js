@@ -178,12 +178,11 @@ LEEWGL.Geometry.prototype.draw = function(gl, shader, drawMode, indices) {
     this.components['Texture'].texture.unbind(gl, 0);
 };
 
-LEEWGL.Geometry.prototype.clone = function(geometry) {
+LEEWGL.Geometry.prototype.clone = function(geometry, cloneID) {
   if (typeof geometry === 'undefined') {
     geometry = new LEEWGL.Geometry();
   }
-
-  LEEWGL.Object3D.prototype.clone.call(this, geometry);
+  LEEWGL.Object3D.prototype.clone.call(this, geometry, cloneID);
 
   geometry.facesNum = this.facesNum;
 
@@ -342,12 +341,12 @@ LEEWGL.Geometry.Triangle.prototype.import = function(stringified_json) {
   return triangle;
 };
 
-LEEWGL.Geometry.Triangle.prototype.clone = function(triangle) {
+LEEWGL.Geometry.Triangle.prototype.clone = function(triangle, cloneID) {
   if (typeof triangle === 'undefined') {
     triangle = new LEEWGL.Geometry.Triangle();
   }
 
-  LEEWGL.Geometry.prototype.clone.call(this, triangle);
+  LEEWGL.Geometry.prototype.clone.call(this, triangle, cloneID);
 
   return triangle;
 };
@@ -431,12 +430,12 @@ LEEWGL.Geometry.Cube = function(options) {
 
 LEEWGL.Geometry.Cube.prototype = Object.create(LEEWGL.Geometry.prototype);
 
-LEEWGL.Geometry.Cube.prototype.clone = function(cube) {
+LEEWGL.Geometry.Cube.prototype.clone = function(cube, cloneID) {
   if (typeof cube === 'undefined') {
     cube = new LEEWGL.Geometry.Cube();
   }
 
-  LEEWGL.Geometry.prototype.clone.call(this, cube);
+  LEEWGL.Geometry.prototype.clone.call(this, cube, cloneID);
 
   return cube;
 };
@@ -498,10 +497,10 @@ LEEWGL.Geometry.Sphere = function(options) {
 
 LEEWGL.Geometry.Sphere.prototype = Object.create(LEEWGL.Geometry.prototype);
 
-LEEWGL.Geometry.Sphere.prototype.clone = function(sphere) {
+LEEWGL.Geometry.Sphere.prototype.clone = function(sphere, cloneID) {
   if (typeof sphere === 'undefined')
     sphere = new LEEWGL.Geometry.Sphere();
 
-  LEEWGL.Geometry.prototype.clone.call(this, sphere);
+  LEEWGL.Geometry.prototype.clone.call(this, sphere, cloneID);
   return sphere;
 };

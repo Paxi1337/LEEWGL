@@ -94,14 +94,13 @@ LEEWGL.UI = function(options) {
   var extend = new LEEWGL.Class();
   extend.extend(LEEWGL.UI.prototype, LEEWGL.Options.prototype);
 
-  this.setGL = function(gl) {
-    this.gl = gl;
+  this.setApp = function(app) {
+    this.app = app;
+    this.gl = this.app.gl;
   };
-
   this.setScene = function(scene) {
     this.scene = scene;
   };
-
   this.setInspector = function(container) {
     this.inspector = (typeof container === 'string') ? document.querySelector(container) : container;
     this.inspector = new LEEWGL.DOM.Element(this.inspector);
@@ -147,6 +146,10 @@ LEEWGL.UI = function(options) {
     }
 
     this.updateOutline = true;
+  };
+
+  this.clearOutline = function() {
+    this.outline = {};
   };
 
   this.removeObjFromOutline = function(index) {
@@ -1067,19 +1070,7 @@ LEEWGL.UI = function(options) {
       return;
     }
 
-    /// run through script
-    var elements = Object.keys(this.outline);
-    for (var i = 0; i < elements.length; ++i) {
-      var element = this.outline[elements[i]].obj;
-      if (typeof element.components['CustomScript'] !== 'undefined') {
-        var scripts = element.components['CustomScript'].applied;
-        for (var scriptID in scripts) {
-          element.dispatchEvent({
-            'type': scriptID
-          });
-        }
-      }
-    }
+    this.app.onPlay();
 
     Window.prototype.dispatchEvent({
       'type': 'custom'
@@ -1098,6 +1089,7 @@ LEEWGL.UI = function(options) {
       playIcon.set('id', 'play-control');
 
 
+    this.app.onStop();
     this.playing = false;
   };
 

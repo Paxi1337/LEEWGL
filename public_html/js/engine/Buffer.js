@@ -1,9 +1,19 @@
 LEEWGL.REQUIRES.push('Buffer');
 
 LEEWGL.Buffer = function(options) {
-  this.buffer;
+  this.options = {
+    'picking': false,
+    'buffer': undefined
+  }
 
-  if (options !== undefined && options.picking === true) {
+  var extend = new LEEWGL.Class();
+  extend.extend(LEEWGL.Buffer.prototype, LEEWGL.Options.prototype);
+
+  this.setOptions(options);
+
+  this.buffer = this.options.buffer;
+
+  if (this.options['picking'] === true) {
     this.colorMapIndex = LEEWGL.Buffer.ColorMapHitCounter++;
 
     /// calculate color-map color
@@ -66,6 +76,11 @@ LEEWGL.Buffer.prototype = {
   clone: function(buffer) {
     if (typeof buffer === 'undefined')
       buffer = new LEEWGL.Buffer();
+
+    if (this.options['picking'] === true) {
+      buffer.colorMapIndex = this.colorMapIndex;
+      buffer.colorMapColor = vec4.clone(this.colorMapColor);
+    }
 
     buffer.buffer = this.buffer;
 

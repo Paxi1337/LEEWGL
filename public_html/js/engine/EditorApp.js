@@ -56,7 +56,10 @@ LEEWGL.EditorApp = function(options) {
   };
 
   this.scene = new LEEWGL.Scene();
+  this.scenePlay = new LEEWGL.Scene();
   this.activeElement = null;
+
+  this.playing = false;
 
   this.shadowmap = new LEEWGL.Shadowmap();
   this.useShadows = false;
@@ -64,6 +67,8 @@ LEEWGL.EditorApp = function(options) {
   this.testModel = new LEEWGL.Geometry.Triangle();
 
   this.ajax = new LEEWGL.AsynchRequest();
+
+  this.backupElements = [];
 };
 
 LEEWGL.EditorApp.prototype = Object.create(LEEWGL.App.prototype);
@@ -129,6 +134,8 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
 
   this.scene.addShader('color', colorShader);
   this.scene.addShader('texture', textureShader);
+  this.scenePlay.addShader('color', colorShader);
+  this.scenePlay.addShader('texture', textureShader);
 
   this.cameraGizmo.setBuffer(this.gl);
   this.cameraGizmo.addColor(this.gl);
@@ -158,14 +165,8 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
 
   this.scene.add(this.camera, this.gameCamera, this.triangle, this.cube, this.cameraGizmo, this.light);
 
-  UI.addObjToOutline(this.scene.children);
-  UI.addObjToOutline([this.light]);
-
   this.gl.enable(this.gl.DEPTH_TEST);
   this.gl.depthFunc(this.gl.LEQUAL);
-
-  UI.setGL(this.gl);
-  UI.setScene(this.scene);
 
   if (this.picking === true)
     this.picker.initPicking(this.gl, this.canvas.width, this.canvas.height);
@@ -174,31 +175,36 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
     this.shadowmap.init(this.gl, 1024, 1024);
 
   this.scene.setActiveShader('color');
+  this.scenePlay.setActiveShader('color');
 
-  var test = this.scene.export();
+  UI.setApp(this);
+  UI.setScene(this.scene);
+  UI.addObjToOutline(this.scene.children);
+  UI.setTransformationMode('translation');
+
+  // var test = this.scene.export();
 
   // console.log(encodeURI(test));
 
   // console.log(this.scene.shaders.color.code.fragment);
   // console.log(colorShader.code.fragment == this.scene.shaders.color.code.fragment);
 
-  var json = JSON.parse(test);
+  // var json = JSON.parse(test);
 
   // console.log(this.scene.shaders);
   // console.log(json.shaders.color.code.fragment);
 };
 
-LEEWGL.EditorApp.prototype.updatePickingList = function() {
+LEEWGL.EditorApp.prototype.updatePickingList = function(scene) {
   if (this.picking === true) {
-    for (var i = 0; i < this.scene.children.length; ++i) {
-      var element = this.scene.children[i];
+    this.picker.clear();
+    for (var i = 0; i < scene.children.length; ++i) {
+      var element = scene.children[i];
       if (typeof element.buffers !== 'undefined')
         this.picker.addToList(element);
     }
     this.picker.initPicking(this.gl, this.canvas.width, this.canvas.height);
   }
-
-  UI.setTransformationMode('translation');
 };
 
 LEEWGL.EditorApp.prototype.onMouseDown = function(event) {
@@ -318,9 +324,18 @@ LEEWGL.EditorApp.prototype.onUpdate = function() {
   this.core.setViewport(SETTINGS.get('viewport').x, SETTINGS.get('viewport').y, SETTINGS.get('viewport').width, SETTINGS.get('viewport').height);
   this.core.setSize(SETTINGS.get('viewport').width, SETTINGS.get('viewport').height);
 
-  if (this.scene.needsUpdate === true) {
-    this.updatePickingList();
-    this.scene.needsUpdate = false;
+  var scene = this.scene;
+
+  if (this.playing === true) {
+    scene = this.scenePlay;
+    for (var i = 0; i < scene.children.length; ++i) {
+      scene.children[i].onUpdate();
+    }
+  }
+
+  if (scene.needsUpdate === true) {
+    this.updatePickingList(scene);
+    scene.needsUpdate = false;
   }
 };
 
@@ -351,20 +366,27 @@ LEEWGL.EditorApp.prototype.onRender = function() {
   this.clear();
 
   var viewProjection = this.camera.viewProjMatrix;
+  var scene = this.scene;
 
-  if (typeof UI !== 'undefined' && UI.playing === true)
+  if (this.playing === true) {
     viewProjection = this.gameCamera.viewProjMatrix;
+    scene = this.scenePlay;
+  }
 
   var activeShader = null;
 
-  for (var i = 0; i < this.scene.children.length; ++i) {
-    var element = this.scene.children[i];
+  for (var i = 0; i < scene.children.length; ++i) {
+    var element = scene.children[i];
+
+    if (this.playing === true)
+      element.onRender();
+
     if (element.usesTexture === true) {
-      activeShader = this.scene.shaders['texture'];
-      this.scene.setActiveShader('texture');
+      activeShader = scene.shaders['texture'];
+      scene.setActiveShader('texture');
     } else {
-      activeShader = this.scene.shaders['color'];
-      this.scene.setActiveShader('color');
+      activeShader = scene.shaders['color'];
+      scene.setActiveShader('color');
     }
 
     activeShader.use(this.gl);
@@ -404,4 +426,47 @@ LEEWGL.EditorApp.prototype.draw = function(element, shader, viewProjection) {
     this.light.draw(this.gl, shader);
     element.draw(this.gl, shader, this.gl.TRIANGLES);
   }
+};
+
+LEEWGL.EditorApp.prototype.onPlay = function() {
+  this.playing = true;
+  this.scenePlay.children = [];
+
+  /// run through custom scripts
+  for (var i = 0; i < this.scene.children.length; ++i) {
+    this.scenePlay.add(this.scene.children[i].clone(undefined, true));
+    var element = this.scenePlay.children[i];
+    var testElement = this.scene.children[i];
+    if (typeof element.components['CustomScript'] !== 'undefined') {
+      var scripts = element.components['CustomScript'].applied;
+      for (var scriptID in scripts) {
+        element.dispatchEvent({
+          'type': scriptID
+        }, this);
+      }
+
+      /// FIXME: this gets somehow bound to this.scene[i]
+      // testElement.onInit().bind(element);
+      // element.onInit();
+      console.log(element.onInit);
+      var test = element.onInit.bind(this);
+      test();
+      console.log(test);
+      console.log(Object.getPrototypeOf(element).onInit.call(element));
+      Object.getPrototypeOf(element).onInit.call(element);
+      console.log(testElement.onInit());
+    }
+  }
+
+  UI.setScene(this.scenePlay);
+  UI.clearOutline();
+  UI.addObjToOutline(this.scenePlay.children);
+  this.updatePickingList(this.scenePlay);
+};
+
+LEEWGL.EditorApp.prototype.onStop = function() {
+  this.playing = false;
+  UI.setScene(this.scene);
+  UI.clearOutline();
+  UI.addObjToOutline(this.scene.children);
 };
