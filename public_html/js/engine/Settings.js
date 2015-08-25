@@ -114,15 +114,16 @@ LEEWGL.Settings = function(options) {
   };
 
   this.updateFromHTML = function() {
+    var element = null;
     for (var prop in this.options) {
       if (this.types[prop] === 'input') {
-        var element = new LEEWGL.DOM.Element(document.querySelector('input[identifier="' + prop + '"]'));
+        element = new LEEWGL.DOM.Element(document.querySelector('input[identifier="' + prop + '"]'));
         this.set(prop, element.e.value);
       } else if (this.types[prop] === 'table') {
         var elements = document.querySelectorAll('td[identifier="' + prop + '"]');
         var arr = {};
         for (var i = 0; i < elements.length; ++i) {
-          var element = new LEEWGL.DOM.Element(elements[i]);
+          element = new LEEWGL.DOM.Element(elements[i]);
           arr[element.get('num')] = parseFloat(element.get('text'));
         }
         this.set(prop, arr);

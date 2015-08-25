@@ -1,4 +1,4 @@
-div.lb {
+.lb {
   font-family: PFDinDisplayPro-Light, sans-serif;
   position: absolute;
   left: 0;
@@ -6,20 +6,20 @@ div.lb {
   z-index: 10000;
   line-height: 0;
 }
-div.lb-outer {
+.lb-outer {
   position: relative;
   background-color: rgba(0, 0, 0, 0);
   background-color: transparent;
   margin: 0 auto;
 }
-div.lb-inner {
+.lb-inner {
   padding: 0;
 }
-div.lb-inner img {
+.lb-inner img {
   -webkit-box-shadow: 1px 1px 10px 1px #000;
   box-shadow: 1px 1px 10px 1px #000;
 }
-div.lb-data {
+.lb-data {
   margin: 0 auto;
   width: 100%;
   padding: 15px 0 15px 0;
@@ -28,21 +28,21 @@ div.lb-data {
   -webkit-box-shadow: 1px 1px 10px 1px #000;
   box-shadow: 1px 1px 10px 1px #000;
 }
-div.lb-title {
+.lb-title {
   font-family: PFDinDisplayPro-Bold, sans-serif;
   padding: 10px 0 0 10px;
   font-size: 1.3em;
   height: 25px;
 }
-div.lb-desc {
+.lb-desc {
   font-size: 1em;
   padding: 10px 0 0 10px;
 }
-div.lb-desc p {
+.lb-desc p {
   font-size: 100%;
   line-height: 15px;
 }
-div.lb-overlay {
+.lb-overlay {
   position: absolute;
   width: 100%;
   top: 0;
@@ -52,16 +52,16 @@ div.lb-overlay {
   z-index: 9999;
   background: #000;
 }
-img.lb-image {
+.lb-image {
   width: 300px;
   padding: 0 10px 0 0;
 }
-div.lb-gallery {
+.lb-gallery {
   margin: 0 auto;
   overflow: hidden;
   white-space: nowrap;
 }
-img.lb-galleryimage {
+.lb-galleryimage {
   margin-right: 10px;
   padding: 0;
   opacity: 0.75;
@@ -72,16 +72,16 @@ img.lb-galleryimage {
   -webkit-box-shadow: 1px 1px 10px 1px #000;
   box-shadow: 1px 1px 10px 1px #000;
 }
-img.active {
+.active {
   opacity: 0.3;
 }
-img.lb-galleryimage:hover {
+.lb-galleryimage:hover {
   opacity: 1;
 }
-img.last {
+.last {
   margin: 0;
 }
-div.lb-loading {
+.lb-loading {
   position: absolute;
   width: 48px;
   height: 48px;
@@ -157,7 +157,7 @@ a.lb-gallery-next:hover {
 a.lb-gallery-prev:hover {
   opacity: 1;
 }
-div.lb-close-icon {
+.lb-close-icon {
   position: absolute;
   width: 32px;
   height: 32px;
@@ -171,6 +171,6 @@ div.lb-close-icon {
   -o-transition: opacity .3s ease-out;
   transition: opacity .3s ease-out;
 }
-div.lb-close-icon:hover {
+.lb-close-icon:hover {
   opacity: 1;
 }

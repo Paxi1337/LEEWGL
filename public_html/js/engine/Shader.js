@@ -37,7 +37,7 @@ LEEWGL.Shader.prototype = {
    * [getProgram description]
    * @return {webgl program}
    */
-  getProgram : function() {
+  getProgram: function() {
     return this.program;
   },
   /**
@@ -47,7 +47,7 @@ LEEWGL.Shader.prototype = {
    * @param  {string} code
    * @return {webgl} shader
    */
-  compile : function(gl, type, code) {
+  compile: function(gl, type, code) {
     var _shader = null;
     if (type === LEEWGL.Shader.FRAGMENT) {
       _shader = gl.createShader(gl.FRAGMENT_SHADER);
@@ -74,7 +74,7 @@ LEEWGL.Shader.prototype = {
    * @param {gl context} gl
    * @param {string} selector
    */
-  getShaderDOM : function(gl, selector) {
+  getShaderDOM: function(gl, selector) {
     var _script = document.querySelector(selector);
     if (_script === null) {
       console.error("LEEWGL.Shader.getShaderDOM(): No shader with selector " + selector + " found.");
@@ -87,7 +87,7 @@ LEEWGL.Shader.prototype = {
    * @param {element} dom
    * @return {string}
    */
-  getShaderContentDOM : function(dom) {
+  getShaderContentDOM: function(dom) {
     var _str = '';
     var _k = dom.firstChild;
     var _content = '';
@@ -103,7 +103,7 @@ LEEWGL.Shader.prototype = {
    * [linkShader description]
    * @param {gl context} gl
    */
-  linkShader : function(gl) {
+  linkShader: function(gl) {
     gl.linkProgram(this.program);
     if (!gl.getProgramParameter(this.program, gl.LINK_STATUS))
       console.error("LEEWGL.Shader.linkShader(): Could not initialise shaders");
@@ -112,7 +112,7 @@ LEEWGL.Shader.prototype = {
    * [use description]
    * @param  {gl context} gl
    */
-  use : function(gl) {
+  use: function(gl) {
     gl.useProgram(this.program);
   },
   /**
@@ -121,7 +121,7 @@ LEEWGL.Shader.prototype = {
    * @param {shader type} type
    * @param {string} code
    */
-  createShaderFromCode : function(gl, type, code) {
+  createShaderFromCode: function(gl, type, code) {
     if (this.program === null)
       this.program = gl.createProgram();
 
@@ -134,7 +134,7 @@ LEEWGL.Shader.prototype = {
    * @param {shader type} type
    * @param {string} selector
    */
-  createShaderFromDOM : function(gl, type, selector) {
+  createShaderFromDOM: function(gl, type, selector) {
     if (this.program === null)
       this.program = gl.createProgram();
 
@@ -145,7 +145,7 @@ LEEWGL.Shader.prototype = {
    * [createUniformSetters description]
    * @param {gl context} gl
    */
-  createUniformSetters : function(gl) {
+  createUniformSetters: function(gl) {
     var that = this;
 
     /**
@@ -251,7 +251,7 @@ LEEWGL.Shader.prototype = {
    * [createAttributeSetters description]
    * @param {gl context} gl
    */
-  createAttributeSetters : function(gl) {
+  createAttributeSetters: function(gl) {
     /**
      * [createAttributeSetter description]
      * @param {number} index
@@ -277,19 +277,21 @@ LEEWGL.Shader.prototype = {
       this.attributes[attributeInfo.name] = createAttributeSetter(index);
     }
   },
-  clone : function(shader) {
+  clone: function(shader) {
     if (typeof shader === 'undefined')
       shader = new LEEWGL.Shader();
 
     shader.program = this.program;
     shader.code = this.code;
 
-    for (var name in this.uniforms) {
+    var name = null;
+
+    for (name in this.uniforms) {
       if (this.uniforms.hasOwnProperty(name)) {
         shader.uniforms[name] = this.uniforms[name];
       }
     }
-    for (var name in this.attributes) {
+    for (name in this.attributes) {
       if (this.attributes.hasOwnProperty(name)) {
         shader.attributes[name] = this.attributes[name];
       }
@@ -297,24 +299,8 @@ LEEWGL.Shader.prototype = {
 
     return shader;
   },
-  import : function(json) {
-    var shader = new LEEWGL.Shader();
-
-    shader.program = this.program;
-    shader.code = this.code;
-
-    for (var name in this.uniforms) {
-      if (this.uniforms.hasOwnProperty(name)) {
-        shader.uniforms[name] = this.uniforms[name];
-      }
-    }
-    for (var name in this.attributes) {
-      if (this.attributes.hasOwnProperty(name)) {
-        shader.attributes[name] = this.attributes[name];
-      }
-    }
-
-    return shader;
+  import: function() {
+    return this.clone();
   }
 };
 

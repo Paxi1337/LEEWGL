@@ -4,7 +4,7 @@ LEEWGL.Buffer = function(options) {
   this.options = {
     'picking': false,
     'buffer': undefined
-  }
+  };
 
   var extend = new LEEWGL.Class();
   extend.extend(LEEWGL.Buffer.prototype, LEEWGL.Options.prototype);

@@ -228,26 +228,28 @@ LEEWGL.UI = function(options) {
 
   this.editableDOM = function() {
     var that = this;
-    var dblclick, keydown;
+    // var dblclick, keydown;
     var elements = document.querySelectorAll('.editable');
 
-    dblclick = function(element) {
+    function dblclick(element) {
       if (element.get('contenteditable') === null) {
         element.set('contenteditable', true);
         element.set('class', 'editable edited');
       }
 
       that.displayUpdatePopup();
-    };
+    }
 
-    keydown = function(event, element) {
+    function keydown(event, element) {
+      console.log('dblclick');
       if (event.keyCode === LEEWGL.KEYS.ENTER) {
         if (element.get('contenteditable') !== null)
           element.removeAttributes(['contenteditable', 'class']);
       }
-    };
+    }
 
     for (var i = 0; i < elements.length; ++i) {
+      /*jshint -W083 */
       var elem = new LEEWGL.DOM.Element(elements[i]);
       elem.addEvent('dblclick', function(event) {
         dblclick(new LEEWGL.DOM.Element(this));
@@ -269,6 +271,21 @@ LEEWGL.UI = function(options) {
     var that = this;
 
     var list = new LEEWGL.DOM.Element('ul');
+
+    var setActive = function(element, index) {
+      element.addEvent('contextmenu', function(event) {
+        var activeOutline = that.outline[index];
+
+        if (activeOutline.active === false && activeOutline.editable === false) {
+          that.setActive(index);
+          that.setEditable(-1);
+          that.updateOutline = true;
+          that.setInspectorContent(index);
+        }
+
+        that.displayOutlineContextMenu(index, event);
+      });
+    };
 
     for (var i in this.outline) {
       var outline = this.outline[i];
@@ -293,21 +310,7 @@ LEEWGL.UI = function(options) {
 
       /// events
       this.editableOutline(element, i);
-
-      (function(index) {
-        element.addEvent('contextmenu', function(event) {
-          var activeOutline = that.outline[index];
-
-          if (activeOutline.active === false && activeOutline.editable === false) {
-            that.setActive(index);
-            that.setEditable(-1);
-            that.updateOutline = true;
-            that.setInspectorContent(index);
-          }
-
-          that.displayOutlineContextMenu(index, event);
-        });
-      })(i);
+      setActive(element, i);
     }
 
     container.grab(list);
@@ -491,6 +494,50 @@ LEEWGL.UI = function(options) {
         }
       });
 
+      var appliedScriptsEvents = function(script, id, editAppliedScript, deleteAppliedScript) {
+        editAppliedScript.addEvent('click', function(event) {
+          that.popup.setOptions({
+            'wrapper-width': 400,
+            'center': true
+          });
+          that.popup.empty();
+          that.popup.addTitleText(id);
+
+          var codeContainer = new LEEWGL.DOM.Element('textarea', {
+            'text': script.get('data'),
+            'styles': {
+              'margin-top': '5px',
+              'margin-bottom': '5px'
+            }
+          });
+          var updateAppliedScript = new LEEWGL.DOM.Element('input', {
+            'type': 'submit',
+            'class': 'submit',
+            'value': 'Update script'
+          });
+
+          updateAppliedScript.addEvent('click', function(event) {
+            that.addScriptToObject(id, element.id, codeContainer.e.value);
+            that.setInspectorContent(element.id);
+            event.preventDefault();
+            event.stopPropagation();
+          });
+
+          that.popup.addCustomElementToContent(codeContainer);
+          that.popup.addCustomElementToContent(updateAppliedScript);
+          that.popup.setDimensions();
+          that.popup.setStyle({
+            'word-wrap': 'break-word'
+          });
+          that.popup.show();
+        });
+
+        deleteAppliedScript.addEvent('click', function(event) {
+          that.removeScriptFromObject(id, element.id);
+          that.setInspectorContent(element.id);
+        });
+      };
+
       for (var scriptID in appliedScripts) {
         var appliedScriptListItem = new LEEWGL.DOM.Element('li', {
           'class': 'big-list'
@@ -519,49 +566,7 @@ LEEWGL.UI = function(options) {
           'class': 'clearer'
         });
 
-        (function(script, id) {
-          editAppliedScript.addEvent('click', function(event) {
-            that.popup.setOptions({
-              'wrapper-width': 400,
-              'center': true
-            });
-            that.popup.empty();
-            that.popup.addTitleText(id);
-
-            var codeContainer = new LEEWGL.DOM.Element('textarea', {
-              'text': script.get('data'),
-              'styles': {
-                'margin-top': '5px',
-                'margin-bottom': '5px'
-              }
-            });
-            var updateScript = new LEEWGL.DOM.Element('input', {
-              'type': 'submit',
-              'class': 'submit',
-              'value': 'Update script'
-            });
-
-            updateScript.addEvent('click', function(event) {
-              that.addScriptToObject(id, element.id, codeContainer.e.value);
-              that.setInspectorContent(element.id);
-              event.preventDefault();
-              event.stopPropagation();
-            });
-
-            that.popup.addCustomElementToContent(codeContainer);
-            that.popup.addCustomElementToContent(updateScript);
-            that.popup.setDimensions();
-            that.popup.setStyle({
-              'word-wrap': 'break-word'
-            });
-            that.popup.show();
-          });
-
-          deleteAppliedScript.addEvent('click', function(event) {
-            that.removeScriptFromObject(id, element.id);
-            that.setInspectorContent(element.id);
-          });
-        })(appliedScript, scriptID);
+        appliedScriptsEvents(appliedScript, scriptID, editAppliedScript, deleteAppliedScript);
 
         appliedScriptListItem.grab(appliedScript);
         appliedScriptListItem.grab(deleteAppliedScript);
@@ -670,7 +675,8 @@ LEEWGL.UI = function(options) {
       'type': 'file'
     });
     var imageContainer = new LEEWGL.DOM.Element('div', {
-      'id': 'texture-preview-container'
+      'id': 'texture-preview-container',
+      'class': 'texture-preview-container p5'
     });
     var image = new LEEWGL.DOM.Element('img', {
       'class': 'lightbox'
@@ -865,22 +871,24 @@ LEEWGL.UI = function(options) {
     var toggles = document.querySelectorAll(classname_toggle);
     var containers = document.querySelectorAll(classname_container);
 
+    var makeDynamic = function(index) {
+      var toggle = new LEEWGL.DOM.Element(toggles[index]);
+      var container = new LEEWGL.DOM.Element(containers[index]);
+
+      toggle.addEvent('mousedown', function(event) {
+        if (event.which === 1 || event.button === LEEWGL.MOUSE.LEFT) {
+          container.addClass('movable');
+          container.addEvent('click', that.drag.drag(container, event));
+        }
+      });
+      toggle.addEvent('dblclick', function(event) {
+        container.removeClass('movable');
+        that.drag.restore(container, event);
+      });
+    };
+
     for (var i = 0; i < toggles.length; ++i) {
-      (function(index) {
-        var toggle = new LEEWGL.DOM.Element(toggles[index]);
-        var container = new LEEWGL.DOM.Element(containers[index]);
-        toggle.addEvent('mousedown', function(event) {
-          if (event.which === 1 || event.button === LEEWGL.MOUSE.LEFT) {
-            container.set('class', 'movable');
-            container.addEvent('click', that.drag.drag(container, event));
-            // container.dispatchEvent({'type' : 'click'});
-          }
-        });
-        toggle.addEvent('dblclick', function(event) {
-          container.removeClass('movable');
-          that.drag.restore(container, event);
-        });
-      })(i);
+      makeDynamic(i);
     }
   };
 
@@ -1044,11 +1052,15 @@ LEEWGL.UI = function(options) {
    */
 
   this.setTransformationMode = function(mode) {
-    var activeControl = new LEEWGL.DOM.Element(document.querySelector('#' + mode + '-control'));
-    activeControl.set('id', mode + '-control-active');
+    var activeControl = new LEEWGL.DOM.Element(document.querySelector('.' + mode + '-control'));
+    if (activeControl.hasClass(this.transformationMode + '-control'))
+      activeControl.removeClass(this.transformationMode + '-control');
+
+    activeControl.addClass(mode + '-control-active');
     if (mode !== this.transformationMode) {
-      var oldControl = new LEEWGL.DOM.Element(document.querySelector('#' + this.transformationMode + '-control-active'));
-      oldControl.set('id', this.transformationMode + '-control');
+      var oldControl = new LEEWGL.DOM.Element(document.querySelector('.' + this.transformationMode + '-control-active'));
+      oldControl.removeClass(this.transformationMode + '-control-active');
+      oldControl.addClass(this.transformationMode + '-control');
     }
     this.transformationMode = mode;
   };
@@ -1065,8 +1077,12 @@ LEEWGL.UI = function(options) {
 
     if (playControl.get('id') === 'play-control') {
       playControl.set('id', 'pause-control');
+      playControl.removeClass('play-control');
+      playControl.addClass('pause-control');
     } else {
       playControl.set('id', 'play-control');
+      playControl.addClass('play-control');
+      playControl.removeClass('pause-control');
       return;
     }
 
@@ -1078,6 +1094,7 @@ LEEWGL.UI = function(options) {
   };
 
   this.pause = function(element) {
+    console.log('pause');
     if (this.playing === true) {
       this.paused = true;
     }
@@ -1346,6 +1363,7 @@ LEEWGL.UI = function(options) {
 
     var textarea_export = new LEEWGL.DOM.Element(document.getElementById('export'));
 
+    /*jshint multistr: true */
     var code_export_init = " \
     var body = new LEEWGL.DOM.Element(document.body); \n \
     var canvas = new LEEWGL.DOM.Element('canvas', { \n \
@@ -1699,6 +1717,12 @@ LEEWGL.UI.Popup.prototype.addList = function(content, evFunction) {
   });
   this.listItems = [];
 
+  var clickEvent = function(item, index) {
+    item.addEvent('click', function(event) {
+      evFunction(content[index]);
+    });
+  };
+
   for (var i = 0; i < content.length; ++i) {
     var item = new LEEWGL.DOM.Element('li', {
       'class': this.options['list-item-class'] + ' pointer',
@@ -1707,11 +1731,7 @@ LEEWGL.UI.Popup.prototype.addList = function(content, evFunction) {
     this.listItems.push(item);
 
     if (typeof evFunction === 'function') {
-      (function(index) {
-        item.addEvent('click', function(event) {
-          evFunction(content[index]);
-        });
-      })(i);
+      clickEvent(item, i);
     }
     list.grab(item);
   }
@@ -1811,7 +1831,7 @@ LEEWGL.UI.Popup.prototype.movable = function() {
   var moveIcon = new LEEWGL.DOM.Element('a', {
     'alt': 'Move Popup',
     'title': 'Move Popup',
-    'class': 'movable'
+    'class': 'move-icon'
   });
 
   iconContainer.grab(moveIcon);

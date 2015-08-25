@@ -1,5 +1,3 @@
-li {
-}
 li:hover {
   background-color: #C5CAE9;
   color: #212121;
@@ -9,6 +7,6 @@ li a:hover {
   color: #212121;
   font-weight: bold;
 }
-li.big-list {
+.big-list {
   padding: 5px;
 }

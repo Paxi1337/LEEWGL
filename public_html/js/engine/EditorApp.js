@@ -270,14 +270,14 @@ LEEWGL.EditorApp.prototype.onMouseMove = function(event) {
     this.movement.x = movement.x * this.translationSpeed.y;
     this.movement.y = movement.y * this.translationSpeed.y;
 
-    var movement = [this.movement.x, -this.movement.y, 0.0];
+    var movementWorld = [this.movement.x, -this.movement.y, 0.0];
     // vec3.transformMat4(trans, trans, this.activeElement.transform.rotation);
 
     if (mode === 'translation') {
       if (event.altKey)
-        this.activeElement.transform.translate(movement, 'local');
+        this.activeElement.transform.translate(movementWorld, 'local');
       else
-        this.activeElement.transform.translate(movement);
+        this.activeElement.transform.translate(movementWorld);
     } else if (mode === 'rotation') {
       if (event.ctrlKey)
         this.activeElement.transform.rotateX(rad, true);
@@ -287,11 +287,11 @@ LEEWGL.EditorApp.prototype.onMouseMove = function(event) {
         this.activeElement.transform.rotateY(rad, true);
     } else if (mode === 'scale') {
       if (event.ctrlKey)
-        this.activeElement.transform.scale([movement[0], 0, 0]);
+        this.activeElement.transform.scale([movementWorld[0], 0, 0]);
       else if (event.altKey)
-        this.activeElement.transform.scale([0, 0, movement[0]]);
+        this.activeElement.transform.scale([0, 0, movementWorld[0]]);
       else
-        this.activeElement.transform.scale([0, movement[0], 0]);
+        this.activeElement.transform.scale([0, movementWorld[0], 0]);
     }
 
     UI.setInspectorContent(this.activeElement.id);

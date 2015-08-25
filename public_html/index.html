@@ -53,9 +53,9 @@
 </head>
 
 <body>
-  <div id="wrapper">
-    <div id="header-bar-overall">
-      <div id="header-bar" class="dark-primary-color text-primary-color">
+  <div class="main-wrapper">
+    <div class="header-bar-overall">
+      <div class="header-bar dark-primary-color text-primary-color">
         <ul>
           <li><a href="#">File</a>
             <ul>
@@ -149,65 +149,65 @@
         </ul>
       </div>
     </div>
-    <div id="container-overall">
-      <div id="container">
-        <div id="content">
-          <div id="controls-container-overall" class="dynamic-container">
+    <div>
+      <div>
+        <div class="main-content">
+          <div class="main-controls-container-overall dynamic-container">
             <div class="container-header dark-primary-color mbot10">
               <h2>Controls</h2>
               <div class="icon-container fleft">
-                <a title="Release Window" class="movable"></a>
+                <a title="Release Window" class="move-icon"></a>
               </div>
             </div>
-            <div id="controls-container">
-              <div id="scene-controls-container">
-                <a id="play-control" class="icon-big pointer fleft" title="Play" onclick="UI.play(this);"></a>
-                <a id="stop-control" class="icon-big pointer fright" title="Stop" onclick="UI.stop();"></a>
+            <div class="main-controls-container">
+              <div class="scene-controls-container">
+                <a id="play-control" class="play-control icon-big pointer fleft" title="Play" onclick="UI.play(this);"></a>
+                <a id="stop-control" class="stop-control icon-big pointer fright" title="Stop" onclick="UI.stop();"></a>
                 <div class="clearer"></div>
               </div>
-              <div id="object-controls-container">
-                <a id="translation-control" class="mright20 pointer fleft" title="Translation-Mode" onclick="UI.setTransformationMode('translation');"></a>
-                <a id="rotation-control" class="mright20 pointer fleft" title="Rotation-Mode" onclick="UI.setTransformationMode('rotation');"></a>
-                <a id="scale-control" class="pointer fleft" title="Scale-Mode" onclick="UI.setTransformationMode('scale');"></a>
+              <div class="object-controls-container">
+                <a class="translation-control mright20 pointer fleft" title="Translation-Mode" onclick="UI.setTransformationMode('translation');"></a>
+                <a class="rotation-control mright20 pointer fleft" title="Rotation-Mode" onclick="UI.setTransformationMode('rotation');"></a>
+                <a class="scale-control pointer fleft" title="Scale-Mode" onclick="UI.setTransformationMode('scale');"></a>
                 <div class="clearer"></div>
               </div>
             </div>
           </div>
-          <div id="render-container">
-            <div id="editor-view-container" class="dynamic-container">
+          <div class="mright10 fleft">
+            <div class="dynamic-container">
               <div class="container-header dark-primary-color">
                 <h2>Editor View</h2>
                 <div class="icon-container fleft">
-                  <a title="Release Window" class="movable"></a>
+                  <a title="Release Window" class="move-icon"></a>
                 </div>
               </div>
               <canvas id="editor-canvas" tabindex="1"></canvas>
             </div>
           </div>
-          <div id="outline-container" class="dynamic-container">
+          <div class="outline-container fleft mleft10 dynamic-container">
             <div class="container-header dark-primary-color">
               <h2>Outline</h2>
               <div class="icon-container fleft">
-                <a title="Release Window" class="movable"></a>
+                <a title="Release Window" class="move-icon"></a>
               </div>
             </div>
-            <div id="dynamic-outline"></div>
+            <div id="dynamic-outline" class="dynamic-outline p10"></div>
           </div>
-          <div id="inspector-container" class="dynamic-container">
+          <div class="inspector-container fleft mleft20 dynamic-container">
             <div class="container-header dark-primary-color">
               <h2>Inspector</h2>
               <div class="icon-container fleft">
-                <a title="Release Window" class="movable"></a>
+                <a title="Release Window" class="move-icon"></a>
               </div>
             </div>
-            <div id="dynamic-inspector"></div>
+            <div id="dynamic-inspector" class="mtop5"></div>
           </div>
           <div class="clearer"></div>
         </div>
       </div>
     </div>
-    <div id="status-bar-overall" class="dark-primary-color">
-      <div id="status-bar">STATUS BAR</div>
+    <div class="status-bar-overall fsize17 dark-primary-color">
+      <div id="status-bar" class="status-bar"></div>
     </div>
   </div>
 

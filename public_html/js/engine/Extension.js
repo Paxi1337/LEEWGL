@@ -11,7 +11,7 @@ LEEWGL.Extension = function() {
         return ext;
     }
     return null;
-  }
+  };
 };
 
 var __extensionLoader = new LEEWGL.Extension();

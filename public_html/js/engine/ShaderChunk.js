@@ -14,6 +14,6 @@
       var name = file.substr(0, file.indexOf('.glsl'));
       LEEWGL.ShaderChunk[name] = ajax.send('GET', path + file, false, null).response.responseText;
     }
-  }
+  };
 
   addLoadEvent(init);

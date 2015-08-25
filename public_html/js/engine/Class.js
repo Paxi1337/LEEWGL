@@ -20,4 +20,4 @@ LEEWGL.Class.prototype = {
 
     return fn;
   }
-}
+};

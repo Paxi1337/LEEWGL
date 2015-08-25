@@ -66,7 +66,9 @@ LEEWGL.Geometry.prototype.setVertices = function(vertices) {
 LEEWGL.Geometry.prototype.calculateFaces = function() {
   this.vectors = [];
 
-  for (var i = 0; i < this.vertices.position.length; i += 3) {
+  var i = 0;
+
+  for (i = 0; i < this.vertices.position.length; i += 3) {
     var x = this.vertices.position[i];
     var y = this.vertices.position[i + 1];
     var z = this.vertices.position[i + 2];
@@ -74,7 +76,7 @@ LEEWGL.Geometry.prototype.calculateFaces = function() {
     this.vectors.push([x, y, z]);
   }
 
-  for (var i = 0; i < this.indices.length; i += 3) {
+  for (i = 0; i < this.indices.length; i += 3) {
     var i0 = this.indices[i];
     var i1 = this.indices[i + 1];
     var i2 = this.indices[i + 2];
@@ -194,23 +196,25 @@ LEEWGL.Geometry.prototype.clone = function(geometry, cloneID) {
 
   geometry.facesNum = this.facesNum;
 
-  for (var i = 0; i < position.length; ++i) {
+  var i = 0;
+
+  for (i = 0; i < position.length; ++i) {
     geometry.vertices.position.push(position[i]);
   }
 
-  for (var i = 0; i < normal.length; ++i) {
+  for (i = 0; i < normal.length; ++i) {
     geometry.vertices.normal.push(normal[i]);
   }
 
-  for (var i = 0; i < color.length; ++i) {
+  for (i = 0; i < color.length; ++i) {
     geometry.vertices.color.push(color[i]);
   }
 
-  for (var i = 0; i < uv.length; ++i) {
+  for (i = 0; i < uv.length; ++i) {
     geometry.vertices.uv.push(uv[i]);
   }
 
-  for (var i = 0; i < this.facesNum; ++i) {
+  for (i = 0; i < this.facesNum; ++i) {
     geometry.faces.push(faces[i]);
   }
 
@@ -240,17 +244,19 @@ LEEWGL.Geometry.Grid = function(options) {
   LEEWGL.Geometry.call(this, options);
 
   this.generateGrid = function(width, height, margin) {
-    for (var z = 0; z < height; ++z) {
-      for (var x = 0; x < width; ++x) {
+    var z, x = 0;
+
+    for (z = 0; z < height; ++z) {
+      for (x = 0; x < width; ++x) {
         this.vertices.position.push([x * margin.x, 0.0, z * margin.z]);
         this.vertices.color.push([1.0, 1.0, 1.0, 1.0]);
       }
     }
 
-    for (var z = 0; z < height - 1; ++z) {
+    for (z = 0; z < height - 1; ++z) {
       // / even row
       if ((z & 1) === 0) {
-        for (var x = 0; x < width; ++x) {
+        for (x = 0; x < width; ++x) {
           this.indices.push(x + (z * width));
           this.indices.push(x + (z * width) + width);
         }
@@ -259,7 +265,7 @@ LEEWGL.Geometry.Grid = function(options) {
           this.indices.push((x - 1) + (z * width));
         // / odd row
       } else {
-        for (var x = width - 1; x >= 0; --x) {
+        for (x = width - 1; x >= 0; --x) {
           this.indices.push(x + (z * width));
           this.indices.push(x + (z * width) + width);
         }
@@ -449,12 +455,14 @@ LEEWGL.Geometry.Sphere = function(options) {
   var longitudeBands = 10;
   var radius = 1;
 
-  for (var latNumber = 0; latNumber <= latitudeBands; latNumber++) {
+  var latNumber, longNumber = 0;
+
+  for (latNumber = 0; latNumber <= latitudeBands; latNumber++) {
     var theta = latNumber * Math.PI / latitudeBands;
     var sinTheta = Math.sin(theta);
     var cosTheta = Math.cos(theta);
 
-    for (var longNumber = 0; longNumber <= longitudeBands; longNumber++) {
+    for (longNumber = 0; longNumber <= longitudeBands; longNumber++) {
       var phi = longNumber * 2 * Math.PI / longitudeBands;
       var sinPhi = Math.sin(phi);
       var cosPhi = Math.cos(phi);
@@ -476,8 +484,8 @@ LEEWGL.Geometry.Sphere = function(options) {
     }
   }
 
-  for (var latNumber = 0; latNumber < latitudeBands; latNumber++) {
-    for (var longNumber = 0; longNumber < longitudeBands; longNumber++) {
+  for (latNumber = 0; latNumber < latitudeBands; latNumber++) {
+    for (longNumber = 0; longNumber < longitudeBands; longNumber++) {
       var first = (latNumber * (longitudeBands + 1)) + longNumber;
       var second = first + longitudeBands + 1;
 
