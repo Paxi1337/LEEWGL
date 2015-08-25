@@ -112,8 +112,7 @@ LEEWGL.Core = function(options) {
     'context': null
   };
 
-  var extend = new LEEWGL.Class();
-  extend.extend(LEEWGL.Core.prototype, LEEWGL.Options.prototype);
+  extend(LEEWGL.Core.prototype, LEEWGL.Options.prototype);
 
   this.setOptions(options);
 

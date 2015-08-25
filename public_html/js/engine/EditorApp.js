@@ -20,7 +20,6 @@ LEEWGL.EditorApp = function(options) {
   });
 
   this.cameraGizmo = new LEEWGL.Geometry.Sphere();
-
   this.triangle = new LEEWGL.Geometry.Triangle({
     'alias': 'Triangle'
   });
@@ -28,15 +27,14 @@ LEEWGL.EditorApp = function(options) {
     'alias': 'Cube'
   });
   this.grid = new LEEWGL.Geometry.Grid({
-    'alias': 'Grid'
+    'alias': 'Grid',
+    'wireframe': true
   });
-
-  this.picker = new LEEWGL.Picker();
-
   this.light = new LEEWGL.Light.SpotLight({
     'alias': 'Light'
   });
 
+  this.picker = new LEEWGL.Picker();
   this.movement = {
     'x': 0,
     'y': 0
@@ -150,12 +148,9 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
 
   this.cube.addComponent(new LEEWGL.Component.CustomScript());
 
-  this.grid.generateGrid(10, 10, {
-    'x': 10.0,
-    'z': 10.0
-  });
+  this.grid.generate();
   this.grid.setBuffer(this.gl);
-  this.grid.setColorBuffer(this.gl);
+  this.grid.addColor(this.gl);
   this.grid.transform.translate([0.0, -5.0, 0.0]);
 
   // test load collada file
@@ -169,7 +164,7 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   this.gl.depthFunc(this.gl.LEQUAL);
 
   if (this.picking === true)
-    this.picker.initPicking(this.gl, this.canvas.width, this.canvas.height);
+    this.picker.init(this.gl, this.canvas.width, this.canvas.height);
 
   if (this.useShadows === true)
     this.shadowmap.init(this.gl, 1024, 1024);
@@ -203,7 +198,7 @@ LEEWGL.EditorApp.prototype.updatePickingList = function(scene) {
       if (typeof element.buffers !== 'undefined')
         this.picker.addToList(element);
     }
-    this.picker.initPicking(this.gl, this.canvas.width, this.canvas.height);
+    this.picker.init(this.gl, this.canvas.width, this.canvas.height);
   }
 };
 
@@ -215,7 +210,6 @@ LEEWGL.EditorApp.prototype.onMouseDown = function(event) {
   var obj = null;
 
   if (this.picking === true) {
-    this.picker.bind(this.gl);
     obj = this.picker.pick(this.gl, mouseCords.x, mouseCords.y);
     if (obj !== null) {
       this.activeElement = obj;
@@ -223,8 +217,6 @@ LEEWGL.EditorApp.prototype.onMouseDown = function(event) {
       this.movement.y = 0;
 
       UI.setInspectorContent(obj.id);
-
-      this.picker.unbind(this.gl);
     } else {
       UI.setInspectorContent(-1);
     }
@@ -271,11 +263,13 @@ LEEWGL.EditorApp.prototype.onMouseMove = function(event) {
     this.movement.y = movement.y * this.translationSpeed.y;
 
     var movementWorld = [this.movement.x, -this.movement.y, 0.0];
-    // vec3.transformMat4(trans, trans, this.activeElement.transform.rotation);
+    var movementScale = [this.movement.x, -this.movement.y, this.movement.x];
 
     if (mode === 'translation') {
       if (event.altKey)
         this.activeElement.transform.translate(movementWorld, 'local');
+      else if (event.ctrlKey)
+        this.activeElement.transform.translate([movementWorld[2], movementWorld[1], movementWorld[0]]);
       else
         this.activeElement.transform.translate(movementWorld);
     } else if (mode === 'rotation') {
@@ -286,12 +280,14 @@ LEEWGL.EditorApp.prototype.onMouseMove = function(event) {
       else
         this.activeElement.transform.rotateY(rad, true);
     } else if (mode === 'scale') {
+      var scaleVec = this.activeElement.transform.scaleVec;
+      movementScale = vec3.add(vec3.create(), scaleVec, movementScale);
       if (event.ctrlKey)
-        this.activeElement.transform.scale([movementWorld[0], 0, 0]);
+        this.activeElement.transform.scale([movementScale[0], scaleVec[1], scaleVec[2]]);
       else if (event.altKey)
-        this.activeElement.transform.scale([0, 0, movementWorld[0]]);
+        this.activeElement.transform.scale([scaleVec[0], scaleVec[1], movementScale[2]]);
       else
-        this.activeElement.transform.scale([0, movementWorld[0], 0]);
+        this.activeElement.transform.scale([scaleVec[0], movementScale[1], scaleVec[2]]);
     }
 
     UI.setInspectorContent(this.activeElement.id);
@@ -300,6 +296,9 @@ LEEWGL.EditorApp.prototype.onMouseMove = function(event) {
 
 LEEWGL.EditorApp.prototype.onMouseUp = function(event) {
   this.activeElement = null;
+
+  if (this.picking === true)
+    this.picker.init(this.gl, this.canvas.width, this.canvas.height);
   event.preventDefault();
   event.stopPropagation();
 };
@@ -399,7 +398,6 @@ LEEWGL.EditorApp.prototype.onRender = function() {
       this.draw(element, activeShader, viewProjection);
       this.picker.unbind(this.gl);
     }
-
     activeShader.uniforms['uOffscreen'](0);
 
     if (this.useShadows === true) {

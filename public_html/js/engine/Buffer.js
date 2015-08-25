@@ -5,9 +5,7 @@ LEEWGL.Buffer = function(options) {
     'picking': false,
     'buffer': undefined
   };
-
-  var extend = new LEEWGL.Class();
-  extend.extend(LEEWGL.Buffer.prototype, LEEWGL.Options.prototype);
+  extend(LEEWGL.Buffer.prototype, LEEWGL.Options.prototype);
 
   this.setOptions(options);
 
@@ -18,7 +16,8 @@ LEEWGL.Buffer = function(options) {
 
     /// calculate color-map color
     this.colorMapColor = [0, 0, 0, 1];
-    this.colorMapColor[0] = Math.floor(this.colorMapIndex / 65536) / 256;
+    // this.colorMapColor = ColorHelper.getLabelColor();
+    // LEEWGL.Buffer.ColorMapHitCounter++;
     var remainder = this.colorMapIndex % 65536;
     this.colorMapColor[1] = Math.floor(remainder / 256) / 256;
     remainder = this.colorMapIndex % 256;

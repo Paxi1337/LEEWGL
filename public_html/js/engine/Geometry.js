@@ -12,7 +12,9 @@ LEEWGL.Geometry = function(options) {
       'uv': []
     },
     'indices': [],
-    'picking': true
+    'tangents': [],
+    'picking': true,
+    'wireframe': false
   };
 
   this.addOptions(ext_options);
@@ -93,19 +95,65 @@ LEEWGL.Geometry.prototype.calculateFaces = function() {
 
 LEEWGL.Geometry.prototype.calculateNormals = function() {
   this.vertices.normal = [];
+  var x = 0,
+    y = 1,
+    z = 2;
+  var i = 0;
 
-  for (var i = 0; i < this.vectors.length; ++i) {
-    var nSum = [0.0, 0.0, 0.0];
-    for (var j = 0; j < this.faces.length; ++j) {
-      if (this.faces[j].indexOf(this.vectors[i]) > -1) {
-        var normal = LEEWGL.Math.triangleNormalFromVertex(this.faces[j], i);
-        vec3.add(nSum, nSum, normal);
-      }
+  for (i = 0; i < this.vertices.position.length; i += 3) {
+    this.vertices.normal[i + x] = 0.0;
+    this.vertices.normal[i + y] = 0.0;
+    this.vertices.normal[i + z] = 0.0;
+  }
+
+  for (i = 0; i < this.indices.length; i += 3) {
+    var v1 = [],
+      v2 = [],
+      normal = [];
+
+    /// p2 - p1
+    v1[x] = this.vertices.position[3 * this.indices[i + 2] + x] - this.vertices.position[3 * this.indices[i + 1] + x];
+    v1[y] = this.vertices.position[3 * this.indices[i + 2] + y] - this.vertices.position[3 * this.indices[i + 1] + y];
+    v1[z] = this.vertices.position[3 * this.indices[i + 2] + z] - this.vertices.position[3 * this.indices[i + 1] + z];
+    /// p0 - p1
+    v2[x] = this.vertices.position[3 * this.indices[i] + x] - this.vertices.position[3 * this.indices[i + 1] + x];
+    v2[y] = this.vertices.position[3 * this.indices[i] + y] - this.vertices.position[3 * this.indices[i + 1] + y];
+    v2[z] = this.vertices.position[3 * this.indices[i] + z] - this.vertices.position[3 * this.indices[i + 1] + z];
+
+    normal[x] = v1[y] * v2[z] - v1[z] * v2[y];
+    normal[y] = v1[z] * v2[x] - v1[x] * v2[z];
+    normal[z] = v1[x] * v2[y] - v1[y] * v2[x];
+    for (var j = 0; j < 3; ++j) { //update the normals of that triangle: sum of vectors
+      this.vertices.normal[3 * this.indices[i + j] + x] = this.vertices.normal[3 * this.indices[i + j] + x] + normal[x];
+      this.vertices.normal[3 * this.indices[i + j] + y] = this.vertices.normal[3 * this.indices[i + j] + y] + normal[y];
+      this.vertices.normal[3 * this.indices[i + j] + z] = this.vertices.normal[3 * this.indices[i + j] + z] + normal[z];
     }
-    vec3.normalize(nSum, nSum);
-    this.vertices.normal.push(nSum[0]);
-    this.vertices.normal.push(nSum[1]);
-    this.vertices.normal.push(nSum[2]);
+  }
+
+  /// normalize
+  for (i = 0; i < this.vertices.position.length; i += 3) {
+    var normalized = [];
+    normalized[x] = this.vertices.normal[i + x];
+    normalized[y] = this.vertices.normal[i + y];
+    normalized[z] = this.vertices.normal[i + z];
+
+    var len = Math.sqrt((normalized[x] * normalized[x]) + (normalized[y] * normalized[y]) + (normalized[z] * normalized[z]));
+    if (len === 0)
+      len = 1.0;
+
+    normalized[x] = normalized[x] / len;
+    normalized[y] = normalized[y] / len;
+    normalized[z] = normalized[z] / len;
+
+    this.vertices.normal[i + x] = normalized[x];
+    this.vertices.normal[i + y] = normalized[y];
+    this.vertices.normal[i + z] = normalized[z];
+  }
+};
+
+LEEWGL.Geometry.prototype.calculateTangents = function() {
+  for (var i = 0; i < this.vertices.position.length; ++i) {
+    this.tangents[i] = 0.0;
   }
 };
 
@@ -131,12 +179,20 @@ LEEWGL.Geometry.prototype.addColor = function(gl, colors, length) {
   if (colors !== undefined && colors.length === length) {
     this.setColorBuffer(gl);
   } else {
+    this.vertices.color = [];
     for (var i = 0; i < length; ++i) {
-      this.vertices.color.push([1.0, 0.0, 1.0, 1.0]);
+      this.vertices.color.push(ColorHelper.getDiffuseColor(i));
     }
-
     this.setColorBuffer(gl);
   }
+};
+
+LEEWGL.Geometry.prototype.setColor = function(gl, color) {
+  this.vertices.color = [];
+  for (var i = 0; i < this.facesNum; ++i) {
+    this.vertices.color.push(color);
+  }
+  this.setColorBuffer(gl);
 };
 
 LEEWGL.Geometry.prototype.setTexture = function(texture) {
@@ -171,7 +227,10 @@ LEEWGL.Geometry.prototype.draw = function(gl, shader, drawMode, indices) {
 
   if (indices === true) {
     this.buffers.index.bind(gl);
-    gl.drawElements(drawMode, this.indices.length, gl.UNSIGNED_SHORT, 0);
+    if (this.options['wireframe'] === true)
+      gl.drawElements(gl.LINES, this.indices.length, gl.UNSIGNED_SHORT, 0);
+    else
+      gl.drawElements(drawMode, this.indices.length, gl.UNSIGNED_SHORT, 0);
   } else {
     gl.drawArrays(drawMode, this.vertices.position.length, 0);
   }
@@ -227,57 +286,52 @@ LEEWGL.Geometry.prototype.clone = function(geometry, cloneID) {
   return geometry;
 };
 
-LEEWGL.Geometry.Plane = function() {
-  LEEWGL.Geometry.call(this);
-
-  this.dist = 0.0;
-};
-
-LEEWGL.Geometry.Plane.prototype = Object.create(LEEWGL.Geometry.prototype);
-
-LEEWGL.Geometry.Plane.prototype.distance = function(origin) {
-  return vec3.dot(this.normal, origin) + this.dist;
-};
-
-// / FIXME: not working [indices]
 LEEWGL.Geometry.Grid = function(options) {
   LEEWGL.Geometry.call(this, options);
 
-  this.generateGrid = function(width, height, margin) {
-    var z, x = 0;
-
-    for (z = 0; z < height; ++z) {
-      for (x = 0; x < width; ++x) {
-        this.vertices.position.push([x * margin.x, 0.0, z * margin.z]);
-        this.vertices.color.push([1.0, 1.0, 1.0, 1.0]);
-      }
-    }
-
-    for (z = 0; z < height - 1; ++z) {
-      // / even row
-      if ((z & 1) === 0) {
-        for (x = 0; x < width; ++x) {
-          this.indices.push(x + (z * width));
-          this.indices.push(x + (z * width) + width);
-        }
-        // / degenerate triangle
-        if (z !== height - 2)
-          this.indices.push((x - 1) + (z * width));
-        // / odd row
-      } else {
-        for (x = width - 1; x >= 0; --x) {
-          this.indices.push(x + (z * width));
-          this.indices.push(x + (z * width) + width);
-        }
-        // / degenerate triangle
-        if (z !== height - 2)
-          this.indices.push((x + 1) + (z * width));
-      }
-    }
+  var ext_options = {
+    'lines': 10,
+    'dimension': 10
   };
+
+  this.addOptions(ext_options);
+  this.setOptions(options);
 };
 
 LEEWGL.Geometry.Grid.prototype = Object.create(LEEWGL.Geometry.prototype);
+
+LEEWGL.Geometry.Grid.prototype.generate = function() {
+  var lines = this.options['lines'];
+  var dimension = this.options['dimension'];
+
+  var increment = 2 * dimension / lines;
+
+  for (var i = 0; i <= lines; ++i) {
+    this.vertices.position[6 * i] = -dimension;
+    this.vertices.position[6 * i + 1] = 0;
+    this.vertices.position[6 * i + 2] = -dimension + (i * increment);
+
+    this.vertices.position[6 * i + 3] = dimension;
+    this.vertices.position[6 * i + 4] = 0;
+    this.vertices.position[6 * i + 5] = -dimension + (i * increment);
+
+    this.vertices.position[6 * (lines + 1) + 6 * i] = -dimension + (i * increment);
+    this.vertices.position[6 * (lines + 1) + 6 * i + 1] = 0;
+    this.vertices.position[6 * (lines + 1) + 6 * i + 2] = -dimension;
+
+    this.vertices.position[6 * (lines + 1) + 6 * i + 3] = -dimension + (i * increment);
+    this.vertices.position[6 * (lines + 1) + 6 * i + 4] = 0;
+    this.vertices.position[6 * (lines + 1) + 6 * i + 5] = dimension;
+
+    this.indices[2 * i] = 2 * i;
+    this.indices[2 * i + 1] = 2 * i + 1;
+    this.indices[2 * (lines + 1) + 2 * i] = 2 * (lines + 1) + 2 * i;
+    this.indices[2 * (lines + 1) + 2 * i + 1] = 2 * (lines + 1) + 2 * i + 1;
+  }
+
+  this.calculateFaces();
+  this.calculateNormals();
+};
 
 LEEWGL.Geometry.Triangle = function(options) {
   LEEWGL.Geometry.call(this, options);

@@ -18,8 +18,7 @@ LEEWGL.Object3D = function(options) {
     'needsUpdate': true
   };
 
-  var extend = new LEEWGL.Class();
-  extend.extend(LEEWGL.Object3D.prototype, LEEWGL.Options.prototype);
+  extend(LEEWGL.Object3D.prototype, LEEWGL.Options.prototype);
 
   this.setOptions(options);
 

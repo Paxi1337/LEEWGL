@@ -26,8 +26,7 @@ LEEWGL.Settings = function(options) {
     'fps': 60
   };
 
-  var extend = new LEEWGL.Class();
-  extend.extend(LEEWGL.Settings.prototype, LEEWGL.Options.prototype);
+  extend(LEEWGL.Settings.prototype, LEEWGL.Options.prototype);
 
   this.setOptions(options);
 

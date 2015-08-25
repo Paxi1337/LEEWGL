@@ -1,5 +1,4 @@
 LEEWGL.REQUIRES.push('Picker');
-
 LEEWGL.Picker = function() {
   this.frameBuffer = new LEEWGL.FrameBuffer();
 
@@ -8,11 +7,9 @@ LEEWGL.Picker = function() {
   this.lastCapturedColorMap = [];
   this.objList = {};
 
-  this.initPicking = function(gl, width, height) {
+  this.init = function(gl, width, height) {
     _width = width;
     _height = height;
-
-    this.lastCapturedColorMap = new Uint8Array(_width * _height * 4);
 
     gl.enable(gl.DEPTH_TEST);
 
@@ -46,13 +43,15 @@ LEEWGL.Picker = function() {
 
   this.pick = function(gl, x, y) {
     this.frameBuffer.bind(gl);
+    this.lastCapturedColorMap = new Uint8Array(_width * _height * 4);
     gl.readPixels(0, 0, _width, _height, gl.RGBA, gl.UNSIGNED_BYTE, this.lastCapturedColorMap);
+    this.frameBuffer.unbind(gl);
 
     var color = this.getColorMapColor(x, y);
+
     var index = color[0] * 65536 + color[1] * 256 + color[2];
 
     if (this.objList[index]) {
-      this.frameBuffer.unbind(gl);
       return this.objList[index];
     } else {
       return null;
@@ -78,7 +77,6 @@ LEEWGL.Picker = function() {
     }
 
     var position = (_height - 1 - y) * _width * 4 + x * 4;
-
     return [this.lastCapturedColorMap[position],
       this.lastCapturedColorMap[position + 1],
       this.lastCapturedColorMap[position + 2]

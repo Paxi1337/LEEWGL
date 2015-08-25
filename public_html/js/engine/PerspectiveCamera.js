@@ -15,8 +15,7 @@ LEEWGL.PerspectiveCamera = function(options) {
 
   this.type = 'PerspectiveCamera';
 
-  var extend = new LEEWGL.Class();
-  extend.extend(LEEWGL.PerspectiveCamera.prototype, LEEWGL.Options.prototype);
+  extend(LEEWGL.PerspectiveCamera.prototype, LEEWGL.Options.prototype);
 
   this.setOptions(options);
 

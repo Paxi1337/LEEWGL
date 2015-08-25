@@ -92,8 +92,7 @@ LEEWGL.UI = function(options) {
 
   this.body = new LEEWGL.DOM.Element(document.body);
 
-  var extend = new LEEWGL.Class();
-  extend.extend(LEEWGL.UI.prototype, LEEWGL.Options.prototype);
+  extend(LEEWGL.UI.prototype, LEEWGL.Options.prototype);
 
   this.setApp = function(app) {
     this.app = app;
@@ -242,7 +241,6 @@ LEEWGL.UI = function(options) {
     }
 
     function keydown(event, element) {
-      console.log('dblclick');
       if (event.keyCode === LEEWGL.KEYS.ENTER) {
         if (element.get('contenteditable') !== null)
           element.removeAttributes(['contenteditable', 'class']);
@@ -1028,7 +1026,7 @@ LEEWGL.UI = function(options) {
     var that = this;
 
     this.popup.addList(availableComponents, function(item) {
-      var className = extend.fromString('LEEWGL.Component.' + item);
+      var className = functionFromString('LEEWGL.Component.' + item);
       that.activeElement.addComponent(new className());
       that.setInspectorContent(that.activeElement.id);
       that.popup.hide();
@@ -1465,8 +1463,7 @@ LEEWGL.UI.BasicPopup = function(options) {
     'title-enabled': true
   };
 
-  var extend = new LEEWGL.Class();
-  extend.extend(LEEWGL.UI.BasicPopup.prototype, LEEWGL.Options.prototype);
+  extend(LEEWGL.UI.BasicPopup.prototype, LEEWGL.Options.prototype);
 
   this.setOptions(options);
 

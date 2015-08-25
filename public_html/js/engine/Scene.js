@@ -46,15 +46,13 @@ LEEWGL.Scene.prototype.import = function(stringified_json, recursive) {
   var json = JSON.parse(stringified_json);
 
   console.log(json);
-  var extend = new LEEWGL.Class();
 
   var scene = new LEEWGL.Scene(json);
-
   scene.shaders = json.shaders;
 
   for (var i = 0; i < scene.children.length; ++i) {
     var child = scene.children[i];
-    var className = extend.fromString('LEEWGL.' + child.type);
+    var className = functionFromString('LEEWGL.' + child.type);
     scene.children[i] = new className(child);
     scene.children[i].parent = scene;
   }

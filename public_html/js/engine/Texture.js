@@ -86,6 +86,7 @@ LEEWGL.Texture.prototype = {
   },
 
   setTextureParameters: function(gl, type, isPowerOfTwo) {
+    console.log(isPowerOfTwo);
     gl.texParameteri(type, gl.TEXTURE_MIN_FILTER, this.paramToGL(gl, this.minFilter));
     if (isPowerOfTwo) {
       gl.texParameteri(type, gl.TEXTURE_WRAP_S, this.paramToGL(gl, this.wrapS));

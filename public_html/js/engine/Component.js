@@ -169,15 +169,15 @@ LEEWGL.Component.Transform.prototype.rotateZ = function() {
 };
 
 LEEWGL.Component.Transform.prototype.scale = function() {
-  var vector = this.scaleVec;
+  var vector = [];
   if (typeof arguments[0] === 'object') {
     vec3.copy(vector, arguments[0]);
   } else {
     vec3.set(vector, arguments[0], arguments[1], arguments[2]);
   }
 
-  mat4.scale(this.scaling, this.scaling, vector);
-  this.scaleVec = [1.0, 1.0, 1.0];
+  this.scaleVec = vector;
+  mat4.scale(this.scaling, mat4.create(), vector);
 };
 
 LEEWGL.Component.Transform.prototype.matrix = function() {

@@ -64,8 +64,7 @@ LEEWGL.Lightbox = function(options) {
   this.scroll = 0;
   this.initialized = false;
 
-  var extend = new LEEWGL.Class();
-  extend.extend(LEEWGL.Lightbox.prototype, LEEWGL.Options.prototype);
+  extend(LEEWGL.Lightbox.prototype, LEEWGL.Options.prototype);
 
   this.setOptions(options);
 

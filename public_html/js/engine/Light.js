@@ -16,8 +16,7 @@ LEEWGL.Light = function(options) {
   this.lightType = 'Base';
   this.render = false;
 
-  var extend = new LEEWGL.Class();
-  extend.extend(LEEWGL.Light.prototype, LEEWGL.Options.prototype);
+  extend(LEEWGL.Light.prototype, LEEWGL.Options.prototype);
 
   this.setOptions(options);
 
