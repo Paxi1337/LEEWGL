@@ -158,7 +158,7 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
 
   var model = Importer.import('models/cup.obj', this.gl);
 
-  this.scene.add(this.camera, this.gameCamera, this.triangle, this.cube, this.cameraGizmo, this.light);
+  this.scene.add(this.camera, this.gameCamera, this.triangle, this.cube, this.grid, this.cameraGizmo, this.light);
 
   this.gl.enable(this.gl.DEPTH_TEST);
   this.gl.depthFunc(this.gl.LEQUAL);
