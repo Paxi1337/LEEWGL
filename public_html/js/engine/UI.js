@@ -14,7 +14,8 @@ LEEWGL.UI = function(options) {
 
   this.activeElement = null;
   this.storage = new LEEWGL.LocalStorage();
-  this.playing = undefined;
+  this.playing = false;
+  this.paused = false;
 
   this.gl = undefined;
   this.scene = undefined;
@@ -1070,8 +1071,6 @@ LEEWGL.UI = function(options) {
    */
 
   this.play = function(playControl) {
-    this.playing = true;
-
     if (playControl instanceof LEEWGL.DOM.Element === false)
       playControl = new LEEWGL.DOM.Element(playControl);
 
@@ -1079,10 +1078,14 @@ LEEWGL.UI = function(options) {
       playControl.set('id', 'pause-control');
       playControl.removeClass('play-control');
       playControl.addClass('pause-control');
+      this.playing = true;
+      this.paused = false;
     } else {
-      playControl.set('id', 'play-control');
+      playControl.set('id', 'pause-control');
       playControl.addClass('play-control');
       playControl.removeClass('pause-control');
+      this.paused = true;
+      this.playing = false;
       return;
     }
 
@@ -1093,21 +1096,17 @@ LEEWGL.UI = function(options) {
     });
   };
 
-  this.pause = function(element) {
-    console.log('pause');
-    if (this.playing === true) {
-      this.paused = true;
-    }
-  };
-
   this.stop = function() {
-    var playIcon;
-    if ((playIcon = new LEEWGL.DOM.Element(document.getElementById('pause-control'))) !== null)
-      playIcon.set('id', 'play-control');
-
+    var playControl;
+    if ((playControl = new LEEWGL.DOM.Element(document.getElementById('pause-control'))) !== null) {
+      playControl.set('id', 'play-control');
+      playControl.addClass('play-control');
+      playControl.removeClass('pause-control');
+    }
 
     this.app.onStop();
     this.playing = false;
+    this.paused = false;
   };
 
   this.displaySettings = function() {
