@@ -437,6 +437,21 @@ LEEWGL.UI = function(options) {
     });
     container.grab(title);
 
+    var removeComponentContainer = new LEEWGL.DOM.Element('div', {
+      'class' : 'icon-container-small fright'
+    });
+    var removeComponent = new LEEWGL.DOM.Element('a', {
+      'class' : 'delete-icon bg-pos54 pointer',
+      'title' : 'Remove Component'
+    });
+
+    removeComponent.addEvent('click', function() {
+      element.removeComponent('CustomScript');
+      that.setInspectorContent(element.id);
+    });
+
+    removeComponentContainer.grab(removeComponent);
+
     var appliedScriptsContainer = new LEEWGL.DOM.Element('div', {
       'class': 'component-detail-container'
     });
@@ -469,8 +484,7 @@ LEEWGL.UI = function(options) {
       });
 
       var toggleAppliedScript = new LEEWGL.DOM.Element('a', {
-        'class': 'toggle-down',
-        'alt': 'Toggle Applied Scripts',
+        'class': 'toggle-down bg-pos47 pointer',
         'title': 'Toggle Applied Scripts'
       });
 
@@ -556,12 +570,12 @@ LEEWGL.UI = function(options) {
         var editAppliedScript = new LEEWGL.DOM.Element('a', {
           'href': '#',
           'title': 'Edit script',
-          'class': 'edit-icon fright mright5'
+          'class': 'edit-icon fright mright5 bg-pos0 pointer'
         });
         var deleteAppliedScript = new LEEWGL.DOM.Element('a', {
           'href': '#',
           'title': 'Delete script',
-          'class': 'delete-icon fright'
+          'class': 'delete-icon fright bg-pos0 pointer'
         });
         var clearer = new LEEWGL.DOM.Element('div', {
           'class': 'clearer'
@@ -586,7 +600,7 @@ LEEWGL.UI = function(options) {
             'height': '150px'
           }, 0.2, function() {
             animation.fade('toggle', appliedScriptsList, 0.2);
-            toggleAppliedScript.set('class', 'toggle-up');
+            toggleAppliedScript.set('class', 'toggle-up bg-pos46 pointer');
           });
           iconContainer.set('data-toggled', 'true');
           that.saved['applied-scripts-data-toggled-' + element.id] = 'true';
@@ -595,7 +609,7 @@ LEEWGL.UI = function(options) {
             animation.animate(appliedScriptsInnerContainer, {
               'height': '0px'
             }, 0.2);
-            toggleAppliedScript.set('class', 'toggle-down');
+            toggleAppliedScript.set('class', 'toggle-down bg-pos47 pointer');
           });
           iconContainer.set('data-toggled', 'false');
           that.saved['applied-scripts-data-toggled-' + element.id] = 'false';
@@ -654,6 +668,8 @@ LEEWGL.UI = function(options) {
     container.grab(newScriptContainer);
     container.grab(addScript);
 
+    container.grab(removeComponentContainer, 'top');
+
     return container;
   };
 
@@ -668,6 +684,21 @@ LEEWGL.UI = function(options) {
       'html': 'Texture'
     });
     container.grab(title);
+
+    var removeComponentContainer = new LEEWGL.DOM.Element('div', {
+      'class' : 'icon-container-small fright'
+    });
+    var removeComponent = new LEEWGL.DOM.Element('a', {
+      'class' : 'delete-icon bg-pos54 pointer',
+      'title' : 'Remove Component'
+    });
+
+    removeComponent.addEvent('click', function() {
+      element.removeComponent('Texture');
+      that.setInspectorContent(element.id);
+    });
+
+    removeComponentContainer.grab(removeComponent);
 
     var fileName = new LEEWGL.DOM.Element('h4', {
       'class': 'component-sub-headline'
@@ -709,6 +740,7 @@ LEEWGL.UI = function(options) {
     container.grab(fileName);
     container.grab(fileInput);
     container.grab(imageContainer);
+    container.grab(removeComponentContainer, 'top');
 
     return container;
   };
@@ -780,12 +812,12 @@ LEEWGL.UI = function(options) {
         var num = parseInt(element.get('num'));
         vector = vector.value;
         var id = element.get('identifier');
+        var value = '';
         if (typeof vector === 'object') {
-          var value = parseFloat(element.get('text'));
-          var num = parseInt(element.get('num'));
+          value = parseFloat(element.get('text'));
           activeElement.editables[id].value[num] = value;
         } else {
-          var value = parseFloat(element.e.value);
+          value = parseFloat(element.e.value);
           activeElement.editables[id].value = value;
         }
       });
@@ -1755,9 +1787,8 @@ LEEWGL.UI.Popup.prototype.addCloseIcon = function() {
   });
 
   var closeIcon = new LEEWGL.DOM.Element('a', {
-    'alt': 'Close Popup',
     'title': 'Close Popup',
-    'class': 'closeable'
+    'class': 'closeable bg-pos56 pointer'
   });
 
   iconContainer.grab(closeIcon);
@@ -1828,9 +1859,8 @@ LEEWGL.UI.Popup.prototype.movable = function() {
   });
 
   var moveIcon = new LEEWGL.DOM.Element('a', {
-    'alt': 'Move Popup',
     'title': 'Move Popup',
-    'class': 'move-icon'
+    'class': 'move-icon bg-pos57 pointer'
   });
 
   iconContainer.grab(moveIcon);
@@ -1953,9 +1983,8 @@ LEEWGL.UI.Sidebar.prototype.addToggleButton = function() {
     'class': 'clearer'
   });
   this.toggleIcon = new LEEWGL.DOM.Element('a', {
-    'alt': 'Toggle Sidebar',
     'title': 'Toggle Sidebar',
-    'class': 'toggle-right',
+    'class': 'toggle-right bg-pos108 pointer',
   });
 
   this.toggleIconContainer.grab(this.toggleIcon);
@@ -1987,7 +2016,7 @@ LEEWGL.UI.Sidebar.prototype.show = function() {
       'left': '0px',
       'position': 'relative'
     });
-    this.toggleIcon.set('class', 'toggle-left');
+    this.toggleIcon.set('class', 'toggle-left bg-pos88 pointer');
   }
 
   if (this.pos.x < 0) {
@@ -2021,7 +2050,7 @@ LEEWGL.UI.Sidebar.prototype.hide = function() {
       'left': size.width + 'px',
       'position': 'absolute'
     });
-    this.toggleIcon.set('class', 'toggle-right');
+    this.toggleIcon.set('class', 'toggle-right bg-pos108 pointer');
   }
 
   if (this.options.animated === true) {

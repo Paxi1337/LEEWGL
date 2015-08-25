@@ -132,7 +132,12 @@ LEEWGL.Object3D.prototype = {
     this.components[component.type.substr('Component.'.length)] = component;
   },
   removeComponent: function(component) {
-    this.components[component.type.substr('Component.'.length)] = null;
+    var type = '';
+    if (component instanceof LEEWGL.Component)
+      type = component.type.substr('Component.'.length);
+    else
+      type = component;
+    delete this.components[type];
   },
   remove: function(object) {
     if (arguments.length > 1) {

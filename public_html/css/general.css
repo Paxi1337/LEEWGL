@@ -95,6 +95,30 @@ a:hover {
   clear: both;
   float: none;
 }
+.bg-pos0 {
+  background-position: 0 0;
+}
+.bg-pos46 {
+  background-position: 4px 6px;
+}
+.bg-pos47 {
+  background-position: 4px 7px;
+}
+.bg-pos54 {
+  background-position: 5px 4px;
+}
+.bg-pos56 {
+  background-position: 5px 6px;
+}
+.bg-pos57 {
+  background-position: 5px 7px;
+}
+.bg-pos88 {
+  background-position: 8px 8px;
+}
+.bg-pos108 {
+  background-position: 10px 8px;
+}
 .dark-primary-color {
   background: #303F9F;
 }

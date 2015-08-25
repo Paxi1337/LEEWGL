@@ -338,7 +338,6 @@ a.move-icon {
   display: block;
   width: 40px;
   height: 40px;
-  background-position: 5px 7px;
 }
 a.move-icon:hover {
   background-image: url('../img/icons/move_half_black.png');
@@ -379,7 +378,6 @@ a.closeable {
   display: block;
   width: 40px;
   height: 40px;
-  background-position: 5px 6px;
 }
 a.closeable:hover {
   background-image: url('../img/icons/close_circle_half_black.png');
@@ -390,7 +388,6 @@ a.toggle-left {
   display: block;
   width: 40px;
   height: 40px;
-  background-position: 8px 8px;
 }
 a.toggle-left:hover {
   background-image: url('../img/icons/chevron_left_half_black.png');
@@ -401,7 +398,6 @@ a.toggle-right {
   display: block;
   width: 40px;
   height: 40px;
-  background-position: 10px 8px;
 }
 a.toggle-right:hover {
   background-image: url('../img/icons/chevron_right_half_black.png');
@@ -412,7 +408,6 @@ a.toggle-down {
   display: block;
   width: 30px;
   height: 27px;
-  background-position: 4px 7px;
 }
 a.toggle-down:hover {
   background-image: url('../img/icons/chevron_down_half_black.png');
@@ -423,7 +418,6 @@ a.toggle-up {
   display: block;
   width: 30px;
   height: 27px;
-  background-position: 4px 6px;
 }
 a.toggle-up:hover {
   background-image: url('../img/icons/chevron_up_half_black.png');
@@ -434,7 +428,6 @@ a.edit-icon {
   display: block;
   width: 24px;
   height: 24px;
-  background-position: 0 0;
 }
 a.edit-icon:hover {
   background-image: url('../img/icons/edit_half_black.png');
@@ -445,7 +438,6 @@ a.delete-icon {
   display: block;
   width: 24px;
   height: 24px;
-  background-position: 0 0;
 }
 a.delete-icon:hover {
   background-image: url('../img/icons/minus_half_black.png');
@@ -456,7 +448,6 @@ a.translation-control {
   display: block;
   width: 26px;
   height: 26px;
-  background-position: 0 0;
 }
 a.translation-control:hover {
   background-image: url('../img/icons/translate_half_black.png');
@@ -467,7 +458,6 @@ a.translation-control-active {
   display: block;
   width: 26px;
   height: 26px;
-  background-position: 0 0;
 }
 a.translation-control-active:hover {
   background-image: url('../img/icons/translate_half.png');
@@ -478,7 +468,6 @@ a.rotation-control {
   display: block;
   width: 26px;
   height: 26px;
-  background-position: 0 0;
 }
 a.rotation-control:hover {
   background-image: url('../img/icons/rotate_half_black.png');
@@ -489,7 +478,6 @@ a.rotation-control-active {
   display: block;
   width: 26px;
   height: 26px;
-  background-position: 0 0;
 }
 a.rotation-control-active:hover {
   background-image: url('../img/icons/rotate_half.png');
@@ -500,7 +488,6 @@ a.scale-control {
   display: block;
   width: 26px;
   height: 26px;
-  background-position: 0 0;
 }
 a.scale-control:hover {
   background-image: url('../img/icons/scale_half_black.png');
@@ -511,7 +498,6 @@ a.scale-control-active {
   display: block;
   width: 26px;
   height: 26px;
-  background-position: 0 0;
 }
 a.scale-control-active:hover {
   background-image: url('../img/icons/scale_half.png');
