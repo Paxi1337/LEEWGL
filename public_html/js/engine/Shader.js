@@ -1,9 +1,7 @@
 LEEWGL.REQUIRES.push('Shader');
 
 /**
- * [Shader description]
- *
- * Abstraction of the WebGL-Shader with methods to load, compile, use shaders etc.
+ * @constructor
  */
 LEEWGL.Shader = function() {
   Object.defineProperties(this, {
@@ -34,18 +32,16 @@ LEEWGL.Shader.prototype = {
   constructor: LEEWGL.Shader,
 
   /**
-   * [getProgram description]
-   * @return {webgl program}
+   * @return {webGLProgram}
    */
   getProgram: function() {
     return this.program;
   },
   /**
-   * [compile description]
-   * @param  {gl context} gl
-   * @param  {shader type} type
+   * @param  {webGLContext} gl
+   * @param  {string} type
    * @param  {string} code
-   * @return {webgl} shader
+   * @return {webGLShader} shader
    */
   compile: function(gl, type, code) {
     var _shader = null;
@@ -70,9 +66,9 @@ LEEWGL.Shader.prototype = {
     return _shader;
   },
   /**
-   * [getShaderDOM description]
-   * @param {gl context} gl
+   * @param {webGLContext} gl
    * @param {string} selector
+   * @return {string}
    */
   getShaderDOM: function(gl, selector) {
     var _script = document.querySelector(selector);
@@ -83,8 +79,7 @@ LEEWGL.Shader.prototype = {
     return this.getShaderContentDOM(_script);
   },
   /**
-   * [getShaderContentDOM description]
-   * @param {element} dom
+   * @param {DOMElement} dom
    * @return {string}
    */
   getShaderContentDOM: function(dom) {
@@ -100,8 +95,7 @@ LEEWGL.Shader.prototype = {
     return _content;
   },
   /**
-   * [linkShader description]
-   * @param {gl context} gl
+   * @param {webGLContext} gl
    */
   linkShader: function(gl) {
     gl.linkProgram(this.program);
@@ -109,16 +103,14 @@ LEEWGL.Shader.prototype = {
       console.error("LEEWGL.Shader.linkShader(): Could not initialise shaders");
   },
   /**
-   * [use description]
-   * @param  {gl context} gl
+   * @param  {webGLContext} gl
    */
   use: function(gl) {
     gl.useProgram(this.program);
   },
   /**
-   * [createShaderFromCode description]
-   * @param {gl context} gl
-   * @param {shader type} type
+   * @param {webGLContext} gl
+   * @param {string} type
    * @param {string} code
    */
   createShaderFromCode: function(gl, type, code) {
@@ -129,9 +121,8 @@ LEEWGL.Shader.prototype = {
     gl.attachShader(this.program, _shader);
   },
   /**
-   * [createShaderFromDOM description]
-   * @param {gl context} gl
-   * @param {shader type} type
+   * @param {webGLContext} gl
+   * @param {string} type
    * @param {string} selector
    */
   createShaderFromDOM: function(gl, type, selector) {
@@ -142,16 +133,15 @@ LEEWGL.Shader.prototype = {
     gl.attachShader(this.program, _shader);
   },
   /**
-   * [createUniformSetters description]
-   * @param {gl context} gl
+   * Fills the object uniforms with the functions to set shader uniforms
+   * @param {webGLContext} gl
    */
   createUniformSetters: function(gl) {
     var that = this;
 
     /**
-     * [createUniformSetter description]
-     * @param {gl context} gl
-     * @param {webgl uniformInfo} uniform
+     * @param {webGLContext} gl
+     * @param {webGLUniformInfo} uniform
      * @return {function}
      */
     var createUniformSetter = function(gl, uniform) {
@@ -248,8 +238,8 @@ LEEWGL.Shader.prototype = {
     return this.uniforms;
   },
   /**
-   * [createAttributeSetters description]
-   * @param {gl context} gl
+   * Fills the object attributes with the functions to set shader attributes
+   * @param {webGLContext} gl
    */
   createAttributeSetters: function(gl) {
     /**
@@ -277,6 +267,11 @@ LEEWGL.Shader.prototype = {
       this.attributes[attributeInfo.name] = createAttributeSetter(index);
     }
   },
+  /**
+   * Creates a deep copy of the object
+   * @param  {LEEWGL.Shader} shader
+   * @return {LEEWGL.Shader}
+   */
   clone: function(shader) {
     if (typeof shader === 'undefined')
       shader = new LEEWGL.Shader();
@@ -298,9 +293,6 @@ LEEWGL.Shader.prototype = {
     }
 
     return shader;
-  },
-  import: function() {
-    return this.clone();
   }
 };
 

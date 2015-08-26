@@ -123,9 +123,10 @@ LEEWGL.PerspectiveCamera.prototype.down = function() {
   return [down[0], down[1], down[2]];
 };
 
-LEEWGL.PerspectiveCamera.prototype.clone = function() {
-  var camera = new LEEWGL.PerspectiveCamera(this.options);
-  LEEWGL.Camera.prototype.clone.call(this, camera);
+LEEWGL.PerspectiveCamera.prototype.clone = function(camera, cloneID, addToAlias) {
+  if (camera === undefined)
+    camera = new LEEWGL.PerspectiveCamera();
+  LEEWGL.Camera.prototype.clone.call(this, camera, cloneID, addToAlias);
 
   camera.fov = this.fov;
   camera.aspect = this.aspect;

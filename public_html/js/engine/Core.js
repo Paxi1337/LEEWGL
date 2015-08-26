@@ -1,4 +1,8 @@
-/// Lightweight Editor Environment Web GL
+/**
+ * Lightweight Editor Environment WebGL
+ * @namespace
+ * @type {Object}
+ */
 var LEEWGL = {
   version: '0.3'
 };
@@ -64,6 +68,10 @@ LEEWGL.FormatRGBA = 1018;
 LEEWGL.FormatLuminance = 1019;
 LEEWGL.FormatLuminanceAlpha = 1020;
 
+/**
+ * @constructor
+ * @param  {bool} auto
+ */
 LEEWGL.Timer = function(auto) {
   this.auto = auto !== undefined ? auto : true;
 
@@ -106,6 +114,11 @@ LEEWGL.Timer.prototype = {
   }
 };
 
+/**
+ * @constructor
+ * @param  {DOMElement} options.canvas
+ * @param  {webGLContext} options.context
+ */
 LEEWGL.Core = function(options) {
   this.options = {
     'canvas': document.createElement('canvas'),

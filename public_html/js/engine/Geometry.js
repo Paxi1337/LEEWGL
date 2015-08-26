@@ -181,7 +181,7 @@ LEEWGL.Geometry.prototype.addColor = function(gl, colors, length) {
   } else {
     this.vertices.color = [];
     for (var i = 0; i < length; ++i) {
-      this.vertices.color.push(ColorHelper.getDiffuseColor(i));
+      this.vertices.color.push(ColorHelper.getLabelColor(i));
     }
     this.setColorBuffer(gl);
   }
@@ -239,11 +239,11 @@ LEEWGL.Geometry.prototype.draw = function(gl, shader, drawMode, indices) {
     this.components['Texture'].texture.unbind(gl, 0);
 };
 
-LEEWGL.Geometry.prototype.clone = function(geometry, cloneID) {
+LEEWGL.Geometry.prototype.clone = function(geometry, cloneID, addToAlias) {
   if (typeof geometry === 'undefined') {
     geometry = new LEEWGL.Geometry();
   }
-  LEEWGL.Object3D.prototype.clone.call(this, geometry, cloneID);
+  LEEWGL.Object3D.prototype.clone.call(this, geometry, cloneID, false, addToAlias);
 
   geometry.facesNum = this.facesNum;
 
@@ -332,6 +332,14 @@ LEEWGL.Geometry.Grid.prototype.generate = function() {
   this.calculateFaces();
   this.calculateNormals();
 };
+LEEWGL.Geometry.Grid.prototype.clone = function(grid, cloneID, addToAlias) {
+  if (typeof triangle === 'undefined')
+    triangle = new LEEWGL.Geometry.Grid();
+
+  LEEWGL.Geometry.prototype.clone.call(this, grid, cloneID, addToAlias);
+
+  return triangle;
+};
 
 LEEWGL.Geometry.Triangle = function(options) {
   LEEWGL.Geometry.call(this, options);
@@ -401,12 +409,11 @@ LEEWGL.Geometry.Triangle.prototype.import = function(stringified_json) {
   return triangle;
 };
 
-LEEWGL.Geometry.Triangle.prototype.clone = function(triangle, cloneID) {
-  if (typeof triangle === 'undefined') {
+LEEWGL.Geometry.Triangle.prototype.clone = function(triangle, cloneID, addToAlias) {
+  if (typeof triangle === 'undefined')
     triangle = new LEEWGL.Geometry.Triangle();
-  }
 
-  LEEWGL.Geometry.prototype.clone.call(this, triangle, cloneID);
+  LEEWGL.Geometry.prototype.clone.call(this, triangle, cloneID, addToAlias);
 
   return triangle;
 };
@@ -490,13 +497,10 @@ LEEWGL.Geometry.Cube = function(options) {
 
 LEEWGL.Geometry.Cube.prototype = Object.create(LEEWGL.Geometry.prototype);
 
-LEEWGL.Geometry.Cube.prototype.clone = function(cube, cloneID) {
-  if (typeof cube === 'undefined') {
+LEEWGL.Geometry.Cube.prototype.clone = function(cube, cloneID, addToAlias) {
+  if (typeof cube === 'undefined')
     cube = new LEEWGL.Geometry.Cube();
-  }
-
-  LEEWGL.Geometry.prototype.clone.call(this, cube, cloneID);
-
+  LEEWGL.Geometry.prototype.clone.call(this, cube, cloneID, addToAlias);
   return cube;
 };
 
@@ -559,10 +563,10 @@ LEEWGL.Geometry.Sphere = function(options) {
 
 LEEWGL.Geometry.Sphere.prototype = Object.create(LEEWGL.Geometry.prototype);
 
-LEEWGL.Geometry.Sphere.prototype.clone = function(sphere, cloneID) {
+LEEWGL.Geometry.Sphere.prototype.clone = function(sphere, cloneID, addToAlias) {
   if (typeof sphere === 'undefined')
     sphere = new LEEWGL.Geometry.Sphere();
 
-  LEEWGL.Geometry.prototype.clone.call(this, sphere, cloneID);
+  LEEWGL.Geometry.prototype.clone.call(this, sphere, cloneID, addToAlias);
   return sphere;
 };

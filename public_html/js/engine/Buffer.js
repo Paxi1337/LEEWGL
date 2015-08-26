@@ -13,11 +13,8 @@ LEEWGL.Buffer = function(options) {
 
   if (this.options['picking'] === true) {
     this.colorMapIndex = LEEWGL.Buffer.ColorMapHitCounter++;
-
     /// calculate color-map color
     this.colorMapColor = [0, 0, 0, 1];
-    // this.colorMapColor = ColorHelper.getLabelColor();
-    // LEEWGL.Buffer.ColorMapHitCounter++;
     var remainder = this.colorMapIndex % 65536;
     this.colorMapColor[1] = Math.floor(remainder / 256) / 256;
     remainder = this.colorMapIndex % 256;

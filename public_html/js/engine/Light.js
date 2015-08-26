@@ -55,11 +55,11 @@ LEEWGL.Light.prototype.draw = function(gl, shader) {
   shader.uniforms['uLightColor'](this.editables.color.value);
 };
 
-LEEWGL.Light.prototype.clone = function(light) {
+LEEWGL.Light.prototype.clone = function(light, cloneID, addToAlias) {
   if (typeof light === 'undefined')
     light = new LEEWGL.Light();
 
-  LEEWGL.Object3D.prototype.clone.call(this, light);
+  LEEWGL.Object3D.prototype.clone.call(this, light, cloneID, addToAlias);
 
   vec3.copy(light.color, this.color);
   light.specular = this.specular;
@@ -94,11 +94,11 @@ LEEWGL.Light.DirectionalLight.prototype.draw = function(gl, shader) {
   shader.uniforms['uLightDirection'](this.editables.direction.value);
 };
 
-LEEWGL.Light.DirectionalLight.prototype.clone = function(directionalLight) {
+LEEWGL.Light.DirectionalLight.prototype.clone = function(directionalLight, cloneID, addToAlias) {
   if (typeof directionalLight === 'undefined')
     directionalLight = new LEEWGL.Light.DirectionalLight();
 
-  LEEWGL.Light.prototype.clone.call(this, directionalLight);
+  LEEWGL.Light.prototype.clone.call(this, directionalLight, cloneID, addToAlias);
   vec3.copy(directionalLight.direction, this.direction);
   directionalLight.editables = this.editables;
   return directionalLight;
@@ -168,11 +168,11 @@ LEEWGL.Light.SpotLight.prototype.draw = function(gl, shader) {
   shader.uniforms['uLightRadius'](this.editables.radius.value);
 };
 
-LEEWGL.Light.SpotLight.prototype.clone = function(spotLight) {
+LEEWGL.Light.SpotLight.prototype.clone = function(spotLight, cloneID, addToAlias) {
   if (typeof spotLight === 'undefined')
     spotLight = new LEEWGL.Light.SpotLight();
 
-  LEEWGL.Light.prototype.clone.call(this, spotLight);
+    LEEWGL.Light.prototype.clone.call(this, spotLight, cloneID, addToAlias);
 
   vec3.copy(spotLight.spotDirection, this.spotDirection);
   spotLight.radius = this.radius;
@@ -219,11 +219,11 @@ LEEWGL.Light.PointLight.prototype.draw = function(gl, shader) {
   shader.uniforms['uLightRadius'](this.editables.radius.value);
 };
 
-LEEWGL.Light.PointLight.prototype.clone = function(pointLight) {
+LEEWGL.Light.PointLight.prototype.clone = function(pointLight, cloneID, addToAlias) {
   if (typeof pointLight === 'undefined')
     pointLight = new LEEWGL.Light.PointLight();
 
-  LEEWGL.Light.prototype.clone.call(this, pointLight);
+  LEEWGL.Light.prototype.clone.call(this, pointLight, cloneID, addToAlias);
   pointLight.editables = this.editables;
   return pointLight;
 };

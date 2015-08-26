@@ -1,6 +1,8 @@
+/**
+ * @constructor
+ */
 LEEWGL.HTMLHelper = function() {
   /**
-   * [createTable description]
    * @param {string} id
    * @param {array} header
    * @param {object} content
@@ -109,11 +111,10 @@ LEEWGL.HTMLHelper = function() {
   };
 
   /**
-   * [createContainerDetailInput description]
    * @param {string} id
    * @param {element} container
    * @param {string} title
-   * @param {number / string} content
+   * @param {number|string} content
    * @param {function} keydown
    * @param {function} keyup
    */

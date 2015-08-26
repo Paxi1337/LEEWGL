@@ -1,15 +1,12 @@
 LEEWGL.REQUIRES.push('DragDrop');
 /**
- * LEEWGL.DragDrop
- *
- * Class to handle drag and drop of dom-elements
+ * Class to handle drag and drop of dom-elements.
+ * @constructor
  */
 LEEWGL.DragDrop = function() {
   /**
-   * drag()
-   *
-   * @param {dom element} obj - the object which shall be dragged
-   * @param {dom event} event [optional]
+   * @param  {DOMElement} obj   - the object which shall be dragged
+   * @param  {DOMEvent} event - optional
    */
   this.drag = function(obj, event) {
     event = (event !== 'undefined') ? event : document.event;
@@ -53,10 +50,8 @@ LEEWGL.DragDrop = function() {
   };
 
   /**
-   *  restore()
-   *
-   *  @param {dom element} obj - the object which was given drag()
-   *  @param {dom event} event [optional]
+   *  @param {DOMElement} obj - the object which was given drag()
+   *  @param {DOMEvent} event - optional
    */
   this.restore = function(obj, event) {
     event = (event !== 'undefined') ? event : document.event;

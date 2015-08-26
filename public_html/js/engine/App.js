@@ -1,5 +1,8 @@
 LEEWGL.REQUIRES.push('App');
-
+/**
+ * @constructor
+ * @param  {Object} options
+ */
 LEEWGL.App = function(options) {
   this.type = 'App';
 

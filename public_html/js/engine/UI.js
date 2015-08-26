@@ -1,7 +1,7 @@
 LEEWGL.REQUIRES.push('UI');
 
 /**
- * [UI description]
+ * @constructor
  * @param {object} options
  */
 LEEWGL.UI = function(options) {
@@ -436,11 +436,11 @@ LEEWGL.UI = function(options) {
     container.grab(title);
 
     var removeComponentContainer = new LEEWGL.DOM.Element('div', {
-      'class' : 'icon-container-small fright'
+      'class': 'icon-container-small fright'
     });
     var removeComponent = new LEEWGL.DOM.Element('a', {
-      'class' : 'delete-icon bg-pos54 pointer',
-      'title' : 'Remove Component'
+      'class': 'delete-icon bg-pos54 pointer',
+      'title': 'Remove Component'
     });
 
     removeComponent.addEvent('click', function() {
@@ -684,11 +684,11 @@ LEEWGL.UI = function(options) {
     container.grab(title);
 
     var removeComponentContainer = new LEEWGL.DOM.Element('div', {
-      'class' : 'icon-container-small fright'
+      'class': 'icon-container-small fright'
     });
     var removeComponent = new LEEWGL.DOM.Element('a', {
-      'class' : 'delete-icon bg-pos54 pointer',
-      'title' : 'Remove Component'
+      'class': 'delete-icon bg-pos54 pointer',
+      'title': 'Remove Component'
     });
 
     removeComponent.addEvent('click', function() {
@@ -1442,9 +1442,18 @@ LEEWGL.UI = function(options) {
 };
 
 /**
- * [BasicPopup description]
  * Basic class which provides needed functions for more complex dynamic container classes
- * @param {object} options
+ * @constructor
+ * @param {string} options.wrapper-class
+ * @param {string} options.title-class
+ * @param {string} options.content-class
+ * @param {number|string} options.wrapper-width
+ * @param {number|string} options.wrapper-height
+ * @param {DOMElement} options.parent
+ * @param {object} options.position
+ * @param {bool} options.center
+ * @param {bool} options.hidden
+ * @param {bool} options.title-enabled
  */
 LEEWGL.UI.BasicPopup = function(options) {
   this.options = {
@@ -1515,7 +1524,7 @@ LEEWGL.UI.BasicPopup.prototype = {
     this.setDimensions();
   },
   /**
-   * [setDimensions description]
+   * Sets width and height of the container as given in options and positions the popup
    */
   setDimensions: function() {
     this.wrapper.setStyle('width', (typeof this.options['wrapper-width'] === 'number') ? this.options['wrapper-width'] + 'px' : this.options['wrapper-width']);
@@ -1523,7 +1532,9 @@ LEEWGL.UI.BasicPopup.prototype = {
     this.position();
   },
   /**
-   * [setPosition description]
+   * Sets absolute position of popup and positions the popup
+   * Sets options.center to false
+   * @param {object|number} arguments
    */
   setPosition: function() {
     if (arguments.length === 1) {
@@ -1538,21 +1549,22 @@ LEEWGL.UI.BasicPopup.prototype = {
   },
 
   /**
-   * [setStyle description]
+   * Set style of this.wrapper
    */
   setStyle: function(styles) {
     this.wrapper.setStyles(styles);
   },
 
   /**
-   * [center description]
+   * Sets this.options.center to true and positions the popup
    */
   center: function() {
     this.options['center'] = true;
     this.position();
   },
   /**
-   * [getSize description]
+   * Gets size of this.wrapper
+   * @return {object}
    */
   getSize: function() {
     var size = this.wrapper.size(this.isDisplayed, this.parent);
@@ -1562,12 +1574,13 @@ LEEWGL.UI.BasicPopup.prototype = {
     };
   },
   /**
-   * [position description]
+   * Sets top and left style of this.wrapper
+   * If options.center === true - centers the popup
    */
   position: function() {
-    var size = this.getSize();
 
     if (this.options['center'] === true) {
+      var size = this.getSize();
       var parentSize = this.parent.size();
       this.pos.x = (parentSize.width / 2) - (size.width / 2);
       this.pos.y = (parentSize.height / 2) - (size.height / 2);
@@ -1579,8 +1592,8 @@ LEEWGL.UI.BasicPopup.prototype = {
     });
   },
   /**
-   * [addText description]
-   * @param {String} text
+   * Adds text to content
+   * @param {string} text
    */
   addText: function(text) {
     if (this.initialized === false) {
@@ -1593,21 +1606,18 @@ LEEWGL.UI.BasicPopup.prototype = {
     this.content.grab(content);
   },
   /**
-   * [addCustomElementToTitle description]
-   * @param {DOM Element} element
+   * @param {DOMElement} element
    */
   addCustomElementToTitle: function(element) {
     this.title.grab(element);
   },
   /**
-   * [addCustomElementToContent description]
-   * @param {DOM Element} element
+   * @param {DOMElement} element
    */
   addCustomElementToContent: function(element) {
     this.content.grab(element);
   },
   /**
-   * [addTitleText description]
    * @param {String} text
    */
   addTitleText: function(text) {
@@ -1621,8 +1631,7 @@ LEEWGL.UI.BasicPopup.prototype = {
     this.title.grab(header);
   },
   /**
-   * [addHTML description]
-   * @param {String} html
+   * @param {string} html
    */
   addHTML: function(html) {
     if (this.initialized === false) {
@@ -1632,8 +1641,7 @@ LEEWGL.UI.BasicPopup.prototype = {
     this.content.appendHTML(html);
   },
   /**
-   * [addHTMLFile description]
-   * @param {String} path
+   * @param {string} path
    */
   addHTMLFile: function(path) {
     if (this.initialized === false) {
@@ -1643,9 +1651,7 @@ LEEWGL.UI.BasicPopup.prototype = {
     this.content.set('html', this.ajax.send('GET', LEEWGL.ROOT + path, false, null).response.responseText);
   },
   /**
-   * [show description]
-   *
-   * Displays popup
+   * Sets this.wrapper style display to block
    */
   show: function() {
     if (this.initialized === false) {
@@ -1657,8 +1663,7 @@ LEEWGL.UI.BasicPopup.prototype = {
     this.isDisplayed = true;
   },
   /**
-   * [hide description]
-   * Hides popup
+   * Sets this.wrapper style display to none
    */
   hide: function() {
     if (this.initialized === false) {
@@ -1670,8 +1675,8 @@ LEEWGL.UI.BasicPopup.prototype = {
     this.isDisplayed = false;
   },
   /**
-   * [empty description]
    * Resets the popup
+   * Sets this.title.innerHTML and this.content.innerHTML to ''
    */
   empty: function() {
     if (this.initialized === false) {
@@ -1687,8 +1692,15 @@ LEEWGL.UI.BasicPopup.prototype = {
 };
 
 /**
- * [Popup description]
- * @param {object} options
+ * @constructor
+ *
+ * @memberof LEEWGL.UI.BasicPopup
+ * @param {bool} options.overlay-enabled
+ * @param {string} options.overlay-class
+ * @param {string} options.list-item-class
+ * @param {bool} options.close-icon-enabled
+ * @param {bool} options.close-button-enabled
+ * @param {bool} options.movable
  */
 LEEWGL.UI.Popup = function(options) {
   LEEWGL.UI.BasicPopup.call(this, options);
@@ -1735,9 +1747,8 @@ LEEWGL.UI.Popup.prototype.create = function() {
 };
 
 /**
- * [addList description]
- * @param {Array} content
- * @param {Function} evFunction
+ * @param {array} content
+ * @param {function} evFunction
  */
 LEEWGL.UI.Popup.prototype.addList = function(content, evFunction) {
   var list = new LEEWGL.DOM.Element('ul', {
@@ -1767,9 +1778,6 @@ LEEWGL.UI.Popup.prototype.addList = function(content, evFunction) {
   this.content.grab(list);
 };
 
-/**
- * [addCloseIcon description]
- */
 LEEWGL.UI.Popup.prototype.addCloseIcon = function() {
   if (this.initialized === false) {
     console.error('LEEWGL.UI.Popup: call create() first!');
@@ -1799,9 +1807,9 @@ LEEWGL.UI.Popup.prototype.addCloseIcon = function() {
 };
 
 /**
- * [addButton description]
- * @param {String}   value
- * @param {Function} callback
+ * Adds a button with an user-definable callback on click to the content
+ * @param {string}   value
+ * @param {function} callback
  */
 LEEWGL.UI.Popup.prototype.addButton = function(value, callback) {
   if (this.initialized === false) {
@@ -1822,7 +1830,7 @@ LEEWGL.UI.Popup.prototype.addButton = function(value, callback) {
 };
 
 /**
- * [addCloseButton description]
+ * Adds a button with attached event to close the popup on click to the content
  */
 LEEWGL.UI.Popup.prototype.addCloseButton = function() {
   if (this.initialized === false) {
@@ -1838,7 +1846,8 @@ LEEWGL.UI.Popup.prototype.addCloseButton = function() {
 };
 
 /**
- * [movable description]
+ * Adds a movable-icon to the title with attached event to move the container around
+ * Double click on the moveable-icon resets the container
  */
 LEEWGL.UI.Popup.prototype.movable = function() {
   if (this.initialized === false) {
@@ -1876,8 +1885,7 @@ LEEWGL.UI.Popup.prototype.movable = function() {
 };
 
 /**
- * [showOverlay description]
- * Displays overlay div
+ * Displays overlay div container
  */
 LEEWGL.UI.Popup.prototype.showOverlay = function() {
   if (this.options['overlay-enabled'] === true)
@@ -1885,7 +1893,7 @@ LEEWGL.UI.Popup.prototype.showOverlay = function() {
 };
 
 /**
- * [hide description]
+ * Calls LEEWGL.UI.BasicPopup.show and LEEWGL.UI.Popuo.showOverlay
  */
 LEEWGL.UI.Popup.prototype.show = function() {
   LEEWGL.UI.BasicPopup.prototype.show.call(this);
@@ -1893,8 +1901,7 @@ LEEWGL.UI.Popup.prototype.show = function() {
 };
 
 /**
- * [hideOverlay description]
- * Hide overlay div
+ * Hides the overlay div container
  */
 LEEWGL.UI.Popup.prototype.hideOverlay = function() {
   if (this.options['overlay-enabled'] === true)
@@ -1902,7 +1909,7 @@ LEEWGL.UI.Popup.prototype.hideOverlay = function() {
 };
 
 /**
- * [hide description]
+ * Calls LEEWGL.UI.BasicPopup.hide and LEEWGL.UI.Popuo.hideOverlay
  */
 LEEWGL.UI.Popup.prototype.hide = function() {
   LEEWGL.UI.BasicPopup.prototype.hide.call(this);
@@ -1910,8 +1917,7 @@ LEEWGL.UI.Popup.prototype.hide = function() {
 };
 
 /**
- * [empty description]
- * Resets the popup
+ * Calls LEEWGL.UI.BasicPopup.empty and recreates the close-icon, close-button and moveable-icon if set in the options
  */
 LEEWGL.UI.Popup.prototype.empty = function() {
   LEEWGL.UI.BasicPopup.prototype.empty.call(this);
@@ -1927,8 +1933,10 @@ LEEWGL.UI.Popup.prototype.empty = function() {
 };
 
 /**
- * [Sidebar description]
- * @param {object} options
+ * @constructor
+ * @memberof LEEWGL.UI.BasicPopup
+ * @param {bool} options.toggle-button-enabled
+ * @param {bool} options.animated
  */
 LEEWGL.UI.Sidebar = function(options) {
   LEEWGL.UI.BasicPopup.call(this, options);

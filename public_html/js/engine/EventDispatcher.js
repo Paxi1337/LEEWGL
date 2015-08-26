@@ -88,7 +88,7 @@ LEEWGL.EventDispatcher.prototype = {
       }
 
       for (i = 0; i < length; ++i) {
-        array[i].call(bind, event);
+        array[i].call(this, event);
       }
     }
   }

@@ -1,5 +1,10 @@
 LEEWGL.REQUIRES.push('EditorApp');
 
+/**
+ * @constructor
+ * @memberof LEEWGL.App
+ * @param  {Object} options
+ */
 LEEWGL.EditorApp = function(options) {
   LEEWGL.App.call(this, options);
 
@@ -55,6 +60,8 @@ LEEWGL.EditorApp = function(options) {
 
   this.scene = new LEEWGL.Scene();
   this.scenePlay = new LEEWGL.Scene();
+  this.backupScene = [];
+
   this.activeElement = null;
 
   this.playing = false;
@@ -326,9 +333,9 @@ LEEWGL.EditorApp.prototype.onUpdate = function() {
   var scene = this.scene;
 
   if (this.playing === true) {
-    scene = this.scenePlay;
-    for (var i = 0; i < scene.children.length; ++i) {
-      scene.children[i].onUpdate();
+    // scene = this.scenePlay;
+    for (var i = 0; i < this.scene.children.length; ++i) {
+      this.scene.children[i].onUpdate();
     }
   }
 
@@ -369,7 +376,7 @@ LEEWGL.EditorApp.prototype.onRender = function() {
 
   if (this.playing === true) {
     viewProjection = this.gameCamera.viewProjMatrix;
-    scene = this.scenePlay;
+    // scene = this.scenePlay;
   }
 
   var activeShader = null;
@@ -428,43 +435,65 @@ LEEWGL.EditorApp.prototype.draw = function(element, shader, viewProjection) {
 
 LEEWGL.EditorApp.prototype.onPlay = function() {
   this.playing = true;
-  this.scenePlay.children = [];
-
-  /// run through custom scripts
-  for (var i = 0; i < this.scene.children.length; ++i) {
-    this.scenePlay.add(this.scene.children[i].clone(undefined, true));
-    var element = this.scenePlay.children[i];
-    var testElement = this.scene.children[i];
-    if (typeof element.components['CustomScript'] !== 'undefined') {
-      var scripts = element.components['CustomScript'].applied;
-      for (var scriptID in scripts) {
-        element.dispatchEvent({
-          'type': scriptID
-        }, this);
-      }
-
-      /// FIXME: this gets somehow bound to this.scene[i]
-      // testElement.onInit().bind(element);
-      // element.onInit();
-      console.log(element.onInit);
-      var test = element.onInit.bind(this);
-      test();
-      console.log(test);
-      console.log(Object.getPrototypeOf(element).onInit.call(element));
-      Object.getPrototypeOf(element).onInit.call(element);
-      console.log(testElement.onInit());
+  // this.scenePlay.children = [];
+  var that = this;
+  var onInit = function(element, original) {
+    var scripts = element.components['CustomScript'].applied;
+    for (var scriptID in scripts) {
+      element.dispatchEvent({
+        'type': scriptID
+      }, this);
     }
+    console.log(element);
+    // console.log(element);
+    // console.log(element.onInit());
+    // that.scene.children[original].onInit();
+    element.onInit();
+  };
+
+  /// create backup of scene children
+  for (var i = 0; i < this.scene.children.length; ++i) {
+    this.backupScene[i] = this.scene.children[i].clone(undefined, true, false);
+    var element = this.scene.children[i];
+    /// run through custom scripts
+    if (typeof element.components['CustomScript'] !== 'undefined')
+      onInit(element, i);
   }
 
-  UI.setScene(this.scenePlay);
-  UI.clearOutline();
-  UI.addObjToOutline(this.scenePlay.children);
-  this.updatePickingList(this.scenePlay);
+  console.log(this.backupScene);
+
+  // UI.setScene(this.scenePlay);
+  // UI.clearOutline();
+  // UI.addObjToOutline(this.scenePlay.children);
 };
 
+/**
+ * @see {LEEWGL.UI.stop}
+ * @callback LEEWGL.Object3D.onStop
+ */
 LEEWGL.EditorApp.prototype.onStop = function() {
   this.playing = false;
-  UI.setScene(this.scene);
+
+  var onStop = function(element) {
+    var scripts = element.components['CustomScript'].applied;
+    for (var scriptID in scripts) {
+      element.dispatchEvent({
+        'type': scriptID
+      }, this);
+    }
+    element.onStop();
+  };
+
+  for (var i = 0; i < this.scene.children.length; ++i) {
+    var element = this.scene.children[i];
+    if (typeof element.components['CustomScript'] !== 'undefined') {
+      onStop(element);
+    }
+    // this.scene.children[i] = this.backupScene[i];
+  }
+
+  // this.scenePlay.children = [];
+  // UI.setScene(this.scene);
   UI.clearOutline();
   UI.addObjToOutline(this.scene.children);
 };
