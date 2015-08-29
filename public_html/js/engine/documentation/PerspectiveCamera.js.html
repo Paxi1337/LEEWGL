@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: PerspectiveCamera.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: PerspectiveCamera.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @constructor
+ * @augments LEEWGL.Camera
+ * @param  {number} options.fov
+ * @param  {number} options.aspect
+ * @param  {number} options.near
+ * @param  {number} options.far
+ * @param  {bool} options.invert-y
+ * @param  {number} options.horizontal-angle
+ * @param  {number} options.vertical-angle
+ */
+LEEWGL.PerspectiveCamera = function(options) {
+  LEEWGL.REQUIRES.push('PerspectiveCamera');
+  LEEWGL.Camera.call(this, options);
+
+  var ext_options = {
+    'fov': 50,
+    'aspect': 1,
+    'near': 0.1,
+    'far': 1000,
+    'invert-y': true,
+    'horizontal-angle': 0.0,
+    'vertical-angle': 0.0
+  };
+
+  /** @inner {string} */
+  this.type = 'PerspectiveCamera';
+
+  extend(LEEWGL.PerspectiveCamera.prototype, LEEWGL.Options.prototype);
+  this.addOptions(ext_options);
+  this.setOptions(options);
+
+  /** @inner {number} */
+  this.fov = this.options.fov;
+  /** @inner {number} */
+  this.aspect = this.options.aspect;
+  /** @inner {number} */
+  this.near = this.options.near;
+  /** @inner {number} */
+  this.far = this.options.far;
+  /** @inner {bool} */
+  this.invertY = this.options['invert-y'];
+  /** @inner {number} */
+  this.horizontalAngle = this.options['horizontal-angle'];
+  /** @inner {number} */
+  this.verticalAngle = this.options['vertical-angle'];
+
+  /** @inner {object} */
+  this.editables = {
+    'fov': {
+      'name': 'Field of View',
+      'value': this.fov
+    },
+    'aspect': {
+      'name': 'Aspect Ratio',
+      'value': this.aspect
+    },
+    'near': {
+      'name': 'Near',
+      'value': this.near
+    },
+    'far': {
+      'name': 'Far',
+      'value': this.far
+    },
+    'invertY': {
+      'name': 'Invert Y Axis',
+      'value': this.invertY
+    },
+    'horizontalAngle': {
+      'name': 'Horizontal Angle',
+      'value': this.horizontalAngle
+    },
+    'verticalAngle': {
+      'name': 'Vertical Angle',
+      'value': this.verticalAngle
+    }
+  };
+};
+
+LEEWGL.PerspectiveCamera.prototype = Object.create(LEEWGL.Camera.prototype);
+
+/**
+ * Calculates the rotation matrix
+ * @return {mat4}
+ */
+LEEWGL.PerspectiveCamera.prototype.orientation = function() {
+  var orientation = mat4.create();
+  mat4.rotate(orientation, orientation, LEEWGL.Math.degToRad(this.verticalAngle), [1.0, 0.0, 0.0]);
+  mat4.rotate(orientation, orientation, LEEWGL.Math.degToRad(this.horizontalAngle), [0.0, 1.0, 0.0]);
+  return orientation;
+};
+
+/**
+ * Adds up and right to this.horizontalAngle and this.verticalAngle and calls this.normalizeAngles
+ * @param  {number} up
+ * @param  {number} right
+ */
+LEEWGL.PerspectiveCamera.prototype.offsetOrientation = function(up, right) {
+  this.horizontalAngle += right;
+  this.verticalAngle += up;
+  this.normalizeAngles();
+};
+
+/**
+ * Set orientation to look at given vector
+ * @param  {vec3} lookAt
+ */
+LEEWGL.PerspectiveCamera.prototype.setLookAt = function(lookAt) {
+  var direction = vec3.normalize(vec3.create(), vec3.subtract(vec3.create(), lookAt, this.transform.position));
+  this.verticalAngle = LEEWGL.Math.degToRad(Math.asin(-direction[1]));
+  this.horizontalAngle = LEEWGL.Math.degToRad(Math.atan(-direction[0]));
+  this.normalizeAngles();
+};
+
+/**
+ * @return {mat4}
+ */
+LEEWGL.PerspectiveCamera.prototype.view = function() {
+  return mat4.multiply(this.viewMatrix, this.orientation(), mat4.translate(mat4.create(), mat4.create(), vec3.negate(vec3.create(), this.transform.position)));
+};
+
+/**
+ * @return {mat4}
+ */
+LEEWGL.PerspectiveCamera.prototype.projection = function() {
+  mat4.perspective(this.projMatrix, LEEWGL.Math.degToRad(this.editables.fov.value), this.editables.aspect.value, this.editables.near.value, this.editables.far.value);
+  return this.projMatrix;
+};
+
+/**
+ * Limit this.horizontalAngle and this.verticalAngle
+ */
+LEEWGL.PerspectiveCamera.prototype.normalizeAngles = function() {
+  this.horizontalAngle = this.horizontalAngle % 360.0;
+
+  if (this.horizontalAngle &lt; 0.0)
+    this.horizontalAngle += 360.0;
+
+  if (this.verticalAngle > LEEWGL.Camera.MaxVerticalAngle)
+    this.verticalAngle = LEEWGL.Camera.MaxVerticalAngle;
+  else if (this.verticalAngle &lt; -LEEWGL.Camera.MaxVerticalAngle)
+    this.verticalAngle = -LEEWGL.Camera.MaxVerticalAngle;
+};
+
+/**
+ * Calls this.projection and this.view and calculates the view-projection matrix
+ */
+LEEWGL.PerspectiveCamera.prototype.update = function() {
+  this.projection();
+  this.view();
+  mat4.multiply(this.viewProjMatrix, this.projMatrix, this.viewMatrix);
+};
+
+/**
+ * Return forward vector in local space
+ * @return {vec3}
+ */
+LEEWGL.PerspectiveCamera.prototype.forward = function() {
+  var forward = vec4.transformMat4(vec4.create(), [0, 0, -1, 1], mat4.invert(mat4.create(), this.orientation()));
+  return [forward[0], forward[1], forward[2]];
+};
+
+/**
+ * Return right vector in local space
+ * @return {vec3}
+ */
+LEEWGL.PerspectiveCamera.prototype.right = function() {
+  var right = vec4.transformMat4(vec4.create(), [1, 0, 0, 1], mat4.invert(mat4.create(), this.orientation()));
+  return [right[0], right[1], right[2]];
+};
+
+/**
+ * Return down vector in local space
+ * @return {vec3}
+ */
+LEEWGL.PerspectiveCamera.prototype.down = function() {
+  var down = vec4.transformMat4(vec4.create(), [0, -1, 0, 1], mat4.invert(mat4.create(), this.orientation()));
+  return [down[0], down[1], down[2]];
+};
+
+/**
+ * Creates a deep copy of this object
+ * @param  {LEEWGL.Camera} camera
+ * @param  {bool} cloneID
+ * @param  {bool|string} addToAlias
+ * @return {LEEWGL.Object3D}
+ */
+LEEWGL.PerspectiveCamera.prototype.clone = function(camera, cloneID, recursive, addToAlias) {
+  if (camera === undefined)
+    camera = new LEEWGL.PerspectiveCamera();
+  LEEWGL.Camera.prototype.clone.call(this, camera, cloneID, recursive, addToAlias);
+
+  camera.fov = this.fov;
+  camera.aspect = this.aspect;
+  camera.near = this.near;
+  camera.far = this.far;
+  camera.invertY = this.invertY;
+  camera.horizontalAngle = this.horizontalAngle;
+  camera.verticalAngle = this.verticalAngle;
+  camera.editables = this.editables;
+
+  return camera;
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="LEEWGL.App.html">App</a></li><li><a href="LEEWGL.Buffer.html">Buffer</a></li><li><a href="LEEWGL.Camera.html">Camera</a></li><li><a href="LEEWGL.Color.html">Color</a></li><li><a href="LEEWGL.Component.html">Component</a></li><li><a href="LEEWGL.Component.CustomScript.html">CustomScript</a></li><li><a href="LEEWGL.Component.Texture.html">Texture</a></li><li><a href="LEEWGL.Component.Transform.html">Transform</a></li><li><a href="LEEWGL.Core.html">Core</a></li><li><a href="LEEWGL.DragDrop.html">DragDrop</a></li><li><a href="LEEWGL.EditorApp.html">EditorApp</a></li><li><a href="LEEWGL.Extension.html">Extension</a></li><li><a href="LEEWGL.FrameBuffer.html">FrameBuffer</a></li><li><a href="LEEWGL.Geometry.html">Geometry</a></li><li><a href="LEEWGL.Geometry.Cube.html">Cube</a></li><li><a href="LEEWGL.Geometry.Grid.html">Grid</a></li><li><a href="LEEWGL.Geometry.Sphere.html">Sphere</a></li><li><a href="LEEWGL.Geometry.Triangle.html">Triangle</a></li><li><a href="LEEWGL.HTMLHelper.html">HTMLHelper</a></li><li><a href="LEEWGL.IndexBuffer.html">IndexBuffer</a></li><li><a href="LEEWGL.Light.html">Light</a></li><li><a href="LEEWGL.LocalStorage.html">LocalStorage</a></li><li><a href="LEEWGL.Object3D.html">Object3D</a></li><li><a href="LEEWGL.Options.html">Options</a></li><li><a href="LEEWGL.PerspectiveCamera.html">PerspectiveCamera</a></li><li><a href="LEEWGL.Picker.html">Picker</a></li><li><a href="LEEWGL.RenderBuffer.html">RenderBuffer</a></li><li><a href="LEEWGL.Scene.html">Scene</a></li><li><a href="LEEWGL.Settings.html">Settings</a></li><li><a href="LEEWGL.Shader.html">Shader</a></li><li><a href="LEEWGL.ShaderChunk.html">ShaderChunk</a></li><li><a href="LEEWGL.ShaderLibrary.html">ShaderLibrary</a></li><li><a href="LEEWGL.Texture.html">Texture</a></li><li><a href="LEEWGL.Timer.html">Timer</a></li><li><a href="LEEWGL.UI.html">UI</a></li><li><a href="LEEWGL.UI.BasicPopup.html">BasicPopup</a></li><li><a href="LEEWGL.UI.Popup.html">Popup</a></li><li><a href="LEEWGL.UI.Sidebar.html">Sidebar</a></li></ul><h3>Namespaces</h3><ul><li><a href="LEEWGL.html">LEEWGL</a></li></ul><h3>Global</h3><ul><li><a href="global.html#__extensionLoader">__extensionLoader</a></li><li><a href="global.html#A">A</a></li><li><a href="global.html#ColorHelper">ColorHelper</a></li><li><a href="global.html#Components">Components</a></li><li><a href="global.html#D">D</a></li><li><a href="global.html#DOWN_CURSOR">DOWN_CURSOR</a></li><li><a href="global.html#ENTER">ENTER</a></li><li><a href="global.html#F5">F5</a></li><li><a href="global.html#FILTER_LINEAR">FILTER_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_LINEAR">FILTER_LINEAR_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_NEAREST">FILTER_LINEAR_MIPMAP_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST">FILTER_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_LINEAR">FILTER_NEAREST_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_NEAREST">FILTER_NEAREST_MIPMAP_NEAREST</a></li><li><a href="global.html#FORMAT_ALPHA">FORMAT_ALPHA</a></li><li><a href="global.html#FORMAT_LUMINANCE">FORMAT_LUMINANCE</a></li><li><a href="global.html#FORMAT_LUMINANCE_ALPHA">FORMAT_LUMINANCE_ALPHA</a></li><li><a href="global.html#FORMAT_RGB">FORMAT_RGB</a></li><li><a href="global.html#FORMAT_RGBA">FORMAT_RGBA</a></li><li><a href="global.html#HTMLHELPER">HTMLHELPER</a></li><li><a href="global.html#id">id</a></li><li><a href="global.html#IMG_DEFAULT">IMG_DEFAULT</a></li><li><a href="global.html#KEYS">KEYS</a></li><li><a href="global.html#LEFT_CURSOR">LEFT_CURSOR</a></li><li><a href="global.html#MAPPING_DEFAULT">MAPPING_DEFAULT</a></li><li><a href="global.html#MaxVerticalAngle">MaxVerticalAngle</a></li><li><a href="global.html#MOUSE">MOUSE</a></li><li><a href="global.html#PAGE_DOWN">PAGE_DOWN</a></li><li><a href="global.html#PAGE_UP">PAGE_UP</a></li><li><a href="global.html#REQUIRES">REQUIRES</a></li><li><a href="global.html#RIGHT_CURSOR">RIGHT_CURSOR</a></li><li><a href="global.html#ROOT">ROOT</a></li><li><a href="global.html#S">S</a></li><li><a href="global.html#SETTINGS">SETTINGS</a></li><li><a href="global.html#TextureCount">TextureCount</a></li><li><a href="global.html#TYPE_BYTE">TYPE_BYTE</a></li><li><a href="global.html#TYPE_FLOAT">TYPE_FLOAT</a></li><li><a href="global.html#TYPE_INT">TYPE_INT</a></li><li><a href="global.html#TYPE_SHORT">TYPE_SHORT</a></li><li><a href="global.html#TYPE_UNSIGNED_BYTE">TYPE_UNSIGNED_BYTE</a></li><li><a href="global.html#TYPE_UNSIGNED_INT">TYPE_UNSIGNED_INT</a></li><li><a href="global.html#TYPE_UNSIGNED_SHORT">TYPE_UNSIGNED_SHORT</a></li><li><a href="global.html#UI">UI</a></li><li><a href="global.html#UP_CURSOR">UP_CURSOR</a></li><li><a href="global.html#W">W</a></li><li><a href="global.html#WRAPPING_CLAMP_TO_EDGE">WRAPPING_CLAMP_TO_EDGE</a></li><li><a href="global.html#WRAPPING_MIRRORED_REPEAT">WRAPPING_MIRRORED_REPEAT</a></li><li><a href="global.html#WRAPPING_REPEAT">WRAPPING_REPEAT</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Sat Aug 29 2015 12:43:02 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,12 +1,26 @@
-LEEWGL.REQUIRES.push('Picker');
+/**
+ * WebGL Picker
+ * @constructor
+ */
 LEEWGL.Picker = function() {
+  LEEWGL.REQUIRES.push('Picker');
+
+  /** @inner {LEEWGL.FrameBuffer} */
   this.frameBuffer = new LEEWGL.FrameBuffer();
 
   var _width, _height = 0;
 
+  /** @inner {array} */
   this.lastCapturedColorMap = [];
+  /** @inner {object} */
   this.objList = {};
 
+  /**
+   * Create the various buffers and texture for picking
+   * @param  {webGLContext} gl
+   * @param  {number} width
+   * @param  {number} height
+   */
   this.init = function(gl, width, height) {
     _width = width;
     _height = height;
@@ -41,6 +55,13 @@ LEEWGL.Picker = function() {
     this.frameBuffer.unbind(gl);
   };
 
+  /**
+   * Return picked object or null
+   * @param  {webGLContext} gl
+   * @param  {number} x
+   * @param  {number} y
+   * @return {LEEWGL.Object3D | null}
+   */
   this.pick = function(gl, x, y) {
     this.frameBuffer.bind(gl);
     this.lastCapturedColorMap = new Uint8Array(_width * _height * 4);
@@ -58,14 +79,27 @@ LEEWGL.Picker = function() {
     }
   };
 
+  /**
+   * Clear this.objList
+   */
   this.clear = function() {
     this.objList = {};
   };
 
+  /**
+   * Add object to this.objList
+   * @param  {LEEWGL.Object3D} obj
+   */
   this.addToList = function(obj) {
     this.objList[obj.buffers.vertex.colorMapIndex] = obj;
   };
 
+  /**
+   * Get color at given position
+   * @param  {number} x
+   * @param  {number} y
+   * @return {array}
+   */
   this.getColorMapColor = function(x, y) {
     if (x >= _width || y >= _height || x < 0 || y < 0) {
       console.error('LEEWGL: Invalid color map pixel position');
@@ -83,10 +117,18 @@ LEEWGL.Picker = function() {
     ];
   };
 
+  /**
+   * Bind framebuffer
+   * @param  {webGLContext} gl
+   */
   this.bind = function(gl) {
     this.frameBuffer.bind(gl);
   };
 
+  /**
+   * Unbind framebuffer
+   * @param  {webGLContext} gl
+   */
   this.unbind = function(gl) {
     this.frameBuffer.unbind(gl);
   };

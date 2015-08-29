@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Shader.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Shader.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>LEEWGL.REQUIRES.push('Shader');
+
+/**
+ * @constructor
+ */
+LEEWGL.Shader = function() {
+  Object.defineProperties(this, {
+    'program': {
+      value: null,
+      enumerable: false,
+      writable: true
+    },
+    'uniforms': {
+      value: {},
+      enumerable: false,
+      writable: true
+    },
+    'attributes': {
+      value: {},
+      enumerable: false,
+      writable: true
+    },
+    'code': {
+      value: {},
+      enumerable: true,
+      writable: true
+    }
+  });
+};
+
+LEEWGL.Shader.prototype = {
+  constructor: LEEWGL.Shader,
+
+  /**
+   * @return {webGLProgram}
+   */
+  getProgram: function() {
+    return this.program;
+  },
+  /**
+   * @param  {webGLContext} gl
+   * @param  {string} type
+   * @param  {string} code
+   * @return {webGLShader} shader
+   */
+  compile: function(gl, type, code) {
+    var _shader = null;
+    if (type === LEEWGL.Shader.FRAGMENT) {
+      _shader = gl.createShader(gl.FRAGMENT_SHADER);
+      this.code.fragment = code;
+    } else if (type === LEEWGL.Shader.VERTEX) {
+      _shader = gl.createShader(gl.VERTEX_SHADER);
+      this.code.vertex = code;
+    } else {
+      console.error('LEEWGL.Shader.compile(): unknown type given');
+      return null;
+    }
+
+    gl.shaderSource(_shader, code);
+    gl.compileShader(_shader);
+    if (!gl.getShaderParameter(_shader, gl.COMPILE_STATUS)) {
+      console.log(_shader);
+      console.error('LEEWGL.Shader.compile(): compile error: ' + gl.getShaderInfoLog(_shader));
+      return null;
+    }
+    return _shader;
+  },
+  /**
+   * @param {webGLContext} gl
+   * @param {string} selector
+   * @return {string}
+   */
+  getShaderDOM: function(gl, selector) {
+    var _script = document.querySelector(selector);
+    if (_script === null) {
+      console.error("LEEWGL.Shader.getShaderDOM(): No shader with selector " + selector + " found.");
+    }
+
+    return this.getShaderContentDOM(_script);
+  },
+  /**
+   * @param {DOMElement} dom
+   * @return {string}
+   */
+  getShaderContentDOM: function(dom) {
+    var _str = '';
+    var _k = dom.firstChild;
+    var _content = '';
+    while (_k) {
+      if (_k.nodeType === 3)
+        _content += _k.textContent;
+      _k = _k.nextSibling;
+    }
+
+    return _content;
+  },
+  /**
+   * @param {webGLContext} gl
+   */
+  linkShader: function(gl) {
+    gl.linkProgram(this.program);
+    if (!gl.getProgramParameter(this.program, gl.LINK_STATUS))
+      console.error("LEEWGL.Shader.linkShader(): Could not initialise shaders");
+  },
+  /**
+   * @param  {webGLContext} gl
+   */
+  use: function(gl) {
+    gl.useProgram(this.program);
+  },
+  /**
+   * @param {webGLContext} gl
+   * @param {string} type
+   * @param {string} code
+   */
+  createShaderFromCode: function(gl, type, code) {
+    if (this.program === null)
+      this.program = gl.createProgram();
+
+    var _shader = this.compile(gl, type, code);
+    gl.attachShader(this.program, _shader);
+  },
+  /**
+   * @param {webGLContext} gl
+   * @param {string} type
+   * @param {string} selector
+   */
+  createShaderFromDOM: function(gl, type, selector) {
+    if (this.program === null)
+      this.program = gl.createProgram();
+
+    var _shader = this.compile(gl, type, code);
+    gl.attachShader(this.program, _shader);
+  },
+  /**
+   * Fills the object uniforms with the functions to set shader uniforms
+   * @param {webGLContext} gl
+   */
+  createUniformSetters: function(gl) {
+    var that = this;
+
+    /**
+     * @param {webGLContext} gl
+     * @param {webGLUniformInfo} uniform
+     * @return {function}
+     */
+    var createUniformSetter = function(gl, uniform) {
+      var isArray = (uniform.size > 1 &amp;&amp; uniform.name.substr(-3) === '[0]') ? true : false;
+      var type = uniform.type;
+      var loc = gl.getUniformLocation(that.program, uniform.name);
+
+      if (type === gl.FLOAT &amp;&amp; isArray)
+        return function(v) {
+          gl.uniform1fv(loc, v);
+        };
+      if (type === gl.FLOAT)
+        return function(v) {
+          gl.uniform1f(loc, v);
+        };
+      if (type === gl.FLOAT_VEC2)
+        return function(v) {
+          gl.uniform2fv(loc, v);
+        };
+      if (type === gl.FLOAT_VEC3)
+        return function(v) {
+          gl.uniform3fv(loc, v);
+        };
+      if (type === gl.FLOAT_VEC4)
+        return function(v) {
+          gl.uniform4fv(loc, v);
+        };
+      if (type === gl.INT &amp;&amp; isArray)
+        return function(v) {
+          gl.uniform1iv(loc, v);
+        };
+      if (type === gl.INT || type === gl.SAMPLER_2D)
+        return function(v) {
+          gl.uniform1i(loc, v);
+        };
+      if (type === gl.INT_VEC2)
+        return function(v) {
+          gl.uniform2iv(loc, v);
+        };
+      if (type === gl.INT_VEC3)
+        return function(v) {
+          gl.uniform3iv(loc, v);
+        };
+      if (type === gl.INT_VEC4)
+        return function(v) {
+          gl.uniform4iv(loc, v);
+        };
+      if (type === gl.BOOL)
+        return function(v) {
+          gl.uniform1iv(loc, v);
+        };
+      if (type === gl.BOOL_VEC2)
+        return function(v) {
+          gl.uniform2iv(loc, v);
+        };
+      if (type === gl.BOOL_VEC3)
+        return function(v) {
+          gl.uniform3iv(loc, v);
+        };
+      if (type === gl.BOOL_VEC4)
+        return function(v) {
+          gl.uniform4iv(loc, v);
+        };
+      if (type === gl.FLOAT_MAT2)
+        return function(v) {
+          gl.uniformMatrix2fv(loc, false, v);
+        };
+      if (type === gl.FLOAT_MAT3)
+        return function(v) {
+          gl.uniformMatrix3fv(loc, false, v);
+        };
+      if (type === gl.FLOAT_MAT4)
+        return function(v) {
+          gl.uniformMatrix4fv(loc, false, v);
+        };
+    };
+
+    var numUniforms = gl.getProgramParameter(this.program, gl.ACTIVE_UNIFORMS);
+
+    for (var i = 0; i &lt; numUniforms; ++i) {
+      var uniformInfo = gl.getActiveUniform(this.program, i);
+      if (!uniformInfo)
+        break;
+
+      var name = uniformInfo.name;
+      /// remove array suffix
+      if (name.substr(-3) === '[0]')
+        name = name.substr(0, name.length - 3);
+
+      var setter = createUniformSetter(gl, uniformInfo);
+      this.uniforms[name] = setter;
+    }
+
+    return this.uniforms;
+  },
+  /**
+   * Fills the object attributes with the functions to set shader attributes
+   * @param {webGLContext} gl
+   */
+  createAttributeSetters: function(gl) {
+    /**
+     * [createAttributeSetter description]
+     * @param {number} index
+     * @return {function}
+     */
+    var createAttributeSetter = function(index) {
+      return function(buffer) {
+        var webglBuffer = buffer.getBuffer();
+        buffer.bind(gl);
+        gl.enableVertexAttribArray(index);
+        gl.vertexAttribPointer(index, webglBuffer.numComponents, gl.FLOAT, false, 0, 0);
+      };
+    };
+
+    var numAttributes = gl.getProgramParameter(this.program, gl.ACTIVE_ATTRIBUTES);
+
+    for (var i = 0; i &lt; numAttributes; ++i) {
+      var attributeInfo = gl.getActiveAttrib(this.program, i);
+      if (!attributeInfo)
+        break;
+
+      var index = gl.getAttribLocation(this.program, attributeInfo.name);
+      this.attributes[attributeInfo.name] = createAttributeSetter(index);
+    }
+  },
+  /**
+   * Creates a deep copy of the object
+   * @param  {LEEWGL.Shader} shader
+   * @return {LEEWGL.Shader}
+   */
+  clone: function(shader) {
+    if (typeof shader === 'undefined')
+      shader = new LEEWGL.Shader();
+
+    shader.program = this.program;
+    shader.code = this.code;
+
+    var name = null;
+
+    for (name in this.uniforms) {
+      if (this.uniforms.hasOwnProperty(name)) {
+        shader.uniforms[name] = this.uniforms[name];
+      }
+    }
+    for (name in this.attributes) {
+      if (this.attributes.hasOwnProperty(name)) {
+        shader.attributes[name] = this.attributes[name];
+      }
+    }
+
+    return shader;
+  }
+};
+
+/**
+ * Shader Types
+ */
+LEEWGL.Shader.VERTEX = "x-shader/x-vertex";
+LEEWGL.Shader.FRAGMENT = "x-shader/x-fragment";
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="LEEWGL.App.html">App</a></li><li><a href="LEEWGL.Buffer.html">Buffer</a></li><li><a href="LEEWGL.Camera.html">Camera</a></li><li><a href="LEEWGL.Color.html">Color</a></li><li><a href="LEEWGL.Component.html">Component</a></li><li><a href="LEEWGL.Component.CustomScript.html">CustomScript</a></li><li><a href="LEEWGL.Component.Texture.html">Texture</a></li><li><a href="LEEWGL.Component.Transform.html">Transform</a></li><li><a href="LEEWGL.Core.html">Core</a></li><li><a href="LEEWGL.DragDrop.html">DragDrop</a></li><li><a href="LEEWGL.EditorApp.html">EditorApp</a></li><li><a href="LEEWGL.Extension.html">Extension</a></li><li><a href="LEEWGL.FrameBuffer.html">FrameBuffer</a></li><li><a href="LEEWGL.Geometry.html">Geometry</a></li><li><a href="LEEWGL.Geometry.Cube.html">Cube</a></li><li><a href="LEEWGL.Geometry.Grid.html">Grid</a></li><li><a href="LEEWGL.Geometry.Sphere.html">Sphere</a></li><li><a href="LEEWGL.Geometry.Triangle.html">Triangle</a></li><li><a href="LEEWGL.HTMLHelper.html">HTMLHelper</a></li><li><a href="LEEWGL.IndexBuffer.html">IndexBuffer</a></li><li><a href="LEEWGL.Light.html">Light</a></li><li><a href="LEEWGL.LocalStorage.html">LocalStorage</a></li><li><a href="LEEWGL.Object3D.html">Object3D</a></li><li><a href="LEEWGL.Options.html">Options</a></li><li><a href="LEEWGL.PerspectiveCamera.html">PerspectiveCamera</a></li><li><a href="LEEWGL.Picker.html">Picker</a></li><li><a href="LEEWGL.RenderBuffer.html">RenderBuffer</a></li><li><a href="LEEWGL.Scene.html">Scene</a></li><li><a href="LEEWGL.Settings.html">Settings</a></li><li><a href="LEEWGL.Shader.html">Shader</a></li><li><a href="LEEWGL.ShaderChunk.html">ShaderChunk</a></li><li><a href="LEEWGL.ShaderLibrary.html">ShaderLibrary</a></li><li><a href="LEEWGL.Texture.html">Texture</a></li><li><a href="LEEWGL.Timer.html">Timer</a></li><li><a href="LEEWGL.UI.html">UI</a></li><li><a href="LEEWGL.UI.BasicPopup.html">BasicPopup</a></li><li><a href="LEEWGL.UI.Popup.html">Popup</a></li><li><a href="LEEWGL.UI.Sidebar.html">Sidebar</a></li></ul><h3>Namespaces</h3><ul><li><a href="LEEWGL.html">LEEWGL</a></li></ul><h3>Global</h3><ul><li><a href="global.html#__extensionLoader">__extensionLoader</a></li><li><a href="global.html#A">A</a></li><li><a href="global.html#ColorHelper">ColorHelper</a></li><li><a href="global.html#Components">Components</a></li><li><a href="global.html#D">D</a></li><li><a href="global.html#DOWN_CURSOR">DOWN_CURSOR</a></li><li><a href="global.html#ENTER">ENTER</a></li><li><a href="global.html#F5">F5</a></li><li><a href="global.html#FILTER_LINEAR">FILTER_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_LINEAR">FILTER_LINEAR_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_NEAREST">FILTER_LINEAR_MIPMAP_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST">FILTER_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_LINEAR">FILTER_NEAREST_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_NEAREST">FILTER_NEAREST_MIPMAP_NEAREST</a></li><li><a href="global.html#FORMAT_ALPHA">FORMAT_ALPHA</a></li><li><a href="global.html#FORMAT_LUMINANCE">FORMAT_LUMINANCE</a></li><li><a href="global.html#FORMAT_LUMINANCE_ALPHA">FORMAT_LUMINANCE_ALPHA</a></li><li><a href="global.html#FORMAT_RGB">FORMAT_RGB</a></li><li><a href="global.html#FORMAT_RGBA">FORMAT_RGBA</a></li><li><a href="global.html#HTMLHELPER">HTMLHELPER</a></li><li><a href="global.html#id">id</a></li><li><a href="global.html#IMG_DEFAULT">IMG_DEFAULT</a></li><li><a href="global.html#KEYS">KEYS</a></li><li><a href="global.html#LEFT_CURSOR">LEFT_CURSOR</a></li><li><a href="global.html#MAPPING_DEFAULT">MAPPING_DEFAULT</a></li><li><a href="global.html#MaxVerticalAngle">MaxVerticalAngle</a></li><li><a href="global.html#MOUSE">MOUSE</a></li><li><a href="global.html#PAGE_DOWN">PAGE_DOWN</a></li><li><a href="global.html#PAGE_UP">PAGE_UP</a></li><li><a href="global.html#REQUIRES">REQUIRES</a></li><li><a href="global.html#RIGHT_CURSOR">RIGHT_CURSOR</a></li><li><a href="global.html#ROOT">ROOT</a></li><li><a href="global.html#S">S</a></li><li><a href="global.html#SETTINGS">SETTINGS</a></li><li><a href="global.html#TextureCount">TextureCount</a></li><li><a href="global.html#TYPE_BYTE">TYPE_BYTE</a></li><li><a href="global.html#TYPE_FLOAT">TYPE_FLOAT</a></li><li><a href="global.html#TYPE_INT">TYPE_INT</a></li><li><a href="global.html#TYPE_SHORT">TYPE_SHORT</a></li><li><a href="global.html#TYPE_UNSIGNED_BYTE">TYPE_UNSIGNED_BYTE</a></li><li><a href="global.html#TYPE_UNSIGNED_INT">TYPE_UNSIGNED_INT</a></li><li><a href="global.html#TYPE_UNSIGNED_SHORT">TYPE_UNSIGNED_SHORT</a></li><li><a href="global.html#UI">UI</a></li><li><a href="global.html#UP_CURSOR">UP_CURSOR</a></li><li><a href="global.html#W">W</a></li><li><a href="global.html#WRAPPING_CLAMP_TO_EDGE">WRAPPING_CLAMP_TO_EDGE</a></li><li><a href="global.html#WRAPPING_MIRRORED_REPEAT">WRAPPING_MIRRORED_REPEAT</a></li><li><a href="global.html#WRAPPING_REPEAT">WRAPPING_REPEAT</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Sat Aug 29 2015 12:43:02 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -19,7 +19,6 @@
   <script type="text/javascript" src="js/gl-matrix/vec2.js"></script>
   <script type="text/javascript" src="js/engine/Globals.js"></script>
   <script type="text/javascript" src="js/engine/Core.js"></script>
-  <script type="text/javascript" src="js/engine/Class.js"></script>
   <script type="text/javascript" src="js/engine/Options.js"></script>
   <script type="text/javascript" src="js/engine/Settings.js"></script>
   <script type="text/javascript" src="js/engine/HTMLHelper.js"></script>
@@ -202,7 +201,7 @@
                 <a title="Release Window" class="move-icon bg-pos57"></a>
               </div>
             </div>
-            <div id="dynamic-inspector" class="mtop5"></div>
+            <div id="dynamic-inspector" class="mtop5 p5"></div>
           </div>
           <div class="clearer"></div>
         </div>
@@ -215,13 +214,6 @@
 
   <script>
     var init = function() {
-      var ui = new window.LEEWGL.UI();
-      var settings = new window.LEEWGL.Settings();
-      var htmlHelper = new window.LEEWGL.HTMLHelper();
-      window.UI = ui;
-      window.SETTINGS = settings;
-      window.HTMLHELPER = htmlHelper;
-
       UI.dynamicContainers('.icon-container', '.dynamic-container');
       UI.setInspector('#dynamic-inspector');
       UI.setStatusBar('#status-bar');

@@ -128,7 +128,7 @@ LEEWGL.Importer = function() {
       geometry.facesNum = result.index;
 
       geometry.setBuffer(gl);
-      geometry.addColor(gl);
+      geometry.addColor(gl, ColorHelper.getUniqueColor());
       geometry.setColorBuffer(gl);
 
       return geometry;

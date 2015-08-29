@@ -152,3 +152,12 @@ LEEWGL.HTMLHelper = function() {
     return container;
   };
 };
+
+/**
+ * window load event to set global
+ */
+window.addEventListener('load', function() {
+  var htmlHelper = new LEEWGL.HTMLHelper();
+  /** @global */
+  window.HTMLHELPER = htmlHelper;
+});

@@ -1,7 +1,6 @@
-LEEWGL.REQUIRES.push('VertexDeclarations');
-
-LEEWGL.BufferInformation = function() {};
-
+LEEWGL.BufferInformation = function() {
+  LEEWGL.REQUIRES.push('VertexDeclarations');
+};
 LEEWGL.BufferInformation.VertexTypePos2 = function() {
   LEEWGL.BufferInformation.call(this);
 

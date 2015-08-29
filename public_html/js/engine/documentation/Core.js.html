@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Core.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Core.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Lightweight Editor Environment WebGL
+ * @namespace
+ * @type {Object}
+ */
+var LEEWGL = {
+  version: '0.7'
+};
+
+/** @global */
+LEEWGL.ROOT = '';
+
+/** @global */
+LEEWGL.REQUIRES = ['Core'];
+
+/// node.js compatibility
+if (typeof module === 'object') {
+  module.exports = LEEWGL;
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent.button
+/** @global */
+LEEWGL.MOUSE = {
+  LEFT: 0,
+  MIDDLE: 1,
+  RIGHT: 2
+};
+
+/** @global */
+LEEWGL.KEYS = {};
+
+/** @global */
+LEEWGL.KEYS.PAGE_UP = 33;
+/** @global */
+LEEWGL.KEYS.PAGE_DOWN = 34;
+/** @global */
+LEEWGL.KEYS.LEFT_CURSOR = 37;
+/** @global */
+LEEWGL.KEYS.UP_CURSOR = 38;
+/** @global */
+LEEWGL.KEYS.RIGHT_CURSOR = 39;
+/** @global */
+LEEWGL.KEYS.DOWN_CURSOR = 40;
+/** @global */
+LEEWGL.KEYS.A = 65;
+/** @global */
+LEEWGL.KEYS.D = 68;
+/** @global */
+LEEWGL.KEYS.S = 83;
+/** @global */
+LEEWGL.KEYS.W = 87;
+/** @global */
+LEEWGL.KEYS.ENTER = 13;
+/** @global */
+LEEWGL.KEYS.F5 = 116;
+
+// wrapping modes
+/** @global */
+LEEWGL.WRAPPING_REPEAT = 1000;
+/** @global */
+LEEWGL.WRAPPING_CLAMP_TO_EDGE = 1001;
+/** @global */
+LEEWGL.WRAPPING_MIRRORED_REPEAT = 1002;
+
+// filters
+/** @global */
+LEEWGL.FILTER_NEAREST = 1003;
+/** @global */
+LEEWGL.FILTER_NEAREST_MIPMAP_NEAREST = 1004;
+/** @global */
+LEEWGL.FILTER_NEAREST_MIPMAP_LINEAR = 1005;
+/** @global */
+LEEWGL.FILTER_LINEAR = 1006;
+/** @global */
+LEEWGL.FILTER_LINEAR_MIPMAP_NEAREST = 1007;
+/** @global */
+LEEWGL.FILTER_LINEAR_MIPMAP_LINEAR = 1008;
+
+// data types
+/** @global */
+LEEWGL.TYPE_UNSIGNED_BYTE = 1009;
+/** @global */
+LEEWGL.TYPE_BYTE = 1010;
+/** @global */
+LEEWGL.TYPE_SHORT = 1011;
+/** @global */
+LEEWGL.TYPE_UNSIGNED_SHORT = 1012;
+/** @global */
+LEEWGL.TYPE_INT = 1013;
+/** @global */
+LEEWGL.TYPE_UNSIGNED_INT = 1014;
+/** @global */
+LEEWGL.TYPE_FLOAT = 1015;
+
+// pixel formats
+/** @global */
+LEEWGL.FORMAT_ALPHA = 1016;
+/** @global */
+LEEWGL.FORMAT_RGB = 1017;
+/** @global */
+LEEWGL.FORMAT_RGBA = 1018;
+/** @global */
+LEEWGL.FORMAT_LUMINANCE = 1019;
+/** @global */
+LEEWGL.FORMAT_LUMINANCE_ALPHA = 1020;
+
+/**
+ * @constructor
+ * @param  {bool} auto
+ */
+LEEWGL.Timer = function(auto) {
+  this.auto = auto !== undefined ? auto : true;
+
+  this.startTime = 0;
+  this.oldTime = 0;
+  this.elapsedTime = 0;
+
+  this.running = false;
+};
+
+LEEWGL.Timer.prototype = {
+  constructor: LEEWGL.Timer,
+  start: function() {
+    this.startTime = self.performance !== undefined &amp;&amp; self.performance.now !== undefined ? self.performance.now() : Date.now();
+    this.oldTime = this.startTime;
+    this.running = true;
+  },
+  stop: function() {
+    this.getElapsedTime();
+    this.running = false;
+  },
+  getElapsedTime: function() {
+    this.getDeltaTime();
+    return this.elapsedTime;
+  },
+  getDeltaTime: function() {
+    if (this.auto &amp;&amp; this.running === false)
+      this.start();
+
+    var diff = 0;
+
+    if (this.running === true) {
+      var newTime = self.performance !== undefined &amp;&amp; self.performance.now !== undefined ? self.performance.now() : Date.now();
+      diff = 0.001 * (newTime - this.oldTime);
+      this.oldTime = newTime;
+      this.elapsedTime += diff;
+    }
+
+    return diff;
+  }
+};
+
+/**
+ * @constructor
+ * @param  {DOMElement} options.canvas
+ * @param  {webGLContext} options.context
+ */
+LEEWGL.Core = function(options) {
+  this.options = {
+    'canvas': document.createElement('canvas'),
+    'context': null
+  };
+
+  extend(LEEWGL.Core.prototype, LEEWGL.Options.prototype);
+
+  this.setOptions(options);
+
+  var _canvas = this.options.canvas;
+  var _context = this.options.context;
+  var _app = null;
+
+  // public properties
+  this.canvas = _canvas;
+  this.context = null;
+  this.timer = new LEEWGL.Timer();
+
+  var _this = this,
+    _programs = [],
+    _currentProgram = null,
+    _currentFramebuffer = null,
+    _currentCamera = null,
+    _viewportX = 0,
+    _viewportY = 0,
+    _viewportWidth = _canvas.width,
+    _viewportHeight = _canvas.height,
+    _quit = false;
+
+  // initialize webGL
+  var _gl = null;
+
+  // execution block
+  try {
+    _gl = _context || _canvas.getContext('webgl') || _canvas.getContext('experimental-webgl');
+    if (_gl === null) {
+      if (_canvas.getContext('webgl') === null) {
+        throw 'Error creating WebGL context with selected attributes.';
+      } else {
+        throw 'Error creating WebGL context.';
+      }
+    }
+  } catch (error) {
+    console.error(error);
+  }
+
+  this.context = _gl;
+
+  this.getContext = function() {
+    return _gl;
+  };
+
+  this.getCanvas = function() {
+    return _canvas;
+  };
+
+  this.setSize = function(width, height, updateStyle) {
+    updateStyle = (typeof updateStyle !== 'undefined') ? updateStyle : true;
+
+    _canvas.width = width;
+    _canvas.height = height;
+
+    if (updateStyle === true) {
+      _canvas.style.width = width + 'px';
+      _canvas.style.height = height + 'px';
+    }
+  };
+
+  this.getRenderSize = function() {
+    return {
+      'width': _canvas.width,
+      'height': _canvas.height
+    };
+  };
+
+  this.setViewport = function(x, y, width, height) {
+    _viewportX = x;
+    _viewportY = y;
+    _viewportWidth = width;
+    _viewportHeight = height;
+
+    SETTINGS.set('viewport', {
+      'x': x,
+      'y': y,
+      'width': width,
+      'height': height
+    });
+
+    _gl.viewport(_viewportX, _viewportY, _viewportWidth, _viewportHeight);
+  };
+
+  this.attachApp = function(app) {
+    _app = app;
+  };
+
+  this.paramToGL = function(param) {
+    if (param === LEEWGL.TypeUnsignedByte)
+      return _gl.UNSIGNED_BYTE;
+    if (param === LEEWGL.TypeByte)
+      return _gl.BYTE;
+    if (param === LEEWGL.TypeShort)
+      return _gl.SHORT;
+    if (param === LEEWGL.TypeUnsignedShort)
+      return _gl.UNSIGNED_SHORT;
+    if (param === LEEWGL.TypeInt)
+      return _gl.INT;
+    if (param === LEEWGL.TypeUnsignedInt)
+      return _gl.UNSIGNED_INT;
+    if (param === LEEWGL.TypeFloat)
+      return _gl.FLOAT;
+
+    if (param === LEEWGL.FormatAlpha)
+      return _gl.ALPHA;
+    if (param === LEEWGL.FormatRGB)
+      return _gl.RGB;
+    if (param === LEEWGL.FormatRGBA)
+      return _gl.RGBA;
+    if (param === LEEWGL.FormatLuminance)
+      return _gl.LUMINANCE;
+    if (param === LEEWGL.FormatLuminanceAlpha)
+      return _gl.LUMINANCE_ALPHA;
+  };
+
+  this.initMouse = function() {
+    if (_app === null) {
+      console.error("LEEWGL.Core initMouse: No app attached.");
+      return null;
+    }
+
+    _canvas.onmousedown = _app.onMouseDown.bind(_app);
+    _canvas.oncontextmenu = _app.onMouseDown.bind(_app);
+    _canvas.onmouseup = _app.onMouseUp.bind(_app);
+    _canvas.onmousemove = _app.onMouseMove.bind(_app);
+    _canvas.onkeydown = _app.onKeyDown.bind(_app);
+    _canvas.onkeyup = _app.onKeyUp.bind(_app);
+  };
+
+  this.init = function() {
+    this.initMouse();
+
+    if (_app !== null)
+      _app.onCreate();
+  };
+
+  this.run = function() {
+    if (typeof UI !== 'undefined') {
+      UI.outlineToHTML('#dynamic-outline');
+    }
+
+    ///FIXME: TIMER - make depending on fps
+    _this.timer.start();
+    window.requestAnimationFrame(_this.run);
+
+    var requiredElapsed = (100 / SETTINGS.get('fps'));
+
+    if (_this.timer.getElapsedTime() * 1000 >= requiredElapsed) {
+      _gl.clear(_gl.COLOR_BUFFER_BIT | _gl.DEPTH_BUFFER_BIT);
+      if (_app !== null) {
+        _app.onUpdate();
+        _app.onRender();
+      }
+    }
+  };
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="LEEWGL.App.html">App</a></li><li><a href="LEEWGL.Buffer.html">Buffer</a></li><li><a href="LEEWGL.Camera.html">Camera</a></li><li><a href="LEEWGL.Color.html">Color</a></li><li><a href="LEEWGL.Component.html">Component</a></li><li><a href="LEEWGL.Component.CustomScript.html">CustomScript</a></li><li><a href="LEEWGL.Component.Texture.html">Texture</a></li><li><a href="LEEWGL.Component.Transform.html">Transform</a></li><li><a href="LEEWGL.Core.html">Core</a></li><li><a href="LEEWGL.DragDrop.html">DragDrop</a></li><li><a href="LEEWGL.EditorApp.html">EditorApp</a></li><li><a href="LEEWGL.Extension.html">Extension</a></li><li><a href="LEEWGL.FrameBuffer.html">FrameBuffer</a></li><li><a href="LEEWGL.Geometry.html">Geometry</a></li><li><a href="LEEWGL.Geometry.Cube.html">Cube</a></li><li><a href="LEEWGL.Geometry.Grid.html">Grid</a></li><li><a href="LEEWGL.Geometry.Sphere.html">Sphere</a></li><li><a href="LEEWGL.Geometry.Triangle.html">Triangle</a></li><li><a href="LEEWGL.HTMLHelper.html">HTMLHelper</a></li><li><a href="LEEWGL.IndexBuffer.html">IndexBuffer</a></li><li><a href="LEEWGL.Light.html">Light</a></li><li><a href="LEEWGL.LocalStorage.html">LocalStorage</a></li><li><a href="LEEWGL.Object3D.html">Object3D</a></li><li><a href="LEEWGL.Options.html">Options</a></li><li><a href="LEEWGL.PerspectiveCamera.html">PerspectiveCamera</a></li><li><a href="LEEWGL.Picker.html">Picker</a></li><li><a href="LEEWGL.RenderBuffer.html">RenderBuffer</a></li><li><a href="LEEWGL.Scene.html">Scene</a></li><li><a href="LEEWGL.Settings.html">Settings</a></li><li><a href="LEEWGL.Shader.html">Shader</a></li><li><a href="LEEWGL.ShaderChunk.html">ShaderChunk</a></li><li><a href="LEEWGL.ShaderLibrary.html">ShaderLibrary</a></li><li><a href="LEEWGL.Texture.html">Texture</a></li><li><a href="LEEWGL.Timer.html">Timer</a></li><li><a href="LEEWGL.UI.html">UI</a></li><li><a href="LEEWGL.UI.BasicPopup.html">BasicPopup</a></li><li><a href="LEEWGL.UI.Popup.html">Popup</a></li><li><a href="LEEWGL.UI.Sidebar.html">Sidebar</a></li></ul><h3>Namespaces</h3><ul><li><a href="LEEWGL.html">LEEWGL</a></li></ul><h3>Global</h3><ul><li><a href="global.html#__extensionLoader">__extensionLoader</a></li><li><a href="global.html#A">A</a></li><li><a href="global.html#ColorHelper">ColorHelper</a></li><li><a href="global.html#Components">Components</a></li><li><a href="global.html#D">D</a></li><li><a href="global.html#DOWN_CURSOR">DOWN_CURSOR</a></li><li><a href="global.html#ENTER">ENTER</a></li><li><a href="global.html#F5">F5</a></li><li><a href="global.html#FILTER_LINEAR">FILTER_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_LINEAR">FILTER_LINEAR_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_NEAREST">FILTER_LINEAR_MIPMAP_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST">FILTER_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_LINEAR">FILTER_NEAREST_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_NEAREST">FILTER_NEAREST_MIPMAP_NEAREST</a></li><li><a href="global.html#FORMAT_ALPHA">FORMAT_ALPHA</a></li><li><a href="global.html#FORMAT_LUMINANCE">FORMAT_LUMINANCE</a></li><li><a href="global.html#FORMAT_LUMINANCE_ALPHA">FORMAT_LUMINANCE_ALPHA</a></li><li><a href="global.html#FORMAT_RGB">FORMAT_RGB</a></li><li><a href="global.html#FORMAT_RGBA">FORMAT_RGBA</a></li><li><a href="global.html#HTMLHELPER">HTMLHELPER</a></li><li><a href="global.html#id">id</a></li><li><a href="global.html#IMG_DEFAULT">IMG_DEFAULT</a></li><li><a href="global.html#KEYS">KEYS</a></li><li><a href="global.html#LEFT_CURSOR">LEFT_CURSOR</a></li><li><a href="global.html#MAPPING_DEFAULT">MAPPING_DEFAULT</a></li><li><a href="global.html#MaxVerticalAngle">MaxVerticalAngle</a></li><li><a href="global.html#MOUSE">MOUSE</a></li><li><a href="global.html#PAGE_DOWN">PAGE_DOWN</a></li><li><a href="global.html#PAGE_UP">PAGE_UP</a></li><li><a href="global.html#REQUIRES">REQUIRES</a></li><li><a href="global.html#RIGHT_CURSOR">RIGHT_CURSOR</a></li><li><a href="global.html#ROOT">ROOT</a></li><li><a href="global.html#S">S</a></li><li><a href="global.html#SETTINGS">SETTINGS</a></li><li><a href="global.html#TextureCount">TextureCount</a></li><li><a href="global.html#TYPE_BYTE">TYPE_BYTE</a></li><li><a href="global.html#TYPE_FLOAT">TYPE_FLOAT</a></li><li><a href="global.html#TYPE_INT">TYPE_INT</a></li><li><a href="global.html#TYPE_SHORT">TYPE_SHORT</a></li><li><a href="global.html#TYPE_UNSIGNED_BYTE">TYPE_UNSIGNED_BYTE</a></li><li><a href="global.html#TYPE_UNSIGNED_INT">TYPE_UNSIGNED_INT</a></li><li><a href="global.html#TYPE_UNSIGNED_SHORT">TYPE_UNSIGNED_SHORT</a></li><li><a href="global.html#UI">UI</a></li><li><a href="global.html#UP_CURSOR">UP_CURSOR</a></li><li><a href="global.html#W">W</a></li><li><a href="global.html#WRAPPING_CLAMP_TO_EDGE">WRAPPING_CLAMP_TO_EDGE</a></li><li><a href="global.html#WRAPPING_MIRRORED_REPEAT">WRAPPING_MIRRORED_REPEAT</a></li><li><a href="global.html#WRAPPING_REPEAT">WRAPPING_REPEAT</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Sat Aug 29 2015 12:43:02 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

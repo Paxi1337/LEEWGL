@@ -1,6 +1,9 @@
-LEEWGL.REQUIRES.push('Component');
-
+/**
+ * Components can be added to LEEWGL.Object3D
+ * @constructor
+ */
 LEEWGL.Component = function() {
+  LEEWGL.REQUIRES.push('Component');
   this.type = 'Component';
 };
 
@@ -14,9 +17,14 @@ LEEWGL.Component.prototype = {
   }
 };
 
+/** @global */
 LEEWGL.Component.Components = ['Transform', 'CustomScript', 'Texture'];
 LEEWGL.EventDispatcher.prototype.apply(LEEWGL.Component.prototype);
 
+/**
+ * @constructor
+ * @augments LEEWGL.Component
+ */
 LEEWGL.Component.Transform = function() {
   LEEWGL.Component.call(this);
 
@@ -210,12 +218,18 @@ LEEWGL.Component.Transform.prototype.clone = function(transform) {
   return transform;
 };
 
+/**
+ * @constructor
+ * @augments LEEWGL.Component
+ */
 LEEWGL.Component.CustomScript = function() {
   LEEWGL.Component.call(this);
 
+  /** @inner {string} */
   this.type = 'Component.CustomScript';
+  /** @inner {string} */
   this.code = 'Type your custom code in here!';
-
+  /** @inner {object} */
   this.applied = {};
 };
 
@@ -236,6 +250,7 @@ LEEWGL.Component.CustomScript.prototype.clone = function(customScript) {
   LEEWGL.Component.prototype.clone.call(this, customScript);
 
   customScript.code = this.code;
+  customScript.applied = {};
 
   for (var scriptID in this.applied) {
     customScript.applied[scriptID] = this.applied[scriptID];
@@ -244,11 +259,18 @@ LEEWGL.Component.CustomScript.prototype.clone = function(customScript) {
   return customScript;
 };
 
+/**
+ * @constructor
+ * @augments LEEWGL.Component
+ */
 LEEWGL.Component.Texture = function() {
   LEEWGL.Component.call(this);
 
+  /** @inner {string} */
   this.type = 'Component.Texture';
+  /** @inner {LEEWGL.Texture} */
   this.texture = new LEEWGL.Texture();
+  /** @inner {string} */
   this.src = '';
 };
 

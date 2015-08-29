@@ -1,6 +1,7 @@
   LEEWGL.REQUIRES.push('ShaderChunk');
 
   var init = function() {
+    /** @constructor */
     LEEWGL.ShaderChunk = {};
     var ajax = new LEEWGL.AsynchRequest();
     var files = ajax.send('POST', LEEWGL.ROOT + 'php/list_directory_content.php', false, null, LEEWGL.AsynchRequest.JSON).response.responseJSON;

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Settings.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Settings.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Class to handle the editable general options of the engine environment
+ * @constructor
+ * @param {number} options.display-precision
+ * @param {number} options.translation-speed.x
+ * @param {number} options.translation-speed.y
+ * @param {number} options.translation-speed.z
+ * @param {number} options.rotation-speed.x
+ * @param {number} options.rotation-speed.y
+ * @param {number} options.background-color.r
+ * @param {number} options.background-color.g
+ * @param {number} options.background-color.b
+ * @param {number} options.background-color.a
+ * @param {bool} options.depth-buffer
+ * @param {number} options.viewport.x
+ * @param {number} options.viewport.y
+ * @param {number} options.viewport.width
+ * @param {number} options.viewport.height
+ * @param {number} options.fps
+ */
+LEEWGL.Settings = function(options) {
+  this.options = {
+    'display-precision': 4,
+    'translation-speed': {
+      'x': 0.1,
+      'y': 0.1,
+      'z': 0.1
+    },
+    'rotation-speed': {
+      'x': 0.1,
+      'y': 0.1
+    },
+    'background-color': {
+      'r': 0.0,
+      'g': 0.6,
+      'b': 0.7,
+      'a': 1.0
+    },
+    'depth-buffer': true,
+    'viewport': {
+      'x': 0,
+      'y': 0,
+      'width': 512,
+      'height': 512
+    },
+    'fps': 60
+  };
+
+  extend(LEEWGL.Settings.prototype, LEEWGL.Options.prototype);
+
+  this.setOptions(options);
+
+  /** @inner {object} */
+  this.types = {
+    'display-precision': 'input',
+    'translation-speed': 'table',
+    'rotation-speed': 'table',
+    'background-color': 'table',
+    'depth-buffer': 'checkbox',
+    'viewport': 'table',
+    'fps': 'input'
+  };
+
+  /**
+   * Get a setting per name
+   * @param  {string} name
+   * @return {mixed}
+   */
+  this.get = function(name) {
+    return this.options[name];
+  };
+
+  /**
+   * Set a setting per name
+   * @param  {string} name
+   * @param  {mixed} value
+   */
+  this.set = function(name, value) {
+    this.options[name] = value;
+  };
+
+ /**
+  * Generates a dom container with contains all settings in input fields / table rows
+  * @return {LEEWGL.DOM.Element}
+  */
+  this.toHTML = function() {
+    var that = this;
+    var container = new LEEWGL.DOM.Element('div', {
+      'class': 'component-container'
+    });
+
+    var keydownTable = (function(event, td, vector) {
+      var el = new LEEWGL.DOM.Element(td);
+      var id = el.getParent().getParent().getParent().e.id;
+      var num = el.get('num');
+      var value = parseFloat(el.get('text'));
+      vector = vector.value;
+
+      if (event.keyCode === LEEWGL.KEYS.ENTER) {
+        vector[num] = value;
+        that.set(id, vector);
+        event.stopPropagation();
+        event.preventDefault();
+      }
+    });
+
+    var keydownInput = (function(event, input, content) {
+      var el = new LEEWGL.DOM.Element(input);
+      if (event.keyCode === LEEWGL.KEYS.ENTER) {
+        var id = el.getParent().e.id;
+        that.set(id, el.e.value);
+        event.stopPropagation();
+        event.preventDefault();
+      }
+    });
+
+    var componentsControlContainer = new LEEWGL.DOM.Element('div', {
+      'class': 'controls-container'
+    });
+    var submit = new LEEWGL.DOM.Element('input', {
+      'type': 'submit',
+      'class': 'submit',
+      'value': 'Update'
+    });
+
+    submit.addEvent('click', function(event) {
+      this.updateFromHTML();
+      event.preventDefault();
+    }.bind(this));
+
+    for (var prop in this.options) {
+      if (this.types[prop] === 'input') {
+        container.grab(HTMLHELPER.createContainerDetailInput(prop, prop, this.options[prop], keydownInput));
+      } else if (this.types[prop] === 'table') {
+        container.grab(HTMLHELPER.createTable(prop, Object.keys(this.options[prop]), {
+          'value': this.options[prop]
+        }, {
+          'title': prop,
+          'type': 'h4',
+          'class': 'component-detail-headline'
+        }, keydownTable));
+      }
+    }
+
+    componentsControlContainer.grab(submit);
+    container.grab(componentsControlContainer);
+    return container;
+  };
+
+  /**
+   * Update the options with the values from the input elements / table rows
+   */
+  this.updateFromHTML = function() {
+    var element = null;
+    for (var prop in this.options) {
+      if (this.types[prop] === 'input') {
+        element = new LEEWGL.DOM.Element(document.querySelector('input[identifier="' + prop + '"]'));
+        this.set(prop, element.e.value);
+      } else if (this.types[prop] === 'table') {
+        var elements = document.querySelectorAll('td[identifier="' + prop + '"]');
+        var arr = {};
+        for (var i = 0; i &lt; elements.length; ++i) {
+          element = new LEEWGL.DOM.Element(elements[i]);
+          arr[element.get('num')] = parseFloat(element.get('text'));
+        }
+        this.set(prop, arr);
+      }
+    }
+    UI.displaySettings();
+  };
+};
+
+/**
+ * window load event to set global
+ */
+window.addEventListener('load', function() {
+  var settings = new LEEWGL.Settings();
+  /** @global */
+  window.SETTINGS = settings;
+});
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="LEEWGL.App.html">App</a></li><li><a href="LEEWGL.Buffer.html">Buffer</a></li><li><a href="LEEWGL.Camera.html">Camera</a></li><li><a href="LEEWGL.Color.html">Color</a></li><li><a href="LEEWGL.Component.html">Component</a></li><li><a href="LEEWGL.Component.CustomScript.html">CustomScript</a></li><li><a href="LEEWGL.Component.Texture.html">Texture</a></li><li><a href="LEEWGL.Component.Transform.html">Transform</a></li><li><a href="LEEWGL.Core.html">Core</a></li><li><a href="LEEWGL.DragDrop.html">DragDrop</a></li><li><a href="LEEWGL.EditorApp.html">EditorApp</a></li><li><a href="LEEWGL.Extension.html">Extension</a></li><li><a href="LEEWGL.FrameBuffer.html">FrameBuffer</a></li><li><a href="LEEWGL.Geometry.html">Geometry</a></li><li><a href="LEEWGL.Geometry.Cube.html">Cube</a></li><li><a href="LEEWGL.Geometry.Grid.html">Grid</a></li><li><a href="LEEWGL.Geometry.Sphere.html">Sphere</a></li><li><a href="LEEWGL.Geometry.Triangle.html">Triangle</a></li><li><a href="LEEWGL.HTMLHelper.html">HTMLHelper</a></li><li><a href="LEEWGL.IndexBuffer.html">IndexBuffer</a></li><li><a href="LEEWGL.Light.html">Light</a></li><li><a href="LEEWGL.LocalStorage.html">LocalStorage</a></li><li><a href="LEEWGL.Object3D.html">Object3D</a></li><li><a href="LEEWGL.Options.html">Options</a></li><li><a href="LEEWGL.PerspectiveCamera.html">PerspectiveCamera</a></li><li><a href="LEEWGL.Picker.html">Picker</a></li><li><a href="LEEWGL.RenderBuffer.html">RenderBuffer</a></li><li><a href="LEEWGL.Scene.html">Scene</a></li><li><a href="LEEWGL.Settings.html">Settings</a></li><li><a href="LEEWGL.Shader.html">Shader</a></li><li><a href="LEEWGL.ShaderChunk.html">ShaderChunk</a></li><li><a href="LEEWGL.ShaderLibrary.html">ShaderLibrary</a></li><li><a href="LEEWGL.Texture.html">Texture</a></li><li><a href="LEEWGL.Timer.html">Timer</a></li><li><a href="LEEWGL.UI.html">UI</a></li><li><a href="LEEWGL.UI.BasicPopup.html">BasicPopup</a></li><li><a href="LEEWGL.UI.Popup.html">Popup</a></li><li><a href="LEEWGL.UI.Sidebar.html">Sidebar</a></li></ul><h3>Namespaces</h3><ul><li><a href="LEEWGL.html">LEEWGL</a></li></ul><h3>Global</h3><ul><li><a href="global.html#__extensionLoader">__extensionLoader</a></li><li><a href="global.html#A">A</a></li><li><a href="global.html#ColorHelper">ColorHelper</a></li><li><a href="global.html#Components">Components</a></li><li><a href="global.html#D">D</a></li><li><a href="global.html#DOWN_CURSOR">DOWN_CURSOR</a></li><li><a href="global.html#ENTER">ENTER</a></li><li><a href="global.html#F5">F5</a></li><li><a href="global.html#FILTER_LINEAR">FILTER_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_LINEAR">FILTER_LINEAR_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_NEAREST">FILTER_LINEAR_MIPMAP_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST">FILTER_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_LINEAR">FILTER_NEAREST_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_NEAREST">FILTER_NEAREST_MIPMAP_NEAREST</a></li><li><a href="global.html#FORMAT_ALPHA">FORMAT_ALPHA</a></li><li><a href="global.html#FORMAT_LUMINANCE">FORMAT_LUMINANCE</a></li><li><a href="global.html#FORMAT_LUMINANCE_ALPHA">FORMAT_LUMINANCE_ALPHA</a></li><li><a href="global.html#FORMAT_RGB">FORMAT_RGB</a></li><li><a href="global.html#FORMAT_RGBA">FORMAT_RGBA</a></li><li><a href="global.html#HTMLHELPER">HTMLHELPER</a></li><li><a href="global.html#id">id</a></li><li><a href="global.html#IMG_DEFAULT">IMG_DEFAULT</a></li><li><a href="global.html#KEYS">KEYS</a></li><li><a href="global.html#LEFT_CURSOR">LEFT_CURSOR</a></li><li><a href="global.html#MAPPING_DEFAULT">MAPPING_DEFAULT</a></li><li><a href="global.html#MaxVerticalAngle">MaxVerticalAngle</a></li><li><a href="global.html#MOUSE">MOUSE</a></li><li><a href="global.html#PAGE_DOWN">PAGE_DOWN</a></li><li><a href="global.html#PAGE_UP">PAGE_UP</a></li><li><a href="global.html#REQUIRES">REQUIRES</a></li><li><a href="global.html#RIGHT_CURSOR">RIGHT_CURSOR</a></li><li><a href="global.html#ROOT">ROOT</a></li><li><a href="global.html#S">S</a></li><li><a href="global.html#SETTINGS">SETTINGS</a></li><li><a href="global.html#TextureCount">TextureCount</a></li><li><a href="global.html#TYPE_BYTE">TYPE_BYTE</a></li><li><a href="global.html#TYPE_FLOAT">TYPE_FLOAT</a></li><li><a href="global.html#TYPE_INT">TYPE_INT</a></li><li><a href="global.html#TYPE_SHORT">TYPE_SHORT</a></li><li><a href="global.html#TYPE_UNSIGNED_BYTE">TYPE_UNSIGNED_BYTE</a></li><li><a href="global.html#TYPE_UNSIGNED_INT">TYPE_UNSIGNED_INT</a></li><li><a href="global.html#TYPE_UNSIGNED_SHORT">TYPE_UNSIGNED_SHORT</a></li><li><a href="global.html#UI">UI</a></li><li><a href="global.html#UP_CURSOR">UP_CURSOR</a></li><li><a href="global.html#W">W</a></li><li><a href="global.html#WRAPPING_CLAMP_TO_EDGE">WRAPPING_CLAMP_TO_EDGE</a></li><li><a href="global.html#WRAPPING_MIRRORED_REPEAT">WRAPPING_MIRRORED_REPEAT</a></li><li><a href="global.html#WRAPPING_REPEAT">WRAPPING_REPEAT</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Sat Aug 29 2015 12:43:02 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

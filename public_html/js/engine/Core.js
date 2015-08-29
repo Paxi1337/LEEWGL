@@ -4,11 +4,13 @@
  * @type {Object}
  */
 var LEEWGL = {
-  version: '0.3'
+  version: '0.7'
 };
 
+/** @global */
 LEEWGL.ROOT = '';
 
+/** @global */
 LEEWGL.REQUIRES = ['Core'];
 
 /// node.js compatibility
@@ -17,56 +19,90 @@ if (typeof module === 'object') {
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent.button
+/** @global */
 LEEWGL.MOUSE = {
   LEFT: 0,
   MIDDLE: 1,
   RIGHT: 2
 };
 
+/** @global */
 LEEWGL.KEYS = {};
 
+/** @global */
 LEEWGL.KEYS.PAGE_UP = 33;
+/** @global */
 LEEWGL.KEYS.PAGE_DOWN = 34;
+/** @global */
 LEEWGL.KEYS.LEFT_CURSOR = 37;
+/** @global */
 LEEWGL.KEYS.UP_CURSOR = 38;
+/** @global */
 LEEWGL.KEYS.RIGHT_CURSOR = 39;
+/** @global */
 LEEWGL.KEYS.DOWN_CURSOR = 40;
+/** @global */
 LEEWGL.KEYS.A = 65;
+/** @global */
 LEEWGL.KEYS.D = 68;
+/** @global */
 LEEWGL.KEYS.S = 83;
+/** @global */
 LEEWGL.KEYS.W = 87;
-
+/** @global */
 LEEWGL.KEYS.ENTER = 13;
+/** @global */
 LEEWGL.KEYS.F5 = 116;
 
 // wrapping modes
-LEEWGL.WrappingRepeat = 1000;
-LEEWGL.WrappingClampToEdge = 1001;
-LEEWGL.WrappingMirroredRepeat = 1002;
+/** @global */
+LEEWGL.WRAPPING_REPEAT = 1000;
+/** @global */
+LEEWGL.WRAPPING_CLAMP_TO_EDGE = 1001;
+/** @global */
+LEEWGL.WRAPPING_MIRRORED_REPEAT = 1002;
 
 // filters
-LEEWGL.FilterNearest = 1003;
-LEEWGL.FilterNearestMipMapNearest = 1004;
-LEEWGL.FilterNearestMipMapLinear = 1005;
-LEEWGL.FilterLinear = 1006;
-LEEWGL.FilterLinearMipMapNearest = 1007;
-LEEWGL.FilterLinearMipmapLinear = 1008;
+/** @global */
+LEEWGL.FILTER_NEAREST = 1003;
+/** @global */
+LEEWGL.FILTER_NEAREST_MIPMAP_NEAREST = 1004;
+/** @global */
+LEEWGL.FILTER_NEAREST_MIPMAP_LINEAR = 1005;
+/** @global */
+LEEWGL.FILTER_LINEAR = 1006;
+/** @global */
+LEEWGL.FILTER_LINEAR_MIPMAP_NEAREST = 1007;
+/** @global */
+LEEWGL.FILTER_LINEAR_MIPMAP_LINEAR = 1008;
 
 // data types
-LEEWGL.TypeUnsignedByte = 1009;
-LEEWGL.TypeByte = 1010;
-LEEWGL.TypeShort = 1011;
-LEEWGL.TypeUnsignedShort = 1012;
-LEEWGL.TypeInt = 1013;
-LEEWGL.TypeUnsignedInt = 1014;
-LEEWGL.TypeFloat = 1015;
+/** @global */
+LEEWGL.TYPE_UNSIGNED_BYTE = 1009;
+/** @global */
+LEEWGL.TYPE_BYTE = 1010;
+/** @global */
+LEEWGL.TYPE_SHORT = 1011;
+/** @global */
+LEEWGL.TYPE_UNSIGNED_SHORT = 1012;
+/** @global */
+LEEWGL.TYPE_INT = 1013;
+/** @global */
+LEEWGL.TYPE_UNSIGNED_INT = 1014;
+/** @global */
+LEEWGL.TYPE_FLOAT = 1015;
 
 // pixel formats
-LEEWGL.FormatAlpha = 1016;
-LEEWGL.FormatRGB = 1017;
-LEEWGL.FormatRGBA = 1018;
-LEEWGL.FormatLuminance = 1019;
-LEEWGL.FormatLuminanceAlpha = 1020;
+/** @global */
+LEEWGL.FORMAT_ALPHA = 1016;
+/** @global */
+LEEWGL.FORMAT_RGB = 1017;
+/** @global */
+LEEWGL.FORMAT_RGBA = 1018;
+/** @global */
+LEEWGL.FORMAT_LUMINANCE = 1019;
+/** @global */
+LEEWGL.FORMAT_LUMINANCE_ALPHA = 1020;
 
 /**
  * @constructor

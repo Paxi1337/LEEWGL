@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Light.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Light.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * !!FIXME: Maybe problems with clone method because of this.editables shallow copy?
+ */
+
+/**
+ * @constructor
+ * @augments LEEWGL.Object3D
+ * @param  {vec3} options.ambient
+ * @param  {vec3} options.color
+ * @param  {number} options.specular
+ */
+LEEWGL.Light = function(options) {
+  LEEWGL.REQUIRES.push('Light');
+  LEEWGL.Object3D.call(this, options);
+
+  var ext_options = {
+    'ambient': [0.2, 0.2, 0.2],
+    'color': [1.0, 1.0, 1.0],
+    'specular': 1.0,
+  };
+
+  this.type = 'Light';
+  this.lightType = 'Base';
+  this.render = false;
+
+  extend(LEEWGL.Light.prototype, LEEWGL.Options.prototype);
+  this.addOptions(ext_options);
+  this.setOptions(options);
+
+  this.ambient = this.options.ambient;
+  this.color = this.options.color;
+  this.specular = this.options.specular;
+
+  this.editables = {
+    'ambient': {
+      'name': 'Ambient',
+      'table-titles': ['r', 'g', 'b'],
+      'value': this.ambient
+    },
+    'color': {
+      'name': 'Color',
+      'table-titles': ['r', 'g', 'b'],
+      'value': this.color
+    },
+    'specular': {
+      'name': 'Specular',
+      'value': this.specular
+    },
+    'type': {
+      'name': 'Type',
+      'value': this.lightType
+    }
+  };
+};
+
+LEEWGL.Light.prototype = Object.create(LEEWGL.Object3D.prototype);
+
+LEEWGL.Light.prototype.draw = function(gl, shader) {
+  shader.use(gl);
+  shader.uniforms['uAmbient'](this.editables.ambient.value);
+  shader.uniforms['uSpecular'](this.editables.specular.value);
+  shader.uniforms['uLightColor'](this.editables.color.value);
+};
+
+LEEWGL.Light.prototype.clone = function(light, cloneID, recursive, addToAlias) {
+  if (typeof light === 'undefined')
+    light = new LEEWGL.Light();
+
+  LEEWGL.Object3D.prototype.clone.call(this, light, cloneID, recursive, addToAlias);
+
+  vec3.copy(light.ambient, this.ambient);
+  vec3.copy(light.color, this.color);
+  light.specular = this.specular;
+  light.lightType = this.lightType;
+  light.editables = this.editables;
+
+  return light;
+};
+
+LEEWGL.Light.DirectionalLight = function(options) {
+  LEEWGL.Light.call(this, options);
+
+  var ext_options = {
+    'direction': [1.0, 0.0, 0.0]
+  };
+  this.addOptions(ext_options);
+  this.setOptions(options);
+
+  this.type = 'Light.DirectionalLight';
+  this.lightType = 'Directional';
+
+  this.direction = this.options['direction'];
+  this.editables.direction = {
+    'name': 'Direction',
+    'table-titles': ['x', 'y', 'z'],
+    'value': this.direction
+  };
+  this.editables.type.value = this.lightType;
+};
+
+LEEWGL.Light.DirectionalLight.prototype = Object.create(LEEWGL.Light.prototype);
+
+LEEWGL.Light.DirectionalLight.prototype.draw = function(gl, shader) {
+  LEEWGL.Light.prototype.draw.call(this, gl, shader);
+  shader.uniforms['uLightDirection'](this.editables.direction.value);
+};
+
+LEEWGL.Light.DirectionalLight.prototype.clone = function(directionalLight, cloneID, recursive, addToAlias) {
+  if (typeof directionalLight === 'undefined')
+    directionalLight = new LEEWGL.Light.DirectionalLight();
+
+  LEEWGL.Light.prototype.clone.call(this, directionalLight, cloneID, recursive, addToAlias);
+  vec3.copy(directionalLight.direction, this.direction);
+  directionalLight.editables = this.editables;
+  return directionalLight;
+};
+
+LEEWGL.Light.SpotLight = function(options) {
+  LEEWGL.Light.call(this, options);
+
+  var ext_options = {
+    'spot-direction' : [1.0, 0.0, 0.0],
+    'radius' : 20,
+    'inner-angle' : Math.PI * 0.1,
+    'outer-angle' : Math.PI * 0.15
+  };
+
+  this.type = 'Light.SpotLight';
+  this.lightType = 'Spot';
+
+  this.addOptions(ext_options);
+  this.setOptions(options);
+
+  this.spotDirection = this.options['spot-direction'];
+  this.radius = this.options.radius;
+  this.innerAngle = this.options['inner-angle'];
+  this.outerAngle = this.options['outer-angle'];
+
+  /// in javascript primitive types like int, string get passed by value while
+  /// objects get passed by reference
+
+  this.editables.spotDirection = {
+    'name': 'SpotDirection',
+    'table-titles': ['x', 'y', 'z'],
+    'value': this.spotDirection
+  };
+  this.editables.radius = {
+    'name': 'Radius',
+    'value': this.radius
+  };
+  this.editables.innerAngle = {
+    'name': 'InnerAngle',
+    'value': this.innerAngle
+  };
+  this.editables.outerAngle = {
+    'name': 'OuterAngle',
+    'value': this.outerAngle
+  };
+  this.editables.type.value = this.lightType;
+};
+
+LEEWGL.Light.SpotLight.prototype = Object.create(LEEWGL.Light.prototype);
+
+LEEWGL.Light.SpotLight.prototype.getView = function(target) {
+  var view = mat4.create();
+  mat4.lookAt(view, this.transform.position, target, this.up);
+  return view;
+};
+
+LEEWGL.Light.SpotLight.prototype.getProjection = function() {
+  var projection = mat4.create();
+  mat4.perspective(projection, LEEWGL.Math.degToRad(this.outerAngle), 1.0, 1.0, 256);
+  return projection;
+};
+
+LEEWGL.Light.SpotLight.prototype.draw = function(gl, shader) {
+  LEEWGL.Light.prototype.draw.call(this, gl, shader);
+  shader.uniforms['uLightPosition'](this.transform.position);
+  shader.uniforms['uSpotDirection'](this.editables.spotDirection.value);
+  shader.uniforms['uSpotInnerAngle'](this.editables.innerAngle.value);
+  shader.uniforms['uSpotOuterAngle'](this.editables.outerAngle.value);
+  shader.uniforms['uLightRadius'](this.editables.radius.value);
+};
+
+LEEWGL.Light.SpotLight.prototype.clone = function(spotLight, cloneID, recursive, addToAlias) {
+  if (typeof spotLight === 'undefined')
+    spotLight = new LEEWGL.Light.SpotLight();
+
+  LEEWGL.Light.prototype.clone.call(this, spotLight, cloneID, recursive, addToAlias);
+
+  vec3.copy(spotLight.spotDirection, this.spotDirection);
+  spotLight.radius = this.radius;
+  spotLight.outerAngle = this.outerAngle;
+  spotLight.innerAngle = this.innerAngle;
+  spotLight.editables = this.editables;
+  return spotLight;
+};
+
+LEEWGL.Light.PointLight = function(options) {
+  LEEWGL.Light.call(this, options);
+
+  var ext_options = {
+    'radius' : 20
+  };
+
+  this.addOptions(ext_options);
+  this.setOptions(options);
+
+  this.type = 'Light.PointLight';
+  this.lightType = 'Point';
+  this.radius = this.options.radius;
+
+  this.position = this.options.position;
+  this.editables.radius = {
+    'name': 'Radius',
+    'value': this.radius
+  };
+  this.editables.type.value = this.lightType;
+};
+
+LEEWGL.Light.PointLight.prototype = Object.create(LEEWGL.Light.prototype);
+
+LEEWGL.Light.PointLight.prototype.getView = function(target) {
+  var view = mat4.create();
+  mat4.lookAt(view, this.transform.position, target, this.up);
+  return view;
+};
+
+LEEWGL.Light.PointLight.prototype.getProjection = function() {
+  var projection = mat4.create();
+  mat4.perspective(projection, LEEWGL.Math.degToRad(this.outerAngle), 1.0, 1.0, 256);
+  return projection;
+};
+
+LEEWGL.Light.PointLight.prototype.draw = function(gl, shader) {
+  LEEWGL.Light.prototype.draw.call(this, gl, shader);
+  shader.uniforms['uLightPosition'](this.transform.position);
+  shader.uniforms['uLightRadius'](this.editables.radius.value);
+};
+
+LEEWGL.Light.PointLight.prototype.clone = function(pointLight, cloneID, recursive, addToAlias) {
+  if (typeof pointLight === 'undefined')
+    pointLight = new LEEWGL.Light.PointLight();
+
+  LEEWGL.Light.prototype.clone.call(this, pointLight, cloneID, recursive, addToAlias);
+  pointLight.editables = this.editables;
+  return pointLight;
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="LEEWGL.App.html">App</a></li><li><a href="LEEWGL.Buffer.html">Buffer</a></li><li><a href="LEEWGL.Camera.html">Camera</a></li><li><a href="LEEWGL.Color.html">Color</a></li><li><a href="LEEWGL.Component.html">Component</a></li><li><a href="LEEWGL.Component.CustomScript.html">CustomScript</a></li><li><a href="LEEWGL.Component.Texture.html">Texture</a></li><li><a href="LEEWGL.Component.Transform.html">Transform</a></li><li><a href="LEEWGL.Core.html">Core</a></li><li><a href="LEEWGL.DragDrop.html">DragDrop</a></li><li><a href="LEEWGL.EditorApp.html">EditorApp</a></li><li><a href="LEEWGL.Extension.html">Extension</a></li><li><a href="LEEWGL.FrameBuffer.html">FrameBuffer</a></li><li><a href="LEEWGL.Geometry.html">Geometry</a></li><li><a href="LEEWGL.Geometry.Cube.html">Cube</a></li><li><a href="LEEWGL.Geometry.Grid.html">Grid</a></li><li><a href="LEEWGL.Geometry.Sphere.html">Sphere</a></li><li><a href="LEEWGL.Geometry.Triangle.html">Triangle</a></li><li><a href="LEEWGL.HTMLHelper.html">HTMLHelper</a></li><li><a href="LEEWGL.IndexBuffer.html">IndexBuffer</a></li><li><a href="LEEWGL.Light.html">Light</a></li><li><a href="LEEWGL.LocalStorage.html">LocalStorage</a></li><li><a href="LEEWGL.Object3D.html">Object3D</a></li><li><a href="LEEWGL.Options.html">Options</a></li><li><a href="LEEWGL.PerspectiveCamera.html">PerspectiveCamera</a></li><li><a href="LEEWGL.Picker.html">Picker</a></li><li><a href="LEEWGL.RenderBuffer.html">RenderBuffer</a></li><li><a href="LEEWGL.Scene.html">Scene</a></li><li><a href="LEEWGL.Settings.html">Settings</a></li><li><a href="LEEWGL.Shader.html">Shader</a></li><li><a href="LEEWGL.ShaderChunk.html">ShaderChunk</a></li><li><a href="LEEWGL.ShaderLibrary.html">ShaderLibrary</a></li><li><a href="LEEWGL.Texture.html">Texture</a></li><li><a href="LEEWGL.Timer.html">Timer</a></li><li><a href="LEEWGL.UI.html">UI</a></li><li><a href="LEEWGL.UI.BasicPopup.html">BasicPopup</a></li><li><a href="LEEWGL.UI.Popup.html">Popup</a></li><li><a href="LEEWGL.UI.Sidebar.html">Sidebar</a></li></ul><h3>Namespaces</h3><ul><li><a href="LEEWGL.html">LEEWGL</a></li></ul><h3>Global</h3><ul><li><a href="global.html#__extensionLoader">__extensionLoader</a></li><li><a href="global.html#A">A</a></li><li><a href="global.html#ColorHelper">ColorHelper</a></li><li><a href="global.html#Components">Components</a></li><li><a href="global.html#D">D</a></li><li><a href="global.html#DOWN_CURSOR">DOWN_CURSOR</a></li><li><a href="global.html#ENTER">ENTER</a></li><li><a href="global.html#F5">F5</a></li><li><a href="global.html#FILTER_LINEAR">FILTER_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_LINEAR">FILTER_LINEAR_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_NEAREST">FILTER_LINEAR_MIPMAP_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST">FILTER_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_LINEAR">FILTER_NEAREST_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_NEAREST">FILTER_NEAREST_MIPMAP_NEAREST</a></li><li><a href="global.html#FORMAT_ALPHA">FORMAT_ALPHA</a></li><li><a href="global.html#FORMAT_LUMINANCE">FORMAT_LUMINANCE</a></li><li><a href="global.html#FORMAT_LUMINANCE_ALPHA">FORMAT_LUMINANCE_ALPHA</a></li><li><a href="global.html#FORMAT_RGB">FORMAT_RGB</a></li><li><a href="global.html#FORMAT_RGBA">FORMAT_RGBA</a></li><li><a href="global.html#HTMLHELPER">HTMLHELPER</a></li><li><a href="global.html#id">id</a></li><li><a href="global.html#IMG_DEFAULT">IMG_DEFAULT</a></li><li><a href="global.html#KEYS">KEYS</a></li><li><a href="global.html#LEFT_CURSOR">LEFT_CURSOR</a></li><li><a href="global.html#MAPPING_DEFAULT">MAPPING_DEFAULT</a></li><li><a href="global.html#MaxVerticalAngle">MaxVerticalAngle</a></li><li><a href="global.html#MOUSE">MOUSE</a></li><li><a href="global.html#PAGE_DOWN">PAGE_DOWN</a></li><li><a href="global.html#PAGE_UP">PAGE_UP</a></li><li><a href="global.html#REQUIRES">REQUIRES</a></li><li><a href="global.html#RIGHT_CURSOR">RIGHT_CURSOR</a></li><li><a href="global.html#ROOT">ROOT</a></li><li><a href="global.html#S">S</a></li><li><a href="global.html#SETTINGS">SETTINGS</a></li><li><a href="global.html#TextureCount">TextureCount</a></li><li><a href="global.html#TYPE_BYTE">TYPE_BYTE</a></li><li><a href="global.html#TYPE_FLOAT">TYPE_FLOAT</a></li><li><a href="global.html#TYPE_INT">TYPE_INT</a></li><li><a href="global.html#TYPE_SHORT">TYPE_SHORT</a></li><li><a href="global.html#TYPE_UNSIGNED_BYTE">TYPE_UNSIGNED_BYTE</a></li><li><a href="global.html#TYPE_UNSIGNED_INT">TYPE_UNSIGNED_INT</a></li><li><a href="global.html#TYPE_UNSIGNED_SHORT">TYPE_UNSIGNED_SHORT</a></li><li><a href="global.html#UI">UI</a></li><li><a href="global.html#UP_CURSOR">UP_CURSOR</a></li><li><a href="global.html#W">W</a></li><li><a href="global.html#WRAPPING_CLAMP_TO_EDGE">WRAPPING_CLAMP_TO_EDGE</a></li><li><a href="global.html#WRAPPING_MIRRORED_REPEAT">WRAPPING_MIRRORED_REPEAT</a></li><li><a href="global.html#WRAPPING_REPEAT">WRAPPING_REPEAT</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Sat Aug 29 2015 12:43:02 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

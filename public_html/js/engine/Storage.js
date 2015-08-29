@@ -1,6 +1,8 @@
-LEEWGL.REQUIRES.push('Storage');
-
+/**
+ * @constructor
+ */
 LEEWGL.LocalStorage = function() {
+  LEEWGL.REQUIRES.push('Storage');
   this.data = {};
 
   this.setValue = function(key, val) {

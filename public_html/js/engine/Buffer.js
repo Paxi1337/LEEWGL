@@ -1,12 +1,16 @@
-LEEWGL.REQUIRES.push('Buffer');
-
+/**
+ * @constructor
+ * @param  {bool} options.picking - if a colorMapColor should be generated
+ * @param  {webGLBuffer} options.buffer
+ */
 LEEWGL.Buffer = function(options) {
+  LEEWGL.REQUIRES.push('Buffer');
   this.options = {
     'picking': false,
     'buffer': undefined
   };
-  extend(LEEWGL.Buffer.prototype, LEEWGL.Options.prototype);
 
+  extend(LEEWGL.Buffer.prototype, LEEWGL.Options.prototype);
   this.setOptions(options);
 
   this.buffer = this.options.buffer;
@@ -73,19 +77,18 @@ LEEWGL.Buffer.prototype = {
     if (typeof buffer === 'undefined')
       buffer = new LEEWGL.Buffer();
 
-    if (this.options['picking'] === true) {
-      buffer.colorMapIndex = this.colorMapIndex;
-      buffer.colorMapColor = vec4.clone(this.colorMapColor);
-    }
-
     buffer.buffer = this.buffer;
-
     return buffer;
   }
 };
 
-LEEWGL.RenderBuffer = function() {
-  LEEWGL.Buffer.call(this);
+/**
+ * @constructor
+ * @augments LEEWGL.Buffer
+ * @param {object} options
+ */
+LEEWGL.RenderBuffer = function(options) {
+  LEEWGL.Buffer.call(this, options);
 };
 
 LEEWGL.RenderBuffer.prototype = Object.create(LEEWGL.Buffer.prototype);
@@ -107,8 +110,13 @@ LEEWGL.RenderBuffer.prototype.unbind = function(gl) {
   gl.bindRenderbuffer(gl.RENDERBUFFER, null);
 };
 
+/**
+ * @constructor
+ * @augments LEEWGL.Buffer
+ * @param {object} options
+ */
 LEEWGL.FrameBuffer = function(gl, options) {
-  LEEWGL.Buffer.call(this);
+  LEEWGL.Buffer.call(this, options);
 };
 
 LEEWGL.FrameBuffer.prototype = Object.create(LEEWGL.Buffer.prototype);
@@ -133,8 +141,13 @@ LEEWGL.FrameBuffer.prototype.unbind = function(gl) {
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 };
 
-LEEWGL.IndexBuffer = function() {
-  LEEWGL.Buffer.call(this);
+/**
+ * @constructor
+ * @augments LEEWGL.Buffer
+ * @param {object} options
+ */
+LEEWGL.IndexBuffer = function(options) {
+  LEEWGL.Buffer.call(this, options);
 };
 
 LEEWGL.IndexBuffer.prototype = Object.create(LEEWGL.Buffer.prototype);
@@ -154,5 +167,5 @@ LEEWGL.IndexBuffer.prototype.unbind = function(gl) {
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 };
 
-
+/** @static */
 LEEWGL.Buffer.ColorMapHitCounter = 1;

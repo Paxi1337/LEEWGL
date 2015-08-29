@@ -9,7 +9,7 @@ LEEWGL.REQUIRES.push('Object3D');
  * @param  {Object} options.components
  * @param  {array} options.up - representation of the up vector
  * @param  {bool} options.inOutline
- * @param  {bool} options.draggable - if the object is affected by LEEWGL.Picker
+ * @param  {bool} options.picking - if the object is affected by LEEWGL.Picker
  * @param  {bool} options.visible
  * @param  {bool} options.render
  * @param  {bool} options.needsUpdate
@@ -22,7 +22,7 @@ LEEWGL.Object3D = function(options) {
     'components': {},
     'up': vec3.clone(LEEWGL.Object3D.DefaultUp),
     'inOutline': true,
-    'draggable': true,
+    'picking': true,
     'visible': true,
     'render': true,
     'needsUpdate': true
@@ -32,6 +32,7 @@ LEEWGL.Object3D = function(options) {
   this.setOptions(options);
 
   Object.defineProperties(this, {
+    /** @inner {number} */
     'id': {
       value: LEEWGL.Object3DCount++,
       enumerable: false,
@@ -49,7 +50,7 @@ LEEWGL.Object3D = function(options) {
     },
     'parent': {
       value: this.options.parent,
-      enumerable: false,
+      enumerable: true,
       writable: true
     },
     'children': {
@@ -72,8 +73,8 @@ LEEWGL.Object3D = function(options) {
       enumerable: true,
       writable: true
     },
-    'draggable': {
-      value: this.options.draggable,
+    'picking': {
+      value: this.options.picking,
       enumerable: true,
       writable: true
     },
@@ -94,12 +95,13 @@ LEEWGL.Object3D = function(options) {
     }
   });
 
-  this.onInit = function() {};
-  this.onUpdate = function() {};
-  this.onRender = function() {};
-  this.onStop = function() {};
+  // this.onInit = function() {};
+  // this.onUpdate = function() {};
+  // this.onRender = function() {};
+  // this.onStop = function() {};
 
   this.addComponent(new LEEWGL.Component.Transform());
+  /** @inner {LEEWGL.Component.Transform} */
   this.transform = this.components['Transform'];
 };
 
@@ -114,30 +116,18 @@ LEEWGL.Object3D.prototype = {
    */
 
 
-  // /**
-  //  * @see {@link LEEWGL.EditorApp#onPlay}
-  //  */
-  // onInit: function() {
-  //
-  // },
-  // /**
-  //  * @see {@link EditorApp#onUpdate}
-  //  */
-  // onUpdate: function() {
-  //
-  // },
-  // /**
-  //  * @see {@link EditorApp#onRender}
-  //  */
-  // onRender: function() {
-  //
-  // },
-  // /**
-  //  * @see LEEWGL.EditorApp.onStop
-  //  */
-  // onStop: function() {
-  //
-  // },
+  onInit: function() {
+
+  },
+  onUpdate: function() {
+
+  },
+  onRender: function() {
+
+  },
+  onStop: function() {
+
+  },
   /**
    * Adds the given object to the children array of this.
    * @param  {LEEWGL.Object3D} object
@@ -268,7 +258,7 @@ LEEWGL.Object3D.prototype = {
     }
   },
   /**
-   * Creates a deep copy of an object
+   * Creates a deep copy of this object
    * @param  {LEEWGL.Object3D} object
    * @param  {bool} cloneID   - if set to true this.id gets also applied to the cloned object
    * @param  {bool} recursive - if set to true children of this get also applied to the cloned object
@@ -277,13 +267,15 @@ LEEWGL.Object3D.prototype = {
    */
   clone: function(object, cloneID, recursive, addToAlias) {
     cloneID = (typeof cloneID !== 'undefined') ? cloneID : false;
-    recursive = (typeof recursive !== 'undefined') ? recursive : true;
+    recursive = (typeof recursive !== 'undefined') ? recursive : false;
     addToAlias = (typeof addToAlias !== 'undefined') ? addToAlias : 'Clone';
 
     if (typeof object === 'undefined')
       object = new LEEWGL.Object3D();
 
-    LEEWGL.Component.Transform.prototype.clone.call(this.transform, object.transform);
+    for (var option in this.options) {
+      object.options[option] = this.options[option];
+    }
 
     var alias = this.alias;
 
@@ -291,11 +283,14 @@ LEEWGL.Object3D.prototype = {
       alias = this.alias + addToAlias;
 
     object.alias = alias;
-    object.parent = this.parent;
+
+    if (typeof this.parent !== 'undefined')
+      object.parent = this.parent.clone(object.parent, cloneID, false, addToAlias);
 
     if (cloneID === true)
       object.id = this.id;
 
+    LEEWGL.Component.Transform.prototype.clone.call(this.transform, object.transform);
     for (var component in this.components) {
       if (this.components.hasOwnProperty(component))
         object.components[component] = LEEWGL.Component[component].prototype.clone.call(this.components[component], object.components[component]);
@@ -310,17 +305,16 @@ LEEWGL.Object3D.prototype = {
 
     vec3.copy(object.up, this.up);
     object.inOutline = this.inOutline;
-    object.draggable = this.draggable;
+    object.picking = this.picking;
     object.visible = this.visible;
     object.render = this.render;
 
     if (recursive === true) {
       for (var i = 0; i < this.children.length; ++i) {
         var child = this.children[i];
-        object.add(child.clone());
+        object.add(child.clone(undefined, cloneID, recursive, addToAlias));
       }
     }
-
     return object;
   },
   /**

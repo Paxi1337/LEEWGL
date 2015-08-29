@@ -938,17 +938,11 @@ LEEWGL.UI = function(options) {
 
     this.saved['custom-object-' + elementID + '-script-' + scriptID] = src;
 
-    var newScript = new LEEWGL.DOM.Element('script', {
-      'type': 'text/javascript',
-      'id': 'custom-object-' + elementID + '-script-' + scriptID
-    });
-
-    element.addEventListener(scriptID, function() {
-      if (UI.playing === true) {
-        var func = Function(src).bind(element);
-        func();
-      }
-    });
+    // element.addEventListener(scriptID, function() {
+    //     var func = Function(src).bind(element);
+    //     console.log(src);
+    //     func();
+    // });
   };
 
   this.removeScriptFromObject = function(scriptID, elementID) {
@@ -1450,7 +1444,8 @@ LEEWGL.UI = function(options) {
  * @param {number|string} options.wrapper-width
  * @param {number|string} options.wrapper-height
  * @param {DOMElement} options.parent
- * @param {object} options.position
+ * @param {number} options.position.x
+ * @param {number} options.position.y
  * @param {bool} options.center
  * @param {bool} options.hidden
  * @param {bool} options.title-enabled
@@ -1476,23 +1471,31 @@ LEEWGL.UI.BasicPopup = function(options) {
 
   this.setOptions(options);
 
+  /** @inner {object} */
   this.pos = this.options.position;
+  /** @inner {LEEWGL.DOM.Element} */
   this.parent = new LEEWGL.DOM.Element(this.options.parent);
 
+  /** @inner {LEEWGL.DOM.Element} */
   this.wrapper = undefined;
+  /** @inner {LEEWGL.DOM.Element} */
   this.title = undefined;
+  /** @inner {LEEWGL.DOM.Element} */
   this.content = undefined;
 
+  /** @inner {bool} */
   this.initialized = false;
+  /** @inner {bool} */
   this.isDisplayed = false;
 
+  /** @inner {LEEWGL.AsynchRequest} */
   this.ajax = new LEEWGL.AsynchRequest();
 };
 
 LEEWGL.UI.BasicPopup.prototype = {
   constructor: LEEWGL.UI.BasicPopup,
   /**
-   * [create description]
+   * Creates the various popup DOM elements and calls extra functions depending on this.options
    */
   create: function() {
     if (typeof this.wrapper !== 'undefined')
@@ -1618,7 +1621,7 @@ LEEWGL.UI.BasicPopup.prototype = {
     this.content.grab(element);
   },
   /**
-   * @param {String} text
+   * @param {string} text
    */
   addTitleText: function(text) {
     if (this.initialized === false) {
@@ -1692,9 +1695,10 @@ LEEWGL.UI.BasicPopup.prototype = {
 };
 
 /**
+ * Popup with extended features such as Drag'n'Drop of popup container, close button,
+ * an overlay container and buttons
  * @constructor
- *
- * @memberof LEEWGL.UI.BasicPopup
+ * @augments LEEWGL.UI.BasicPopup
  * @param {bool} options.overlay-enabled
  * @param {string} options.overlay-class
  * @param {string} options.list-item-class
@@ -1717,13 +1721,17 @@ LEEWGL.UI.Popup = function(options) {
   this.addOptions(ext_options);
   this.setOptions(options);
 
+  /** @inner {LEEWGL.DOM.Element} */
   this.overlay = undefined;
-
+  /** @inner {array} */
   this.listItems = [];
 };
 
 LEEWGL.UI.Popup.prototype = Object.create(LEEWGL.UI.BasicPopup.prototype);
 
+/**
+ * Creates the various popup DOM elements and calls extra functions depending on this.options
+ */
 LEEWGL.UI.Popup.prototype.create = function() {
   LEEWGL.UI.BasicPopup.prototype.create.call(this);
 
@@ -1747,10 +1755,14 @@ LEEWGL.UI.Popup.prototype.create = function() {
 };
 
 /**
+ * Add a list each list item representing an index of the content array
+ * A custom callback function when clicking on a list-item can be given
  * @param {array} content
- * @param {function} evFunction
+ * @param {function} evFunction - optional
  */
 LEEWGL.UI.Popup.prototype.addList = function(content, evFunction) {
+  evFunction = (typeof evFunction !== 'undefined') ? evFunction : function() {};
+
   var list = new LEEWGL.DOM.Element('ul', {
     'class': 'popup-list'
   });
@@ -1778,6 +1790,9 @@ LEEWGL.UI.Popup.prototype.addList = function(content, evFunction) {
   this.content.grab(list);
 };
 
+/**
+ * Adds a close icon to the title with a callback on click to hide the popup
+ */
 LEEWGL.UI.Popup.prototype.addCloseIcon = function() {
   if (this.initialized === false) {
     console.error('LEEWGL.UI.Popup: call create() first!');
@@ -1934,9 +1949,9 @@ LEEWGL.UI.Popup.prototype.empty = function() {
 
 /**
  * @constructor
- * @memberof LEEWGL.UI.BasicPopup
+ * @augments LEEWGL.UI.BasicPopup
  * @param {bool} options.toggle-button-enabled
- * @param {bool} options.animated
+ * @param {bool} options.animated - if set to true the sidebar moves in / out when shown / hidden
  */
 LEEWGL.UI.Sidebar = function(options) {
   LEEWGL.UI.BasicPopup.call(this, options);
@@ -1958,6 +1973,9 @@ LEEWGL.UI.Sidebar = function(options) {
 
 LEEWGL.UI.Sidebar.prototype = Object.create(LEEWGL.UI.BasicPopup.prototype);
 
+/**
+ * Creates the various popup DOM elements and calls extra functions depending on this.options
+ */
 LEEWGL.UI.Sidebar.prototype.create = function() {
   LEEWGL.UI.BasicPopup.prototype.create.call(this);
 
@@ -2003,6 +2021,9 @@ LEEWGL.UI.Sidebar.prototype.addToggleButton = function() {
   this.wrapper.grab(this.toggleIconContainer, 'top');
 };
 
+/**
+ * Toggle visibility of sidebar
+ */
 LEEWGL.UI.Sidebar.prototype.toggle = function() {
   if (this.isDisplayed === true)
     this.hide();
@@ -2010,6 +2031,9 @@ LEEWGL.UI.Sidebar.prototype.toggle = function() {
     this.show();
 };
 
+/**
+ * Displays the sidebar
+ */
 LEEWGL.UI.Sidebar.prototype.show = function() {
   if (this.isDisplayed !== false)
     return;
@@ -2043,6 +2067,9 @@ LEEWGL.UI.Sidebar.prototype.show = function() {
   }
 };
 
+/**
+ * Hides the sidebar
+ */
 LEEWGL.UI.Sidebar.prototype.hide = function() {
   if (this.isDisplayed !== true)
     return;
@@ -2071,9 +2098,18 @@ LEEWGL.UI.Sidebar.prototype.hide = function() {
     this.isDisplayed = false;
   }
 };
-/**
- * Constants
- */
+/** @constant {string} */
 LEEWGL.UI.STATIC = 'static';
+/** @constant {string} */
 LEEWGL.UI.ABSOLUTE = 'absolute';
+/** @constant {string} */
 LEEWGL.UI.FIXED = 'fixed';
+
+/**
+ * window load event to set global
+ */
+window.addEventListener('load', function() {
+  var ui = new LEEWGL.UI();
+  /** @global */
+  window.UI = ui;
+});

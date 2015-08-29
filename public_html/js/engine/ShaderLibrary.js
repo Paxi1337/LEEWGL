@@ -1,15 +1,21 @@
-LEEWGL.REQUIRES.push('ShaderLibrary');
-
+/**
+ * Class to add the various shader chunks together and output them in string representation
+ * @constructor
+ */
 LEEWGL.ShaderLibrary = function() {
+  LEEWGL.REQUIRES.push('ShaderLibrary');
+  /** @inner {object} */
   this.vertex = {
     parameters: [],
     main: []
   };
+  /** @inner {object} */
   this.fragment = {
     parameters: [],
     main: []
   };
 
+  /** @inner {object} */
   this.chunks = {};
 
   this.initializeChunks = function() {
@@ -217,7 +223,7 @@ LEEWGL.ShaderLibrary = function() {
   };
 
   this.addParameterChunks = function(types) {
-    for(var i = 0; i < types.length; ++i) {
+    for (var i = 0; i < types.length; ++i) {
       this.addParameterChunk(types[i]);
     }
   };

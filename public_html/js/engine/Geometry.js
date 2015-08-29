@@ -1,6 +1,18 @@
-LEEWGL.REQUIRES.push('Geometry');
-
+/**
+ * Geometry ecapsulates various basic shapes to render.
+ * @constructor
+ * @augments LEEWGL.Object3D
+ * @param  {object} options.vertices
+ * @param  {array} options.vertices.position
+ * @param  {array} options.vertices.normal
+ * @param  {array} options.vertices.color
+ * @param  {array} options.vertices.uv
+ * @param  {array} options.indices
+ * @param  {array} options.tangents
+ * @param  {bool} options.wireframe
+ */
 LEEWGL.Geometry = function(options) {
+  LEEWGL.REQUIRES.push('Geometry');
   LEEWGL.Object3D.call(this, options);
 
   this.type = 'Geometry';
@@ -13,7 +25,6 @@ LEEWGL.Geometry = function(options) {
     },
     'indices': [],
     'tangents': [],
-    'picking': true,
     'wireframe': false
   };
 
@@ -59,17 +70,25 @@ LEEWGL.Geometry = function(options) {
 
 LEEWGL.Geometry.prototype = Object.create(LEEWGL.Object3D.prototype);
 
+/**
+ * @param  {array} vertices
+ */
 LEEWGL.Geometry.prototype.setVertices = function(vertices) {
   for (var i = 0; i < vertices.length; ++i) {
     this.vertices.push(vertices[i]);
   }
 };
 
+/**
+ * Calculates faces and saves them in this.faces
+ * Gets called in constructor of derived classes of Geometry
+ */
 LEEWGL.Geometry.prototype.calculateFaces = function() {
   this.vectors = [];
 
   var i = 0;
 
+  /// this.vectors saves vector representation of this.vertices.position
   for (i = 0; i < this.vertices.position.length; i += 3) {
     var x = this.vertices.position[i];
     var y = this.vertices.position[i + 1];
@@ -93,6 +112,10 @@ LEEWGL.Geometry.prototype.calculateFaces = function() {
   this.facesNum = this.faces.length;
 };
 
+/**
+ * Calculates normals and saves them in this.vertices.normal
+ * Gets called in constructor of derived classes of Geometry
+ */
 LEEWGL.Geometry.prototype.calculateNormals = function() {
   this.vertices.normal = [];
   var x = 0,
@@ -151,12 +174,19 @@ LEEWGL.Geometry.prototype.calculateNormals = function() {
   }
 };
 
+/**
+ * Calculates tangents and saves them in this.tangents
+ */
 LEEWGL.Geometry.prototype.calculateTangents = function() {
   for (var i = 0; i < this.vertices.position.length; ++i) {
     this.tangents[i] = 0.0;
   }
 };
 
+/**
+ * Calls setData method for all buffers except color buffer
+ * @param  {webGLContent} gl
+ */
 LEEWGL.Geometry.prototype.setBuffer = function(gl) {
   this.buffers.vertex.setData(gl, this.vertices.position, new LEEWGL.BufferInformation.VertexTypePos3());
   this.buffers.normal.setData(gl, this.vertices.normal, new LEEWGL.BufferInformation.VertexTypePos3());
@@ -164,29 +194,34 @@ LEEWGL.Geometry.prototype.setBuffer = function(gl) {
   this.buffers.index.setData(gl, this.indices);
 };
 
+/**
+ * Calls setData method of color buffer
+ * @param  {webGLContent} gl
+ */
 LEEWGL.Geometry.prototype.setColorBuffer = function(gl) {
-  if (this.vertices.color[0].length % 4 !== 0) {
-    console.error('LEEWGL.Geometry.addColor(): Color array must be multiple of 4!');
-    return false;
-  }
-
   this.buffers.color.setData(gl, this.vertices.color, new LEEWGL.BufferInformation.VertexTypePos4());
 };
 
+/**
+ *
+ * Pushes given colors into this.vertices.color and calls setColorBuffer
+ * @param  {webGLContent} gl
+ * @param  {array} colors
+ * @param  {number} length - number of faces
+ */
 LEEWGL.Geometry.prototype.addColor = function(gl, colors, length) {
   length = (typeof length !== 'undefined') ? length : this.facesNum;
-
-  if (colors !== undefined && colors.length === length) {
-    this.setColorBuffer(gl);
-  } else {
-    this.vertices.color = [];
-    for (var i = 0; i < length; ++i) {
-      this.vertices.color.push(ColorHelper.getLabelColor(i));
-    }
-    this.setColorBuffer(gl);
+  this.vertices.color = [];
+  for (var i = 0, j = 0; i < length; ++i, j += 4) {
+    this.vertices.color.push([colors[(j + 0) % colors.length], colors[(j + 1) % colors.length], colors[(j + 2) % colors.length], colors[(j + 3) % colors.length]]);
   }
+  this.setColorBuffer(gl);
 };
 
+/**
+ * @param  {webGLContext} gl
+ * @param  {vec4} color
+ */
 LEEWGL.Geometry.prototype.setColor = function(gl, color) {
   this.vertices.color = [];
   for (var i = 0; i < this.facesNum; ++i) {
@@ -195,11 +230,22 @@ LEEWGL.Geometry.prototype.setColor = function(gl, color) {
   this.setColorBuffer(gl);
 };
 
+/**
+ * Sets this.usesTexture and this.texture to given texture
+ * @param  {LEEWGL.Texture} texture
+ */
 LEEWGL.Geometry.prototype.setTexture = function(texture) {
   this.texture = texture;
   this.usesTexture = true;
 };
 
+/**
+ * Sets geometry own shader attributes and uniforms and renders the geometry
+ * @param  {webGLContext} gl
+ * @param  {LEEWGL.Shader} shader
+ * @param  {webGLDrawMode} drawMode [description]
+ * @param  {bool} indices  - if geometry makes use of indices buffer
+ */
 LEEWGL.Geometry.prototype.draw = function(gl, shader, drawMode, indices) {
   indices = (typeof indices !== 'undefined') ? indices : true;
 
@@ -225,25 +271,35 @@ LEEWGL.Geometry.prototype.draw = function(gl, shader, drawMode, indices) {
   shader.uniforms['uNormalMatrix'](normalMatrix);
   shader.uniforms['uModel'](this.transform.matrix());
 
+  var draw = drawMode;
+
+  if (this.options['wireframe'] === true)
+    draw = gl.LINES;
+
   if (indices === true) {
     this.buffers.index.bind(gl);
-    if (this.options['wireframe'] === true)
-      gl.drawElements(gl.LINES, this.indices.length, gl.UNSIGNED_SHORT, 0);
-    else
-      gl.drawElements(drawMode, this.indices.length, gl.UNSIGNED_SHORT, 0);
+    gl.drawElements(draw, this.indices.length, gl.UNSIGNED_SHORT, 0);
   } else {
-    gl.drawArrays(drawMode, this.vertices.position.length, 0);
+    gl.drawArrays(draw, this.vertices.position.length, 0);
   }
 
   if (this.usesTexture === true)
     this.components['Texture'].texture.unbind(gl, 0);
 };
 
-LEEWGL.Geometry.prototype.clone = function(geometry, cloneID, addToAlias) {
+/**
+ * Derived method from LEEWGL.Object3D
+ * Calls LEEWGL.Object3D.clone and performs deep copy of this object
+ * @param  {LEEWGL.Geometry} geometry
+ * @param  {bool} cloneID
+ * @param  {bool} addToAlias
+ * @return {LEEWGL.Geometry}
+ */
+LEEWGL.Geometry.prototype.clone = function(geometry, cloneID, recursive, addToAlias) {
   if (typeof geometry === 'undefined') {
     geometry = new LEEWGL.Geometry();
   }
-  LEEWGL.Object3D.prototype.clone.call(this, geometry, cloneID, false, addToAlias);
+  LEEWGL.Object3D.prototype.clone.call(this, geometry, cloneID, recursive, addToAlias);
 
   geometry.facesNum = this.facesNum;
 
@@ -254,6 +310,12 @@ LEEWGL.Geometry.prototype.clone = function(geometry, cloneID, addToAlias) {
   var faces = this.faces;
 
   geometry.facesNum = this.facesNum;
+
+  geometry.vertices.position = [];
+  geometry.vertices.normal = [];
+  geometry.vertices.color = [];
+  geometry.vertices.uv = [];
+  geometry.faces = [];
 
   var i = 0;
 
@@ -286,6 +348,12 @@ LEEWGL.Geometry.prototype.clone = function(geometry, cloneID, addToAlias) {
   return geometry;
 };
 
+/**
+ * @constructor
+ * @augments LEEWGL.Geometry
+ * @param  {number} options.lines
+ * @param  {dimension} options.dimension
+ */
 LEEWGL.Geometry.Grid = function(options) {
   LEEWGL.Geometry.call(this, options);
 
@@ -296,51 +364,73 @@ LEEWGL.Geometry.Grid = function(options) {
 
   this.addOptions(ext_options);
   this.setOptions(options);
+
+  this.lines = this.options['lines'];
+  this.dimension = this.options['dimension'];
+
+  this.generate();
 };
 
 LEEWGL.Geometry.Grid.prototype = Object.create(LEEWGL.Geometry.prototype);
 
+/**
+ * Gets called in constructor
+ * Fills this.vertices.position and this.indices
+ * Calls this.calculateFaces and this.calculateNormals to deliver a renderable object
+ */
 LEEWGL.Geometry.Grid.prototype.generate = function() {
-  var lines = this.options['lines'];
-  var dimension = this.options['dimension'];
+  var increment = 2 * this.dimension / this.lines;
 
-  var increment = 2 * dimension / lines;
-
-  for (var i = 0; i <= lines; ++i) {
-    this.vertices.position[6 * i] = -dimension;
+  for (var i = 0; i <= this.lines; ++i) {
+    this.vertices.position[6 * i] = -this.dimension;
     this.vertices.position[6 * i + 1] = 0;
-    this.vertices.position[6 * i + 2] = -dimension + (i * increment);
+    this.vertices.position[6 * i + 2] = -this.dimension + (i * increment);
 
-    this.vertices.position[6 * i + 3] = dimension;
+    this.vertices.position[6 * i + 3] = this.dimension;
     this.vertices.position[6 * i + 4] = 0;
-    this.vertices.position[6 * i + 5] = -dimension + (i * increment);
+    this.vertices.position[6 * i + 5] = -this.dimension + (i * increment);
 
-    this.vertices.position[6 * (lines + 1) + 6 * i] = -dimension + (i * increment);
-    this.vertices.position[6 * (lines + 1) + 6 * i + 1] = 0;
-    this.vertices.position[6 * (lines + 1) + 6 * i + 2] = -dimension;
+    this.vertices.position[6 * (this.lines + 1) + 6 * i] = -this.dimension + (i * increment);
+    this.vertices.position[6 * (this.lines + 1) + 6 * i + 1] = 0;
+    this.vertices.position[6 * (this.lines + 1) + 6 * i + 2] = -this.dimension;
 
-    this.vertices.position[6 * (lines + 1) + 6 * i + 3] = -dimension + (i * increment);
-    this.vertices.position[6 * (lines + 1) + 6 * i + 4] = 0;
-    this.vertices.position[6 * (lines + 1) + 6 * i + 5] = dimension;
+    this.vertices.position[6 * (this.lines + 1) + 6 * i + 3] = -this.dimension + (i * increment);
+    this.vertices.position[6 * (this.lines + 1) + 6 * i + 4] = 0;
+    this.vertices.position[6 * (this.lines + 1) + 6 * i + 5] = this.dimension;
 
     this.indices[2 * i] = 2 * i;
     this.indices[2 * i + 1] = 2 * i + 1;
-    this.indices[2 * (lines + 1) + 2 * i] = 2 * (lines + 1) + 2 * i;
-    this.indices[2 * (lines + 1) + 2 * i + 1] = 2 * (lines + 1) + 2 * i + 1;
+    this.indices[2 * (this.lines + 1) + 2 * i] = 2 * (this.lines + 1) + 2 * i;
+    this.indices[2 * (this.lines + 1) + 2 * i + 1] = 2 * (this.lines + 1) + 2 * i + 1;
   }
 
   this.calculateFaces();
   this.calculateNormals();
 };
-LEEWGL.Geometry.Grid.prototype.clone = function(grid, cloneID, addToAlias) {
-  if (typeof triangle === 'undefined')
-    triangle = new LEEWGL.Geometry.Grid();
+/**
+ * Derived from LEEWGL.Geometry
+ * @param  {LEEWGL.Geometry.Grid} grid
+ * @param  {bool} cloneID
+ * @param  {bool} addToAlias
+ * @return {LEEWGL.Geometry.Grid}
+ */
+LEEWGL.Geometry.Grid.prototype.clone = function(grid, cloneID, recursive, addToAlias) {
+  if (typeof grid === 'undefined')
+    grid = new LEEWGL.Geometry.Grid();
 
-  LEEWGL.Geometry.prototype.clone.call(this, grid, cloneID, addToAlias);
+  LEEWGL.Geometry.prototype.clone.call(this, grid, cloneID, recursive, addToAlias);
 
-  return triangle;
+  grid.lines = this.lines;
+  grid.dimension = this.dimension;
+
+  return grid;
 };
 
+/**
+ * @constructor
+ * @augments LEEWGL.Geometry
+ * @param  {object} options
+ */
 LEEWGL.Geometry.Triangle = function(options) {
   LEEWGL.Geometry.call(this, options);
 
@@ -409,15 +499,27 @@ LEEWGL.Geometry.Triangle.prototype.import = function(stringified_json) {
   return triangle;
 };
 
-LEEWGL.Geometry.Triangle.prototype.clone = function(triangle, cloneID, addToAlias) {
+/**
+ * Derived from LEEWGL.Geometry
+ * @param  {LEEWGL.Geometry.Triangle} triangle
+ * @param  {bool} cloneID
+ * @param  {bool|string} addToAlias
+ * @return {LEEWGL.Geometry.Triangle}
+ */
+LEEWGL.Geometry.Triangle.prototype.clone = function(triangle, cloneID, recursive, addToAlias) {
   if (typeof triangle === 'undefined')
     triangle = new LEEWGL.Geometry.Triangle();
 
-  LEEWGL.Geometry.prototype.clone.call(this, triangle, cloneID, addToAlias);
+  LEEWGL.Geometry.prototype.clone.call(this, triangle, cloneID, recursive, addToAlias);
 
   return triangle;
 };
 
+/**
+ * @constructor
+ * @augments LEEWGL.Geometry
+ * @param  {object} options
+ */
 LEEWGL.Geometry.Cube = function(options) {
   LEEWGL.Geometry.call(this, options);
 
@@ -497,55 +599,86 @@ LEEWGL.Geometry.Cube = function(options) {
 
 LEEWGL.Geometry.Cube.prototype = Object.create(LEEWGL.Geometry.prototype);
 
-LEEWGL.Geometry.Cube.prototype.clone = function(cube, cloneID, addToAlias) {
+/**
+ * Derived from LEEWGL.Geometry
+ * @param  {LEEWGL.Geometry.Cube} cube
+ * @param  {bool} cloneID
+ * @param  {bool|string} addToAlias
+ * @return {LEEWGL.Geometry.Cube}
+ */
+LEEWGL.Geometry.Cube.prototype.clone = function(cube, cloneID, recursive, addToAlias) {
   if (typeof cube === 'undefined')
     cube = new LEEWGL.Geometry.Cube();
-  LEEWGL.Geometry.prototype.clone.call(this, cube, cloneID, addToAlias);
+  LEEWGL.Geometry.prototype.clone.call(this, cube, cloneID, recursive, addToAlias);
   return cube;
 };
 
+/**
+ * @constructor
+ * @augments LEEWGL.Geometry
+ * @param  {number} options.latitude
+ * @param  {number} options.longitude
+ * @param  {number} options.radius
+ */
 LEEWGL.Geometry.Sphere = function(options) {
   LEEWGL.Geometry.call(this, options);
 
   this.type = 'Geometry.Sphere';
 
-  var latitudeBands = 10;
-  var longitudeBands = 10;
-  var radius = 1;
+  var ext_options = {
+    'latitude': 10,
+    'longitude': 10,
+    'radius': 1
+  };
 
+  this.addOptions(ext_options);
+  this.setOptions(options);
+
+  this.latitude = this.options['latitude'];
+  this.longitude = this.options['longitude'];
+  this.radius = this.options['radius'];
+
+  this.generate();
+  this.calculateFaces();
+  this.calculateNormals();
+};
+
+LEEWGL.Geometry.Sphere.prototype = Object.create(LEEWGL.Geometry.prototype);
+
+LEEWGL.Geometry.Sphere.prototype.generate = function() {
   var latNumber, longNumber = 0;
 
-  for (latNumber = 0; latNumber <= latitudeBands; latNumber++) {
-    var theta = latNumber * Math.PI / latitudeBands;
+  for (latNumber = 0; latNumber <= this.latitude; latNumber++) {
+    var theta = latNumber * Math.PI / this.latitude;
     var sinTheta = Math.sin(theta);
     var cosTheta = Math.cos(theta);
 
-    for (longNumber = 0; longNumber <= longitudeBands; longNumber++) {
-      var phi = longNumber * 2 * Math.PI / longitudeBands;
+    for (longNumber = 0; longNumber <= this.longitude; longNumber++) {
+      var phi = longNumber * 2 * Math.PI / this.longitude;
       var sinPhi = Math.sin(phi);
       var cosPhi = Math.cos(phi);
 
       var x = cosPhi * sinTheta;
       var y = cosTheta;
       var z = sinPhi * sinTheta;
-      var u = 1 - (longNumber / longitudeBands);
-      var v = 1 - (latNumber / latitudeBands);
+      var u = 1 - (longNumber / this.longitude);
+      var v = 1 - (latNumber / this.latitude);
 
       this.vertices.normal.push(x);
       this.vertices.normal.push(y);
       this.vertices.normal.push(z);
       this.vertices.uv.push(u);
       this.vertices.uv.push(v);
-      this.vertices.position.push(radius * x);
-      this.vertices.position.push(radius * y);
-      this.vertices.position.push(radius * z);
+      this.vertices.position.push(this.radius * x);
+      this.vertices.position.push(this.radius * y);
+      this.vertices.position.push(this.radius * z);
     }
   }
 
-  for (latNumber = 0; latNumber < latitudeBands; latNumber++) {
-    for (longNumber = 0; longNumber < longitudeBands; longNumber++) {
-      var first = (latNumber * (longitudeBands + 1)) + longNumber;
-      var second = first + longitudeBands + 1;
+  for (latNumber = 0; latNumber < this.latitude; latNumber++) {
+    for (longNumber = 0; longNumber < this.longitude; longNumber++) {
+      var first = (latNumber * (this.longitude + 1)) + longNumber;
+      var second = first + this.longitude + 1;
 
       this.indices.push(first);
       this.indices.push(second);
@@ -554,19 +687,24 @@ LEEWGL.Geometry.Sphere = function(options) {
       this.indices.push(second);
       this.indices.push(second + 1);
       this.indices.push(first + 1);
-      this.facesNum++;
     }
   }
-  // this.calculateFaces();
-  // this.calculateNormals();
 };
-
-LEEWGL.Geometry.Sphere.prototype = Object.create(LEEWGL.Geometry.prototype);
-
-LEEWGL.Geometry.Sphere.prototype.clone = function(sphere, cloneID, addToAlias) {
+/**
+ * Derived from LEEWGL.Geometry
+ * @param  {LEEWGL.Geometry.Sphere} sphere
+ * @param  {bool} cloneID
+ * @param  {bool|string} addToAlias
+ * @return {LEEWGL.Geometry.Sphere}
+ */
+LEEWGL.Geometry.Sphere.prototype.clone = function(sphere, cloneID, recursive, addToAlias) {
   if (typeof sphere === 'undefined')
     sphere = new LEEWGL.Geometry.Sphere();
 
-  LEEWGL.Geometry.prototype.clone.call(this, sphere, cloneID, addToAlias);
+  LEEWGL.Geometry.prototype.clone.call(this, sphere, cloneID, recursive, addToAlias);
+
+  sphere.latitude = this.latitude;
+  sphere.longitude = this.longitude;
+  sphere.radius = this.radius;
   return sphere;
 };

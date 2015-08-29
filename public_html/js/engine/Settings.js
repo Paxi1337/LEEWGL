@@ -1,3 +1,23 @@
+/**
+ * Class to handle the editable general options of the engine environment
+ * @constructor
+ * @param {number} options.display-precision
+ * @param {number} options.translation-speed.x
+ * @param {number} options.translation-speed.y
+ * @param {number} options.translation-speed.z
+ * @param {number} options.rotation-speed.x
+ * @param {number} options.rotation-speed.y
+ * @param {number} options.background-color.r
+ * @param {number} options.background-color.g
+ * @param {number} options.background-color.b
+ * @param {number} options.background-color.a
+ * @param {bool} options.depth-buffer
+ * @param {number} options.viewport.x
+ * @param {number} options.viewport.y
+ * @param {number} options.viewport.width
+ * @param {number} options.viewport.height
+ * @param {number} options.fps
+ */
 LEEWGL.Settings = function(options) {
   this.options = {
     'display-precision': 4,
@@ -30,6 +50,7 @@ LEEWGL.Settings = function(options) {
 
   this.setOptions(options);
 
+  /** @inner {object} */
   this.types = {
     'display-precision': 'input',
     'translation-speed': 'table',
@@ -40,14 +61,28 @@ LEEWGL.Settings = function(options) {
     'fps': 'input'
   };
 
+  /**
+   * Get a setting per name
+   * @param  {string} name
+   * @return {mixed}
+   */
   this.get = function(name) {
     return this.options[name];
   };
 
+  /**
+   * Set a setting per name
+   * @param  {string} name
+   * @param  {mixed} value
+   */
   this.set = function(name, value) {
     this.options[name] = value;
   };
 
+ /**
+  * Generates a dom container with contains all settings in input fields / table rows
+  * @return {LEEWGL.DOM.Element}
+  */
   this.toHTML = function() {
     var that = this;
     var container = new LEEWGL.DOM.Element('div', {
@@ -112,6 +147,9 @@ LEEWGL.Settings = function(options) {
     return container;
   };
 
+  /**
+   * Update the options with the values from the input elements / table rows
+   */
   this.updateFromHTML = function() {
     var element = null;
     for (var prop in this.options) {
@@ -131,3 +169,12 @@ LEEWGL.Settings = function(options) {
     UI.displaySettings();
   };
 };
+
+/**
+ * window load event to set global
+ */
+window.addEventListener('load', function() {
+  var settings = new LEEWGL.Settings();
+  /** @global */
+  window.SETTINGS = settings;
+});

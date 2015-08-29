@@ -1,39 +1,83 @@
-LEEWGL.REQUIRES.push('Texture');
+/**
+ * @constructor
+ * @param  {image} options.img
+ * @param  {number} options.wrap-s
+ * @param  {number} options.wrap-t
+ * @param  {number} options.mapping
+ * @param  {number} options.mag-filter
+ * @param  {number} options.min-filter
+ * @param  {number} options.anisotropy
+ * @param  {number} options.format
+ * @param  {number} options.type
+ * @param  {number} options.alignment - valid values: 1, 2, 4, 8 (see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glPixelStorei.xml)
+ * @param  {bool} options.gen-mipmaps
+ * @param  {bool} options.flip-y
+ * @param  {vec2} options.offset
+ * @param  {vec2} options.repeat
+ */
+LEEWGL.Texture = function(options) {
+  LEEWGL.REQUIRES.push('Texture');
 
-LEEWGL.Texture = function(img, wrapS, wrapT, mapping, magFilter, minFilter, format, type, anisotropy) {
-  Object.defineProperty(this, 'id', {
-    value: LEEWGL.TextureCount++
-  });
+  this.options = {
+    'img': LEEWGL.IMG_DEFAULT,
+    'wrap-s': LEEWGL.WRAPPING_CLAMP_TO_EDGE,
+    'wrap-t': LEEWGL.WRAPPING_CLAMP_TO_EDGE,
+    'mapping': LEEWGL.MAPPING_DEFAULT,
+    'mag-filter': LEEWGL.FILTER_NEAREST,
+    'min-filter': LEEWGL.FILTER_NEAREST,
+    'anisotropy': 1,
+    'format': LEEWGL.FORMAT_RGBA,
+    'type': LEEWGL.TYPE_UNSIGNED_BYTE,
+    'alignment' : 4,
+    'gen-mipmaps' : true,
+    'flip-y' : true,
+    'offset' : vec2.set(vec2.create(), 0, 0),
+    'repeat' : vec2.set(vec2.create(), 1, 1)
+  };
 
-  this.img = img !== undefined ? img : LEEWGL.Texture.IMG_DEFAULT;
+  extend(LEEWGL.Texture.prototype, LEEWGL.Options.prototype);
+  this.setOptions(options);
 
+  this.id = LEEWGL.TextureCount++;
+  /** @inner */
+  this.img = this.options['img'];
+  /** @inner */
+  this.wrapS = this.options['wrap-s'];
+  /** @inner */
+  this.wrapT = this.options['wrap-t'];
+  /** @inner */
+  this.mapping = this.options['mapping'];
+  /** @inner */
+  this.magFilter = this.options['mag-filter'];
+  /** @inner */
+  this.minFilter = this.options['min-filter'];
+  /** @inner */
+  this.anisotropy = this.options['anisotropy'];
+  /** @inner */
+  this.format = this.options['format'];
+  /** @inner */
+  this.type = this.options['type'];
+  /** @inner */
   this.webglTexture = null;
+  /** @inner */
+  this.alignment = this.options['alignment'];
+  /** @inner */
+  this.genMipmaps = this.options['gen-mipmaps'];
+  /** @inner */
+  this.flipY = this.options['flip-y'];
+  /** @inner */
+  this.offset = this.options['offset'];
+  /** @inner */
+  this.repeat = this.options['repeat'];
 
+  /** @inner */
   this.mipmaps = [];
-
-  this.wrapS = wrapS !== undefined ? wrapS : LEEWGL.WrappingClampToEdge;
-  this.wrapT = wrapT !== undefined ? wrapT : LEEWGL.WrappingClampToEdge;
-
-  this.mapping = mapping !== undefined ? mapping : LEEWGL.Texture.MAPPING_DEFAULT;
-
-  this.magFilter = magFilter !== undefined ? magFilter : LEEWGL.FilterNearest;
-  this.minFilter = minFilter !== undefined ? minFilter : LEEWGL.FilterNearest;
-
-  this.anisotropy = anisotropy !== undefined ? anisotropy : 1;
-
-  this.format = format !== undefined ? format : LEEWGL.FormatRGBA;
-  this.type = type !== undefined ? type : LEEWGL.TypeUnsignedByte;
-
-  this.offset = vec2.set(vec2.create(), 0, 0);
-  this.repeat = vec2.set(vec2.create(), 1, 1);
-
-  this.genMipmaps = true;
-  this.flipY = true;
-  this.alignment = 4; // valid values: 1, 2, 4, 8 (see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glPixelStorei.xml)
 };
 
-LEEWGL.Texture.IMG_DEFAULT = undefined;
-LEEWGL.Texture.MAPPING_DEFAULT = undefined;
+/** @global */
+LEEWGL.IMG_DEFAULT = undefined;
+/** @global */
+LEEWGL.MAPPING_DEFAULT = undefined;
 
 LEEWGL.Texture.prototype = {
   constructor: LEEWGL.Texture,
@@ -86,7 +130,6 @@ LEEWGL.Texture.prototype = {
   },
 
   setTextureParameters: function(gl, type, isPowerOfTwo) {
-    console.log(isPowerOfTwo);
     gl.texParameteri(type, gl.TEXTURE_MIN_FILTER, this.paramToGL(gl, this.minFilter));
     if (isPowerOfTwo) {
       gl.texParameteri(type, gl.TEXTURE_WRAP_S, this.paramToGL(gl, this.wrapS));
@@ -216,4 +259,6 @@ LEEWGL.Texture.prototype = {
 
 
 LEEWGL.EventDispatcher.prototype.apply(LEEWGL.Texture.prototype);
+
+/** @global */
 LEEWGL.TextureCount = 0;

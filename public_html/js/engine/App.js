@@ -1,17 +1,30 @@
-LEEWGL.REQUIRES.push('App');
 /**
  * @constructor
- * @param  {Object} options
+ * @param  {LEEWGL.Core} options.core
  */
 LEEWGL.App = function(options) {
+  LEEWGL.REQUIRES.push('App');
+  this.options = {
+    'core': null
+  };
+
+  extend(LEEWGL.App.prototype, LEEWGL.Options.prototype);
+  this.setOptions(options);
+
+  /** @inner {string} */
   this.type = 'App';
 
-  this.core = options.core;
+  /** @inner {LEEWGL.Core} */
+  this.core = this.options['core'];
+  /** @inner {webGLContext} */
   this.gl = this.core.getContext();
+  /** @inner {DOMElement} */
   this.canvas = this.core.getCanvas();
 
+  /** @inner {LEEWGL.ShaderLibrary} */
   this.shaderLibrary = new LEEWGL.ShaderLibrary();
 
+  /** @inner {vec3} */
   this.mouseVector = vec3.create();
 };
 
@@ -19,15 +32,10 @@ LEEWGL.App.prototype = {
   constructor: LEEWGL.App,
 
   onCreate: function() {},
-
   onUpdate: function() {},
-
   onRender: function() {},
-
   onKeyUp: function(event) {},
-
   onKeyDown: function(event) {},
-
   onMouseDown: function(event) {},
   onMouseUp: function(event) {},
   onMouseMove: function(event) {},

@@ -1,14 +1,15 @@
-LEEWGL.REQUIRES.push('Options');
-
 /**
- * [Options description]
  * Object to extend existing classes to have an options object
+ * @constructor
  */
-LEEWGL.Options = function() {};
+LEEWGL.Options = function() {
+  LEEWGL.REQUIRES.push('Options');
+};
 
 LEEWGL.Options.prototype = {
-  /* [setOptions description]
-   * @param {Array} options
+  /**
+   * Set this.options
+   * @param {object} options
    */
   setOptions: function(options) {
     if (typeof options !== 'undefined') {
@@ -18,6 +19,10 @@ LEEWGL.Options.prototype = {
       }
     }
   },
+  /**
+   * Add extended options
+   * @param {object} options
+   */
   addOptions: function(options) {
     if (typeof options !== 'undefined') {
       for (var attribute in options) {
