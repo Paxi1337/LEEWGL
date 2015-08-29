@@ -1,8 +1,4 @@
 /**
- * !!FIXME: Maybe problems with clone method because of this.editables shallow copy?
- */
-
-/**
  * @constructor
  * @augments LEEWGL.Object3D
  * @param  {vec3} options.ambient
