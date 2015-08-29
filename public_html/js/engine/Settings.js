@@ -1,5 +1,6 @@
 /**
  * Class to handle the editable general options of the engine environment
+ * This settings are not handled by UI class because they are affecting render behavior
  * @constructor
  * @param {number} options.display-precision
  * @param {number} options.translation-speed.x

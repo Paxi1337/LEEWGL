@@ -813,22 +813,22 @@ LEEWGL.UI = function(options) {
         var value = '';
         if (typeof vector === 'object') {
           value = parseFloat(element.get('text'));
-          activeElement.editables[id].value[num] = value;
+          activeElement.editables.set(activeElement, id, value, num);
         } else {
           value = parseFloat(element.e.value);
-          activeElement.editables[id].value = value;
+          activeElement.editables.set(activeElement, id, value);
         }
       });
 
       for (var e in activeElement.editables) {
         var editable = activeElement.editables[e];
-        if (editable.value instanceof Array) {
+        if (editable.type === 'vector') {
           container.grab(HTMLHELPER.createTable(e, editable['table-titles'], editable, {
             'title': editable.name,
             'type': 'h4',
             'class': 'component-detail-headline'
           }, keydown, keyup));
-        } else {
+        } else if (editable.type === 'string' || editable.type === 'number') {
           container.grab(HTMLHELPER.createContainerDetailInput(e, editable.name, editable.value, keydown, keyup));
         }
       }
@@ -842,11 +842,6 @@ LEEWGL.UI = function(options) {
       console.error('LEEWGL.UI: No inspector container set. Please use setInspector() first!');
       return;
     }
-
-    // if (this.activeElement !== null) {
-    //     if (index === this.activeIndex)
-    //         return;
-    // }
 
     this.settingsDisplayed = false;
 
@@ -871,8 +866,8 @@ LEEWGL.UI = function(options) {
     });
 
     this.inspector.grab(name);
-    this.valuesToHTML(activeElement);
     this.componentsToHTML(activeElement);
+    this.valuesToHTML(activeElement);
     this.componentsButton(index);
 
     this.updateOutline = true;

@@ -6,14 +6,13 @@
 LEEWGL.Buffer = function(options) {
   LEEWGL.REQUIRES.push('Buffer');
   this.options = {
-    'picking': false,
-    'buffer': undefined
+    'picking': false
   };
 
   extend(LEEWGL.Buffer.prototype, LEEWGL.Options.prototype);
   this.setOptions(options);
 
-  this.buffer = this.options.buffer;
+  this.buffer = undefined;
 
   if (this.options['picking'] === true) {
     this.colorMapIndex = LEEWGL.Buffer.ColorMapHitCounter++;
@@ -75,7 +74,7 @@ LEEWGL.Buffer.prototype = {
 
   clone: function(buffer) {
     if (typeof buffer === 'undefined')
-      buffer = new LEEWGL.Buffer();
+      buffer = new LEEWGL.Buffer(this.options);
 
     buffer.buffer = this.buffer;
     return buffer;

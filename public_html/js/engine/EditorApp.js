@@ -11,15 +11,17 @@ LEEWGL.EditorApp = function(options) {
   /** @inner {LEEWGL.PerspectiveCamera} */
   this.camera = new LEEWGL.PerspectiveCamera({
     'alias': 'EditorCamera',
+    'tagname': 'EditorCamera',
     'fov': 90,
     'aspect': 512 / 512,
     'near': 1,
     'far': 1000,
-    'inOutline': false
+    // 'inOutline': false
   });
   /** @inner {LEEWGL.PerspectiveCamera} */
   this.gameCamera = new LEEWGL.PerspectiveCamera({
     'alias': 'GameCamera',
+    'tagname': 'GameCamera',
     'fov': 90,
     'aspect': 512 / 512,
     'near': 1,
@@ -28,24 +30,29 @@ LEEWGL.EditorApp = function(options) {
 
   /** @inner {LEEWGL.Geometry.Sphere} */
   this.cameraGizmo = new LEEWGL.Geometry.Sphere({
-    'alias': 'CameraGizmo'
+    'alias': 'CameraGizmo',
+    'tagname': 'CameraGizmo'
   });
   /** @inner {LEEWGL.Geometry.Triangle} */
   this.triangle = new LEEWGL.Geometry.Triangle({
-    'alias': 'Triangle'
+    'alias': 'Triangle',
+    'tagname': 'Triangle'
   });
   /** @inner {LEEWGL.Geometry.Cube} */
   this.cube = new LEEWGL.Geometry.Cube({
-    'alias': 'Cube'
+    'alias': 'Cube',
+    'tagname': 'Cube'
   });
   /** @inner {LEEWGL.Geometry.Grid} */
   this.grid = new LEEWGL.Geometry.Grid({
     'alias': 'Grid',
+    'tagname': 'Grid',
     'wireframe': true
   });
   /** @inner {LEEWGL.Light} */
   this.light = new LEEWGL.Light.SpotLight({
-    'alias': 'Light'
+    'alias': 'Light',
+    'tagname': 'Light'
   });
 
   /** @inner {LEEWGL.Picker} */
@@ -258,30 +265,28 @@ LEEWGL.EditorApp.prototype.onMouseMove = function(event) {
   };
 
   var button = null;
-
   /// Chrome
   if (typeof event.movementX !== 'undefined') {
     movement.x = event.movementX;
     movement.y += event.movementY;
-
     button = event.button;
   }
   /// FF
   else {
     movement.x += event.mozMovementX;
     movement.y += event.mozMovementY;
-
     button = event.buttons;
   }
 
+  var camera = (this.playing === true) ? this.scenePlay.getObjectByTagname('GameCamera') : this.scene.getObjectByTagname('EditorCamera');
   var rad = LEEWGL.Math.degToRad(10);
 
   if (event.which === 3 || button === LEEWGL.MOUSE.RIGHT) {
     movement.x = (SETTINGS.get('rotation-speed').x * movement.x);
     movement.y = (SETTINGS.get('rotation-speed').y * movement.y);
-    this.camera.offsetOrientation(movement.y, movement.x);
+    camera.offsetOrientation(movement.y, movement.x);
   } else if ((event.which === 1 || button === LEEWGL.MOUSE.LEFT) && this.activeElement !== null) {
-    var forward = this.camera.forward();
+    var forward = camera.forward();
 
     var mode = UI.transformationMode;
 
@@ -322,7 +327,6 @@ LEEWGL.EditorApp.prototype.onMouseMove = function(event) {
 
 LEEWGL.EditorApp.prototype.onMouseUp = function(event) {
   this.activeElement = null;
-
   if (this.picking === true)
     this.picker.init(this.gl, this.canvas.width, this.canvas.height);
   event.preventDefault();
@@ -342,8 +346,8 @@ LEEWGL.EditorApp.prototype.onKeyDown = function(event) {
 };
 
 LEEWGL.EditorApp.prototype.onUpdate = function() {
-  this.camera.update();
-  this.gameCamera.update();
+  var camera = (this.playing === true) ? this.scenePlay.getObjectByTagname('GameCamera') : this.scene.getObjectByTagname('EditorCamera');
+  camera.update();
   this.handleKeyInput();
 
   this.core.setViewport(SETTINGS.get('viewport').x, SETTINGS.get('viewport').y, SETTINGS.get('viewport').width, SETTINGS.get('viewport').height);
@@ -354,7 +358,7 @@ LEEWGL.EditorApp.prototype.onUpdate = function() {
   if (this.playing === true) {
     scene = this.scenePlay;
     for (var i = 0; i < scene.children.length; ++i) {
-      scene.children[i].onUpdate();
+      scene.children[i].onUpdate(this.scene);
     }
   }
 
@@ -365,38 +369,36 @@ LEEWGL.EditorApp.prototype.onUpdate = function() {
 };
 
 LEEWGL.EditorApp.prototype.handleKeyInput = function() {
-  if (typeof UI !== 'undefined' && UI.playing === true)
-    return;
+  var camera = (this.playing === true) ? this.scenePlay.getObjectByTagname('GameCamera') : this.scene.getObjectByTagname('EditorCamera');
 
   if (this.activeKeys[LEEWGL.KEYS.PAGE_UP]) {
-    this.camera.transform.offsetPosition(vec3.negate(vec3.create(), vec3.scale(vec3.create(), this.camera.down(), SETTINGS.get('translation-speed').y)));
+    camera.transform.offsetPosition(vec3.negate(vec3.create(), vec3.scale(vec3.create(), this.camera.down(), SETTINGS.get('translation-speed').y)));
   } else if (this.activeKeys[LEEWGL.KEYS.PAGE_DOWN]) {
-    this.camera.transform.offsetPosition(vec3.scale(vec3.create(), this.camera.down(), SETTINGS.get('translation-speed').y));
+    camera.transform.offsetPosition(vec3.scale(vec3.create(), this.camera.down(), SETTINGS.get('translation-speed').y));
   }
 
   if (this.activeKeys[LEEWGL.KEYS.LEFT_CURSOR]) {
-    this.camera.transform.offsetPosition(vec3.negate(vec3.create(), vec3.scale(vec3.create(), this.camera.right(), SETTINGS.get('translation-speed').x)));
+    camera.transform.offsetPosition(vec3.negate(vec3.create(), vec3.scale(vec3.create(), this.camera.right(), SETTINGS.get('translation-speed').x)));
   } else if (this.activeKeys[LEEWGL.KEYS.RIGHT_CURSOR]) {
-    this.camera.transform.offsetPosition(vec3.scale(vec3.create(), this.camera.right(), SETTINGS.get('translation-speed').x));
+    camera.transform.offsetPosition(vec3.scale(vec3.create(), this.camera.right(), SETTINGS.get('translation-speed').x));
   }
 
   if (this.activeKeys[LEEWGL.KEYS.UP_CURSOR]) {
-    this.camera.transform.offsetPosition(vec3.scale(vec3.create(), this.camera.forward(), SETTINGS.get('translation-speed').z));
+    camera.transform.offsetPosition(vec3.scale(vec3.create(), this.camera.forward(), SETTINGS.get('translation-speed').z));
   } else if (this.activeKeys[LEEWGL.KEYS.DOWN_CURSOR]) {
-    this.camera.transform.offsetPosition(vec3.negate(vec3.create(), vec3.scale(vec3.create(), this.camera.forward(), SETTINGS.get('translation-speed').z)));
+    camera.transform.offsetPosition(vec3.negate(vec3.create(), vec3.scale(vec3.create(), this.camera.forward(), SETTINGS.get('translation-speed').z)));
   }
 };
 
 LEEWGL.EditorApp.prototype.onRender = function() {
   this.clear();
 
-  var viewProjection = this.camera.viewProjMatrix;
+  var camera = (this.playing === true) ? this.scenePlay.getObjectByTagname('GameCamera') : this.scene.getObjectByTagname('EditorCamera');
+  var viewProjection = camera.viewProjMatrix;
   var scene = this.scene;
 
-  if (this.playing === true) {
-    viewProjection = this.gameCamera.viewProjMatrix;
+  if (this.playing === true)
     scene = this.scenePlay;
-  }
 
   var activeShader = null;
 
@@ -404,7 +406,7 @@ LEEWGL.EditorApp.prototype.onRender = function() {
     var element = scene.children[i];
 
     if (this.playing === true)
-      element.onRender();
+      element.onRender(this.scene);
 
     if (element.usesTexture === true) {
       activeShader = scene.shaders['texture'];
@@ -447,7 +449,6 @@ LEEWGL.EditorApp.prototype.draw = function(element, shader, viewProjection) {
     if (this.useShadows === true)
       this.shadowmap.draw(this.gl, shader, this.light);
 
-    this.light.draw(this.gl, shader);
     element.draw(this.gl, shader, this.gl.TRIANGLES);
   }
 };
@@ -468,7 +469,7 @@ LEEWGL.EditorApp.prototype.onPlay = function() {
         'type': scriptID
       });
     }
-    element.onInit();
+    element.onInit(that.scenePlay);
   };
 
   /// create backup of scene
@@ -479,9 +480,13 @@ LEEWGL.EditorApp.prototype.onPlay = function() {
       onInit(element);
   }
 
+  this.updatePickingList(this.scenePlay);
+
   UI.setScene(this.scenePlay);
   UI.clearOutline();
   UI.addObjToOutline(this.scenePlay.children);
+  if (UI.activeElement !== null)
+    UI.setInspectorContent(UI.activeElement.id);
 };
 
 /**
@@ -490,14 +495,12 @@ LEEWGL.EditorApp.prototype.onPlay = function() {
  */
 LEEWGL.EditorApp.prototype.onStop = function() {
   this.playing = false;
+  var that = this;
 
   var onStop = function(element) {
-    var scripts = element.components['CustomScript'].applied;
-    // console.log(element);
-    element.onStop();
+    element.onStop(that.scene);
   };
 
-  // console.log(this.scene.children);
   for (var i = 0; i < this.scenePlay.children.length; ++i) {
     var element = this.scenePlay.children[i];
     if (typeof element.components['CustomScript'] !== 'undefined')
@@ -509,4 +512,6 @@ LEEWGL.EditorApp.prototype.onStop = function() {
   UI.setScene(this.scene);
   UI.clearOutline();
   UI.addObjToOutline(this.scene.children);
+  if (UI.activeElement !== null)
+    UI.setInspectorContent(UI.activeElement.id);
 };

@@ -4,6 +4,7 @@ LEEWGL.REQUIRES.push('Object3D');
  * Object3D is the base class for all renderable objects.
  * @constructor
  * @param  {string} options.alias
+ * @param  {string} options.tagname
  * @param  {LEEWGL.Object3D} options.parent
  * @param  {array} options.children
  * @param  {Object} options.components
@@ -17,6 +18,7 @@ LEEWGL.REQUIRES.push('Object3D');
 LEEWGL.Object3D = function(options) {
   this.options = {
     'alias': 'Object3D_' + LEEWGL.Object3DCount,
+    'tagname' : 'Object3D_' + LEEWGL.Object3DCount,
     'parent': undefined,
     'children': [],
     'components': {},
@@ -43,13 +45,18 @@ LEEWGL.Object3D = function(options) {
       enumerable: true,
       writable: true
     },
+    'tagname': {
+      value: this.options.tagname,
+      enumerable: true,
+      writable: true
+    },
     'type': {
       value: 'Object3D',
       enumerable: true,
       writable: true
     },
     'parent': {
-      value: this.options.parent,
+      value: (typeof this.options.parent !== 'undefined') ? this.options.parent.clone() : undefined,
       enumerable: true,
       writable: true
     },
@@ -64,7 +71,7 @@ LEEWGL.Object3D = function(options) {
       writable: true
     },
     'up': {
-      value: this.options.up,
+      value: vec3.clone(this.options.up),
       enumerable: true,
       writable: true
     },
@@ -95,10 +102,30 @@ LEEWGL.Object3D = function(options) {
     }
   });
 
-  // this.onInit = function() {};
-  // this.onUpdate = function() {};
-  // this.onRender = function() {};
-  // this.onStop = function() {};
+  /**
+   * Gets called at begin of the play event
+   * @abstract
+   * @param  {LEEWGL.Scene} scene
+   */
+  this.onInit = function(scene) {};
+  /**
+   * Gets called every frame in the update loop
+   * @abstract
+   * @param  {LEEWGL.Scene} scene
+   */
+  this.onUpdate = function(scene) {};
+  /**
+   * Gets called every frame in the update loop
+   * @abstract
+   * @param  {LEEWGL.Scene} scene
+   */
+  this.onRender = function(scene) {};
+  /**
+   * Gets called at begin of the stop event
+   * @abstract
+   * @param  {LEEWGL.Scene} scene
+   */
+  this.onStop = function(scene) {};
 
   this.addComponent(new LEEWGL.Component.Transform());
   /** @inner {LEEWGL.Component.Transform} */
@@ -110,24 +137,6 @@ LEEWGL.Object3D.DefaultUp = [0.0, 1.0, 0.0];
 LEEWGL.Object3D.prototype = {
   constructor: LEEWGL.Object3D,
 
-  /**
-   * User editable functions.
-   * Get called in EditorApp
-   */
-
-
-  onInit: function() {
-
-  },
-  onUpdate: function() {
-
-  },
-  onRender: function() {
-
-  },
-  onStop: function() {
-
-  },
   /**
    * Adds the given object to the children array of this.
    * @param  {LEEWGL.Object3D} object
@@ -234,6 +243,23 @@ LEEWGL.Object3D.prototype = {
     return null;
   },
   /**
+   * Iterates through children array of this and returns object with given tagname or null otherwise
+   * @param  {string} tagname
+   * @return {LEEWGL.Object3D|null}
+   */
+  getObjectByTagname: function(tagname) {
+    if (this.tagname === tagname)
+      return this;
+
+    for (var i = 0; i < this.children.length; ++i) {
+      var child = this.children[i];
+      var object = child.getObjectByTagname(tagname);
+      if (object !== null)
+        return object;
+    }
+    return null;
+  },
+  /**
    * Calls callback function for this and each child
    * @param  {function} callback
    */
@@ -271,11 +297,7 @@ LEEWGL.Object3D.prototype = {
     addToAlias = (typeof addToAlias !== 'undefined') ? addToAlias : 'Clone';
 
     if (typeof object === 'undefined')
-      object = new LEEWGL.Object3D();
-
-    for (var option in this.options) {
-      object.options[option] = this.options[option];
-    }
+      object = new LEEWGL.Object3D(this.options);
 
     var alias = this.alias;
 
@@ -283,6 +305,7 @@ LEEWGL.Object3D.prototype = {
       alias = this.alias + addToAlias;
 
     object.alias = alias;
+    object.tagname = this.tagname;
 
     if (typeof this.parent !== 'undefined')
       object.parent = this.parent.clone(object.parent, cloneID, false, addToAlias);

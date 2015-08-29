@@ -218,7 +218,7 @@ LEEWGL.Texture.prototype = {
 
   clone: function(texture) {
     if (texture === undefined)
-      texture = new LEEWGL.Texture();
+      texture = new LEEWGL.Texture(this.options);
 
     texture.imagFiltere = this.imagFiltere;
     texture.mipmaps = this.mipmaps.slice(0);

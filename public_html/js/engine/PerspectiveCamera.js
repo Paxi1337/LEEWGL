@@ -45,40 +45,54 @@ LEEWGL.PerspectiveCamera = function(options) {
   /** @inner {number} */
   this.verticalAngle = this.options['vertical-angle'];
 
-  /** @inner {object} */
+  this.setEditables();
+};
+
+LEEWGL.PerspectiveCamera.prototype = Object.create(LEEWGL.Camera.prototype);
+
+/**
+ * Initializes this.editables
+ */
+LEEWGL.PerspectiveCamera.prototype.setEditables = function() {
   this.editables = {
     'fov': {
       'name': 'Field of View',
+      'type' : 'number',
       'value': this.fov
     },
     'aspect': {
       'name': 'Aspect Ratio',
+      'type' : 'number',
       'value': this.aspect
     },
     'near': {
       'name': 'Near',
+      'type' : 'number',
       'value': this.near
     },
     'far': {
       'name': 'Far',
+      'type' : 'number',
       'value': this.far
     },
     'invertY': {
       'name': 'Invert Y Axis',
+      'type' : 'bool',
       'value': this.invertY
     },
     'horizontalAngle': {
       'name': 'Horizontal Angle',
+      'type' : 'number',
       'value': this.horizontalAngle
     },
     'verticalAngle': {
       'name': 'Vertical Angle',
+      'type' : 'number',
       'value': this.verticalAngle
     }
   };
+  setEditables(this.editables);
 };
-
-LEEWGL.PerspectiveCamera.prototype = Object.create(LEEWGL.Camera.prototype);
 
 /**
  * Calculates the rotation matrix
@@ -124,7 +138,7 @@ LEEWGL.PerspectiveCamera.prototype.view = function() {
  * @return {mat4}
  */
 LEEWGL.PerspectiveCamera.prototype.projection = function() {
-  mat4.perspective(this.projMatrix, LEEWGL.Math.degToRad(this.editables.fov.value), this.editables.aspect.value, this.editables.near.value, this.editables.far.value);
+  mat4.perspective(this.projMatrix, LEEWGL.Math.degToRad(this.fov), this.aspect, this.near, this.far);
   return this.projMatrix;
 };
 
@@ -188,7 +202,7 @@ LEEWGL.PerspectiveCamera.prototype.down = function() {
  */
 LEEWGL.PerspectiveCamera.prototype.clone = function(camera, cloneID, recursive, addToAlias) {
   if (camera === undefined)
-    camera = new LEEWGL.PerspectiveCamera();
+    camera = new LEEWGL.PerspectiveCamera(this.options);
   LEEWGL.Camera.prototype.clone.call(this, camera, cloneID, recursive, addToAlias);
 
   camera.fov = this.fov;
@@ -198,7 +212,6 @@ LEEWGL.PerspectiveCamera.prototype.clone = function(camera, cloneID, recursive, 
   camera.invertY = this.invertY;
   camera.horizontalAngle = this.horizontalAngle;
   camera.verticalAngle = this.verticalAngle;
-  camera.editables = this.editables;
 
   return camera;
 };

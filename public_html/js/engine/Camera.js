@@ -31,7 +31,7 @@ LEEWGL.Camera.prototype = Object.create(LEEWGL.Object3D.prototype);
  */
 LEEWGL.Camera.prototype.clone = function(camera, cloneID, recursive, addToAlias) {
   if (camera === undefined)
-    camera = new LEEWGL.Camera();
+    camera = new LEEWGL.Camera(this.options);
 
   LEEWGL.Object3D.prototype.clone.call(this, camera, cloneID, recursive, addToAlias);
 

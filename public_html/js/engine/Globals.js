@@ -29,3 +29,26 @@ function functionFromString(str) {
 
   return fn;
 }
+
+function setEditables(editables) {
+  for (var attribute in editables) {
+    editables[attribute]['alias'] = attribute;
+  }
+
+  editables.set = function(that, key, value, index) {
+    if (typeof index !== 'undefined') {
+      this[key].value[index] = value;
+      that[this[key]['alias']][index] = value;
+    } else {
+      this[key].value = value;
+      that[this[key]['alias']] = value;
+    }
+  };
+}
+
+function addEditables(destination, source) {
+  for (var attribute in source) {
+    destination[attribute] = source[attribute];
+    destination[attribute]['alias'] = attribute;
+  }
+}
