@@ -266,9 +266,9 @@ LEEWGL.Geometry.prototype.draw = function(gl, shader, drawMode, indices) {
 
   if (this.usesTexture === true) {
     shader.attributes['aTextureCoord'](this.buffers.texture);
-    this.components['Texture'].texture.setActive(gl, 0);
     this.components['Texture'].texture.bind(gl);
-    shader.uniforms['uSampler'](0);
+    this.components['Texture'].texture.setActive(gl, 1);
+    shader.uniforms['uSampler'](1);
   } else {
     shader.attributes['aVertexColor'](this.buffers.color);
   }
@@ -294,7 +294,7 @@ LEEWGL.Geometry.prototype.draw = function(gl, shader, drawMode, indices) {
   }
 
   if (this.usesTexture === true)
-    this.components['Texture'].texture.unbind(gl, 0);
+    this.components['Texture'].texture.unbind(gl, 1);
 };
 
 /**
@@ -354,6 +354,8 @@ LEEWGL.Geometry.prototype.clone = function(geometry, cloneID, recursive, addToAl
   LEEWGL.Buffer.prototype.clone.call(this.buffers.index, geometry.buffers.index);
   LEEWGL.Buffer.prototype.clone.call(this.buffers.color, geometry.buffers.color);
   LEEWGL.Buffer.prototype.clone.call(this.buffers.texture, geometry.buffers.texture);
+
+  geometry.usesTexture = this.usesTexture;
 
   return geometry;
 };

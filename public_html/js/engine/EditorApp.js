@@ -400,6 +400,8 @@ LEEWGL.EditorApp.prototype.onRender = function() {
   if (this.playing === true)
     scene = this.scenePlay;
 
+
+  this.light = scene.getObjectByTagname('Light');
   var activeShader = null;
 
   for (var i = 0; i < scene.children.length; ++i) {
@@ -449,6 +451,7 @@ LEEWGL.EditorApp.prototype.draw = function(element, shader, viewProjection) {
     if (this.useShadows === true)
       this.shadowmap.draw(this.gl, shader, this.light);
 
+    this.light.draw(this.gl, shader);
     element.draw(this.gl, shader, this.gl.TRIANGLES);
   }
 };

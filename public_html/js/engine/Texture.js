@@ -28,11 +28,11 @@ LEEWGL.Texture = function(options) {
     'anisotropy': 1,
     'format': LEEWGL.FORMAT_RGBA,
     'type': LEEWGL.TYPE_UNSIGNED_BYTE,
-    'alignment' : 4,
-    'gen-mipmaps' : true,
-    'flip-y' : true,
-    'offset' : vec2.set(vec2.create(), 0, 0),
-    'repeat' : vec2.set(vec2.create(), 1, 1)
+    'alignment': 4,
+    'gen-mipmaps': true,
+    'flip-y': true,
+    'offset': vec2.set(vec2.create(), 0, 0),
+    'repeat': vec2.set(vec2.create(), 1, 1)
   };
 
   extend(LEEWGL.Texture.prototype, LEEWGL.Options.prototype);
@@ -100,14 +100,17 @@ LEEWGL.Texture.prototype = {
   },
 
   setActive: function(gl, unit) {
-    unit = (typeof unit === 'undefined') ? 1 : unit;
-    gl.activeTexture(gl.TEXTURE0 + unit);
+    unit = (typeof unit === 'undefined') ? 0 : unit;
+    unit = 'TEXTURE' + unit;
+    gl.activeTexture(gl[unit]);
   },
 
   unbind: function(gl, unit) {
-    unit = (typeof unit === 'undefined') ? 1 : unit;
+    unit = (typeof unit === 'undefined') ? 0 : unit;
+    unit = 'TEXTURE' + unit;
+
     gl.bindTexture(gl.TEXTURE_2D, null);
-    gl.activeTexture(gl.TEXTURE0 + unit, null);
+    gl.activeTexture(gl[unit], null);
   },
 
   setParameteri: function(gl, name, param) {
@@ -115,35 +118,30 @@ LEEWGL.Texture.prototype = {
   },
 
   setTextureImage: function(gl, src, unit) {
-    unit = (typeof unit === 'undefined') ? 1 : unit;
+    unit = (typeof unit === 'undefined') ? 0 : unit;
     this.img = new Image();
     this.img.src = src;
     var that = this;
 
     this.img.onload = function() {
       that.bind(gl);
-      that.setActive(gl, unit);
+      // that.setActive(gl, unit);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, that.img);
-      that.setTextureParameters(gl, gl.TEXTURE_2D, true);
+      that.setTextureParameters(gl, gl.TEXTURE_2D, false);
       that.unbind(gl, unit);
     };
   },
 
   setTextureParameters: function(gl, type, isPowerOfTwo) {
-    gl.texParameteri(type, gl.TEXTURE_MIN_FILTER, this.paramToGL(gl, this.minFilter));
     if (isPowerOfTwo) {
       gl.texParameteri(type, gl.TEXTURE_WRAP_S, this.paramToGL(gl, this.wrapS));
       gl.texParameteri(type, gl.TEXTURE_WRAP_T, this.paramToGL(gl, this.wrapT));
-
-      gl.texParameteri(type, gl.TEXTURE_MAG_FILTER, this.paramToGL(gl, this.magFilter));
-      gl.texParameteri(type, gl.TEXTURE_MIN_FILTER, this.paramToGL(gl, this.minFilter));
     } else {
       gl.texParameteri(type, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(type, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
+    }
       gl.texParameteri(type, gl.TEXTURE_MAG_FILTER, this.paramToGL(gl, this.magFilter));
       gl.texParameteri(type, gl.TEXTURE_MIN_FILTER, this.paramToGL(gl, this.minFilter));
-    }
 
     if (this.genMipmaps === true)
       gl.generateMipmap(type);
@@ -168,51 +166,51 @@ LEEWGL.Texture.prototype = {
   },
 
   paramToGL: function(gl, param) {
-    if (param === LEEWGL.WrappingRepeat)
+    if (param === LEEWGL.WRAPPING_REPEAT)
       return gl.REPEAT;
-    if (param === LEEWGL.WrappingClampToEdge)
+    if (param === LEEWGL.WRAPPING_CLAMP_TO_EDGE)
       return gl.CLAMP_TO_EDGE;
-    if (param === LEEWGL.WrappingMirroredRepeat)
+    if (param === LEEWGL.WRAPPING_MIRRORED_REPEAT)
       return gl.MIRRORED_REPEAT;
 
-    if (param === LEEWGL.FilterNearest)
+    if (param === LEEWGL.FILTER_NEAREST)
       return gl.NEAREST;
-    if (param === LEEWGL.FilterNearestMipMapNearest)
+    if (param === LEEWGL.FILTER_NEAREST_MIPMAP_NEAREST)
       return gl.NEAREST_MIPMAP_NEAREST;
-    if (param === LEEWGL.FilterNearestMipMapLinear)
+    if (param === LEEWGL.FILTER_NEAREST_MIPMAP_LINEAR)
       return gl.NEAREST_MIPMAP_LINEAR;
 
-    if (param === LEEWGL.FilterLinear)
+    if (param === LEEWGL.FILTER_LINEAR)
       return gl.LINEAR;
-    if (param === LEEWGL.FilterLinearMipMapNearest)
+    if (param === LEEWGL.FILTER_LINEAR_MIPMAP_NEAREST)
       return gl.LINEAR_MIPMAP_NEAREST;
-    if (param === LEEWGL.FilterLinearMipmapLinear)
+    if (param === LEEWGL.FILTER_LINEAR_MIPMAP_LINEAR)
       return gl.LINEAR_MIPMAP_LINEAR;
 
-    if (param === LEEWGL.TypeUnsignedByte)
+    if (param === LEEWGL.TYPE_UNSIGNED_BYTE)
       return gl.UNSIGNED_BYTE;
-    if (param === LEEWGL.TypeByte)
+    if (param === LEEWGL.TYPE_BYTE)
       return gl.BYTE;
-    if (param === LEEWGL.TypeShort)
+    if (param === LEEWGL.TYPE_SHORT)
       return gl.SHORT;
-    if (param === LEEWGL.TypeUnsignedShort)
+    if (param === LEEWGL.TYPE_UNSIGNED_SHORT)
       return gl.UNSIGNED_SHORT;
-    if (param === LEEWGL.TypeInt)
+    if (param === LEEWGL.TYPE_INT)
       return gl.INT;
-    if (param === LEEWGL.TypeUnsignedInt)
+    if (param === LEEWGL.TYPE_UNSIGNED_INT)
       return gl.UNSIGNED_INT;
-    if (param === LEEWGL.TypeFloat)
+    if (param === LEEWGL.TYPE_FLOAT)
       return gl.FLOAT;
 
-    if (param === LEEWGL.FormatAlpha)
+    if (param === LEEWGL.FORMAT_ALPHA)
       return gl.ALPHA;
-    if (param === LEEWGL.FormatRGB)
+    if (param === LEEWGL.FORMAT_RGB)
       return gl.RGB;
-    if (param === LEEWGL.FormatRGBA)
+    if (param === LEEWGL.FORMAT_RGBA)
       return gl.RGBA;
-    if (param === LEEWGL.FormatLuminance)
+    if (param === LEEWGL.FORMAT_LUMINANCE)
       return gl.LUMINANCE;
-    if (param === LEEWGL.FormatLuminanceAlpha)
+    if (param === LEEWGL.FORMAT_LUMINANCE_ALPHA)
       return gl.LUMINANCE_ALPHA;
   },
 
@@ -220,7 +218,7 @@ LEEWGL.Texture.prototype = {
     if (texture === undefined)
       texture = new LEEWGL.Texture(this.options);
 
-    texture.imagFiltere = this.imagFiltere;
+    texture.img = this.img;
     texture.mipmaps = this.mipmaps.slice(0);
 
     texture.wrapS = this.wrapS;
@@ -236,12 +234,14 @@ LEEWGL.Texture.prototype = {
     texture.format = this.format;
     texture.type = this.type;
 
-    texture.offset.copy(this.offset);
-    texture.repeat.copy(this.repeat);
+    texture.offset = vec2.clone(this.offset);
+    texture.repeat = vec2.clone(this.repeat);
 
     texture.genMipmaps = this.genMipmaps;
     texture.flipY = this.flipY;
     texture.alignment = this.alignment;
+
+    texture.webglTexture = this.webglTexture;
 
     return texture;
   },

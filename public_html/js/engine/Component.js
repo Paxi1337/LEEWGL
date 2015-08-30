@@ -278,9 +278,7 @@ LEEWGL.Component.Texture.prototype = Object.create(LEEWGL.Component.prototype);
 
 LEEWGL.Component.Texture.prototype.init = function(gl, src) {
   var that = this;
-  var image = new Image();
   this.src = src;
-  image.src = this.src;
 
   this.texture.create(gl);
   this.texture.setTextureImage(gl, this.src, 1);
