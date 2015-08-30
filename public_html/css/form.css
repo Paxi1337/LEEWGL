@@ -72,7 +72,13 @@ button {
   background-color: #C5CAE9;
 }
 .settings-input {
-  padding: 5px !important;
-  width: 96.5% !important;
-  height: 20px !important;
+  padding: 5px;
+  width: 96.5%;
+  height: 20px;
+}
+.settings-dropdown {
+  padding: 5px;
+  width: 100%;
+  height: 30px;
+  background-color: #FFF;
 }

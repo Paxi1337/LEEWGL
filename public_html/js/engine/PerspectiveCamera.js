@@ -139,6 +139,7 @@ LEEWGL.PerspectiveCamera.prototype.view = function() {
  */
 LEEWGL.PerspectiveCamera.prototype.projection = function() {
   mat4.perspective(this.projMatrix, LEEWGL.Math.degToRad(this.fov), this.aspect, this.near, this.far);
+  // mat4.ortho(this.projMatrix, 0, 100, 0, 100, this.near, this.far);
   return this.projMatrix;
 };
 

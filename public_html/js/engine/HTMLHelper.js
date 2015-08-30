@@ -5,7 +5,7 @@ LEEWGL.HTMLHelper = function() {
   /**
    * @param {string} id
    * @param {array} header
-   * @param {object} content
+   * @param {array} content
    * @param {object} title
    * @param {function} keydown
    * @param {function} keyup
@@ -58,12 +58,7 @@ LEEWGL.HTMLHelper = function() {
         'class': 'editable'
       });
 
-      var c = content.value[index];
-
-      if (typeof c === 'undefined') {
-        var keys = Object.keys(content.value);
-        c = content.value[keys[index]];
-      }
+      var c = content[index];
 
       if (typeof c === 'number')
         td.set('html', c.toPrecision(SETTINGS.get('display-precision')));
@@ -85,21 +80,15 @@ LEEWGL.HTMLHelper = function() {
     };
 
     tr = new LEEWGL.DOM.Element('tr');
-
-    // / content
-    i = 0;
-    if (typeof content.value.length === 'undefined') {
-      for (var k in content.value) {
-        td = fillTable(k, content);
-
+    if (typeof content.length === 'undefined') {
+      for (var prop in content) {
+        var td = fillTable(prop, content);
         tr.grab(td);
         tbody.grab(tr);
-        ++i;
       }
     } else {
-      for (i = 0; i < content.value.length; ++i) {
-        td = fillTable(i, content);
-
+      for (i = 0; i < content.length; ++i) {
+        var td = fillTable(i, content);
         tr.grab(td);
         tbody.grab(tr);
       }
@@ -151,7 +140,63 @@ LEEWGL.HTMLHelper = function() {
     container.grab(input);
     return container;
   };
+
+  /**
+   * @param {string} id
+   * @param {element} container
+   * @param {string} title
+   * @param {array} content
+   * @param {function} keydown
+   * @param {function} keyup
+   */
+  this.createDropdown = function(id, title, content, change, defaultValue) {
+    change = (typeof change !== 'undefined') ? change : (function() {});
+    defaultValue = (typeof defaultValue !== 'undefined') ? defaultValue : '';
+
+    var container = new LEEWGL.DOM.Element('div', {
+      'id': id,
+      'class': 'component-detail-container'
+    });
+    var name = new LEEWGL.DOM.Element('h4', {
+      'class': 'component-detail-headline',
+      'text': title
+    });
+
+    var select = new LEEWGL.DOM.Element('select', {
+      'class': 'settings-dropdown'
+    });
+
+    select.addEvent('change', function(event) {
+      change(event, select, content);
+    });
+
+    var option = new LEEWGL.DOM.Element('option', {
+      'value': '',
+      'text': defaultValue,
+      'disabled' : true,
+      'selected' : true
+    });
+
+    select.grab(option);
+
+    for (i = 0; i < content.length; ++i) {
+      option = new LEEWGL.DOM.Element('option', {
+        'value': content[i],
+        'text': content[i]
+      });
+
+      if (id !== null)
+        option.setAttribute('identifier', id);
+
+      select.grab(option);
+    }
+
+    container.grab(name);
+    container.grab(select);
+    return container;
+  };
 };
+
 
 /**
  * window load event to set global

@@ -5,16 +5,9 @@
 LEEWGL.ShaderLibrary = function() {
   LEEWGL.REQUIRES.push('ShaderLibrary');
   /** @inner {object} */
-  this.vertex = {
-    parameters: [],
-    main: []
-  };
+  this.vertex = {};
   /** @inner {object} */
-  this.fragment = {
-    parameters: [],
-    main: []
-  };
-
+  this.fragment = {};
   /** @inner {object} */
   this.chunks = {};
 
@@ -216,10 +209,22 @@ LEEWGL.ShaderLibrary = function() {
   };
 
   this.addParameterChunk = function(type) {
-    this.vertex.parameters = this.vertex.parameters.concat(this.chunks[type].vertex.parameters);
-    this.vertex.main = this.vertex.main.concat(this.chunks[type].vertex.main);
-    this.fragment.parameters = this.fragment.parameters.concat(this.chunks[type].fragment.parameters);
-    this.fragment.main = this.fragment.main.concat(this.chunks[type].fragment.main);
+    this.vertex[type] = {};
+    this.vertex[type].main = [];
+    this.vertex[type].parameters = [];
+    this.fragment[type] = {};
+    this.fragment[type].main = [];
+    this.fragment[type].parameters = [];
+
+    this.vertex[type].parameters = this.vertex[type].parameters.concat(this.chunks[type].vertex.parameters);
+    this.vertex[type].main = this.vertex[type].main.concat(this.chunks[type].vertex.main);
+    this.fragment[type].parameters = this.fragment[type].parameters.concat(this.chunks[type].fragment.parameters);
+    this.fragment[type].main = this.fragment[type].main.concat(this.chunks[type].fragment.main);
+  };
+
+  this.removeParameterChunk = function(type) {
+    delete this.vertex[type];
+    delete this.fragment[type];
   };
 
   this.addParameterChunks = function(types) {
@@ -229,24 +234,28 @@ LEEWGL.ShaderLibrary = function() {
   };
 
   this.out = function(type) {
-    if (type === LEEWGL.Shader.VERTEX)
-      return this.vertex.parameters.join('\n') + this.vertex.main.join('\n') + '}';
-    else if (type === LEEWGL.Shader.FRAGMENT)
-      return this.fragment.parameters.join('\n') + this.fragment.main.join('\n') + '}';
-    else
-      console.error('LEEWGL.ShaderLibrary.addParameterChunk: Wrong type given: ' + type + '!');
+    var outPara = '';
+    var outMain = '';
+    var arr = this.vertex;
+
+    if (type === LEEWGL.Shader.FRAGMENT)
+      arr = this.fragment;
+
+    for (var index in arr) {
+      if (arr.hasOwnProperty(index)) {
+        outPara += arr[index].parameters.join('\n');
+        outMain += arr[index].main.join('\n');
+      }
+    }
+
+    outMain += '}';
+
+    return outPara + outMain;
   };
 
   this.reset = function() {
-    this.vertex.parameters = [];
-    this.vertex.main = [];
-    this.fragment.parameters = [];
-    this.fragment.main = [];
-
-    this.usesColor = false;
-    this.usesTexture = false;
-
-    this.initializeChunks();
+    this.vertex = {};
+    this.fragment = {};
   };
 
   this.initializeChunks();
@@ -262,3 +271,14 @@ LEEWGL.ShaderLibrary.SPOT = 6;
 LEEWGL.ShaderLibrary.POINT = 7;
 LEEWGL.ShaderLibrary.SHADOW_MAPPING = 8;
 LEEWGL.ShaderLibrary.DEPTH_RENDER_TARGET = 9;
+
+/**
+ * window load event to set global
+ */
+var init = function() {
+  var shaderLibrary = new LEEWGL.ShaderLibrary();
+  /** @global */
+  window.SHADER_LIBRARY = shaderLibrary;
+};
+
+addLoadEvent(init);

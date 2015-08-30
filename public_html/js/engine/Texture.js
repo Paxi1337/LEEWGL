@@ -19,15 +19,15 @@ LEEWGL.Texture = function(options) {
   LEEWGL.REQUIRES.push('Texture');
 
   this.options = {
-    'img': LEEWGL.IMG_DEFAULT,
-    'wrap-s': LEEWGL.WRAPPING_CLAMP_TO_EDGE,
-    'wrap-t': LEEWGL.WRAPPING_CLAMP_TO_EDGE,
-    'mapping': LEEWGL.MAPPING_DEFAULT,
-    'mag-filter': LEEWGL.FILTER_NEAREST,
-    'min-filter': LEEWGL.FILTER_NEAREST,
+    'img': LEEWGL.TEXTURE.IMG_DEFAULT,
+    'wrap-s': LEEWGL.TEXTURE.WRAPPING_CLAMP_TO_EDGE,
+    'wrap-t': LEEWGL.TEXTURE.WRAPPING_CLAMP_TO_EDGE,
+    'mapping': LEEWGL.TEXTURE.MAPPING_DEFAULT,
+    'mag-filter': LEEWGL.TEXTURE.FILTER_NEAREST,
+    'min-filter': LEEWGL.TEXTURE.FILTER_NEAREST,
     'anisotropy': 1,
-    'format': LEEWGL.FORMAT_RGBA,
-    'type': LEEWGL.TYPE_UNSIGNED_BYTE,
+    'format': LEEWGL.FORMAT.RGBA,
+    'type': LEEWGL.TYPE.UNSIGNED_BYTE,
     'alignment': 4,
     'gen-mipmaps': true,
     'flip-y': true,
@@ -73,11 +73,6 @@ LEEWGL.Texture = function(options) {
   /** @inner */
   this.mipmaps = [];
 };
-
-/** @global */
-LEEWGL.IMG_DEFAULT = undefined;
-/** @global */
-LEEWGL.MAPPING_DEFAULT = undefined;
 
 LEEWGL.Texture.prototype = {
   constructor: LEEWGL.Texture,
@@ -166,51 +161,51 @@ LEEWGL.Texture.prototype = {
   },
 
   paramToGL: function(gl, param) {
-    if (param === LEEWGL.WRAPPING_REPEAT)
+    if (param === LEEWGL.TEXTURE.WRAPPING_REPEAT)
       return gl.REPEAT;
-    if (param === LEEWGL.WRAPPING_CLAMP_TO_EDGE)
+    if (param === LEEWGL.TEXTURE.WRAPPING_CLAMP_TO_EDGE)
       return gl.CLAMP_TO_EDGE;
-    if (param === LEEWGL.WRAPPING_MIRRORED_REPEAT)
+    if (param === LEEWGL.TEXTURE.WRAPPING_MIRRORED_REPEAT)
       return gl.MIRRORED_REPEAT;
 
-    if (param === LEEWGL.FILTER_NEAREST)
+    if (param === LEEWGL.TEXTURE.FILTER_NEAREST)
       return gl.NEAREST;
-    if (param === LEEWGL.FILTER_NEAREST_MIPMAP_NEAREST)
+    if (param === LEEWGL.TEXTURE.FILTER_NEAREST_MIPMAP_NEAREST)
       return gl.NEAREST_MIPMAP_NEAREST;
-    if (param === LEEWGL.FILTER_NEAREST_MIPMAP_LINEAR)
+    if (param === LEEWGL.TEXTURE.FILTER_NEAREST_MIPMAP_LINEAR)
       return gl.NEAREST_MIPMAP_LINEAR;
 
-    if (param === LEEWGL.FILTER_LINEAR)
+    if (param === LEEWGL.TEXTURE.FILTER_LINEAR)
       return gl.LINEAR;
-    if (param === LEEWGL.FILTER_LINEAR_MIPMAP_NEAREST)
+    if (param === LEEWGL.TEXTURE.FILTER_LINEAR_MIPMAP_NEAREST)
       return gl.LINEAR_MIPMAP_NEAREST;
-    if (param === LEEWGL.FILTER_LINEAR_MIPMAP_LINEAR)
+    if (param === LEEWGL.TEXTURE.FILTER_LINEAR_MIPMAP_LINEAR)
       return gl.LINEAR_MIPMAP_LINEAR;
 
-    if (param === LEEWGL.TYPE_UNSIGNED_BYTE)
+    if (param === LEEWGL.TYPE.UNSIGNED_BYTE)
       return gl.UNSIGNED_BYTE;
-    if (param === LEEWGL.TYPE_BYTE)
+    if (param === LEEWGL.TYPE.BYTE)
       return gl.BYTE;
-    if (param === LEEWGL.TYPE_SHORT)
+    if (param === LEEWGL.TYPE.SHORT)
       return gl.SHORT;
-    if (param === LEEWGL.TYPE_UNSIGNED_SHORT)
+    if (param === LEEWGL.TYPE.UNSIGNED_SHORT)
       return gl.UNSIGNED_SHORT;
-    if (param === LEEWGL.TYPE_INT)
+    if (param === LEEWGL.TYPE.INT)
       return gl.INT;
-    if (param === LEEWGL.TYPE_UNSIGNED_INT)
+    if (param === LEEWGL.TYPE.UNSIGNED_INT)
       return gl.UNSIGNED_INT;
-    if (param === LEEWGL.TYPE_FLOAT)
+    if (param === LEEWGL.TYPE.FLOAT)
       return gl.FLOAT;
 
-    if (param === LEEWGL.FORMAT_ALPHA)
+    if (param === LEEWGL.FORMAT.ALPHA)
       return gl.ALPHA;
-    if (param === LEEWGL.FORMAT_RGB)
+    if (param === LEEWGL.FORMAT.RGB)
       return gl.RGB;
-    if (param === LEEWGL.FORMAT_RGBA)
+    if (param === LEEWGL.FORMAT.RGBA)
       return gl.RGBA;
-    if (param === LEEWGL.FORMAT_LUMINANCE)
+    if (param === LEEWGL.FORMAT.LUMINANCE)
       return gl.LUMINANCE;
-    if (param === LEEWGL.FORMAT_LUMINANCE_ALPHA)
+    if (param === LEEWGL.FORMAT.LUMINANCE_ALPHA)
       return gl.LUMINANCE_ALPHA;
   },
 

@@ -18,10 +18,7 @@ LEEWGL.REQUIRES.push('Object3D');
 LEEWGL.Object3D = function(options) {
   this.options = {
     'alias': 'Object3D_' + LEEWGL.Object3DCount,
-    'tagname' : 'Object3D_' + LEEWGL.Object3DCount,
-    'parent': undefined,
-    'children': [],
-    'components': {},
+    'tagname': 'Object3D_' + LEEWGL.Object3DCount,
     'up': vec3.clone(LEEWGL.Object3D.DefaultUp),
     'inOutline': true,
     'picking': true,
@@ -56,17 +53,17 @@ LEEWGL.Object3D = function(options) {
       writable: true
     },
     'parent': {
-      value: (typeof this.options.parent !== 'undefined') ? this.options.parent.clone() : undefined,
+      value: undefined,
       enumerable: true,
       writable: true
     },
     'children': {
-      value: this.options.children,
+      value: [],
       enumerable: true,
       writable: true
     },
     'components': {
-      value: this.options.components,
+      value: {},
       enumerable: true,
       writable: true
     },
@@ -220,7 +217,24 @@ LEEWGL.Object3D.prototype = {
     for (var i = 0; i < this.children.length; ++i) {
       var child = this.children[i];
       var object = child.getObjectById(id);
-      if (object !== 'undefined')
+      if (object !== null)
+        return object;
+    }
+    return null;
+  },
+  /**
+   * Iterates through children array of this and returns object with given type or null otherwise
+   * @param  {string} type
+   * @return {LEEWGL.Object3D|null}
+   */
+  getObjectByType: function(type) {
+    if (this.type === type)
+      return this;
+
+    for (var i = 0; i < this.children.length; ++i) {
+      var child = this.children[i];
+      var object = child.getObjectByType(type);
+      if (object !== null)
         return object;
     }
     return null;

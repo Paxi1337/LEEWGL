@@ -15,13 +15,14 @@ LEEWGL.Light = function(options) {
     'specular': 1.0,
   };
 
-  this.type = 'Light';
-  this.lightType = 'Base';
-  this.render = false;
 
   extend(LEEWGL.Light.prototype, LEEWGL.Options.prototype);
   this.addOptions(ext_options);
   this.setOptions(options);
+
+  this.type = 'Light';
+  this.lightType = 'Base';
+  this.render = false;
 
   this.ambient = vec3.clone(this.options.ambient);
   this.color = vec3.clone(this.options.color);
@@ -54,9 +55,9 @@ LEEWGL.Light.prototype.setEditables = function() {
       'type': 'number',
       'value': this.specular
     },
-    'type': {
+    'lightType': {
       'name': 'Type',
-      'type': 'string',
+      'type': 'array',
       'value': this.lightType
     }
   };
@@ -110,7 +111,6 @@ LEEWGL.Light.DirectionalLight = function(options) {
   this.addOptions(ext_options);
   this.setOptions(options);
 
-  this.type = 'Light.DirectionalLight';
   this.lightType = 'Directional';
 
   this.direction = vec3.clone(this.options['direction']);
@@ -132,7 +132,8 @@ LEEWGL.Light.DirectionalLight.prototype.setEditables = function() {
     'type': 'vector',
     'value': this.direction
   };
-  this.editables.set(this, 'type', this.lightType);
+  this.editables.set(this, 'lightType', this.lightType);
+  addEditables(this.editables);
 };
 
 /**
@@ -180,12 +181,10 @@ LEEWGL.Light.SpotLight = function(options) {
     'outer-angle': Math.PI * 0.15
   };
 
-  this.type = 'Light.SpotLight';
-  this.lightType = 'Spot';
-
   this.addOptions(ext_options);
   this.setOptions(options);
 
+  this.lightType = 'Spot';
   this.spotDirection = vec3.clone(this.options['spot-direction']);
   this.radius = this.options.radius;
   this.innerAngle = this.options['inner-angle'];
@@ -225,7 +224,7 @@ LEEWGL.Light.SpotLight.prototype.setEditables = function() {
       'value': this.outerAngle
     }
   };
-  this.editables.set(this, 'type', this.lightType);
+  this.editables.set(this, 'lightType', this.lightType);
   addEditables(this.editables, editables);
 };
 
@@ -299,7 +298,6 @@ LEEWGL.Light.PointLight = function(options) {
   this.addOptions(ext_options);
   this.setOptions(options);
 
-  this.type = 'Light.PointLight';
   this.lightType = 'Point';
   this.radius = this.options.radius;
 
@@ -319,7 +317,8 @@ LEEWGL.Light.PointLight.prototype.setEditables = function() {
     'type': 'number',
     'value': this.radius
   };
-  this.editables.set(this, 'type', this.lightType);
+  this.editables.set(this, 'lightType', this.lightType);
+  addEditables(this.editables);
 };
 
 /**

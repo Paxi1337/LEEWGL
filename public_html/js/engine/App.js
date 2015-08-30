@@ -20,10 +20,6 @@ LEEWGL.App = function(options) {
   this.gl = this.core.getContext();
   /** @inner {DOMElement} */
   this.canvas = this.core.getCanvas();
-
-  /** @inner {LEEWGL.ShaderLibrary} */
-  this.shaderLibrary = new LEEWGL.ShaderLibrary();
-
   /** @inner {vec3} */
   this.mouseVector = vec3.create();
 };

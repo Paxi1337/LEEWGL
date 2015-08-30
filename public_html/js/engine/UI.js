@@ -350,7 +350,7 @@ LEEWGL.UI = function(options) {
       var num = parseInt(td.get('num'));
       var value = parseFloat(td.get('text'));
       var keys = Object.keys(vector);
-      vector = vector.value;
+      // vector = vector.value;
 
       if (event.keyCode === LEEWGL.KEYS.ENTER) {
         if (typeof vector[num] === 'undefined') {
@@ -371,7 +371,6 @@ LEEWGL.UI = function(options) {
       var num = parseInt(td.get('num'));
       var value = parseFloat(td.get('text'));
       var keys = Object.keys(vector);
-      vector = vector.value;
 
       if (typeof vector[num] === 'undefined') {
         vector[keys[index]] = value;
@@ -382,38 +381,26 @@ LEEWGL.UI = function(options) {
     });
 
     // / position
-    container.grab(HTMLHELPER.createTable('transform-position', ['x', 'y', 'z'], {
-      'value': vec3.clone(transform.position),
-      'type': 'position'
-    }, {
+    container.grab(HTMLHELPER.createTable('transform-position', ['x', 'y', 'z'], vec3.clone(transform.position), {
       'title': 'Position',
       'type': 'h4',
       'class': 'component-detail-headline'
     }, keydown, keyup));
     // / translation
-    container.grab(HTMLHELPER.createTable('transform-translation', ['x', 'y', 'z'], {
-      'value': vec3.clone(transform.transVec),
-      'type': 'translation'
-    }, {
+    container.grab(HTMLHELPER.createTable('transform-translation', ['x', 'y', 'z'], vec3.clone(transform.transVec), {
       'title': 'Translation',
       'type': 'h4',
       'class': 'component-detail-headline'
     }, keydown, keyup));
 
     // / rotation
-    container.grab(HTMLHELPER.createTable('transform-rotation', ['x', 'y', 'z'], {
-      'value': vec3.clone(transform.rotVec),
-      'type': 'rotation'
-    }, {
+    container.grab(HTMLHELPER.createTable('transform-rotation', ['x', 'y', 'z'], vec3.clone(transform.rotVec), {
       'title': 'Rotation',
       'type': 'h4',
       'class': 'component-detail-headline'
     }, keydown, keyup));
     // / scale
-    container.grab(HTMLHELPER.createTable('transform-scale', ['x', 'y', 'z'], {
-      'value': vec3.clone(transform.scaleVec),
-      'type': 'scale'
-    }, {
+    container.grab(HTMLHELPER.createTable('transform-scale', ['x', 'y', 'z'], vec3.clone(transform.scaleVec), {
       'title': 'Scale',
       'type': 'h4',
       'class': 'component-detail-headline'
@@ -784,31 +771,8 @@ LEEWGL.UI = function(options) {
       });
       container.grab(title);
 
-      /// FIXME: necessary?
-      var keydown = (function(event, element, value) {
-        // var num = parseInt(td.get('num'));
-        // var value = parseFloat(td.get('text'));
-        // var keys = Object.keys(vector);
-        // vector = vector.value;
-        //
-        // if (event.keyCode === LEEWGL.KEYS.ENTER) {
-        //   if (typeof vector[num] === 'undefined') {
-        //     vector[keys[index]] = value;
-        //   } else {
-        //     vector[num] = value;
-        //   }
-        //
-        //   that.dispatchTypes(vector, td.get('identifier'), num);
-        //   that.setInspectorContent(element.id);
-        //
-        //   event.preventDefault();
-        //   event.stopPropagation();
-        // }
-      });
-
       var keyup = (function(event, element, vector) {
         var num = parseInt(element.get('num'));
-        vector = vector.value;
         var id = element.get('identifier');
         var value = '';
         if (typeof vector === 'object') {
@@ -820,16 +784,49 @@ LEEWGL.UI = function(options) {
         }
       });
 
+      /// FIXME: can be called in play mode and doesnt work as expected
+      var change = (function(event, element, content) {
+        var old = that.scene.getObjectByType('Light');
+        var newType = element.e.value;
+
+        if(old.lightType === newType)
+          return;
+
+        that.scene.remove(old);
+        that.removeObjFromOutline(old.id);
+
+        var newLight = functionFromString('LEEWGL.Light.' + newType + 'Light');
+        newLight = new newLight({
+          'tagname' : 'Light',
+          'alias' : 'Light'
+        });
+        that.scene.add(newLight);
+        that.addObjToOutline(newLight);
+        that.setInspectorContent(newLight.id);
+
+        var typeShader = LEEWGL.ShaderLibrary[newLight.lightType.toUpperCase()];
+        that.app.onShaderChange('light', typeShader);
+      });
+
       for (var e in activeElement.editables) {
         var editable = activeElement.editables[e];
         if (editable.type === 'vector') {
-          container.grab(HTMLHELPER.createTable(e, editable['table-titles'], editable, {
+          container.grab(HTMLHELPER.createTable(e, editable['table-titles'], editable.value, {
             'title': editable.name,
             'type': 'h4',
             'class': 'component-detail-headline'
-          }, keydown, keyup));
+          }, null, keyup));
         } else if (editable.type === 'string' || editable.type === 'number') {
-          container.grab(HTMLHELPER.createContainerDetailInput(e, editable.name, editable.value, keydown, keyup));
+          container.grab(HTMLHELPER.createContainerDetailInput(e, editable.name, editable.value, null, keyup));
+        } else if (editable.type === 'array') {
+          if (activeElement instanceof LEEWGL.Light) {
+            var light = this.scene.getObjectByType('Light');
+            /// deep copy of string array
+            var content = JSON.parse(JSON.stringify(LEEWGL.ENGINE.LIGHTS));
+            /// get all but the actual light type
+            content.splice(LEEWGL.ENGINE.LIGHTS.indexOf(light.lightType), 1);
+            container.grab(HTMLHELPER.createDropdown(e, editable.name, content, change, light.lightType));
+          }
         }
       }
       this.inspector.grab(container);
@@ -1210,7 +1207,7 @@ LEEWGL.UI = function(options) {
   this.insertTriangle = function() {
     var triangle = new LEEWGL.Geometry.Triangle();
     triangle.setBuffer(this.gl);
-    triangle.addColor(this.gl);
+    triangle.setColor(this.gl, ColorHelper.getUniqueColor());
     this.addObjToOutline(triangle);
     this.scene.add(triangle);
   };
@@ -1218,7 +1215,7 @@ LEEWGL.UI = function(options) {
   this.insertCube = function() {
     var cube = new LEEWGL.Geometry.Cube();
     cube.setBuffer(this.gl);
-    cube.addColor(this.gl);
+    cube.setColor(this.gl, ColorHelper.getUniqueColor());
     this.addObjToOutline(cube);
     this.scene.add(cube);
   };
@@ -1226,7 +1223,7 @@ LEEWGL.UI = function(options) {
   this.insertSphere = function() {
     var sphere = new LEEWGL.Geometry.Sphere();
     sphere.setBuffer(this.gl);
-    sphere.addColor(this.gl);
+    sphere.setColor(this.gl, ColorHelper.getUniqueColor());
     this.addObjToOutline(sphere);
     this.scene.add(sphere);
   };
@@ -1236,6 +1233,7 @@ LEEWGL.UI = function(options) {
       console.error('LEEWGL.UI.insertLight: No options param given!');
       return false;
     }
+
     var light = null;
     if (options.type === 'Directional')
       light = new LEEWGL.Light.DirectionalLight();
@@ -2103,8 +2101,10 @@ LEEWGL.UI.FIXED = 'fixed';
 /**
  * window load event to set global
  */
-window.addEventListener('load', function() {
+var init = function() {
   var ui = new LEEWGL.UI();
   /** @global */
   window.UI = ui;
-});
+};
+
+addLoadEvent(init);

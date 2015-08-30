@@ -80,10 +80,10 @@ LEEWGL.Settings = function(options) {
     this.options[name] = value;
   };
 
- /**
-  * Generates a dom container with contains all settings in input fields / table rows
-  * @return {LEEWGL.DOM.Element}
-  */
+  /**
+   * Generates a dom container with contains all settings in input fields / table rows
+   * @return {LEEWGL.DOM.Element}
+   */
   this.toHTML = function() {
     var that = this;
     var container = new LEEWGL.DOM.Element('div', {
@@ -91,11 +91,9 @@ LEEWGL.Settings = function(options) {
     });
 
     var keydownTable = (function(event, td, vector) {
-      var el = new LEEWGL.DOM.Element(td);
-      var id = el.getParent().getParent().getParent().e.id;
-      var num = el.get('num');
-      var value = parseFloat(el.get('text'));
-      vector = vector.value;
+      var id = td.get('identifier');
+      var num = td.get('num');
+      var value = parseFloat(td.get('text'));
 
       if (event.keyCode === LEEWGL.KEYS.ENTER) {
         vector[num] = value;
@@ -106,10 +104,9 @@ LEEWGL.Settings = function(options) {
     });
 
     var keydownInput = (function(event, input, content) {
-      var el = new LEEWGL.DOM.Element(input);
       if (event.keyCode === LEEWGL.KEYS.ENTER) {
-        var id = el.getParent().e.id;
-        that.set(id, el.e.value);
+        var id = input.get('identifier');
+        that.set(id, input.e.value);
         event.stopPropagation();
         event.preventDefault();
       }
@@ -133,9 +130,7 @@ LEEWGL.Settings = function(options) {
       if (this.types[prop] === 'input') {
         container.grab(HTMLHELPER.createContainerDetailInput(prop, prop, this.options[prop], keydownInput));
       } else if (this.types[prop] === 'table') {
-        container.grab(HTMLHELPER.createTable(prop, Object.keys(this.options[prop]), {
-          'value': this.options[prop]
-        }, {
+        container.grab(HTMLHELPER.createTable(prop, Object.keys(this.options[prop]), this.options[prop], {
           'title': prop,
           'type': 'h4',
           'class': 'component-detail-headline'

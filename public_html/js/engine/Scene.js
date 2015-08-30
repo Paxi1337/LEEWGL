@@ -26,7 +26,7 @@ LEEWGL.Scene = function(options) {
 
 LEEWGL.Scene.prototype = Object.create(LEEWGL.Object3D.prototype);
 
-LEEWGL.Scene.prototype.addShader = function(name, shader) {
+LEEWGL.Scene.prototype.setShader = function(name, shader) {
   this.shaders[name] = shader;
 };
 
