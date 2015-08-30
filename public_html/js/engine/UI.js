@@ -231,31 +231,14 @@ LEEWGL.UI = function(options) {
     // var dblclick, keydown;
     var elements = document.querySelectorAll('.editable');
 
-    function dblclick(element) {
-      if (element.get('contenteditable') === null) {
-        element.set('contenteditable', true);
-        element.set('class', 'editable edited');
-      }
-
-      that.displayUpdatePopup();
-    }
-
-    function keydown(event, element) {
-      if (event.keyCode === LEEWGL.KEYS.ENTER) {
-        if (element.get('contenteditable') !== null)
-          element.removeAttributes(['contenteditable', 'class']);
-      }
-    }
+    var edit = function(element) {
+      element.set('contenteditable', true);
+      element.set('class', 'editable');
+    };
 
     for (var i = 0; i < elements.length; ++i) {
-      /*jshint -W083 */
+      edit(new LEEWGL.DOM.Element(elements[i]));
       var elem = new LEEWGL.DOM.Element(elements[i]);
-      elem.addEvent('dblclick', function(event) {
-        dblclick(new LEEWGL.DOM.Element(this));
-      });
-      elem.addEvent('keydown', function(event) {
-        keydown(event, new LEEWGL.DOM.Element(this));
-      });
     }
   };
 
@@ -789,7 +772,7 @@ LEEWGL.UI = function(options) {
         var old = that.scene.getObjectByType('Light');
         var newType = element.e.value;
 
-        if(old.lightType === newType)
+        if (old.lightType === newType)
           return;
 
         that.scene.remove(old);
@@ -797,8 +780,8 @@ LEEWGL.UI = function(options) {
 
         var newLight = functionFromString('LEEWGL.Light.' + newType + 'Light');
         newLight = new newLight({
-          'tagname' : 'Light',
-          'alias' : 'Light'
+          'tagname': 'Light',
+          'alias': 'Light'
         });
         that.scene.add(newLight);
         that.addObjToOutline(newLight);
