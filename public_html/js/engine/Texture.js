@@ -120,9 +120,8 @@ LEEWGL.Texture.prototype = {
 
     this.img.onload = function() {
       that.bind(gl);
-      // that.setActive(gl, unit);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, that.img);
-      that.setTextureParameters(gl, gl.TEXTURE_2D, false);
+      that.setTextureParameters(gl, gl.TEXTURE_2D, ((that.img.width % 2) === 0 && (that.img.height % 2) === 0));
       that.unbind(gl, unit);
     };
   },
@@ -131,15 +130,15 @@ LEEWGL.Texture.prototype = {
     if (isPowerOfTwo) {
       gl.texParameteri(type, gl.TEXTURE_WRAP_S, this.paramToGL(gl, this.wrapS));
       gl.texParameteri(type, gl.TEXTURE_WRAP_T, this.paramToGL(gl, this.wrapT));
+      if (this.genMipmaps === true)
+        gl.generateMipmap(type);
     } else {
       gl.texParameteri(type, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(type, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     }
-      gl.texParameteri(type, gl.TEXTURE_MAG_FILTER, this.paramToGL(gl, this.magFilter));
-      gl.texParameteri(type, gl.TEXTURE_MIN_FILTER, this.paramToGL(gl, this.minFilter));
+    gl.texParameteri(type, gl.TEXTURE_MAG_FILTER, this.paramToGL(gl, this.magFilter));
+    gl.texParameteri(type, gl.TEXTURE_MIN_FILTER, this.paramToGL(gl, this.minFilter));
 
-    if (this.genMipmaps === true)
-      gl.generateMipmap(type);
   },
 
   setFrameBuffer: function(gl, width, height) {

@@ -55,6 +55,11 @@ LEEWGL.EditorApp = function(options) {
     'tagname': 'Light'
   });
 
+  this.billboard = new LEEWGL.Billboard({
+    'alias': 'Billboard',
+    'tagname': 'Billboard'
+  });
+
   /** @inner {LEEWGL.Picker} */
   this.picker = new LEEWGL.Picker();
   /** @inner {object} */
@@ -119,8 +124,10 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
 
   this.scene.setShader('color', shader.color);
   this.scene.setShader('texture', shader.texture);
+  this.scene.setShader('billboard', shader.billboard);
   this.scenePlay.setShader('color', shader.color);
   this.scenePlay.setShader('texture', shader.texture);
+  this.scenePlay.setShader('billboard', shader.billboard);
 
   this.cameraGizmo.setBuffer(this.gl);
   this.cameraGizmo.addColor(this.gl, ColorHelper.getUniqueColor());
@@ -139,12 +146,15 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   this.grid.addColor(this.gl, ColorHelper.getUniqueColor());
   this.grid.transform.translate([0.0, -5.0, 0.0]);
 
+  var testImage = new Image();
+  testImage.src = LEEWGL.ROOT + 'texture/texture1.jpg';
+  this.billboard.init(this.gl, testImage);
   // test load collada file
   // var Importer = new LEEWGL.Importer();
   // var model = Importer.import('models/cup.obj', this.gl);
 
   // this.scene.add(this.camera, this.gameCamera, this.triangle, this.cube, this.grid, this.cameraGizmo, this.light);
-  this.scene.add(this.camera, this.gameCamera, this.triangle, this.cube, this.cameraGizmo, this.light);
+  this.scene.add(this.billboard, this.camera, this.gameCamera, this.triangle, this.cube, this.cameraGizmo, this.light);
 
   this.gl.enable(this.gl.DEPTH_TEST);
   this.gl.depthFunc(this.gl.LEQUAL);
@@ -165,6 +175,7 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   UI.addObjToOutline(this.scene.children);
   UI.setTransformationMode('translation');
 
+
   // var test = this.scene.export();
 
   // console.log(encodeURI(test));
@@ -179,6 +190,19 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
 };
 
 LEEWGL.EditorApp.prototype.initShaders = function(lightType) {
+  SHADER_LIBRARY.reset();
+
+  SHADER_LIBRARY.addParameterChunk(LEEWGL.ShaderLibrary.BILLBOARD);
+
+  var billboardShader = new LEEWGL.Shader();
+  billboardShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, SHADER_LIBRARY.out(LEEWGL.Shader.VERTEX));
+  billboardShader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, SHADER_LIBRARY.out(LEEWGL.Shader.FRAGMENT));
+  billboardShader.linkShader(this.gl);
+  billboardShader.use(this.gl);
+
+  billboardShader.createUniformSetters(this.gl);
+  billboardShader.createAttributeSetters(this.gl);
+
   SHADER_LIBRARY.reset();
 
   SHADER_LIBRARY.addParameterChunks([LEEWGL.ShaderLibrary.DEFAULT, LEEWGL.ShaderLibrary.PICKING, LEEWGL.ShaderLibrary.COLOR, LEEWGL.ShaderLibrary.AMBIENT, lightType]);
@@ -209,9 +233,12 @@ LEEWGL.EditorApp.prototype.initShaders = function(lightType) {
   textureShader.createUniformSetters(this.gl);
   textureShader.createAttributeSetters(this.gl);
 
+  console.log(billboardShader);
+
   return {
     'color': colorShader,
-    'texture': textureShader
+    'texture': textureShader,
+    'billboard': billboardShader
   };
 };
 
@@ -420,6 +447,9 @@ LEEWGL.EditorApp.prototype.onRender = function() {
     if (element.usesTexture === true) {
       activeShader = scene.shaders['texture'];
       scene.setActiveShader('texture');
+    } else if (element instanceof LEEWGL.Billboard) {
+      activeShader = scene.shaders['billboard'];
+      scene.setActiveShader('billboard');
     } else {
       activeShader = scene.shaders['color'];
       scene.setActiveShader('color');
@@ -427,15 +457,15 @@ LEEWGL.EditorApp.prototype.onRender = function() {
 
     activeShader.use(this.gl);
 
-    if (this.picking === true) {
+    if (this.picking === true && element.picking === true) {
       this.picker.bind(this.gl);
 
       activeShader.uniforms['uOffscreen'](1);
 
-      this.draw(element, activeShader, viewProjection);
+      this.draw(element, activeShader, camera);
       this.picker.unbind(this.gl);
+      activeShader.uniforms['uOffscreen'](0);
     }
-    activeShader.uniforms['uOffscreen'](0);
 
     if (this.useShadows === true) {
       this.shadowmap.bind(this.gl, activeShader);
@@ -446,21 +476,26 @@ LEEWGL.EditorApp.prototype.onRender = function() {
       this.shadowmap.unbind(this.gl, activeShader);
       this.clear();
     }
-    this.draw(element, activeShader, viewProjection);
+    this.draw(element, activeShader, camera);
   }
 };
 
-LEEWGL.EditorApp.prototype.draw = function(element, shader, viewProjection) {
+LEEWGL.EditorApp.prototype.draw = function(element, shader, camera) {
   if (element.render === true) {
     shader.use(this.gl);
-    shader.uniforms['uVP'](viewProjection);
+    shader.uniforms['uVP'](camera.viewProjMatrix);
 
     if (this.useShadows === true)
       this.shadowmap.draw(this.gl, shader, this.light);
 
-    if (this.light !== null)
-      this.light.draw(this.gl, shader);
-    element.draw(this.gl, shader, this.gl.TRIANGLES);
+
+    if (element instanceof LEEWGL.Billboard) {
+      element.draw(this.gl, shader, camera);
+    } else {
+      if (this.light !== null)
+        this.light.draw(this.gl, shader);
+      element.draw(this.gl, shader, this.gl.TRIANGLES);
+    }
   }
 };
 

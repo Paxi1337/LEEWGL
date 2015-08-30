@@ -168,7 +168,7 @@ LEEWGL.PerspectiveCamera.prototype.update = function() {
 };
 
 /**
- * Return forward vector in local space
+ * Return forward vector in world space
  * @return {vec3}
  */
 LEEWGL.PerspectiveCamera.prototype.forward = function() {
@@ -177,7 +177,7 @@ LEEWGL.PerspectiveCamera.prototype.forward = function() {
 };
 
 /**
- * Return right vector in local space
+ * Return right vector in world space
  * @return {vec3}
  */
 LEEWGL.PerspectiveCamera.prototype.right = function() {
@@ -186,12 +186,21 @@ LEEWGL.PerspectiveCamera.prototype.right = function() {
 };
 
 /**
- * Return down vector in local space
+ * Return down vector in world space
  * @return {vec3}
  */
 LEEWGL.PerspectiveCamera.prototype.down = function() {
   var down = vec4.transformMat4(vec4.create(), [0, -1, 0, 1], mat4.invert(mat4.create(), this.orientation()));
   return [down[0], down[1], down[2]];
+};
+
+/**
+ * Return up vector in world space
+ * @return {vec3}
+ */
+LEEWGL.PerspectiveCamera.prototype.upVec = function() {
+  var up = vec4.transformMat4(vec4.create(), [0, 1, 0, 1], mat4.invert(mat4.create(), this.orientation()));
+  return [up[0], up[1], up[2]];
 };
 
 /**

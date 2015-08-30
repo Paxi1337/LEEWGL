@@ -206,6 +206,28 @@ LEEWGL.ShaderLibrary = function() {
         ]
       }
     };
+
+    this.chunks[LEEWGL.ShaderLibrary.BILLBOARD] = {
+      vertex: {
+        parameters: [
+          LEEWGL.ShaderChunk['vertex_billboard_para'],
+        ],
+        main: [
+          "void main() {",
+          LEEWGL.ShaderChunk['vertex_billboard'],
+        ]
+      },
+      fragment: {
+        parameters: [
+          "precision highp float;",
+          LEEWGL.ShaderChunk['fragment_billboard_para']
+        ],
+        main: [
+          "void main() {",
+          LEEWGL.ShaderChunk['fragment_billboard']
+        ]
+      }
+    };
   };
 
   this.addParameterChunk = function(type) {
@@ -271,6 +293,7 @@ LEEWGL.ShaderLibrary.SPOT = 6;
 LEEWGL.ShaderLibrary.POINT = 7;
 LEEWGL.ShaderLibrary.SHADOW_MAPPING = 8;
 LEEWGL.ShaderLibrary.DEPTH_RENDER_TARGET = 9;
+LEEWGL.ShaderLibrary.BILLBOARD = 10;
 
 /**
  * window load event to set global
