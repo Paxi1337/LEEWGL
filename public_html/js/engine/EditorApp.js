@@ -148,6 +148,8 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
 
   this.gl.enable(this.gl.DEPTH_TEST);
   this.gl.depthFunc(this.gl.LEQUAL);
+  /// FIXME: triangle vertices order
+  this.gl.enable(this.gl.CULL_FACE);
 
   if (this.picking === true)
     this.picker.init(this.gl, this.canvas.width, this.canvas.height);

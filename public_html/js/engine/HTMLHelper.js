@@ -166,6 +166,9 @@ LEEWGL.HTMLHelper = function() {
       'class': 'settings-dropdown'
     });
 
+    if (id !== null)
+      select.setAttribute('identifier', id);
+
     select.addEvent('change', function(event) {
       change(event, select, content);
     });
@@ -173,8 +176,8 @@ LEEWGL.HTMLHelper = function() {
     var option = new LEEWGL.DOM.Element('option', {
       'value': '',
       'text': defaultValue,
-      'disabled' : true,
-      'selected' : true
+      'disabled': true,
+      'selected': true
     });
 
     select.grab(option);
@@ -184,10 +187,6 @@ LEEWGL.HTMLHelper = function() {
         'value': content[i],
         'text': content[i]
       });
-
-      if (id !== null)
-        option.setAttribute('identifier', id);
-
       select.grab(option);
     }
 

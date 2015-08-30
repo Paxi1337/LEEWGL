@@ -37,7 +37,10 @@ LEEWGL.Settings = function(options) {
       'b': 0.7,
       'a': 1.0
     },
-    'depth-buffer': true,
+    'depth-buffer': {
+      'active': true,
+      'values': [true, false]
+    },
     'viewport': {
       'x': 0,
       'y': 0,
@@ -57,7 +60,7 @@ LEEWGL.Settings = function(options) {
     'translation-speed': 'table',
     'rotation-speed': 'table',
     'background-color': 'table',
-    'depth-buffer': 'checkbox',
+    'depth-buffer': 'select',
     'viewport': 'table',
     'fps': 'input'
   };
@@ -77,7 +80,10 @@ LEEWGL.Settings = function(options) {
    * @param  {mixed} value
    */
   this.set = function(name, value) {
-    this.options[name] = value;
+    if (typeof this.options[name].active !== 'undefined')
+      this.options[name]['active'] = value;
+    else
+      this.options[name] = value;
   };
 
   /**
@@ -112,6 +118,11 @@ LEEWGL.Settings = function(options) {
       }
     });
 
+    var change = (function(event, element, content) {
+      var id = element.get('identifier');
+      that.set(id, element.e.value);
+    });
+
     var componentsControlContainer = new LEEWGL.DOM.Element('div', {
       'class': 'controls-container'
     });
@@ -135,6 +146,10 @@ LEEWGL.Settings = function(options) {
           'type': 'h4',
           'class': 'component-detail-headline'
         }, keydownTable));
+      } else if (this.types[prop] === 'select') {
+        var content = JSON.parse(JSON.stringify(this.options[prop]['values']));
+        content.splice(this.options[prop]['values'].indexOf(this.options[prop]['active']), 1);
+        container.grab(HTMLHELPER.createDropdown(prop, prop, content, change, this.options[prop]['active']));
       }
     }
 
