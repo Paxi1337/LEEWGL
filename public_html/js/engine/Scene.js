@@ -3,11 +3,11 @@ LEEWGL.REQUIRES.push('Scene');
 /**
  *
  * @constructor
- * @augments LEEWGL.Object3D
+ * @augments LEEWGL.GameObject
  * @param {object} options
  */
 LEEWGL.Scene = function(options) {
-  LEEWGL.Object3D.call(this, options);
+  LEEWGL.GameObject.call(this, options);
   this.type = 'Scene';
 
   Object.defineProperties(this, {
@@ -24,7 +24,7 @@ LEEWGL.Scene = function(options) {
   });
 };
 
-LEEWGL.Scene.prototype = Object.create(LEEWGL.Object3D.prototype);
+LEEWGL.Scene.prototype = Object.create(LEEWGL.GameObject.prototype);
 
 LEEWGL.Scene.prototype.setShader = function(name, shader) {
   this.shaders[name] = shader;
@@ -38,7 +38,7 @@ LEEWGL.Scene.prototype.clone = function(scene, cloneID, recursive, addToAlias) {
   if (typeof scene === 'undefined')
     scene = new LEEWGL.Scene();
 
-  LEEWGL.Object3D.prototype.clone.call(this, scene, cloneID, recursive, addToAlias);
+  LEEWGL.GameObject.prototype.clone.call(this, scene, cloneID, recursive, addToAlias);
 
   for (var name in this.shaders) {
     if (this.shaders.hasOwnProperty(name)) {
@@ -63,6 +63,6 @@ LEEWGL.Scene.prototype.import = function(stringified_json, recursive) {
     scene.children[i].parent = scene;
   }
 
-  // scene = LEEWGL.Object3D.prototype.import.call(this, stringified_json, recursive, scene);
+  // scene = LEEWGL.GameObject.prototype.import.call(this, stringified_json, recursive, scene);
   return scene;
 };

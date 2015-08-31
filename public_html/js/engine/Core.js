@@ -120,6 +120,15 @@ LEEWGL.ENGINE = {};
 /** @global */
 LEEWGL.ENGINE.LIGHTS = ['Directional', 'Spot', 'Point'];
 
+
+
+/** @global */
+LEEWGL.VECTOR = {};
+LEEWGL.VECTOR2D = {};
+LEEWGL.VECTOR2D.UP = [0.0, 1.0];
+LEEWGL.VECTOR3D = {};
+LEEWGL.VECTOR3D.UP = [0.0, 1.0, 0.0];
+
 /**
  * @constructor
  * @param  {bool} auto

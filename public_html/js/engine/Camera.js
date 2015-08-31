@@ -1,11 +1,11 @@
 /**
  * @constructor
- * @augments LEEWGL.Object3D
+ * @augments LEEWGL.GameObject
  * @param  {object} options
  */
 LEEWGL.Camera = function(options) {
   LEEWGL.REQUIRES.push('Camera');
-  LEEWGL.Object3D.call(this, options);
+  LEEWGL.GameObject.call(this, options);
 
   /** @inner {string} */
   this.type = 'Camera';
@@ -20,20 +20,20 @@ LEEWGL.Camera = function(options) {
   this.viewProjMatrix = mat4.create();
 };
 
-LEEWGL.Camera.prototype = Object.create(LEEWGL.Object3D.prototype);
+LEEWGL.Camera.prototype = Object.create(LEEWGL.GameObject.prototype);
 
 /**
  * Creates a deep copy of this object
  * @param  {LEEWGL.Camera} camera
  * @param  {bool} cloneID
  * @param  {bool|string} addToAlias
- * @return {LEEWGL.Object3D}
+ * @return {LEEWGL.GameObject}
  */
 LEEWGL.Camera.prototype.clone = function(camera, cloneID, recursive, addToAlias) {
   if (camera === undefined)
     camera = new LEEWGL.Camera(this.options);
 
-  LEEWGL.Object3D.prototype.clone.call(this, camera, cloneID, recursive, addToAlias);
+  LEEWGL.GameObject.prototype.clone.call(this, camera, cloneID, recursive, addToAlias);
 
   mat4.copy(camera.viewMatrix, this.viewMatrix);
   mat4.copy(camera.projMatrix, this.projMatrix);

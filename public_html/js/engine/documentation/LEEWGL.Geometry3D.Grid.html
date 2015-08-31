@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: Cube</title>
+    <title>JSDoc: Class: Grid</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: Cube</h1>
+    <h1 class="page-title">Class: Grid</h1>
 
     
 
@@ -29,9 +29,9 @@
 <header>
     
         <h2>
-            <span class="ancestors"><a href="LEEWGL.html">LEEWGL</a><a href="LEEWGL.Geometry.html">.Geometry</a>.</span>
+            <span class="ancestors"><a href="LEEWGL.html">LEEWGL</a><a href="LEEWGL.Geometry3D.html">.Geometry3D</a>.</span>
         
-        Cube
+        Grid
         </h2>
         
     
@@ -44,7 +44,7 @@
 
     
 
-    <h4 class="name" id="Cube"><span class="type-signature"></span>new Cube<span class="signature">(options)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Grid"><span class="type-signature"></span>new Grid<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 
@@ -83,13 +83,36 @@
 
         <tr>
             
-                <td class="name"><code>options</code></td>
+                <td class="name"><code>options.lines</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options.dimension</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">dimension</span>
 
 
             
@@ -140,7 +163,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line537">line 537</a>
+        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line399">line 399</a>
     </li></ul></dd>
     
 
@@ -176,7 +199,7 @@
 
 
     <ul>
-        <li><a href="LEEWGL.Geometry.html">LEEWGL.Geometry</a></li>
+        <li><a href="LEEWGL.Geometry3D.html">LEEWGL.Geometry3D</a></li>
     </ul>
 
 
@@ -215,7 +238,7 @@
     
     <dt class="inherited-from">Inherited From:</dt>
     <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="LEEWGL.Object3D.html#transform">LEEWGL.Object3D#transform</a>
+        <a href="LEEWGL.GameObject.html#transform">LEEWGL.GameObject#transform</a>
     </li></ul></dd>
     
 
@@ -240,7 +263,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Object3D.js.html">Object3D.js</a>, <a href="Object3D.js.html#line132">line 132</a>
+        <a href="GameObject.js.html">GameObject.js</a>, <a href="GameObject.js.html#line104">line 104</a>
     </li></ul></dd>
     
 
@@ -267,7 +290,7 @@
 
     
 
-    <h4 class="name" id="add"><span class="type-signature"></span>add<span class="signature">(object)</span><span class="type-signature"> &rarr; {<a href="LEEWGL.Object3D.html">LEEWGL.Object3D</a>}</span></h4>
+    <h4 class="name" id="add"><span class="type-signature"></span>add<span class="signature">(object)</span><span class="type-signature"> &rarr; {<a href="LEEWGL.GameObject.html">LEEWGL.GameObject</a>}</span></h4>
 
     
 
@@ -316,7 +339,7 @@
             <td class="type">
             
                 
-<span class="param-type"><a href="LEEWGL.Object3D.html">LEEWGL.Object3D</a></span>
+<span class="param-type"><a href="LEEWGL.GameObject.html">LEEWGL.GameObject</a></span>
 
 
             
@@ -347,7 +370,7 @@
     
     <dt class="inherited-from">Inherited From:</dt>
     <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="LEEWGL.Object3D.html#add">LEEWGL.Object3D#add</a>
+        <a href="LEEWGL.GameObject.html#add">LEEWGL.GameObject#add</a>
     </li></ul></dd>
     
 
@@ -372,7 +395,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Object3D.js.html">Object3D.js</a>, <a href="Object3D.js.html#line145">line 145</a>
+        <a href="GameObject.js.html">GameObject.js</a>, <a href="GameObject.js.html#line140">line 140</a>
     </li></ul></dd>
     
 
@@ -412,7 +435,7 @@
     </dt>
     <dd>
         
-<span class="param-type"><a href="LEEWGL.Object3D.html">LEEWGL.Object3D</a></span>
+<span class="param-type"><a href="LEEWGL.GameObject.html">LEEWGL.GameObject</a></span>
 
 
     </dd>
@@ -553,7 +576,7 @@
     
     <dt class="inherited-from">Inherited From:</dt>
     <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="LEEWGL.Geometry.html#addColor">LEEWGL.Geometry#addColor</a>
+        <a href="LEEWGL.Geometry3D.html#addColor">LEEWGL.Geometry3D#addColor</a>
     </li></ul></dd>
     
 
@@ -578,7 +601,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line222">line 222</a>
+        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line368">line 368</a>
     </li></ul></dd>
     
 
@@ -690,7 +713,7 @@ Key is the unique component type name without 'Component.'</p>
     
     <dt class="inherited-from">Inherited From:</dt>
     <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="LEEWGL.Object3D.html#addComponent">LEEWGL.Object3D#addComponent</a>
+        <a href="LEEWGL.GameObject.html#addComponent">LEEWGL.GameObject#addComponent</a>
     </li></ul></dd>
     
 
@@ -715,7 +738,7 @@ Key is the unique component type name without 'Component.'</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Object3D.js.html">Object3D.js</a>, <a href="Object3D.js.html#line175">line 175</a>
+        <a href="GameObject.js.html">GameObject.js</a>, <a href="GameObject.js.html#line170">line 170</a>
     </li></ul></dd>
     
 
@@ -778,7 +801,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="inherited-from">Inherited From:</dt>
     <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="LEEWGL.Geometry.html#calculateFaces">LEEWGL.Geometry#calculateFaces</a>
+        <a href="LEEWGL.Geometry3D.html#calculateFaces">LEEWGL.Geometry3D#calculateFaces</a>
     </li></ul></dd>
     
 
@@ -803,7 +826,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line96">line 96</a>
+        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line251">line 251</a>
     </li></ul></dd>
     
 
@@ -866,7 +889,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="inherited-from">Inherited From:</dt>
     <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="LEEWGL.Geometry.html#calculateNormals">LEEWGL.Geometry#calculateNormals</a>
+        <a href="LEEWGL.Geometry3D.html#calculateNormals">LEEWGL.Geometry3D#calculateNormals</a>
     </li></ul></dd>
     
 
@@ -891,7 +914,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line129">line 129</a>
+        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line284">line 284</a>
     </li></ul></dd>
     
 
@@ -978,7 +1001,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line190">line 190</a>
+        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line125">line 125</a>
     </li></ul></dd>
     
 
@@ -1009,14 +1032,14 @@ Gets called in constructor of derived classes of Geometry</p>
 
     
 
-    <h4 class="name" id="clone"><span class="type-signature"></span>clone<span class="signature">(cube, cloneID, addToAlias)</span><span class="type-signature"> &rarr; {<a href="LEEWGL.Geometry.Cube.html">LEEWGL.Geometry.Cube</a>}</span></h4>
+    <h4 class="name" id="clone"><span class="type-signature"></span>clone<span class="signature">(grid, cloneID, addToAlias)</span><span class="type-signature"> &rarr; {<a href="LEEWGL.Geometry3D.Grid.html">LEEWGL.Geometry3D.Grid</a>}</span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Derived from LEEWGL.Geometry</p>
+    <p>Derived from LEEWGL.Geometry3D</p>
 </div>
 
 
@@ -1052,13 +1075,13 @@ Gets called in constructor of derived classes of Geometry</p>
 
         <tr>
             
-                <td class="name"><code>cube</code></td>
+                <td class="name"><code>grid</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="LEEWGL.Geometry.Cube.html">LEEWGL.Geometry.Cube</a></span>
+<span class="param-type"><a href="LEEWGL.Geometry3D.Grid.html">LEEWGL.Geometry3D.Grid</a></span>
 
 
             
@@ -1105,9 +1128,6 @@ Gets called in constructor of derived classes of Geometry</p>
             
                 
 <span class="param-type">bool</span>
-|
-
-<span class="param-type">string</span>
 
 
             
@@ -1140,7 +1160,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-overrides">Overrides:</dt>
     <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="LEEWGL.Geometry.html#clone">LEEWGL.Geometry#clone</a>
+        <a href="LEEWGL.Geometry3D.html#clone">LEEWGL.Geometry3D#clone</a>
     </li></ul></dd>
     
 
@@ -1163,7 +1183,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line626">line 626</a>
+        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line459">line 459</a>
     </li></ul></dd>
     
 
@@ -1197,7 +1217,7 @@ Gets called in constructor of derived classes of Geometry</p>
     </dt>
     <dd>
         
-<span class="param-type"><a href="LEEWGL.Geometry.Cube.html">LEEWGL.Geometry.Cube</a></span>
+<span class="param-type"><a href="LEEWGL.Geometry3D.Grid.html">LEEWGL.Geometry3D.Grid</a></span>
 
 
     </dd>
@@ -1386,7 +1406,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line259">line 259</a>
+        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line138">line 138</a>
     </li></ul></dd>
     
 
@@ -1448,7 +1468,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="inherited-from">Inherited From:</dt>
     <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="LEEWGL.Object3D.html#export">LEEWGL.Object3D#export</a>
+        <a href="LEEWGL.GameObject.html#export">LEEWGL.GameObject#export</a>
     </li></ul></dd>
     
 
@@ -1473,7 +1493,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Object3D.js.html">Object3D.js</a>, <a href="Object3D.js.html#line347">line 347</a>
+        <a href="GameObject.js.html">GameObject.js</a>, <a href="GameObject.js.html#line359">line 359</a>
     </li></ul></dd>
     
 
@@ -1528,7 +1548,91 @@ Gets called in constructor of derived classes of Geometry</p>
 
     
 
-    <h4 class="name" id="getObjectByAlias"><span class="type-signature"></span>getObjectByAlias<span class="signature">(alias)</span><span class="type-signature"> &rarr; {<a href="LEEWGL.Object3D.html">LEEWGL.Object3D</a>|null}</span></h4>
+    <h4 class="name" id="generate"><span class="type-signature"></span>generate<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Gets called in constructor
+Fills this.vertices.position and this.indices
+Calls this.calculateFaces and this.calculateNormals to deliver a renderable object</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line423">line 423</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getObjectByAlias"><span class="type-signature"></span>getObjectByAlias<span class="signature">(alias)</span><span class="type-signature"> &rarr; {<a href="LEEWGL.GameObject.html">LEEWGL.GameObject</a>|null}</span></h4>
 
     
 
@@ -1608,7 +1712,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="inherited-from">Inherited From:</dt>
     <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="LEEWGL.Object3D.html#getObjectByAlias">LEEWGL.Object3D#getObjectByAlias</a>
+        <a href="LEEWGL.GameObject.html#getObjectByAlias">LEEWGL.GameObject#getObjectByAlias</a>
     </li></ul></dd>
     
 
@@ -1633,7 +1737,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Object3D.js.html">Object3D.js</a>, <a href="Object3D.js.html#line233">line 233</a>
+        <a href="GameObject.js.html">GameObject.js</a>, <a href="GameObject.js.html#line245">line 245</a>
     </li></ul></dd>
     
 
@@ -1667,7 +1771,7 @@ Gets called in constructor of derived classes of Geometry</p>
     </dt>
     <dd>
         
-<span class="param-type"><a href="LEEWGL.Object3D.html">LEEWGL.Object3D</a></span>
+<span class="param-type"><a href="LEEWGL.GameObject.html">LEEWGL.GameObject</a></span>
 |
 
 <span class="param-type">null</span>
@@ -1685,7 +1789,7 @@ Gets called in constructor of derived classes of Geometry</p>
 
     
 
-    <h4 class="name" id="getObjectById"><span class="type-signature"></span>getObjectById<span class="signature">(id)</span><span class="type-signature"> &rarr; {<a href="LEEWGL.Object3D.html">LEEWGL.Object3D</a>|null}</span></h4>
+    <h4 class="name" id="getObjectById"><span class="type-signature"></span>getObjectById<span class="signature">(id)</span><span class="type-signature"> &rarr; {<a href="LEEWGL.GameObject.html">LEEWGL.GameObject</a>|null}</span></h4>
 
     
 
@@ -1765,7 +1869,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="inherited-from">Inherited From:</dt>
     <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="LEEWGL.Object3D.html#getObjectById">LEEWGL.Object3D#getObjectById</a>
+        <a href="LEEWGL.GameObject.html#getObjectById">LEEWGL.GameObject#getObjectById</a>
     </li></ul></dd>
     
 
@@ -1790,7 +1894,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Object3D.js.html">Object3D.js</a>, <a href="Object3D.js.html#line216">line 216</a>
+        <a href="GameObject.js.html">GameObject.js</a>, <a href="GameObject.js.html#line211">line 211</a>
     </li></ul></dd>
     
 
@@ -1824,7 +1928,7 @@ Gets called in constructor of derived classes of Geometry</p>
     </dt>
     <dd>
         
-<span class="param-type"><a href="LEEWGL.Object3D.html">LEEWGL.Object3D</a></span>
+<span class="param-type"><a href="LEEWGL.GameObject.html">LEEWGL.GameObject</a></span>
 |
 
 <span class="param-type">null</span>
@@ -1842,7 +1946,7 @@ Gets called in constructor of derived classes of Geometry</p>
 
     
 
-    <h4 class="name" id="getObjectByTagname"><span class="type-signature"></span>getObjectByTagname<span class="signature">(tagname)</span><span class="type-signature"> &rarr; {<a href="LEEWGL.Object3D.html">LEEWGL.Object3D</a>|null}</span></h4>
+    <h4 class="name" id="getObjectByTagname"><span class="type-signature"></span>getObjectByTagname<span class="signature">(tagname)</span><span class="type-signature"> &rarr; {<a href="LEEWGL.GameObject.html">LEEWGL.GameObject</a>|null}</span></h4>
 
     
 
@@ -1922,7 +2026,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="inherited-from">Inherited From:</dt>
     <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="LEEWGL.Object3D.html#getObjectByTagname">LEEWGL.Object3D#getObjectByTagname</a>
+        <a href="LEEWGL.GameObject.html#getObjectByTagname">LEEWGL.GameObject#getObjectByTagname</a>
     </li></ul></dd>
     
 
@@ -1947,7 +2051,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Object3D.js.html">Object3D.js</a>, <a href="Object3D.js.html#line250">line 250</a>
+        <a href="GameObject.js.html">GameObject.js</a>, <a href="GameObject.js.html#line262">line 262</a>
     </li></ul></dd>
     
 
@@ -1981,7 +2085,7 @@ Gets called in constructor of derived classes of Geometry</p>
     </dt>
     <dd>
         
-<span class="param-type"><a href="LEEWGL.Object3D.html">LEEWGL.Object3D</a></span>
+<span class="param-type"><a href="LEEWGL.GameObject.html">LEEWGL.GameObject</a></span>
 |
 
 <span class="param-type">null</span>
@@ -1999,7 +2103,164 @@ Gets called in constructor of derived classes of Geometry</p>
 
     
 
-    <h4 class="name" id="import"><span class="type-signature"></span>import<span class="signature">(stringified_json)</span><span class="type-signature"> &rarr; {<a href="LEEWGL.Object3D.html">LEEWGL.Object3D</a>}</span></h4>
+    <h4 class="name" id="getObjectByType"><span class="type-signature"></span>getObjectByType<span class="signature">(type)</span><span class="type-signature"> &rarr; {<a href="LEEWGL.GameObject.html">LEEWGL.GameObject</a>|null}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Iterates through children array of this and returns object with given type or null otherwise</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>type</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="LEEWGL.GameObject.html#getObjectByType">LEEWGL.GameObject#getObjectByType</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="GameObject.js.html">GameObject.js</a>, <a href="GameObject.js.html#line228">line 228</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="LEEWGL.GameObject.html">LEEWGL.GameObject</a></span>
+|
+
+<span class="param-type">null</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="import"><span class="type-signature"></span>import<span class="signature">(stringified_json)</span><span class="type-signature"> &rarr; {<a href="LEEWGL.GameObject.html">LEEWGL.GameObject</a>}</span></h4>
 
     
 
@@ -2075,7 +2336,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="inherited-from">Inherited From:</dt>
     <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="LEEWGL.Object3D.html#import">LEEWGL.Object3D#import</a>
+        <a href="LEEWGL.GameObject.html#import">LEEWGL.GameObject#import</a>
     </li></ul></dd>
     
 
@@ -2100,7 +2361,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Object3D.js.html">Object3D.js</a>, <a href="Object3D.js.html#line363">line 363</a>
+        <a href="GameObject.js.html">GameObject.js</a>, <a href="GameObject.js.html#line375">line 375</a>
     </li></ul></dd>
     
 
@@ -2134,7 +2395,7 @@ Gets called in constructor of derived classes of Geometry</p>
     </dt>
     <dd>
         
-<span class="param-type"><a href="LEEWGL.Object3D.html">LEEWGL.Object3D</a></span>
+<span class="param-type"><a href="LEEWGL.GameObject.html">LEEWGL.GameObject</a></span>
 
 
     </dd>
@@ -2229,7 +2490,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="inherited-from">Inherited From:</dt>
     <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="LEEWGL.Object3D.html#onInit">LEEWGL.Object3D#onInit</a>
+        <a href="LEEWGL.GameObject.html#onInit">LEEWGL.GameObject#onInit</a>
     </li></ul></dd>
     
 
@@ -2254,7 +2515,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Object3D.js.html">Object3D.js</a>, <a href="Object3D.js.html#line110">line 110</a>
+        <a href="GameObject.js.html">GameObject.js</a>, <a href="GameObject.js.html#line111">line 111</a>
     </li></ul></dd>
     
 
@@ -2365,7 +2626,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="inherited-from">Inherited From:</dt>
     <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="LEEWGL.Object3D.html#onRender">LEEWGL.Object3D#onRender</a>
+        <a href="LEEWGL.GameObject.html#onRender">LEEWGL.GameObject#onRender</a>
     </li></ul></dd>
     
 
@@ -2390,7 +2651,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Object3D.js.html">Object3D.js</a>, <a href="Object3D.js.html#line122">line 122</a>
+        <a href="GameObject.js.html">GameObject.js</a>, <a href="GameObject.js.html#line123">line 123</a>
     </li></ul></dd>
     
 
@@ -2501,7 +2762,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="inherited-from">Inherited From:</dt>
     <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="LEEWGL.Object3D.html#onStop">LEEWGL.Object3D#onStop</a>
+        <a href="LEEWGL.GameObject.html#onStop">LEEWGL.GameObject#onStop</a>
     </li></ul></dd>
     
 
@@ -2526,7 +2787,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Object3D.js.html">Object3D.js</a>, <a href="Object3D.js.html#line128">line 128</a>
+        <a href="GameObject.js.html">GameObject.js</a>, <a href="GameObject.js.html#line129">line 129</a>
     </li></ul></dd>
     
 
@@ -2637,7 +2898,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="inherited-from">Inherited From:</dt>
     <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="LEEWGL.Object3D.html#onUpdate">LEEWGL.Object3D#onUpdate</a>
+        <a href="LEEWGL.GameObject.html#onUpdate">LEEWGL.GameObject#onUpdate</a>
     </li></ul></dd>
     
 
@@ -2662,7 +2923,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Object3D.js.html">Object3D.js</a>, <a href="Object3D.js.html#line116">line 116</a>
+        <a href="GameObject.js.html">GameObject.js</a>, <a href="GameObject.js.html#line117">line 117</a>
     </li></ul></dd>
     
 
@@ -2773,7 +3034,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="inherited-from">Inherited From:</dt>
     <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="LEEWGL.Object3D.html#remove">LEEWGL.Object3D#remove</a>
+        <a href="LEEWGL.GameObject.html#remove">LEEWGL.GameObject#remove</a>
     </li></ul></dd>
     
 
@@ -2798,7 +3059,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Object3D.js.html">Object3D.js</a>, <a href="Object3D.js.html#line194">line 194</a>
+        <a href="GameObject.js.html">GameObject.js</a>, <a href="GameObject.js.html#line189">line 189</a>
     </li></ul></dd>
     
 
@@ -2912,7 +3173,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="inherited-from">Inherited From:</dt>
     <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="LEEWGL.Object3D.html#removeComponent">LEEWGL.Object3D#removeComponent</a>
+        <a href="LEEWGL.GameObject.html#removeComponent">LEEWGL.GameObject#removeComponent</a>
     </li></ul></dd>
     
 
@@ -2937,7 +3198,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Object3D.js.html">Object3D.js</a>, <a href="Object3D.js.html#line182">line 182</a>
+        <a href="GameObject.js.html">GameObject.js</a>, <a href="GameObject.js.html#line177">line 177</a>
     </li></ul></dd>
     
 
@@ -2968,7 +3229,7 @@ Gets called in constructor of derived classes of Geometry</p>
 
     
 
-    <h4 class="name" id="setBuffer"><span class="type-signature"></span>setBuffer<span class="signature">(gl)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setBuffer"><span class="type-signature"></span>setBuffer<span class="signature">(gl, type)</span><span class="type-signature"></span></h4>
 
     
 
@@ -3031,6 +3292,29 @@ Gets called in constructor of derived classes of Geometry</p>
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>type</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>to set one distinct buffer</p></td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -3048,7 +3332,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="inherited-from">Inherited From:</dt>
     <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="LEEWGL.Geometry.html#setBuffer">LEEWGL.Geometry#setBuffer</a>
+        <a href="LEEWGL.Geometry3D.html#setBuffer">LEEWGL.Geometry3D#setBuffer</a>
     </li></ul></dd>
     
 
@@ -3073,7 +3357,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line200">line 200</a>
+        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line347">line 347</a>
     </li></ul></dd>
     
 
@@ -3228,7 +3512,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line235">line 235</a>
+        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line106">line 106</a>
     </li></ul></dd>
     
 
@@ -3364,7 +3648,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line211">line 211</a>
+        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line98">line 98</a>
     </li></ul></dd>
     
 
@@ -3496,7 +3780,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line86">line 86</a>
+        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line88">line 88</a>
     </li></ul></dd>
     
 
@@ -3534,7 +3818,7 @@ Gets called in constructor of derived classes of Geometry</p>
 
 
 <div class="description">
-    <p>Sets this.usesTexture and this.texture to given texture</p>
+    <p>Sets this.usesTexture</p>
 </div>
 
 
@@ -3632,7 +3916,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line247">line 247</a>
+        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line118">line 118</a>
     </li></ul></dd>
     
 
@@ -3764,7 +4048,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line77">line 77</a>
+        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line79">line 79</a>
     </li></ul></dd>
     
 
@@ -3919,7 +4203,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line67">line 67</a>
+        <a href="Geometry.js.html">Geometry.js</a>, <a href="Geometry.js.html#line69">line 69</a>
     </li></ul></dd>
     
 
@@ -4030,7 +4314,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="inherited-from">Inherited From:</dt>
     <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="LEEWGL.Object3D.html#traverse">LEEWGL.Object3D#traverse</a>
+        <a href="LEEWGL.GameObject.html#traverse">LEEWGL.GameObject#traverse</a>
     </li></ul></dd>
     
 
@@ -4055,7 +4339,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Object3D.js.html">Object3D.js</a>, <a href="Object3D.js.html#line266">line 266</a>
+        <a href="GameObject.js.html">GameObject.js</a>, <a href="GameObject.js.html#line278">line 278</a>
     </li></ul></dd>
     
 
@@ -4166,7 +4450,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="inherited-from">Inherited From:</dt>
     <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="LEEWGL.Object3D.html#traverseVisible">LEEWGL.Object3D#traverseVisible</a>
+        <a href="LEEWGL.GameObject.html#traverseVisible">LEEWGL.GameObject#traverseVisible</a>
     </li></ul></dd>
     
 
@@ -4191,7 +4475,7 @@ Gets called in constructor of derived classes of Geometry</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Object3D.js.html">Object3D.js</a>, <a href="Object3D.js.html#line277">line 277</a>
+        <a href="GameObject.js.html">GameObject.js</a>, <a href="GameObject.js.html#line289">line 289</a>
     </li></ul></dd>
     
 
@@ -4233,13 +4517,13 @@ Gets called in constructor of derived classes of Geometry</p>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="LEEWGL.App.html">App</a></li><li><a href="LEEWGL.Buffer.html">Buffer</a></li><li><a href="LEEWGL.Camera.html">Camera</a></li><li><a href="LEEWGL.Color.html">Color</a></li><li><a href="LEEWGL.Component.html">Component</a></li><li><a href="LEEWGL.Component.CustomScript.html">CustomScript</a></li><li><a href="LEEWGL.Component.Texture.html">Texture</a></li><li><a href="LEEWGL.Component.Transform.html">Transform</a></li><li><a href="LEEWGL.Core.html">Core</a></li><li><a href="LEEWGL.DragDrop.html">DragDrop</a></li><li><a href="LEEWGL.EditorApp.html">EditorApp</a></li><li><a href="LEEWGL.Extension.html">Extension</a></li><li><a href="LEEWGL.FrameBuffer.html">FrameBuffer</a></li><li><a href="LEEWGL.Geometry.html">Geometry</a></li><li><a href="LEEWGL.Geometry.Cube.html">Cube</a></li><li><a href="LEEWGL.Geometry.Grid.html">Grid</a></li><li><a href="LEEWGL.Geometry.Sphere.html">Sphere</a></li><li><a href="LEEWGL.Geometry.Triangle.html">Triangle</a></li><li><a href="LEEWGL.HTMLHelper.html">HTMLHelper</a></li><li><a href="LEEWGL.IndexBuffer.html">IndexBuffer</a></li><li><a href="LEEWGL.Light.html">Light</a></li><li><a href="LEEWGL.Light.DirectionalLight.html">DirectionalLight</a></li><li><a href="LEEWGL.Light.PointLight.html">PointLight</a></li><li><a href="LEEWGL.Light.SpotLight.html">SpotLight</a></li><li><a href="LEEWGL.LocalStorage.html">LocalStorage</a></li><li><a href="LEEWGL.Object3D.html">Object3D</a></li><li><a href="LEEWGL.Options.html">Options</a></li><li><a href="LEEWGL.PerspectiveCamera.html">PerspectiveCamera</a></li><li><a href="LEEWGL.Picker.html">Picker</a></li><li><a href="LEEWGL.RenderBuffer.html">RenderBuffer</a></li><li><a href="LEEWGL.Scene.html">Scene</a></li><li><a href="LEEWGL.Settings.html">Settings</a></li><li><a href="LEEWGL.Shader.html">Shader</a></li><li><a href="LEEWGL.ShaderChunk.html">ShaderChunk</a></li><li><a href="LEEWGL.ShaderLibrary.html">ShaderLibrary</a></li><li><a href="LEEWGL.Texture.html">Texture</a></li><li><a href="LEEWGL.Timer.html">Timer</a></li><li><a href="LEEWGL.UI.html">UI</a></li><li><a href="LEEWGL.UI.BasicPopup.html">BasicPopup</a></li><li><a href="LEEWGL.UI.Popup.html">Popup</a></li><li><a href="LEEWGL.UI.Sidebar.html">Sidebar</a></li></ul><h3>Namespaces</h3><ul><li><a href="LEEWGL.html">LEEWGL</a></li></ul><h3>Global</h3><ul><li><a href="global.html#__extensionLoader">__extensionLoader</a></li><li><a href="global.html#A">A</a></li><li><a href="global.html#ColorHelper">ColorHelper</a></li><li><a href="global.html#Components">Components</a></li><li><a href="global.html#D">D</a></li><li><a href="global.html#DOWN_CURSOR">DOWN_CURSOR</a></li><li><a href="global.html#ENTER">ENTER</a></li><li><a href="global.html#F5">F5</a></li><li><a href="global.html#FILTER_LINEAR">FILTER_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_LINEAR">FILTER_LINEAR_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_NEAREST">FILTER_LINEAR_MIPMAP_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST">FILTER_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_LINEAR">FILTER_NEAREST_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_NEAREST">FILTER_NEAREST_MIPMAP_NEAREST</a></li><li><a href="global.html#FORMAT_ALPHA">FORMAT_ALPHA</a></li><li><a href="global.html#FORMAT_LUMINANCE">FORMAT_LUMINANCE</a></li><li><a href="global.html#FORMAT_LUMINANCE_ALPHA">FORMAT_LUMINANCE_ALPHA</a></li><li><a href="global.html#FORMAT_RGB">FORMAT_RGB</a></li><li><a href="global.html#FORMAT_RGBA">FORMAT_RGBA</a></li><li><a href="global.html#HTMLHELPER">HTMLHELPER</a></li><li><a href="global.html#id">id</a></li><li><a href="global.html#IMG_DEFAULT">IMG_DEFAULT</a></li><li><a href="global.html#KEYS">KEYS</a></li><li><a href="global.html#LEFT_CURSOR">LEFT_CURSOR</a></li><li><a href="global.html#MAPPING_DEFAULT">MAPPING_DEFAULT</a></li><li><a href="global.html#MaxVerticalAngle">MaxVerticalAngle</a></li><li><a href="global.html#MOUSE">MOUSE</a></li><li><a href="global.html#PAGE_DOWN">PAGE_DOWN</a></li><li><a href="global.html#PAGE_UP">PAGE_UP</a></li><li><a href="global.html#REQUIRES">REQUIRES</a></li><li><a href="global.html#RIGHT_CURSOR">RIGHT_CURSOR</a></li><li><a href="global.html#ROOT">ROOT</a></li><li><a href="global.html#S">S</a></li><li><a href="global.html#SETTINGS">SETTINGS</a></li><li><a href="global.html#TextureCount">TextureCount</a></li><li><a href="global.html#TYPE_BYTE">TYPE_BYTE</a></li><li><a href="global.html#TYPE_FLOAT">TYPE_FLOAT</a></li><li><a href="global.html#TYPE_INT">TYPE_INT</a></li><li><a href="global.html#TYPE_SHORT">TYPE_SHORT</a></li><li><a href="global.html#TYPE_UNSIGNED_BYTE">TYPE_UNSIGNED_BYTE</a></li><li><a href="global.html#TYPE_UNSIGNED_INT">TYPE_UNSIGNED_INT</a></li><li><a href="global.html#TYPE_UNSIGNED_SHORT">TYPE_UNSIGNED_SHORT</a></li><li><a href="global.html#UI">UI</a></li><li><a href="global.html#UP_CURSOR">UP_CURSOR</a></li><li><a href="global.html#W">W</a></li><li><a href="global.html#WRAPPING_CLAMP_TO_EDGE">WRAPPING_CLAMP_TO_EDGE</a></li><li><a href="global.html#WRAPPING_MIRRORED_REPEAT">WRAPPING_MIRRORED_REPEAT</a></li><li><a href="global.html#WRAPPING_REPEAT">WRAPPING_REPEAT</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="LEEWGL.App.html">App</a></li><li><a href="LEEWGL.Billboard.html">Billboard</a></li><li><a href="LEEWGL.Buffer.html">Buffer</a></li><li><a href="LEEWGL.Camera.html">Camera</a></li><li><a href="LEEWGL.Color.html">Color</a></li><li><a href="LEEWGL.Component.html">Component</a></li><li><a href="LEEWGL.Component.CustomScript.html">CustomScript</a></li><li><a href="LEEWGL.Component.Texture.html">Texture</a></li><li><a href="LEEWGL.Component.Transform.html">Transform</a></li><li><a href="LEEWGL.Core.html">Core</a></li><li><a href="LEEWGL.DragDrop.html">DragDrop</a></li><li><a href="LEEWGL.EditorApp.html">EditorApp</a></li><li><a href="LEEWGL.Extension.html">Extension</a></li><li><a href="LEEWGL.FrameBuffer.html">FrameBuffer</a></li><li><a href="LEEWGL.GameObject.html">GameObject</a></li><li><a href="LEEWGL.Geometry.html">Geometry</a></li><li><a href="LEEWGL.Geometry3D.html">Geometry3D</a></li><li><a href="LEEWGL.Geometry3D.Cube.html">Cube</a></li><li><a href="LEEWGL.Geometry3D.Grid.html">Grid</a></li><li><a href="LEEWGL.Geometry3D.Sphere.html">Sphere</a></li><li><a href="LEEWGL.Geometry3D.Triangle.html">Triangle</a></li><li><a href="LEEWGL.HTMLHelper.html">HTMLHelper</a></li><li><a href="LEEWGL.IndexBuffer.html">IndexBuffer</a></li><li><a href="LEEWGL.Light.html">Light</a></li><li><a href="LEEWGL.Light.DirectionalLight.html">DirectionalLight</a></li><li><a href="LEEWGL.Light.PointLight.html">PointLight</a></li><li><a href="LEEWGL.Light.SpotLight.html">SpotLight</a></li><li><a href="LEEWGL.LocalStorage.html">LocalStorage</a></li><li><a href="LEEWGL.Options.html">Options</a></li><li><a href="LEEWGL.PerspectiveCamera.html">PerspectiveCamera</a></li><li><a href="LEEWGL.Picker.html">Picker</a></li><li><a href="LEEWGL.RenderBuffer.html">RenderBuffer</a></li><li><a href="LEEWGL.Scene.html">Scene</a></li><li><a href="LEEWGL.Settings.html">Settings</a></li><li><a href="LEEWGL.Shader.html">Shader</a></li><li><a href="LEEWGL.ShaderChunk.html">ShaderChunk</a></li><li><a href="LEEWGL.ShaderLibrary.html">ShaderLibrary</a></li><li><a href="LEEWGL.Texture.html">Texture</a></li><li><a href="LEEWGL.Timer.html">Timer</a></li><li><a href="LEEWGL.UI.html">UI</a></li><li><a href="LEEWGL.UI.BasicPopup.html">BasicPopup</a></li><li><a href="LEEWGL.UI.Popup.html">Popup</a></li><li><a href="LEEWGL.UI.Sidebar.html">Sidebar</a></li></ul><h3>Namespaces</h3><ul><li><a href="LEEWGL.html">LEEWGL</a></li></ul><h3>Global</h3><ul><li><a href="global.html#__extensionLoader">__extensionLoader</a></li><li><a href="global.html#A">A</a></li><li><a href="global.html#ALPHA">ALPHA</a></li><li><a href="global.html#BYTE">BYTE</a></li><li><a href="global.html#ColorHelper">ColorHelper</a></li><li><a href="global.html#Components">Components</a></li><li><a href="global.html#D">D</a></li><li><a href="global.html#DOWN_CURSOR">DOWN_CURSOR</a></li><li><a href="global.html#ENGINE">ENGINE</a></li><li><a href="global.html#ENTER">ENTER</a></li><li><a href="global.html#F5">F5</a></li><li><a href="global.html#FILTER_LINEAR">FILTER_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_LINEAR">FILTER_LINEAR_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_NEAREST">FILTER_LINEAR_MIPMAP_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST">FILTER_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_LINEAR">FILTER_NEAREST_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_NEAREST">FILTER_NEAREST_MIPMAP_NEAREST</a></li><li><a href="global.html#FLOAT">FLOAT</a></li><li><a href="global.html#HTMLHELPER">HTMLHELPER</a></li><li><a href="global.html#id">id</a></li><li><a href="global.html#IMG_DEFAULT">IMG_DEFAULT</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#INT">INT</a></li><li><a href="global.html#KEYS">KEYS</a></li><li><a href="global.html#LEFT_CURSOR">LEFT_CURSOR</a></li><li><a href="global.html#LIGHTS">LIGHTS</a></li><li><a href="global.html#LUMINANCE">LUMINANCE</a></li><li><a href="global.html#LUMINANCE_ALPHA">LUMINANCE_ALPHA</a></li><li><a href="global.html#MAPPING_DEFAULT">MAPPING_DEFAULT</a></li><li><a href="global.html#MaxVerticalAngle">MaxVerticalAngle</a></li><li><a href="global.html#MOUSE">MOUSE</a></li><li><a href="global.html#PAGE_DOWN">PAGE_DOWN</a></li><li><a href="global.html#PAGE_UP">PAGE_UP</a></li><li><a href="global.html#REQUIRES">REQUIRES</a></li><li><a href="global.html#RGB">RGB</a></li><li><a href="global.html#RGBA">RGBA</a></li><li><a href="global.html#RIGHT_CURSOR">RIGHT_CURSOR</a></li><li><a href="global.html#ROOT">ROOT</a></li><li><a href="global.html#S">S</a></li><li><a href="global.html#SETTINGS">SETTINGS</a></li><li><a href="global.html#SHADER_LIBRARY">SHADER_LIBRARY</a></li><li><a href="global.html#SHORT">SHORT</a></li><li><a href="global.html#TextureCount">TextureCount</a></li><li><a href="global.html#UI">UI</a></li><li><a href="global.html#UNSIGNED_BYTE">UNSIGNED_BYTE</a></li><li><a href="global.html#UNSIGNED_INT">UNSIGNED_INT</a></li><li><a href="global.html#UNSIGNED_SHORT">UNSIGNED_SHORT</a></li><li><a href="global.html#UP_CURSOR">UP_CURSOR</a></li><li><a href="global.html#VECTOR">VECTOR</a></li><li><a href="global.html#W">W</a></li><li><a href="global.html#WRAPPING_CLAMP_TO_EDGE">WRAPPING_CLAMP_TO_EDGE</a></li><li><a href="global.html#WRAPPING_MIRRORED_REPEAT">WRAPPING_MIRRORED_REPEAT</a></li><li><a href="global.html#WRAPPING_REPEAT">WRAPPING_REPEAT</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Sat Aug 29 2015 19:41:55 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Mon Aug 31 2015 22:12:08 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>

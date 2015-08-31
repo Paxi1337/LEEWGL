@@ -259,31 +259,14 @@ LEEWGL.UI = function(options) {
     // var dblclick, keydown;
     var elements = document.querySelectorAll('.editable');
 
-    function dblclick(element) {
-      if (element.get('contenteditable') === null) {
-        element.set('contenteditable', true);
-        element.set('class', 'editable edited');
-      }
-
-      that.displayUpdatePopup();
-    }
-
-    function keydown(event, element) {
-      if (event.keyCode === LEEWGL.KEYS.ENTER) {
-        if (element.get('contenteditable') !== null)
-          element.removeAttributes(['contenteditable', 'class']);
-      }
-    }
+    var edit = function(element) {
+      element.set('contenteditable', true);
+      element.set('class', 'editable');
+    };
 
     for (var i = 0; i &lt; elements.length; ++i) {
-      /*jshint -W083 */
+      edit(new LEEWGL.DOM.Element(elements[i]));
       var elem = new LEEWGL.DOM.Element(elements[i]);
-      elem.addEvent('dblclick', function(event) {
-        dblclick(new LEEWGL.DOM.Element(this));
-      });
-      elem.addEvent('keydown', function(event) {
-        keydown(event, new LEEWGL.DOM.Element(this));
-      });
     }
   };
 
@@ -378,7 +361,7 @@ LEEWGL.UI = function(options) {
       var num = parseInt(td.get('num'));
       var value = parseFloat(td.get('text'));
       var keys = Object.keys(vector);
-      vector = vector.value;
+      // vector = vector.value;
 
       if (event.keyCode === LEEWGL.KEYS.ENTER) {
         if (typeof vector[num] === 'undefined') {
@@ -399,7 +382,6 @@ LEEWGL.UI = function(options) {
       var num = parseInt(td.get('num'));
       var value = parseFloat(td.get('text'));
       var keys = Object.keys(vector);
-      vector = vector.value;
 
       if (typeof vector[num] === 'undefined') {
         vector[keys[index]] = value;
@@ -410,38 +392,26 @@ LEEWGL.UI = function(options) {
     });
 
     // / position
-    container.grab(HTMLHELPER.createTable('transform-position', ['x', 'y', 'z'], {
-      'value': vec3.clone(transform.position),
-      'type': 'position'
-    }, {
+    container.grab(HTMLHELPER.createTable('transform-position', ['x', 'y', 'z'], vec3.clone(transform.position), {
       'title': 'Position',
       'type': 'h4',
       'class': 'component-detail-headline'
     }, keydown, keyup));
     // / translation
-    container.grab(HTMLHELPER.createTable('transform-translation', ['x', 'y', 'z'], {
-      'value': vec3.clone(transform.transVec),
-      'type': 'translation'
-    }, {
+    container.grab(HTMLHELPER.createTable('transform-translation', ['x', 'y', 'z'], vec3.clone(transform.transVec), {
       'title': 'Translation',
       'type': 'h4',
       'class': 'component-detail-headline'
     }, keydown, keyup));
 
     // / rotation
-    container.grab(HTMLHELPER.createTable('transform-rotation', ['x', 'y', 'z'], {
-      'value': vec3.clone(transform.rotVec),
-      'type': 'rotation'
-    }, {
+    container.grab(HTMLHELPER.createTable('transform-rotation', ['x', 'y', 'z'], vec3.clone(transform.rotVec), {
       'title': 'Rotation',
       'type': 'h4',
       'class': 'component-detail-headline'
     }, keydown, keyup));
     // / scale
-    container.grab(HTMLHELPER.createTable('transform-scale', ['x', 'y', 'z'], {
-      'value': vec3.clone(transform.scaleVec),
-      'type': 'scale'
-    }, {
+    container.grab(HTMLHELPER.createTable('transform-scale', ['x', 'y', 'z'], vec3.clone(transform.scaleVec), {
       'title': 'Scale',
       'type': 'h4',
       'class': 'component-detail-headline'
@@ -812,31 +782,8 @@ LEEWGL.UI = function(options) {
       });
       container.grab(title);
 
-      /// FIXME: necessary?
-      var keydown = (function(event, element, value) {
-        // var num = parseInt(td.get('num'));
-        // var value = parseFloat(td.get('text'));
-        // var keys = Object.keys(vector);
-        // vector = vector.value;
-        //
-        // if (event.keyCode === LEEWGL.KEYS.ENTER) {
-        //   if (typeof vector[num] === 'undefined') {
-        //     vector[keys[index]] = value;
-        //   } else {
-        //     vector[num] = value;
-        //   }
-        //
-        //   that.dispatchTypes(vector, td.get('identifier'), num);
-        //   that.setInspectorContent(element.id);
-        //
-        //   event.preventDefault();
-        //   event.stopPropagation();
-        // }
-      });
-
       var keyup = (function(event, element, vector) {
         var num = parseInt(element.get('num'));
-        vector = vector.value;
         var id = element.get('identifier');
         var value = '';
         if (typeof vector === 'object') {
@@ -848,16 +795,49 @@ LEEWGL.UI = function(options) {
         }
       });
 
+      /// FIXME: can be called in play mode and doesnt work as expected
+      var change = (function(event, element, content) {
+        var old = that.scene.getObjectByType('Light');
+        var newType = element.e.value;
+
+        if (old.lightType === newType)
+          return;
+
+        that.scene.remove(old);
+        that.removeObjFromOutline(old.id);
+
+        var newLight = functionFromString('LEEWGL.Light.' + newType + 'Light');
+        newLight = new newLight({
+          'tagname': 'Light',
+          'alias': 'Light'
+        });
+        that.scene.add(newLight);
+        that.addObjToOutline(newLight);
+        that.setInspectorContent(newLight.id);
+
+        var typeShader = LEEWGL.ShaderLibrary[newLight.lightType.toUpperCase()];
+        that.app.onShaderChange('light', typeShader);
+      });
+
       for (var e in activeElement.editables) {
         var editable = activeElement.editables[e];
         if (editable.type === 'vector') {
-          container.grab(HTMLHELPER.createTable(e, editable['table-titles'], editable, {
+          container.grab(HTMLHELPER.createTable(e, editable['table-titles'], editable.value, {
             'title': editable.name,
             'type': 'h4',
             'class': 'component-detail-headline'
-          }, keydown, keyup));
+          }, null, keyup));
         } else if (editable.type === 'string' || editable.type === 'number') {
-          container.grab(HTMLHELPER.createContainerDetailInput(e, editable.name, editable.value, keydown, keyup));
+          container.grab(HTMLHELPER.createContainerDetailInput(e, editable.name, editable.value, null, keyup));
+        } else if (editable.type === 'array') {
+          if (activeElement instanceof LEEWGL.Light) {
+            var light = this.scene.getObjectByType('Light');
+            /// deep copy of string array
+            var content = JSON.parse(JSON.stringify(LEEWGL.ENGINE.LIGHTS));
+            /// get all but the actual light type
+            content.splice(LEEWGL.ENGINE.LIGHTS.indexOf(light.lightType), 1);
+            container.grab(HTMLHELPER.createDropdown(e, editable.name, content, change, light.lightType));
+          }
         }
       }
       this.inspector.grab(container);
@@ -1238,7 +1218,7 @@ LEEWGL.UI = function(options) {
   this.insertTriangle = function() {
     var triangle = new LEEWGL.Geometry.Triangle();
     triangle.setBuffer(this.gl);
-    triangle.addColor(this.gl);
+    triangle.setColor(this.gl, ColorHelper.getUniqueColor());
     this.addObjToOutline(triangle);
     this.scene.add(triangle);
   };
@@ -1246,7 +1226,7 @@ LEEWGL.UI = function(options) {
   this.insertCube = function() {
     var cube = new LEEWGL.Geometry.Cube();
     cube.setBuffer(this.gl);
-    cube.addColor(this.gl);
+    cube.setColor(this.gl, ColorHelper.getUniqueColor());
     this.addObjToOutline(cube);
     this.scene.add(cube);
   };
@@ -1254,7 +1234,7 @@ LEEWGL.UI = function(options) {
   this.insertSphere = function() {
     var sphere = new LEEWGL.Geometry.Sphere();
     sphere.setBuffer(this.gl);
-    sphere.addColor(this.gl);
+    sphere.setColor(this.gl, ColorHelper.getUniqueColor());
     this.addObjToOutline(sphere);
     this.scene.add(sphere);
   };
@@ -1264,6 +1244,7 @@ LEEWGL.UI = function(options) {
       console.error('LEEWGL.UI.insertLight: No options param given!');
       return false;
     }
+
     var light = null;
     if (options.type === 'Directional')
       light = new LEEWGL.Light.DirectionalLight();
@@ -2131,11 +2112,13 @@ LEEWGL.UI.FIXED = 'fixed';
 /**
  * window load event to set global
  */
-window.addEventListener('load', function() {
+var init = function() {
   var ui = new LEEWGL.UI();
   /** @global */
   window.UI = ui;
-});
+};
+
+addLoadEvent(init);
 </code></pre>
         </article>
     </section>
@@ -2146,13 +2129,13 @@ window.addEventListener('load', function() {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="LEEWGL.App.html">App</a></li><li><a href="LEEWGL.Buffer.html">Buffer</a></li><li><a href="LEEWGL.Camera.html">Camera</a></li><li><a href="LEEWGL.Color.html">Color</a></li><li><a href="LEEWGL.Component.html">Component</a></li><li><a href="LEEWGL.Component.CustomScript.html">CustomScript</a></li><li><a href="LEEWGL.Component.Texture.html">Texture</a></li><li><a href="LEEWGL.Component.Transform.html">Transform</a></li><li><a href="LEEWGL.Core.html">Core</a></li><li><a href="LEEWGL.DragDrop.html">DragDrop</a></li><li><a href="LEEWGL.EditorApp.html">EditorApp</a></li><li><a href="LEEWGL.Extension.html">Extension</a></li><li><a href="LEEWGL.FrameBuffer.html">FrameBuffer</a></li><li><a href="LEEWGL.Geometry.html">Geometry</a></li><li><a href="LEEWGL.Geometry.Cube.html">Cube</a></li><li><a href="LEEWGL.Geometry.Grid.html">Grid</a></li><li><a href="LEEWGL.Geometry.Sphere.html">Sphere</a></li><li><a href="LEEWGL.Geometry.Triangle.html">Triangle</a></li><li><a href="LEEWGL.HTMLHelper.html">HTMLHelper</a></li><li><a href="LEEWGL.IndexBuffer.html">IndexBuffer</a></li><li><a href="LEEWGL.Light.html">Light</a></li><li><a href="LEEWGL.Light.DirectionalLight.html">DirectionalLight</a></li><li><a href="LEEWGL.Light.PointLight.html">PointLight</a></li><li><a href="LEEWGL.Light.SpotLight.html">SpotLight</a></li><li><a href="LEEWGL.LocalStorage.html">LocalStorage</a></li><li><a href="LEEWGL.Object3D.html">Object3D</a></li><li><a href="LEEWGL.Options.html">Options</a></li><li><a href="LEEWGL.PerspectiveCamera.html">PerspectiveCamera</a></li><li><a href="LEEWGL.Picker.html">Picker</a></li><li><a href="LEEWGL.RenderBuffer.html">RenderBuffer</a></li><li><a href="LEEWGL.Scene.html">Scene</a></li><li><a href="LEEWGL.Settings.html">Settings</a></li><li><a href="LEEWGL.Shader.html">Shader</a></li><li><a href="LEEWGL.ShaderChunk.html">ShaderChunk</a></li><li><a href="LEEWGL.ShaderLibrary.html">ShaderLibrary</a></li><li><a href="LEEWGL.Texture.html">Texture</a></li><li><a href="LEEWGL.Timer.html">Timer</a></li><li><a href="LEEWGL.UI.html">UI</a></li><li><a href="LEEWGL.UI.BasicPopup.html">BasicPopup</a></li><li><a href="LEEWGL.UI.Popup.html">Popup</a></li><li><a href="LEEWGL.UI.Sidebar.html">Sidebar</a></li></ul><h3>Namespaces</h3><ul><li><a href="LEEWGL.html">LEEWGL</a></li></ul><h3>Global</h3><ul><li><a href="global.html#__extensionLoader">__extensionLoader</a></li><li><a href="global.html#A">A</a></li><li><a href="global.html#ColorHelper">ColorHelper</a></li><li><a href="global.html#Components">Components</a></li><li><a href="global.html#D">D</a></li><li><a href="global.html#DOWN_CURSOR">DOWN_CURSOR</a></li><li><a href="global.html#ENTER">ENTER</a></li><li><a href="global.html#F5">F5</a></li><li><a href="global.html#FILTER_LINEAR">FILTER_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_LINEAR">FILTER_LINEAR_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_NEAREST">FILTER_LINEAR_MIPMAP_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST">FILTER_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_LINEAR">FILTER_NEAREST_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_NEAREST">FILTER_NEAREST_MIPMAP_NEAREST</a></li><li><a href="global.html#FORMAT_ALPHA">FORMAT_ALPHA</a></li><li><a href="global.html#FORMAT_LUMINANCE">FORMAT_LUMINANCE</a></li><li><a href="global.html#FORMAT_LUMINANCE_ALPHA">FORMAT_LUMINANCE_ALPHA</a></li><li><a href="global.html#FORMAT_RGB">FORMAT_RGB</a></li><li><a href="global.html#FORMAT_RGBA">FORMAT_RGBA</a></li><li><a href="global.html#HTMLHELPER">HTMLHELPER</a></li><li><a href="global.html#id">id</a></li><li><a href="global.html#IMG_DEFAULT">IMG_DEFAULT</a></li><li><a href="global.html#KEYS">KEYS</a></li><li><a href="global.html#LEFT_CURSOR">LEFT_CURSOR</a></li><li><a href="global.html#MAPPING_DEFAULT">MAPPING_DEFAULT</a></li><li><a href="global.html#MaxVerticalAngle">MaxVerticalAngle</a></li><li><a href="global.html#MOUSE">MOUSE</a></li><li><a href="global.html#PAGE_DOWN">PAGE_DOWN</a></li><li><a href="global.html#PAGE_UP">PAGE_UP</a></li><li><a href="global.html#REQUIRES">REQUIRES</a></li><li><a href="global.html#RIGHT_CURSOR">RIGHT_CURSOR</a></li><li><a href="global.html#ROOT">ROOT</a></li><li><a href="global.html#S">S</a></li><li><a href="global.html#SETTINGS">SETTINGS</a></li><li><a href="global.html#TextureCount">TextureCount</a></li><li><a href="global.html#TYPE_BYTE">TYPE_BYTE</a></li><li><a href="global.html#TYPE_FLOAT">TYPE_FLOAT</a></li><li><a href="global.html#TYPE_INT">TYPE_INT</a></li><li><a href="global.html#TYPE_SHORT">TYPE_SHORT</a></li><li><a href="global.html#TYPE_UNSIGNED_BYTE">TYPE_UNSIGNED_BYTE</a></li><li><a href="global.html#TYPE_UNSIGNED_INT">TYPE_UNSIGNED_INT</a></li><li><a href="global.html#TYPE_UNSIGNED_SHORT">TYPE_UNSIGNED_SHORT</a></li><li><a href="global.html#UI">UI</a></li><li><a href="global.html#UP_CURSOR">UP_CURSOR</a></li><li><a href="global.html#W">W</a></li><li><a href="global.html#WRAPPING_CLAMP_TO_EDGE">WRAPPING_CLAMP_TO_EDGE</a></li><li><a href="global.html#WRAPPING_MIRRORED_REPEAT">WRAPPING_MIRRORED_REPEAT</a></li><li><a href="global.html#WRAPPING_REPEAT">WRAPPING_REPEAT</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="LEEWGL.App.html">App</a></li><li><a href="LEEWGL.Billboard.html">Billboard</a></li><li><a href="LEEWGL.Buffer.html">Buffer</a></li><li><a href="LEEWGL.Camera.html">Camera</a></li><li><a href="LEEWGL.Color.html">Color</a></li><li><a href="LEEWGL.Component.html">Component</a></li><li><a href="LEEWGL.Component.CustomScript.html">CustomScript</a></li><li><a href="LEEWGL.Component.Texture.html">Texture</a></li><li><a href="LEEWGL.Component.Transform.html">Transform</a></li><li><a href="LEEWGL.Core.html">Core</a></li><li><a href="LEEWGL.DragDrop.html">DragDrop</a></li><li><a href="LEEWGL.EditorApp.html">EditorApp</a></li><li><a href="LEEWGL.Extension.html">Extension</a></li><li><a href="LEEWGL.FrameBuffer.html">FrameBuffer</a></li><li><a href="LEEWGL.GameObject.html">GameObject</a></li><li><a href="LEEWGL.Geometry.html">Geometry</a></li><li><a href="LEEWGL.Geometry3D.html">Geometry3D</a></li><li><a href="LEEWGL.Geometry3D.Cube.html">Cube</a></li><li><a href="LEEWGL.Geometry3D.Grid.html">Grid</a></li><li><a href="LEEWGL.Geometry3D.Sphere.html">Sphere</a></li><li><a href="LEEWGL.Geometry3D.Triangle.html">Triangle</a></li><li><a href="LEEWGL.HTMLHelper.html">HTMLHelper</a></li><li><a href="LEEWGL.IndexBuffer.html">IndexBuffer</a></li><li><a href="LEEWGL.Light.html">Light</a></li><li><a href="LEEWGL.Light.DirectionalLight.html">DirectionalLight</a></li><li><a href="LEEWGL.Light.PointLight.html">PointLight</a></li><li><a href="LEEWGL.Light.SpotLight.html">SpotLight</a></li><li><a href="LEEWGL.LocalStorage.html">LocalStorage</a></li><li><a href="LEEWGL.Options.html">Options</a></li><li><a href="LEEWGL.PerspectiveCamera.html">PerspectiveCamera</a></li><li><a href="LEEWGL.Picker.html">Picker</a></li><li><a href="LEEWGL.RenderBuffer.html">RenderBuffer</a></li><li><a href="LEEWGL.Scene.html">Scene</a></li><li><a href="LEEWGL.Settings.html">Settings</a></li><li><a href="LEEWGL.Shader.html">Shader</a></li><li><a href="LEEWGL.ShaderChunk.html">ShaderChunk</a></li><li><a href="LEEWGL.ShaderLibrary.html">ShaderLibrary</a></li><li><a href="LEEWGL.Texture.html">Texture</a></li><li><a href="LEEWGL.Timer.html">Timer</a></li><li><a href="LEEWGL.UI.html">UI</a></li><li><a href="LEEWGL.UI.BasicPopup.html">BasicPopup</a></li><li><a href="LEEWGL.UI.Popup.html">Popup</a></li><li><a href="LEEWGL.UI.Sidebar.html">Sidebar</a></li></ul><h3>Namespaces</h3><ul><li><a href="LEEWGL.html">LEEWGL</a></li></ul><h3>Global</h3><ul><li><a href="global.html#__extensionLoader">__extensionLoader</a></li><li><a href="global.html#A">A</a></li><li><a href="global.html#ALPHA">ALPHA</a></li><li><a href="global.html#BYTE">BYTE</a></li><li><a href="global.html#ColorHelper">ColorHelper</a></li><li><a href="global.html#Components">Components</a></li><li><a href="global.html#D">D</a></li><li><a href="global.html#DOWN_CURSOR">DOWN_CURSOR</a></li><li><a href="global.html#ENGINE">ENGINE</a></li><li><a href="global.html#ENTER">ENTER</a></li><li><a href="global.html#F5">F5</a></li><li><a href="global.html#FILTER_LINEAR">FILTER_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_LINEAR">FILTER_LINEAR_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_NEAREST">FILTER_LINEAR_MIPMAP_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST">FILTER_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_LINEAR">FILTER_NEAREST_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_NEAREST">FILTER_NEAREST_MIPMAP_NEAREST</a></li><li><a href="global.html#FLOAT">FLOAT</a></li><li><a href="global.html#HTMLHELPER">HTMLHELPER</a></li><li><a href="global.html#id">id</a></li><li><a href="global.html#IMG_DEFAULT">IMG_DEFAULT</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#INT">INT</a></li><li><a href="global.html#KEYS">KEYS</a></li><li><a href="global.html#LEFT_CURSOR">LEFT_CURSOR</a></li><li><a href="global.html#LIGHTS">LIGHTS</a></li><li><a href="global.html#LUMINANCE">LUMINANCE</a></li><li><a href="global.html#LUMINANCE_ALPHA">LUMINANCE_ALPHA</a></li><li><a href="global.html#MAPPING_DEFAULT">MAPPING_DEFAULT</a></li><li><a href="global.html#MaxVerticalAngle">MaxVerticalAngle</a></li><li><a href="global.html#MOUSE">MOUSE</a></li><li><a href="global.html#PAGE_DOWN">PAGE_DOWN</a></li><li><a href="global.html#PAGE_UP">PAGE_UP</a></li><li><a href="global.html#REQUIRES">REQUIRES</a></li><li><a href="global.html#RGB">RGB</a></li><li><a href="global.html#RGBA">RGBA</a></li><li><a href="global.html#RIGHT_CURSOR">RIGHT_CURSOR</a></li><li><a href="global.html#ROOT">ROOT</a></li><li><a href="global.html#S">S</a></li><li><a href="global.html#SETTINGS">SETTINGS</a></li><li><a href="global.html#SHADER_LIBRARY">SHADER_LIBRARY</a></li><li><a href="global.html#SHORT">SHORT</a></li><li><a href="global.html#TextureCount">TextureCount</a></li><li><a href="global.html#UI">UI</a></li><li><a href="global.html#UNSIGNED_BYTE">UNSIGNED_BYTE</a></li><li><a href="global.html#UNSIGNED_INT">UNSIGNED_INT</a></li><li><a href="global.html#UNSIGNED_SHORT">UNSIGNED_SHORT</a></li><li><a href="global.html#UP_CURSOR">UP_CURSOR</a></li><li><a href="global.html#VECTOR">VECTOR</a></li><li><a href="global.html#W">W</a></li><li><a href="global.html#WRAPPING_CLAMP_TO_EDGE">WRAPPING_CLAMP_TO_EDGE</a></li><li><a href="global.html#WRAPPING_MIRRORED_REPEAT">WRAPPING_MIRRORED_REPEAT</a></li><li><a href="global.html#WRAPPING_REPEAT">WRAPPING_REPEAT</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Sat Aug 29 2015 19:41:55 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Mon Aug 31 2015 22:12:08 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>

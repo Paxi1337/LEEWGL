@@ -56,23 +56,23 @@ LEEWGL.EditorApp = function(options) {
     'far': 1000
   });
 
-  /** @inner {LEEWGL.Geometry.Sphere} */
-  this.cameraGizmo = new LEEWGL.Geometry.Sphere({
+  /** @inner {LEEWGL.Geometry3D.Sphere} */
+  this.cameraGizmo = new LEEWGL.Geometry3D.Sphere({
     'alias': 'CameraGizmo',
     'tagname': 'CameraGizmo'
   });
-  /** @inner {LEEWGL.Geometry.Triangle} */
-  this.triangle = new LEEWGL.Geometry.Triangle({
+  /** @inner {LEEWGL.Geometry3D.Triangle} */
+  this.triangle = new LEEWGL.Geometry3D.Triangle({
     'alias': 'Triangle',
     'tagname': 'Triangle'
   });
-  /** @inner {LEEWGL.Geometry.Cube} */
-  this.cube = new LEEWGL.Geometry.Cube({
+  /** @inner {LEEWGL.Geometry3D.Cube} */
+  this.cube = new LEEWGL.Geometry3D.Cube({
     'alias': 'Cube',
     'tagname': 'Cube'
   });
-  /** @inner {LEEWGL.Geometry.Grid} */
-  this.grid = new LEEWGL.Geometry.Grid({
+  /** @inner {LEEWGL.Geometry3D.Grid} */
+  this.grid = new LEEWGL.Geometry3D.Grid({
     'alias': 'Grid',
     'tagname': 'Grid',
     'wireframe': true
@@ -81,6 +81,11 @@ LEEWGL.EditorApp = function(options) {
   this.light = new LEEWGL.Light.SpotLight({
     'alias': 'Light',
     'tagname': 'Light'
+  });
+
+  this.billboard = new LEEWGL.Billboard({
+    'alias': 'Billboard',
+    'tagname': 'Billboard'
   });
 
   /** @inner {LEEWGL.Picker} */
@@ -116,10 +121,7 @@ LEEWGL.EditorApp = function(options) {
   this.scenePlay = new LEEWGL.Scene({
     'alias': 'ScenePlay'
   });
-  /** @inner {array} */
-  this.backupScene = [];
-
-  /** @inner {LEEWGL.Geometry} */
+  /** @inner {LEEWGL.GameObject} */
   this.activeElement = null;
 
   /** @inner {bool} */
@@ -146,56 +148,14 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   this.gameCamera.setLookAt([0.0, 0.0, -1.0]);
   this.cameraGizmo.transform.setPosition([10.0, 0.0, 10.0]);
 
-  this.shaderLibrary.addParameterChunks([LEEWGL.ShaderLibrary.DEFAULT, LEEWGL.ShaderLibrary.PICKING, LEEWGL.ShaderLibrary.COLOR, LEEWGL.ShaderLibrary.AMBIENT]);
+  var shader = this.initShaders(LEEWGL.ShaderLibrary.SPOT);
 
-  if (this.light instanceof LEEWGL.Light.SpotLight)
-    this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.SPOT);
-  else if (this.light instanceof LEEWGL.Light.DirectionalLight)
-    this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.DIRECTIONAL);
-  else if (this.light instanceof LEEWGL.Light.PointLight)
-    this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.POINT);
-
-  if (this.useShadows === true)
-    this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.SHADOW_MAPPING);
-
-  var colorShader = new LEEWGL.Shader();
-
-  colorShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, this.shaderLibrary.out(LEEWGL.Shader.VERTEX));
-  colorShader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, this.shaderLibrary.out(LEEWGL.Shader.FRAGMENT));
-  colorShader.linkShader(this.gl);
-  colorShader.use(this.gl);
-
-  colorShader.createUniformSetters(this.gl);
-  colorShader.createAttributeSetters(this.gl);
-
-  this.shaderLibrary.reset();
-
-  this.shaderLibrary.addParameterChunks([LEEWGL.ShaderLibrary.DEFAULT, LEEWGL.ShaderLibrary.PICKING, LEEWGL.ShaderLibrary.TEXTURE, LEEWGL.ShaderLibrary.AMBIENT]);
-
-  if (this.light instanceof LEEWGL.Light.SpotLight)
-    this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.SPOT);
-  else if (this.light instanceof LEEWGL.Light.DirectionalLight)
-    this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.DIRECTIONAL);
-  else if (this.light instanceof LEEWGL.Light.PointLight)
-    this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.POINT);
-
-  if (this.useShadows === true)
-    this.shaderLibrary.addParameterChunk(LEEWGL.ShaderLibrary.SHADOW_MAPPING);
-
-  var textureShader = new LEEWGL.Shader();
-
-  textureShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, this.shaderLibrary.out(LEEWGL.Shader.VERTEX));
-  textureShader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, this.shaderLibrary.out(LEEWGL.Shader.FRAGMENT));
-  textureShader.linkShader(this.gl);
-  textureShader.use(this.gl);
-
-  textureShader.createUniformSetters(this.gl);
-  textureShader.createAttributeSetters(this.gl);
-
-  this.scene.addShader('color', colorShader);
-  this.scene.addShader('texture', textureShader);
-  this.scenePlay.addShader('color', colorShader);
-  this.scenePlay.addShader('texture', textureShader);
+  this.scene.setShader('color', shader.color);
+  this.scene.setShader('texture', shader.texture);
+  this.scene.setShader('billboard', shader.billboard);
+  this.scenePlay.setShader('color', shader.color);
+  this.scenePlay.setShader('texture', shader.texture);
+  this.scenePlay.setShader('billboard', shader.billboard);
 
   this.cameraGizmo.setBuffer(this.gl);
   this.cameraGizmo.addColor(this.gl, ColorHelper.getUniqueColor());
@@ -214,15 +174,21 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   this.grid.addColor(this.gl, ColorHelper.getUniqueColor());
   this.grid.transform.translate([0.0, -5.0, 0.0]);
 
+  var testImage = new Image();
+  testImage.src = LEEWGL.ROOT + 'texture/texture1.jpg';
+  this.billboard.init(this.gl, testImage);
+  // this.billboard.transform.setPosition([0, 0, 0]);
   // test load collada file
   // var Importer = new LEEWGL.Importer();
   // var model = Importer.import('models/cup.obj', this.gl);
 
   // this.scene.add(this.camera, this.gameCamera, this.triangle, this.cube, this.grid, this.cameraGizmo, this.light);
-  this.scene.add(this.camera, this.gameCamera, this.triangle, this.cube, this.cameraGizmo, this.light);
+  this.scene.add(this.billboard, this.camera, this.gameCamera, this.triangle, this.cube, this.cameraGizmo, this.light);
 
   this.gl.enable(this.gl.DEPTH_TEST);
   this.gl.depthFunc(this.gl.LEQUAL);
+  /// FIXME: triangle vertices order
+  this.gl.enable(this.gl.CULL_FACE);
 
   if (this.picking === true)
     this.picker.init(this.gl, this.canvas.width, this.canvas.height);
@@ -238,6 +204,7 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   UI.addObjToOutline(this.scene.children);
   UI.setTransformationMode('translation');
 
+
   // var test = this.scene.export();
 
   // console.log(encodeURI(test));
@@ -249,6 +216,73 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
 
   // console.log(this.scene.shaders);
   // console.log(json.shaders.color.code.fragment);
+};
+
+LEEWGL.EditorApp.prototype.initShaders = function(lightType) {
+  SHADER_LIBRARY.reset();
+
+  SHADER_LIBRARY.addParameterChunk(LEEWGL.ShaderLibrary.BILLBOARD_FIXED);
+
+  var billboardShader = new LEEWGL.Shader();
+  billboardShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, SHADER_LIBRARY.out(LEEWGL.Shader.VERTEX));
+  billboardShader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, SHADER_LIBRARY.out(LEEWGL.Shader.FRAGMENT));
+  billboardShader.linkShader(this.gl);
+  billboardShader.use(this.gl);
+
+  billboardShader.createUniformSetters(this.gl);
+  billboardShader.createAttributeSetters(this.gl);
+
+  SHADER_LIBRARY.reset();
+
+  SHADER_LIBRARY.addParameterChunks([LEEWGL.ShaderLibrary.DEFAULT, LEEWGL.ShaderLibrary.PICKING, LEEWGL.ShaderLibrary.COLOR, LEEWGL.ShaderLibrary.AMBIENT, lightType]);
+
+  if (this.useShadows === true)
+    SHADER_LIBRARY.addParameterChunk(LEEWGL.ShaderLibrary.SHADOW_MAPPING);
+
+  var colorShader = new LEEWGL.Shader();
+
+  colorShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, SHADER_LIBRARY.out(LEEWGL.Shader.VERTEX));
+  colorShader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, SHADER_LIBRARY.out(LEEWGL.Shader.FRAGMENT));
+  colorShader.linkShader(this.gl);
+  colorShader.use(this.gl);
+
+  colorShader.createUniformSetters(this.gl);
+  colorShader.createAttributeSetters(this.gl);
+
+  SHADER_LIBRARY.removeParameterChunk(LEEWGL.ShaderLibrary.COLOR);
+  SHADER_LIBRARY.addParameterChunk(LEEWGL.ShaderLibrary.TEXTURE);
+
+  var textureShader = new LEEWGL.Shader();
+
+  textureShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, SHADER_LIBRARY.out(LEEWGL.Shader.VERTEX));
+  textureShader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, SHADER_LIBRARY.out(LEEWGL.Shader.FRAGMENT));
+  textureShader.linkShader(this.gl);
+  textureShader.use(this.gl);
+
+  textureShader.createUniformSetters(this.gl);
+  textureShader.createAttributeSetters(this.gl);
+
+  return {
+    'color': colorShader,
+    'texture': textureShader,
+    'billboard': billboardShader
+  };
+};
+
+/**
+ *
+ */
+LEEWGL.EditorApp.prototype.onShaderChange = function(typeChange, typeShaderlib) {
+  if (typeChange === 'light') {
+    var shader = this.initShaders(typeShaderlib);
+    this.scene.setShader('color', shader.color);
+    this.scene.setShader('texture', shader.texture);
+    this.scenePlay.setShader('color', shader.color);
+    this.scenePlay.setShader('texture', shader.texture);
+
+    this.scene.setActiveShader('color');
+    this.scenePlay.setActiveShader('color');
+  }
 };
 
 LEEWGL.EditorApp.prototype.updatePickingList = function(scene) {
@@ -331,6 +365,8 @@ LEEWGL.EditorApp.prototype.onMouseMove = function(event) {
         this.activeElement.transform.translate([movementWorld[2], movementWorld[1], movementWorld[0]]);
       else
         this.activeElement.transform.translate(movementWorld);
+
+        this.billboard.transform.translate(movementWorld);
     } else if (mode === 'rotation') {
       if (event.ctrlKey)
         this.activeElement.transform.rotateX(rad, true);
@@ -428,6 +464,7 @@ LEEWGL.EditorApp.prototype.onRender = function() {
   if (this.playing === true)
     scene = this.scenePlay;
 
+  this.light = scene.getObjectByTagname('Light');
   var activeShader = null;
 
   for (var i = 0; i &lt; scene.children.length; ++i) {
@@ -439,6 +476,9 @@ LEEWGL.EditorApp.prototype.onRender = function() {
     if (element.usesTexture === true) {
       activeShader = scene.shaders['texture'];
       scene.setActiveShader('texture');
+    } else if (element instanceof LEEWGL.Billboard) {
+      activeShader = scene.shaders['billboard'];
+      scene.setActiveShader('billboard');
     } else {
       activeShader = scene.shaders['color'];
       scene.setActiveShader('color');
@@ -446,15 +486,15 @@ LEEWGL.EditorApp.prototype.onRender = function() {
 
     activeShader.use(this.gl);
 
-    if (this.picking === true) {
+    if (this.picking === true &amp;&amp; element.picking === true) {
       this.picker.bind(this.gl);
 
       activeShader.uniforms['uOffscreen'](1);
 
-      this.draw(element, activeShader, viewProjection);
+      this.draw(element, activeShader, camera);
       this.picker.unbind(this.gl);
+      activeShader.uniforms['uOffscreen'](0);
     }
-    activeShader.uniforms['uOffscreen'](0);
 
     if (this.useShadows === true) {
       this.shadowmap.bind(this.gl, activeShader);
@@ -465,19 +505,25 @@ LEEWGL.EditorApp.prototype.onRender = function() {
       this.shadowmap.unbind(this.gl, activeShader);
       this.clear();
     }
-    this.draw(element, activeShader, viewProjection);
+    this.draw(element, activeShader, camera);
   }
 };
 
-LEEWGL.EditorApp.prototype.draw = function(element, shader, viewProjection) {
+LEEWGL.EditorApp.prototype.draw = function(element, shader, camera) {
   if (element.render === true) {
     shader.use(this.gl);
-    shader.uniforms['uVP'](viewProjection);
+    shader.uniforms['uVP'](camera.viewProjMatrix);
 
     if (this.useShadows === true)
       this.shadowmap.draw(this.gl, shader, this.light);
 
-    element.draw(this.gl, shader, this.gl.TRIANGLES);
+    if (element instanceof LEEWGL.Billboard) {
+      element.draw(this.gl, shader, camera);
+    } else {
+      if (this.light !== null)
+        this.light.draw(this.gl, shader);
+      element.draw(this.gl, shader, this.gl.TRIANGLES);
+    }
   }
 };
 
@@ -519,7 +565,7 @@ LEEWGL.EditorApp.prototype.onPlay = function() {
 
 /**
  * @see {LEEWGL.UI.stop}
- * @callback LEEWGL.Object3D.onStop
+ * @callback LEEWGL.GameObject.onStop
  */
 LEEWGL.EditorApp.prototype.onStop = function() {
   this.playing = false;
@@ -553,13 +599,13 @@ LEEWGL.EditorApp.prototype.onStop = function() {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="LEEWGL.App.html">App</a></li><li><a href="LEEWGL.Buffer.html">Buffer</a></li><li><a href="LEEWGL.Camera.html">Camera</a></li><li><a href="LEEWGL.Color.html">Color</a></li><li><a href="LEEWGL.Component.html">Component</a></li><li><a href="LEEWGL.Component.CustomScript.html">CustomScript</a></li><li><a href="LEEWGL.Component.Texture.html">Texture</a></li><li><a href="LEEWGL.Component.Transform.html">Transform</a></li><li><a href="LEEWGL.Core.html">Core</a></li><li><a href="LEEWGL.DragDrop.html">DragDrop</a></li><li><a href="LEEWGL.EditorApp.html">EditorApp</a></li><li><a href="LEEWGL.Extension.html">Extension</a></li><li><a href="LEEWGL.FrameBuffer.html">FrameBuffer</a></li><li><a href="LEEWGL.Geometry.html">Geometry</a></li><li><a href="LEEWGL.Geometry.Cube.html">Cube</a></li><li><a href="LEEWGL.Geometry.Grid.html">Grid</a></li><li><a href="LEEWGL.Geometry.Sphere.html">Sphere</a></li><li><a href="LEEWGL.Geometry.Triangle.html">Triangle</a></li><li><a href="LEEWGL.HTMLHelper.html">HTMLHelper</a></li><li><a href="LEEWGL.IndexBuffer.html">IndexBuffer</a></li><li><a href="LEEWGL.Light.html">Light</a></li><li><a href="LEEWGL.Light.DirectionalLight.html">DirectionalLight</a></li><li><a href="LEEWGL.Light.PointLight.html">PointLight</a></li><li><a href="LEEWGL.Light.SpotLight.html">SpotLight</a></li><li><a href="LEEWGL.LocalStorage.html">LocalStorage</a></li><li><a href="LEEWGL.Object3D.html">Object3D</a></li><li><a href="LEEWGL.Options.html">Options</a></li><li><a href="LEEWGL.PerspectiveCamera.html">PerspectiveCamera</a></li><li><a href="LEEWGL.Picker.html">Picker</a></li><li><a href="LEEWGL.RenderBuffer.html">RenderBuffer</a></li><li><a href="LEEWGL.Scene.html">Scene</a></li><li><a href="LEEWGL.Settings.html">Settings</a></li><li><a href="LEEWGL.Shader.html">Shader</a></li><li><a href="LEEWGL.ShaderChunk.html">ShaderChunk</a></li><li><a href="LEEWGL.ShaderLibrary.html">ShaderLibrary</a></li><li><a href="LEEWGL.Texture.html">Texture</a></li><li><a href="LEEWGL.Timer.html">Timer</a></li><li><a href="LEEWGL.UI.html">UI</a></li><li><a href="LEEWGL.UI.BasicPopup.html">BasicPopup</a></li><li><a href="LEEWGL.UI.Popup.html">Popup</a></li><li><a href="LEEWGL.UI.Sidebar.html">Sidebar</a></li></ul><h3>Namespaces</h3><ul><li><a href="LEEWGL.html">LEEWGL</a></li></ul><h3>Global</h3><ul><li><a href="global.html#__extensionLoader">__extensionLoader</a></li><li><a href="global.html#A">A</a></li><li><a href="global.html#ColorHelper">ColorHelper</a></li><li><a href="global.html#Components">Components</a></li><li><a href="global.html#D">D</a></li><li><a href="global.html#DOWN_CURSOR">DOWN_CURSOR</a></li><li><a href="global.html#ENTER">ENTER</a></li><li><a href="global.html#F5">F5</a></li><li><a href="global.html#FILTER_LINEAR">FILTER_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_LINEAR">FILTER_LINEAR_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_NEAREST">FILTER_LINEAR_MIPMAP_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST">FILTER_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_LINEAR">FILTER_NEAREST_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_NEAREST">FILTER_NEAREST_MIPMAP_NEAREST</a></li><li><a href="global.html#FORMAT_ALPHA">FORMAT_ALPHA</a></li><li><a href="global.html#FORMAT_LUMINANCE">FORMAT_LUMINANCE</a></li><li><a href="global.html#FORMAT_LUMINANCE_ALPHA">FORMAT_LUMINANCE_ALPHA</a></li><li><a href="global.html#FORMAT_RGB">FORMAT_RGB</a></li><li><a href="global.html#FORMAT_RGBA">FORMAT_RGBA</a></li><li><a href="global.html#HTMLHELPER">HTMLHELPER</a></li><li><a href="global.html#id">id</a></li><li><a href="global.html#IMG_DEFAULT">IMG_DEFAULT</a></li><li><a href="global.html#KEYS">KEYS</a></li><li><a href="global.html#LEFT_CURSOR">LEFT_CURSOR</a></li><li><a href="global.html#MAPPING_DEFAULT">MAPPING_DEFAULT</a></li><li><a href="global.html#MaxVerticalAngle">MaxVerticalAngle</a></li><li><a href="global.html#MOUSE">MOUSE</a></li><li><a href="global.html#PAGE_DOWN">PAGE_DOWN</a></li><li><a href="global.html#PAGE_UP">PAGE_UP</a></li><li><a href="global.html#REQUIRES">REQUIRES</a></li><li><a href="global.html#RIGHT_CURSOR">RIGHT_CURSOR</a></li><li><a href="global.html#ROOT">ROOT</a></li><li><a href="global.html#S">S</a></li><li><a href="global.html#SETTINGS">SETTINGS</a></li><li><a href="global.html#TextureCount">TextureCount</a></li><li><a href="global.html#TYPE_BYTE">TYPE_BYTE</a></li><li><a href="global.html#TYPE_FLOAT">TYPE_FLOAT</a></li><li><a href="global.html#TYPE_INT">TYPE_INT</a></li><li><a href="global.html#TYPE_SHORT">TYPE_SHORT</a></li><li><a href="global.html#TYPE_UNSIGNED_BYTE">TYPE_UNSIGNED_BYTE</a></li><li><a href="global.html#TYPE_UNSIGNED_INT">TYPE_UNSIGNED_INT</a></li><li><a href="global.html#TYPE_UNSIGNED_SHORT">TYPE_UNSIGNED_SHORT</a></li><li><a href="global.html#UI">UI</a></li><li><a href="global.html#UP_CURSOR">UP_CURSOR</a></li><li><a href="global.html#W">W</a></li><li><a href="global.html#WRAPPING_CLAMP_TO_EDGE">WRAPPING_CLAMP_TO_EDGE</a></li><li><a href="global.html#WRAPPING_MIRRORED_REPEAT">WRAPPING_MIRRORED_REPEAT</a></li><li><a href="global.html#WRAPPING_REPEAT">WRAPPING_REPEAT</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="LEEWGL.App.html">App</a></li><li><a href="LEEWGL.Billboard.html">Billboard</a></li><li><a href="LEEWGL.Buffer.html">Buffer</a></li><li><a href="LEEWGL.Camera.html">Camera</a></li><li><a href="LEEWGL.Color.html">Color</a></li><li><a href="LEEWGL.Component.html">Component</a></li><li><a href="LEEWGL.Component.CustomScript.html">CustomScript</a></li><li><a href="LEEWGL.Component.Texture.html">Texture</a></li><li><a href="LEEWGL.Component.Transform.html">Transform</a></li><li><a href="LEEWGL.Core.html">Core</a></li><li><a href="LEEWGL.DragDrop.html">DragDrop</a></li><li><a href="LEEWGL.EditorApp.html">EditorApp</a></li><li><a href="LEEWGL.Extension.html">Extension</a></li><li><a href="LEEWGL.FrameBuffer.html">FrameBuffer</a></li><li><a href="LEEWGL.GameObject.html">GameObject</a></li><li><a href="LEEWGL.Geometry.html">Geometry</a></li><li><a href="LEEWGL.Geometry3D.html">Geometry3D</a></li><li><a href="LEEWGL.Geometry3D.Cube.html">Cube</a></li><li><a href="LEEWGL.Geometry3D.Grid.html">Grid</a></li><li><a href="LEEWGL.Geometry3D.Sphere.html">Sphere</a></li><li><a href="LEEWGL.Geometry3D.Triangle.html">Triangle</a></li><li><a href="LEEWGL.HTMLHelper.html">HTMLHelper</a></li><li><a href="LEEWGL.IndexBuffer.html">IndexBuffer</a></li><li><a href="LEEWGL.Light.html">Light</a></li><li><a href="LEEWGL.Light.DirectionalLight.html">DirectionalLight</a></li><li><a href="LEEWGL.Light.PointLight.html">PointLight</a></li><li><a href="LEEWGL.Light.SpotLight.html">SpotLight</a></li><li><a href="LEEWGL.LocalStorage.html">LocalStorage</a></li><li><a href="LEEWGL.Options.html">Options</a></li><li><a href="LEEWGL.PerspectiveCamera.html">PerspectiveCamera</a></li><li><a href="LEEWGL.Picker.html">Picker</a></li><li><a href="LEEWGL.RenderBuffer.html">RenderBuffer</a></li><li><a href="LEEWGL.Scene.html">Scene</a></li><li><a href="LEEWGL.Settings.html">Settings</a></li><li><a href="LEEWGL.Shader.html">Shader</a></li><li><a href="LEEWGL.ShaderChunk.html">ShaderChunk</a></li><li><a href="LEEWGL.ShaderLibrary.html">ShaderLibrary</a></li><li><a href="LEEWGL.Texture.html">Texture</a></li><li><a href="LEEWGL.Timer.html">Timer</a></li><li><a href="LEEWGL.UI.html">UI</a></li><li><a href="LEEWGL.UI.BasicPopup.html">BasicPopup</a></li><li><a href="LEEWGL.UI.Popup.html">Popup</a></li><li><a href="LEEWGL.UI.Sidebar.html">Sidebar</a></li></ul><h3>Namespaces</h3><ul><li><a href="LEEWGL.html">LEEWGL</a></li></ul><h3>Global</h3><ul><li><a href="global.html#__extensionLoader">__extensionLoader</a></li><li><a href="global.html#A">A</a></li><li><a href="global.html#ALPHA">ALPHA</a></li><li><a href="global.html#BYTE">BYTE</a></li><li><a href="global.html#ColorHelper">ColorHelper</a></li><li><a href="global.html#Components">Components</a></li><li><a href="global.html#D">D</a></li><li><a href="global.html#DOWN_CURSOR">DOWN_CURSOR</a></li><li><a href="global.html#ENGINE">ENGINE</a></li><li><a href="global.html#ENTER">ENTER</a></li><li><a href="global.html#F5">F5</a></li><li><a href="global.html#FILTER_LINEAR">FILTER_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_LINEAR">FILTER_LINEAR_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_NEAREST">FILTER_LINEAR_MIPMAP_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST">FILTER_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_LINEAR">FILTER_NEAREST_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_NEAREST">FILTER_NEAREST_MIPMAP_NEAREST</a></li><li><a href="global.html#FLOAT">FLOAT</a></li><li><a href="global.html#HTMLHELPER">HTMLHELPER</a></li><li><a href="global.html#id">id</a></li><li><a href="global.html#IMG_DEFAULT">IMG_DEFAULT</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#INT">INT</a></li><li><a href="global.html#KEYS">KEYS</a></li><li><a href="global.html#LEFT_CURSOR">LEFT_CURSOR</a></li><li><a href="global.html#LIGHTS">LIGHTS</a></li><li><a href="global.html#LUMINANCE">LUMINANCE</a></li><li><a href="global.html#LUMINANCE_ALPHA">LUMINANCE_ALPHA</a></li><li><a href="global.html#MAPPING_DEFAULT">MAPPING_DEFAULT</a></li><li><a href="global.html#MaxVerticalAngle">MaxVerticalAngle</a></li><li><a href="global.html#MOUSE">MOUSE</a></li><li><a href="global.html#PAGE_DOWN">PAGE_DOWN</a></li><li><a href="global.html#PAGE_UP">PAGE_UP</a></li><li><a href="global.html#REQUIRES">REQUIRES</a></li><li><a href="global.html#RGB">RGB</a></li><li><a href="global.html#RGBA">RGBA</a></li><li><a href="global.html#RIGHT_CURSOR">RIGHT_CURSOR</a></li><li><a href="global.html#ROOT">ROOT</a></li><li><a href="global.html#S">S</a></li><li><a href="global.html#SETTINGS">SETTINGS</a></li><li><a href="global.html#SHADER_LIBRARY">SHADER_LIBRARY</a></li><li><a href="global.html#SHORT">SHORT</a></li><li><a href="global.html#TextureCount">TextureCount</a></li><li><a href="global.html#UI">UI</a></li><li><a href="global.html#UNSIGNED_BYTE">UNSIGNED_BYTE</a></li><li><a href="global.html#UNSIGNED_INT">UNSIGNED_INT</a></li><li><a href="global.html#UNSIGNED_SHORT">UNSIGNED_SHORT</a></li><li><a href="global.html#UP_CURSOR">UP_CURSOR</a></li><li><a href="global.html#VECTOR">VECTOR</a></li><li><a href="global.html#W">W</a></li><li><a href="global.html#WRAPPING_CLAMP_TO_EDGE">WRAPPING_CLAMP_TO_EDGE</a></li><li><a href="global.html#WRAPPING_MIRRORED_REPEAT">WRAPPING_MIRRORED_REPEAT</a></li><li><a href="global.html#WRAPPING_REPEAT">WRAPPING_REPEAT</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Sat Aug 29 2015 19:41:55 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Mon Aug 31 2015 22:12:08 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>

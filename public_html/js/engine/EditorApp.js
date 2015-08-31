@@ -28,23 +28,23 @@ LEEWGL.EditorApp = function(options) {
     'far': 1000
   });
 
-  /** @inner {LEEWGL.Geometry.Sphere} */
-  this.cameraGizmo = new LEEWGL.Geometry.Sphere({
+  /** @inner {LEEWGL.Geometry3D.Sphere} */
+  this.cameraGizmo = new LEEWGL.Geometry3D.Sphere({
     'alias': 'CameraGizmo',
     'tagname': 'CameraGizmo'
   });
-  /** @inner {LEEWGL.Geometry.Triangle} */
-  this.triangle = new LEEWGL.Geometry.Triangle({
+  /** @inner {LEEWGL.Geometry3D.Triangle} */
+  this.triangle = new LEEWGL.Geometry3D.Triangle({
     'alias': 'Triangle',
     'tagname': 'Triangle'
   });
-  /** @inner {LEEWGL.Geometry.Cube} */
-  this.cube = new LEEWGL.Geometry.Cube({
+  /** @inner {LEEWGL.Geometry3D.Cube} */
+  this.cube = new LEEWGL.Geometry3D.Cube({
     'alias': 'Cube',
     'tagname': 'Cube'
   });
-  /** @inner {LEEWGL.Geometry.Grid} */
-  this.grid = new LEEWGL.Geometry.Grid({
+  /** @inner {LEEWGL.Geometry3D.Grid} */
+  this.grid = new LEEWGL.Geometry3D.Grid({
     'alias': 'Grid',
     'tagname': 'Grid',
     'wireframe': true
@@ -93,7 +93,7 @@ LEEWGL.EditorApp = function(options) {
   this.scenePlay = new LEEWGL.Scene({
     'alias': 'ScenePlay'
   });
-  /** @inner {LEEWGL.Object3D} */
+  /** @inner {LEEWGL.GameObject} */
   this.activeElement = null;
 
   /** @inner {bool} */
@@ -149,6 +149,7 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   var testImage = new Image();
   testImage.src = LEEWGL.ROOT + 'texture/texture1.jpg';
   this.billboard.init(this.gl, testImage);
+  // this.billboard.transform.setPosition([0, 0, 0]);
   // test load collada file
   // var Importer = new LEEWGL.Importer();
   // var model = Importer.import('models/cup.obj', this.gl);
@@ -192,7 +193,7 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
 LEEWGL.EditorApp.prototype.initShaders = function(lightType) {
   SHADER_LIBRARY.reset();
 
-  SHADER_LIBRARY.addParameterChunk(LEEWGL.ShaderLibrary.BILLBOARD);
+  SHADER_LIBRARY.addParameterChunk(LEEWGL.ShaderLibrary.BILLBOARD_FIXED);
 
   var billboardShader = new LEEWGL.Shader();
   billboardShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, SHADER_LIBRARY.out(LEEWGL.Shader.VERTEX));
@@ -232,8 +233,6 @@ LEEWGL.EditorApp.prototype.initShaders = function(lightType) {
 
   textureShader.createUniformSetters(this.gl);
   textureShader.createAttributeSetters(this.gl);
-
-  console.log(billboardShader);
 
   return {
     'color': colorShader,
@@ -338,6 +337,8 @@ LEEWGL.EditorApp.prototype.onMouseMove = function(event) {
         this.activeElement.transform.translate([movementWorld[2], movementWorld[1], movementWorld[0]]);
       else
         this.activeElement.transform.translate(movementWorld);
+
+        this.billboard.transform.translate(movementWorld);
     } else if (mode === 'rotation') {
       if (event.ctrlKey)
         this.activeElement.transform.rotateX(rad, true);
@@ -488,7 +489,6 @@ LEEWGL.EditorApp.prototype.draw = function(element, shader, camera) {
     if (this.useShadows === true)
       this.shadowmap.draw(this.gl, shader, this.light);
 
-
     if (element instanceof LEEWGL.Billboard) {
       element.draw(this.gl, shader, camera);
     } else {
@@ -537,7 +537,7 @@ LEEWGL.EditorApp.prototype.onPlay = function() {
 
 /**
  * @see {LEEWGL.UI.stop}
- * @callback LEEWGL.Object3D.onStop
+ * @callback LEEWGL.GameObject.onStop
  */
 LEEWGL.EditorApp.prototype.onStop = function() {
   this.playing = false;

@@ -1,16 +1,19 @@
 /**
  * Geometry ecapsulates various basic shapes to render.
  * @constructor
- * @augments LEEWGL.Object3D
+ * @augments LEEWGL.GameObject
  * @param  {bool} options.wireframe
+ * @param  {up} options.up - default up vector
  */
 LEEWGL.Geometry = function(options) {
   LEEWGL.REQUIRES.push('Geometry');
-  LEEWGL.Object3D.call(this, options);
+  LEEWGL.GameObject.call(this, options);
 
   this.type = 'Geometry';
+
   var ext_options = {
-    'wireframe': false
+    'wireframe': false,
+    'up': vec2.clone(LEEWGL.VECTOR2D.UP)
   };
 
   this.addOptions(ext_options);
@@ -34,11 +37,11 @@ LEEWGL.Geometry = function(options) {
     },
     'buffers': {
       value: {
-        'vertex': new LEEWGL.Buffer({
+        'position': new LEEWGL.Buffer({
           'picking': this.options.picking
         }),
         'normal': new LEEWGL.Buffer(),
-        'index': new LEEWGL.IndexBuffer(),
+        'indices': new LEEWGL.IndexBuffer(),
         'color': new LEEWGL.Buffer(),
         'texture': new LEEWGL.Buffer(),
       },
@@ -54,11 +57,10 @@ LEEWGL.Geometry = function(options) {
   this.faces = [];
   this.vectors = [];
 
-  this.texture = undefined;
   this.usesTexture = false;
 };
 
-LEEWGL.Geometry.prototype = Object.create(LEEWGL.Object3D.prototype);
+LEEWGL.Geometry.prototype = Object.create(LEEWGL.GameObject.prototype);
 
 /**
  * @param  {string} type
@@ -90,10 +92,163 @@ LEEWGL.Geometry.prototype.setIndices = function(indices) {
 };
 
 /**
+ * Calls setData method of color buffer
+ * @param  {webGLContent} gl
+ */
+LEEWGL.Geometry.prototype.setColorBuffer = function(gl) {
+  this.buffers.color.setData(gl, this.vertices.color, new LEEWGL.BufferInformation.VertexTypePos4());
+};
+
+/**
+ * @param  {webGLContext} gl
+ * @param  {vec4} color
+ */
+LEEWGL.Geometry.prototype.setColor = function(gl, color) {
+  this.vertices.color = [];
+  for (var i = 0; i < this.facesNum; ++i) {
+    this.vertices.color.push(color);
+  }
+  this.setColorBuffer(gl);
+};
+
+/**
+ * Sets this.usesTexture
+ * @param  {LEEWGL.Texture} texture
+ */
+LEEWGL.Geometry.prototype.setTexture = function(texture) {
+  this.usesTexture = true;
+};
+
+/**
+ * Calculates tangents and saves them in this.tangents
+ */
+LEEWGL.Geometry.prototype.calculateTangents = function() {
+  for (var i = 0; i < this.vertices.position.length; ++i) {
+    this.tangents[i] = 0.0;
+  }
+};
+
+/**
+ * Sets geometry own shader attributes and uniforms and renders the geometry
+ * @param  {webGLContext} gl
+ * @param  {LEEWGL.Shader} shader
+ * @param  {webGLDrawMode} drawMode [description]
+ * @param  {bool} indices  - if geometry makes use of indices buffer
+ */
+LEEWGL.Geometry.prototype.draw = function(gl, shader, drawMode, indices) {
+  indices = (typeof indices !== 'undefined') ? indices : true;
+
+  shader.use(gl);
+
+  shader.attributes['aVertexPosition'](this.buffers.position);
+  shader.attributes['aVertexNormal'](this.buffers.normal);
+
+  if (this.usesTexture === true) {
+    shader.attributes['aTextureCoord'](this.buffers.texture);
+    this.components['Texture'].texture.bind(gl);
+    this.components['Texture'].texture.setActive(gl, 1);
+    shader.uniforms['uSampler'](1);
+  } else {
+    shader.attributes['aVertexColor'](this.buffers.color);
+  }
+
+  var normalMatrix = mat4.create();
+  mat4.invert(normalMatrix, this.transform.matrix());
+  mat4.transpose(normalMatrix, normalMatrix);
+
+  shader.uniforms['uColorMapColor'](new Float32Array(this.buffers.position.colorMapColor));
+  shader.uniforms['uNormalMatrix'](normalMatrix);
+  shader.uniforms['uModel'](this.transform.matrix());
+
+  var draw = drawMode;
+
+  if (this.options['wireframe'] === true)
+    draw = gl.LINES;
+
+  if (indices === true) {
+    this.buffers.indices.bind(gl);
+    gl.drawElements(draw, this.indices.length, gl.UNSIGNED_SHORT, 0);
+  } else {
+    gl.drawArrays(draw, 0, this.vertices.position.length);
+  }
+
+  if (this.usesTexture === true)
+    this.components['Texture'].texture.unbind(gl, 1);
+};
+
+/**
+ * Derived method from LEEWGL.GameObject
+ * Calls LEEWGL.GameObject.clone and performs deep copy of this object
+ * @param  {LEEWGL.Geometry} geometry
+ * @param  {bool} cloneID
+ * @param  {bool} addToAlias
+ * @return {LEEWGL.Geometry}
+ */
+LEEWGL.Geometry.prototype.clone = function(geometry, cloneID, recursive, addToAlias) {
+  if (typeof geometry === 'undefined')
+    geometry = new LEEWGL.Geometry(this.options);
+
+  LEEWGL.GameObject.prototype.clone.call(this, geometry, cloneID, recursive, addToAlias);
+
+  var position = this.vertices.position;
+  var normal = this.vertices.normal;
+  var color = this.vertices.color;
+  var uv = this.vertices.uv;
+  var faces = this.faces;
+
+  geometry.facesNum = this.facesNum;
+  geometry.usesTexture = this.usesTexture;
+
+  geometry.vertices.position = [];
+  geometry.vertices.normal = [];
+  geometry.vertices.color = [];
+  geometry.vertices.uv = [];
+  geometry.faces = [];
+
+  var i = 0;
+  for (i = 0; i < position.length; ++i) {
+    geometry.vertices.position.push(position[i]);
+  }
+  for (i = 0; i < normal.length; ++i) {
+    geometry.vertices.normal.push(normal[i]);
+  }
+  for (i = 0; i < color.length; ++i) {
+    geometry.vertices.color.push(color[i]);
+  }
+  for (i = 0; i < uv.length; ++i) {
+    geometry.vertices.uv.push(uv[i]);
+  }
+  for (i = 0; i < this.facesNum; ++i) {
+    geometry.faces.push(faces[i]);
+  }
+
+  LEEWGL.Buffer.prototype.clone.call(this.buffers.position, geometry.buffers.position);
+  LEEWGL.Buffer.prototype.clone.call(this.buffers.normal, geometry.buffers.normal);
+  LEEWGL.Buffer.prototype.clone.call(this.buffers.indices, geometry.buffers.indices);
+  LEEWGL.Buffer.prototype.clone.call(this.buffers.color, geometry.buffers.color);
+  LEEWGL.Buffer.prototype.clone.call(this.buffers.texture, geometry.buffers.texture);
+
+  return geometry;
+};
+
+/**
+ * @constructor
+ * @augments LEEWGL.Geometry
+ * @param  {object} options
+ */
+LEEWGL.Geometry3D = function(options) {
+  LEEWGL.Geometry.call(this, options);
+
+  this.options['up'] = vec3.clone(LEEWGL.VECTOR3D.UP);
+};
+
+LEEWGL.Geometry3D.prototype = Object.create(LEEWGL.Geometry.prototype);
+
+/**
  * Calculates faces and saves them in this.faces
  * Gets called in constructor of derived classes of Geometry
  */
-LEEWGL.Geometry.prototype.calculateFaces = function() {
+LEEWGL.Geometry3D.prototype.calculateFaces = function() {
   this.vectors = [];
 
   var i = 0;
@@ -126,7 +281,7 @@ LEEWGL.Geometry.prototype.calculateFaces = function() {
  * Calculates normals and saves them in this.vertices.normal
  * Gets called in constructor of derived classes of Geometry
  */
-LEEWGL.Geometry.prototype.calculateNormals = function() {
+LEEWGL.Geometry3D.prototype.calculateNormals = function() {
   this.vertices.normal = [];
   var x = 0,
     y = 1,
@@ -185,31 +340,22 @@ LEEWGL.Geometry.prototype.calculateNormals = function() {
 };
 
 /**
- * Calculates tangents and saves them in this.tangents
- */
-LEEWGL.Geometry.prototype.calculateTangents = function() {
-  for (var i = 0; i < this.vertices.position.length; ++i) {
-    this.tangents[i] = 0.0;
-  }
-};
-
-/**
  * Calls setData method for all buffers except color buffer
  * @param  {webGLContent} gl
+ * @param  {string} type - to set one distinct buffer
  */
-LEEWGL.Geometry.prototype.setBuffer = function(gl) {
-  this.buffers.vertex.setData(gl, this.vertices.position, new LEEWGL.BufferInformation.VertexTypePos3());
-  this.buffers.normal.setData(gl, this.vertices.normal, new LEEWGL.BufferInformation.VertexTypePos3());
-  this.buffers.texture.setData(gl, this.vertices.uv, new LEEWGL.BufferInformation.VertexTypePos2());
-  this.buffers.index.setData(gl, this.indices);
-};
-
-/**
- * Calls setData method of color buffer
- * @param  {webGLContent} gl
- */
-LEEWGL.Geometry.prototype.setColorBuffer = function(gl) {
-  this.buffers.color.setData(gl, this.vertices.color, new LEEWGL.BufferInformation.VertexTypePos4());
+LEEWGL.Geometry3D.prototype.setBuffer = function(gl, type) {
+  if (typeof type !== 'undefined') {
+    if (type === 'indices')
+      this.buffers.indices.setData(gl, this.indices);
+    else
+      this.buffers[type].setData(gl, this.vertices[type], new LEEWGL.BufferInformation.VertexTypePos3());
+  } else {
+    this.buffers.position.setData(gl, this.vertices.position, new LEEWGL.BufferInformation.VertexTypePos3());
+    this.buffers.normal.setData(gl, this.vertices.normal, new LEEWGL.BufferInformation.VertexTypePos3());
+    this.buffers.texture.setData(gl, this.vertices.uv, new LEEWGL.BufferInformation.VertexTypePos2());
+    this.buffers.indices.setData(gl, this.indices);
+  }
 };
 
 /**
@@ -219,7 +365,7 @@ LEEWGL.Geometry.prototype.setColorBuffer = function(gl) {
  * @param  {array} colors
  * @param  {number} length - number of faces
  */
-LEEWGL.Geometry.prototype.addColor = function(gl, colors, length) {
+LEEWGL.Geometry3D.prototype.addColor = function(gl, colors, length) {
   length = (typeof length !== 'undefined') ? length : this.facesNum;
   this.vertices.color = [];
   for (var i = 0, j = 0; i < length; ++i, j += 4) {
@@ -229,145 +375,29 @@ LEEWGL.Geometry.prototype.addColor = function(gl, colors, length) {
 };
 
 /**
- * @param  {webGLContext} gl
- * @param  {vec4} color
- */
-LEEWGL.Geometry.prototype.setColor = function(gl, color) {
-  this.vertices.color = [];
-  for (var i = 0; i < this.facesNum; ++i) {
-    this.vertices.color.push(color);
-  }
-  this.setColorBuffer(gl);
-};
-
-/**
- * Sets this.usesTexture and this.texture to given texture
- * @param  {LEEWGL.Texture} texture
- */
-LEEWGL.Geometry.prototype.setTexture = function(texture) {
-  this.texture = texture;
-  this.usesTexture = true;
-};
-
-/**
- * Sets geometry own shader attributes and uniforms and renders the geometry
- * @param  {webGLContext} gl
- * @param  {LEEWGL.Shader} shader
- * @param  {webGLDrawMode} drawMode [description]
- * @param  {bool} indices  - if geometry makes use of indices buffer
- */
-LEEWGL.Geometry.prototype.draw = function(gl, shader, drawMode, indices) {
-  indices = (typeof indices !== 'undefined') ? indices : true;
-
-  shader.use(gl);
-
-  shader.attributes['aVertexPosition'](this.buffers.vertex);
-  shader.attributes['aVertexNormal'](this.buffers.normal);
-
-  if (this.usesTexture === true) {
-    shader.attributes['aTextureCoord'](this.buffers.texture);
-    this.components['Texture'].texture.bind(gl);
-    this.components['Texture'].texture.setActive(gl, 1);
-    shader.uniforms['uSampler'](1);
-  } else {
-    shader.attributes['aVertexColor'](this.buffers.color);
-  }
-
-  var normalMatrix = mat4.create();
-  mat4.invert(normalMatrix, this.transform.matrix());
-  mat4.transpose(normalMatrix, normalMatrix);
-
-  shader.uniforms['uColorMapColor'](new Float32Array(this.buffers.vertex.colorMapColor));
-  shader.uniforms['uNormalMatrix'](normalMatrix);
-  shader.uniforms['uModel'](this.transform.matrix());
-
-  var draw = drawMode;
-
-  if (this.options['wireframe'] === true)
-    draw = gl.LINES;
-
-  if (indices === true) {
-    this.buffers.index.bind(gl);
-    gl.drawElements(draw, this.indices.length, gl.UNSIGNED_SHORT, 0);
-  } else {
-    gl.drawArrays(draw, this.vertices.position.length, 0);
-  }
-
-  if (this.usesTexture === true)
-    this.components['Texture'].texture.unbind(gl, 1);
-};
-
-/**
- * Derived method from LEEWGL.Object3D
- * Calls LEEWGL.Object3D.clone and performs deep copy of this object
- * @param  {LEEWGL.Geometry} geometry
+ * Derived method from LEEWGL.Geometry
+ * Calls LEEWGL.Geometry.clone and performs deep copy of this object
+ * @param  {LEEWGL.Geometry3D} geometry
  * @param  {bool} cloneID
  * @param  {bool} addToAlias
- * @return {LEEWGL.Geometry}
+ * @return {LEEWGL.Geometry3D}
  */
-LEEWGL.Geometry.prototype.clone = function(geometry, cloneID, recursive, addToAlias) {
-  if (typeof geometry === 'undefined') {
-    geometry = new LEEWGL.Geometry(this.options);
-  }
-  LEEWGL.Object3D.prototype.clone.call(this, geometry, cloneID, recursive, addToAlias);
+LEEWGL.Geometry3D.prototype.clone = function(geometry, cloneID, recursive, addToAlias) {
+  if (typeof geometry === 'undefined')
+    geometry = new LEEWGL.Geometry3D(this.options);
 
-  geometry.facesNum = this.facesNum;
-
-  var position = this.vertices.position;
-  var normal = this.vertices.normal;
-  var color = this.vertices.color;
-  var uv = this.vertices.uv;
-  var faces = this.faces;
-
-  geometry.facesNum = this.facesNum;
-
-  geometry.vertices.position = [];
-  geometry.vertices.normal = [];
-  geometry.vertices.color = [];
-  geometry.vertices.uv = [];
-  geometry.faces = [];
-
-  var i = 0;
-
-  for (i = 0; i < position.length; ++i) {
-    geometry.vertices.position.push(position[i]);
-  }
-
-  for (i = 0; i < normal.length; ++i) {
-    geometry.vertices.normal.push(normal[i]);
-  }
-
-  for (i = 0; i < color.length; ++i) {
-    geometry.vertices.color.push(color[i]);
-  }
-
-  for (i = 0; i < uv.length; ++i) {
-    geometry.vertices.uv.push(uv[i]);
-  }
-
-  for (i = 0; i < this.facesNum; ++i) {
-    geometry.faces.push(faces[i]);
-  }
-
-  LEEWGL.Buffer.prototype.clone.call(this.buffers.vertex, geometry.buffers.vertex);
-  LEEWGL.Buffer.prototype.clone.call(this.buffers.normal, geometry.buffers.normal);
-  LEEWGL.Buffer.prototype.clone.call(this.buffers.index, geometry.buffers.index);
-  LEEWGL.Buffer.prototype.clone.call(this.buffers.color, geometry.buffers.color);
-  LEEWGL.Buffer.prototype.clone.call(this.buffers.texture, geometry.buffers.texture);
-
-  geometry.usesTexture = this.usesTexture;
-
+  LEEWGL.Geometry.prototype.clone.call(this, geometry, cloneID, recursive, addToAlias);
   return geometry;
 };
 
 /**
  * @constructor
- * @augments LEEWGL.Geometry
+ * @augments LEEWGL.Geometry3D
  * @param  {number} options.lines
  * @param  {dimension} options.dimension
  */
-LEEWGL.Geometry.Grid = function(options) {
-  LEEWGL.Geometry.call(this, options);
+LEEWGL.Geometry3D.Grid = function(options) {
+  LEEWGL.Geometry3D.call(this, options);
 
   var ext_options = {
     'lines': 10,
@@ -383,14 +413,14 @@ LEEWGL.Geometry.Grid = function(options) {
   this.generate();
 };
 
-LEEWGL.Geometry.Grid.prototype = Object.create(LEEWGL.Geometry.prototype);
+LEEWGL.Geometry3D.Grid.prototype = Object.create(LEEWGL.Geometry3D.prototype);
 
 /**
  * Gets called in constructor
  * Fills this.vertices.position and this.indices
  * Calls this.calculateFaces and this.calculateNormals to deliver a renderable object
  */
-LEEWGL.Geometry.Grid.prototype.generate = function() {
+LEEWGL.Geometry3D.Grid.prototype.generate = function() {
   var increment = 2 * this.dimension / this.lines;
 
   for (var i = 0; i <= this.lines; ++i) {
@@ -420,17 +450,17 @@ LEEWGL.Geometry.Grid.prototype.generate = function() {
   this.calculateNormals();
 };
 /**
- * Derived from LEEWGL.Geometry
- * @param  {LEEWGL.Geometry.Grid} grid
+ * Derived from LEEWGL.Geometry3D
+ * @param  {LEEWGL.Geometry3D.Grid} grid
  * @param  {bool} cloneID
  * @param  {bool} addToAlias
- * @return {LEEWGL.Geometry.Grid}
+ * @return {LEEWGL.Geometry3D.Grid}
  */
-LEEWGL.Geometry.Grid.prototype.clone = function(grid, cloneID, recursive, addToAlias) {
+LEEWGL.Geometry3D.Grid.prototype.clone = function(grid, cloneID, recursive, addToAlias) {
   if (typeof grid === 'undefined')
-    grid = new LEEWGL.Geometry.Grid(this.options);
+    grid = new LEEWGL.Geometry3D.Grid(this.options);
 
-  LEEWGL.Geometry.prototype.clone.call(this, grid, cloneID, recursive, addToAlias);
+  LEEWGL.Geometry3D.prototype.clone.call(this, grid, cloneID, recursive, addToAlias);
 
   grid.lines = this.lines;
   grid.dimension = this.dimension;
@@ -440,33 +470,37 @@ LEEWGL.Geometry.Grid.prototype.clone = function(grid, cloneID, recursive, addToA
 
 /**
  * @constructor
- * @augments LEEWGL.Geometry
+ * @augments LEEWGL.Geometry3D
  * @param  {object} options
  */
-LEEWGL.Geometry.Triangle = function(options) {
-  LEEWGL.Geometry.call(this, options);
+LEEWGL.Geometry3D.Triangle = function(options) {
+  LEEWGL.Geometry3D.call(this, options);
 
   this.type = 'Geometry.Triangle';
 
   var position = [
-    0.0, 1.0, 0.0, -1.0, -1.0, 1.0,
+    -1.0, -1.0, 1.0,
     1.0, -1.0, 1.0,
-    1.0, -1.0, -1.0, -1.0, -1.0, -1.0
+    -1.0, -1.0, -1.0,
+    1.0, -1.0, -1.0,
+    0.0, 1.0, 0.0
   ];
 
   var uv = [
-    0.5, 1.0,
     0.0, 0.0,
     1.0, 0.0,
+    0.0, 0.0,
     1.0, 0.0,
-    0.0, 0.0
+    0.5, 0.75
   ];
 
   var indices = [
-    0, 1, 2,
-    0, 2, 3,
-    0, 3, 4,
-    0, 4, 1
+    0, 2, 1,
+    1, 2, 3,
+    0, 1, 4,
+    1, 3, 4,
+    3, 2, 4,
+    2, 0, 4
   ];
 
   this.setVerticesByType('position', position);
@@ -477,10 +511,10 @@ LEEWGL.Geometry.Triangle = function(options) {
   this.calculateNormals();
 };
 
-LEEWGL.Geometry.Triangle.prototype = Object.create(LEEWGL.Geometry.prototype);
+LEEWGL.Geometry3D.Triangle.prototype = Object.create(LEEWGL.Geometry3D.prototype);
 
-LEEWGL.Geometry.Triangle.prototype.intersectRay = function(origin, direction, collision, distance, segmentationMax) {
-  var plane = new LEEWGL.Geometry.Plane();
+LEEWGL.Geometry3D.Triangle.prototype.intersectRay = function(origin, direction, collision, distance, segmentationMax) {
+  var plane = new LEEWGL.Geometry3D.Plane();
   vec3.set(plane.x, this.x);
   vec3.set(plane.y, this.y);
   vec3.set(plane.z, this.z);
@@ -508,70 +542,70 @@ LEEWGL.Geometry.Triangle.prototype.intersectRay = function(origin, direction, co
   return false;
 };
 
-LEEWGL.Geometry.Triangle.prototype.import = function(stringified_json) {
+LEEWGL.Geometry3D.Triangle.prototype.import = function(stringified_json) {
   var json = JSON.parse(stringified_json);
-  var triangle = new LEEWGL.Geometry.Triangle(json);
+  var triangle = new LEEWGL.Geometry3D.Triangle(json);
 
   return triangle;
 };
 
 /**
- * Derived from LEEWGL.Geometry
- * @param  {LEEWGL.Geometry.Triangle} triangle
+ * Derived from LEEWGL.Geometry3D
+ * @param  {LEEWGL.Geometry3D.Triangle} triangle
  * @param  {bool} cloneID
  * @param  {bool|string} addToAlias
- * @return {LEEWGL.Geometry.Triangle}
+ * @return {LEEWGL.Geometry3D.Triangle}
  */
-LEEWGL.Geometry.Triangle.prototype.clone = function(triangle, cloneID, recursive, addToAlias) {
+LEEWGL.Geometry3D.Triangle.prototype.clone = function(triangle, cloneID, recursive, addToAlias) {
   if (typeof triangle === 'undefined')
-    triangle = new LEEWGL.Geometry.Triangle(this.options);
+    triangle = new LEEWGL.Geometry3D.Triangle(this.options);
 
-  LEEWGL.Geometry.prototype.clone.call(this, triangle, cloneID, recursive, addToAlias);
+  LEEWGL.Geometry3D.prototype.clone.call(this, triangle, cloneID, recursive, addToAlias);
 
   return triangle;
 };
 
 /**
  * @constructor
- * @augments LEEWGL.Geometry
+ * @augments LEEWGL.Geometry3D
  * @param  {object} options
  */
-LEEWGL.Geometry.Cube = function(options) {
-  LEEWGL.Geometry.call(this, options);
+LEEWGL.Geometry3D.Cube = function(options) {
+  LEEWGL.Geometry3D.call(this, options);
 
   this.type = 'Geometry.Cube';
 
   var position = [
     // Front face
-    -1.0, -1.0, 1.0,
-    1.0, -1.0, 1.0,
-    1.0, 1.0, 1.0,
-    -1.0, 1.0, 1.0,
+    -1.0, -1.0, 1.0, // 0
+    1.0, -1.0, 1.0, // 1
+    1.0, 1.0, 1.0, // 2
+    -1.0, 1.0, 1.0, // 3
     // Back face
-    -1.0, -1.0, -1.0,
-    -1.0, 1.0, -1.0,
-    1.0, 1.0, -1.0,
-    1.0, -1.0, -1.0,
+    -1.0, -1.0, -1.0, // 4
+    -1.0, 1.0, -1.0, // 5
+    1.0, 1.0, -1.0, // 6
+    1.0, -1.0, -1.0, // 7
     // Top face
-    -1.0, 1.0, -1.0,
-    -1.0, 1.0, 1.0,
-    1.0, 1.0, 1.0,
-    1.0, 1.0, -1.0,
+    -1.0, 1.0, -1.0, // 8 = 5
+    -1.0, 1.0, 1.0, // 9 = 3
+    1.0, 1.0, 1.0, // 10 = 2
+    1.0, 1.0, -1.0, // 11 = 6
     // Bottom face
-    -1.0, -1.0, -1.0,
-    1.0, -1.0, -1.0,
-    1.0, -1.0, 1.0,
-     -1.0, -1.0, 1.0,
+    -1.0, -1.0, -1.0, // 12 = 4
+    1.0, -1.0, -1.0, // 13 = 7
+    1.0, -1.0, 1.0, // 14 = 1
+    -1.0, -1.0, 1.0, // 15 = 0
     // Right face
-    1.0, -1.0, -1.0,
-    1.0, 1.0, -1.0,
-    1.0, 1.0, 1.0,
-    1.0, -1.0, 1.0,
+    1.0, -1.0, -1.0, // 16 = 7
+    1.0, 1.0, -1.0, // 17 = 6
+    1.0, 1.0, 1.0, // 18 = 2
+    1.0, -1.0, 1.0, // 19 = 1
     // Left face
-    -1.0, -1.0, -1.0,
-    -1.0, -1.0, 1.0,
-    -1.0, 1.0, 1.0,
-    -1.0, 1.0, -1.0
+    -1.0, -1.0, -1.0, // 20 = 4
+    -1.0, -1.0, 1.0, // 21 = 0
+    -1.0, 1.0, 1.0, // 22 = 3
+     -1.0, 1.0, -1.0  // 23 = 5
   ];
 
   var uv = [
@@ -607,7 +641,8 @@ LEEWGL.Geometry.Cube = function(options) {
     0.0, 1.0
   ];
 
-  var indices = [0, 1, 2, 0, 2, 3, // front
+  var indices = [
+    0, 1, 2, 0, 2, 3, // front
     4, 5, 6, 4, 6, 7, // back
     8, 9, 10, 8, 10, 11, // top
     12, 13, 14, 12, 14, 15, // bottom
@@ -623,31 +658,31 @@ LEEWGL.Geometry.Cube = function(options) {
   this.calculateNormals();
 };
 
-LEEWGL.Geometry.Cube.prototype = Object.create(LEEWGL.Geometry.prototype);
+LEEWGL.Geometry3D.Cube.prototype = Object.create(LEEWGL.Geometry3D.prototype);
 
 /**
- * Derived from LEEWGL.Geometry
- * @param  {LEEWGL.Geometry.Cube} cube
+ * Derived from LEEWGL.Geometry3D
+ * @param  {LEEWGL.Geometry3D.Cube} cube
  * @param  {bool} cloneID
  * @param  {bool|string} addToAlias
- * @return {LEEWGL.Geometry.Cube}
+ * @return {LEEWGL.Geometry3D.Cube}
  */
-LEEWGL.Geometry.Cube.prototype.clone = function(cube, cloneID, recursive, addToAlias) {
+LEEWGL.Geometry3D.Cube.prototype.clone = function(cube, cloneID, recursive, addToAlias) {
   if (typeof cube === 'undefined')
-    cube = new LEEWGL.Geometry.Cube(this.options);
-  LEEWGL.Geometry.prototype.clone.call(this, cube, cloneID, recursive, addToAlias);
+    cube = new LEEWGL.Geometry3D.Cube(this.options);
+  LEEWGL.Geometry3D.prototype.clone.call(this, cube, cloneID, recursive, addToAlias);
   return cube;
 };
 
 /**
  * @constructor
- * @augments LEEWGL.Geometry
+ * @augments LEEWGL.Geometry3D
  * @param  {number} options.latitude
  * @param  {number} options.longitude
  * @param  {number} options.radius
  */
-LEEWGL.Geometry.Sphere = function(options) {
-  LEEWGL.Geometry.call(this, options);
+LEEWGL.Geometry3D.Sphere = function(options) {
+  LEEWGL.Geometry3D.call(this, options);
 
   this.type = 'Geometry.Sphere';
 
@@ -666,12 +701,11 @@ LEEWGL.Geometry.Sphere = function(options) {
 
   this.generate();
   this.calculateFaces();
-  this.calculateNormals();
 };
 
-LEEWGL.Geometry.Sphere.prototype = Object.create(LEEWGL.Geometry.prototype);
+LEEWGL.Geometry3D.Sphere.prototype = Object.create(LEEWGL.Geometry3D.prototype);
 
-LEEWGL.Geometry.Sphere.prototype.generate = function() {
+LEEWGL.Geometry3D.Sphere.prototype.generate = function() {
   var latNumber, longNumber = 0;
 
   for (latNumber = 0; latNumber <= this.latitude; latNumber++) {
@@ -717,17 +751,17 @@ LEEWGL.Geometry.Sphere.prototype.generate = function() {
   }
 };
 /**
- * Derived from LEEWGL.Geometry
- * @param  {LEEWGL.Geometry.Sphere} sphere
+ * Derived from LEEWGL.Geometry3D
+ * @param  {LEEWGL.Geometry3D.Sphere} sphere
  * @param  {bool} cloneID
  * @param  {bool|string} addToAlias
- * @return {LEEWGL.Geometry.Sphere}
+ * @return {LEEWGL.Geometry3D.Sphere}
  */
-LEEWGL.Geometry.Sphere.prototype.clone = function(sphere, cloneID, recursive, addToAlias) {
+LEEWGL.Geometry3D.Sphere.prototype.clone = function(sphere, cloneID, recursive, addToAlias) {
   if (typeof sphere === 'undefined')
-    sphere = new LEEWGL.Geometry.Sphere(this.options);
+    sphere = new LEEWGL.Geometry3D.Sphere(this.options);
 
-  LEEWGL.Geometry.prototype.clone.call(this, sphere, cloneID, recursive, addToAlias);
+  LEEWGL.Geometry3D.prototype.clone.call(this, sphere, cloneID, recursive, addToAlias);
 
   sphere.latitude = this.latitude;
   sphere.longitude = this.longitude;

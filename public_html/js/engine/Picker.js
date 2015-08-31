@@ -60,7 +60,7 @@ LEEWGL.Picker = function() {
    * @param  {webGLContext} gl
    * @param  {number} x
    * @param  {number} y
-   * @return {LEEWGL.Object3D | null}
+   * @return {LEEWGL.GameObject | null}
    */
   this.pick = function(gl, x, y) {
     this.frameBuffer.bind(gl);
@@ -88,10 +88,10 @@ LEEWGL.Picker = function() {
 
   /**
    * Add object to this.objList
-   * @param  {LEEWGL.Object3D} obj
+   * @param  {LEEWGL.GameObject} obj
    */
   this.addToList = function(obj) {
-    this.objList[obj.buffers.vertex.colorMapIndex] = obj;
+    this.objList[obj.buffers.position.colorMapIndex] = obj;
   };
 
   /**

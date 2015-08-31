@@ -1,5 +1,5 @@
 /**
- * Components can be added to LEEWGL.Object3D
+ * Components can be added to LEEWGL.GameObject
  * @constructor
  */
 LEEWGL.Component = function() {

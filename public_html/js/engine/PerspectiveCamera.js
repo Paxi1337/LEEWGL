@@ -208,7 +208,7 @@ LEEWGL.PerspectiveCamera.prototype.upVec = function() {
  * @param  {LEEWGL.Camera} camera
  * @param  {bool} cloneID
  * @param  {bool|string} addToAlias
- * @return {LEEWGL.Object3D}
+ * @return {LEEWGL.GameObject}
  */
 LEEWGL.PerspectiveCamera.prototype.clone = function(camera, cloneID, recursive, addToAlias) {
   if (camera === undefined)

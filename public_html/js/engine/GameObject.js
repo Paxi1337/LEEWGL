@@ -1,39 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>JSDoc: Source: Object3D.js</title>
-
-    <script src="scripts/prettify/prettify.js"> </script>
-    <script src="scripts/prettify/lang-css.js"> </script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
-    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
-</head>
-
-<body>
-
-<div id="main">
-
-    <h1 class="page-title">Source: Object3D.js</h1>
-
-    
-
-
-
-    
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>LEEWGL.REQUIRES.push('Object3D');
-
 /**
- * Object3D is the base class for all renderable objects.
+ * Object is the base class for all renderable objects.
  * @constructor
  * @param  {string} options.alias
  * @param  {string} options.tagname
- * @param  {LEEWGL.Object3D} options.parent
+ * @param  {LEEWGL.GameObject} options.parent
  * @param  {array} options.children
  * @param  {Object} options.components
  * @param  {array} options.up - representation of the up vector
@@ -43,14 +13,12 @@
  * @param  {bool} options.render
  * @param  {bool} options.needsUpdate
  */
-LEEWGL.Object3D = function(options) {
+LEEWGL.GameObject = function(options) {
+  LEEWGL.REQUIRES.push('GameObject');
   this.options = {
-    'alias': 'Object3D_' + LEEWGL.Object3DCount,
-    'tagname' : 'Object3D_' + LEEWGL.Object3DCount,
-    'parent': undefined,
-    'children': [],
-    'components': {},
-    'up': vec3.clone(LEEWGL.Object3D.DefaultUp),
+    'alias': 'GameObject_' + LEEWGL.GameObjectCount,
+    'tagname': 'GameObject_' + LEEWGL.GameObjectCount,
+    'up': vec2.clone(LEEWGL.VECTOR2D.UP),
     'inOutline': true,
     'picking': true,
     'visible': true,
@@ -58,13 +26,13 @@ LEEWGL.Object3D = function(options) {
     'needsUpdate': true
   };
 
-  extend(LEEWGL.Object3D.prototype, LEEWGL.Options.prototype);
+  extend(LEEWGL.GameObject.prototype, LEEWGL.Options.prototype);
   this.setOptions(options);
 
   Object.defineProperties(this, {
     /** @inner {number} */
     'id': {
-      value: LEEWGL.Object3DCount++,
+      value: LEEWGL.GameObjectCount++,
       enumerable: false,
       writable: true
     },
@@ -79,22 +47,22 @@ LEEWGL.Object3D = function(options) {
       writable: true
     },
     'type': {
-      value: 'Object3D',
+      value: 'GameObject',
       enumerable: true,
       writable: true
     },
     'parent': {
-      value: (typeof this.options.parent !== 'undefined') ? this.options.parent.clone() : undefined,
+      value: undefined,
       enumerable: true,
       writable: true
     },
     'children': {
-      value: this.options.children,
+      value: [],
       enumerable: true,
       writable: true
     },
     'components': {
-      value: this.options.components,
+      value: {},
       enumerable: true,
       writable: true
     },
@@ -130,6 +98,11 @@ LEEWGL.Object3D = function(options) {
     }
   });
 
+  ///TODO: make 2d transform component
+  this.addComponent(new LEEWGL.Component.Transform());
+  /** @inner {LEEWGL.Component.Transform} */
+  this.transform = this.components['Transform'];
+
   /**
    * Gets called at begin of the play event
    * @abstract
@@ -154,43 +127,37 @@ LEEWGL.Object3D = function(options) {
    * @param  {LEEWGL.Scene} scene
    */
   this.onStop = function(scene) {};
-
-  this.addComponent(new LEEWGL.Component.Transform());
-  /** @inner {LEEWGL.Component.Transform} */
-  this.transform = this.components['Transform'];
 };
 
-LEEWGL.Object3D.DefaultUp = [0.0, 1.0, 0.0];
-
-LEEWGL.Object3D.prototype = {
-  constructor: LEEWGL.Object3D,
+LEEWGL.GameObject.prototype = {
+  constructor: LEEWGL.GameObject,
 
   /**
    * Adds the given object to the children array of this.
-   * @param  {LEEWGL.Object3D} object
-   * @return {LEEWGL.Object3D} - this
+   * @param  {LEEWGL.GameObject} object
+   * @return {LEEWGL.GameObject} - this
    */
   add: function(object) {
     if (arguments.length > 1) {
-      for (var i = 0; i &lt; arguments.length; ++i) {
+      for (var i = 0; i < arguments.length; ++i) {
         this.add(arguments[i]);
       }
       return this;
     }
 
     if (object === this) {
-      console.error("LEEWGL.Object3D.add:", object, " can't be added as a child of itself");
+      console.error("LEEWGL.GameObject.add:", object, " can't be added as a child of itself");
       return this;
     }
 
-    if (object instanceof LEEWGL.Object3D) {
+    if (object instanceof LEEWGL.GameObject) {
       if (typeof object.parent !== 'undefined') {
         object.parent.remove(object);
       }
       object.parent = this;
       this.children.push(object);
     } else {
-      console.error("LEEWGL.Object3D.add:", object, " is not an instance of LEEWGL.Object3D");
+      console.error("LEEWGL.GameObject.add:", object, " is not an instance of LEEWGL.GameObject");
     }
     this.needsUpdate = true;
     return this;
@@ -221,7 +188,7 @@ LEEWGL.Object3D.prototype = {
    */
   remove: function(object) {
     if (arguments.length > 1) {
-      for (var i = 0; i &lt; arguments.length; ++i) {
+      for (var i = 0; i < arguments.length; ++i) {
         this.remove(arguments[i]);
       }
 
@@ -239,16 +206,33 @@ LEEWGL.Object3D.prototype = {
   /**
    * Iterates through children array of this and returns object with given id or null otherwise
    * @param  {number} id
-   * @return {LEEWGL.Object3D|null}
+   * @return {LEEWGL.GameObject|null}
    */
   getObjectById: function(id) {
     if (this.id === id)
       return this;
 
-    for (var i = 0; i &lt; this.children.length; ++i) {
+    for (var i = 0; i < this.children.length; ++i) {
       var child = this.children[i];
       var object = child.getObjectById(id);
-      if (object !== 'undefined')
+      if (object !== null)
+        return object;
+    }
+    return null;
+  },
+  /**
+   * Iterates through children array of this and returns object with given type or null otherwise
+   * @param  {string} type
+   * @return {LEEWGL.GameObject|null}
+   */
+  getObjectByType: function(type) {
+    if (this.type === type)
+      return this;
+
+    for (var i = 0; i < this.children.length; ++i) {
+      var child = this.children[i];
+      var object = child.getObjectByType(type);
+      if (object !== null)
         return object;
     }
     return null;
@@ -256,13 +240,13 @@ LEEWGL.Object3D.prototype = {
   /**
    * Iterates through children array of this and returns object with given alias or null otherwise
    * @param  {string} alias
-   * @return {LEEWGL.Object3D|null}
+   * @return {LEEWGL.GameObject|null}
    */
   getObjectByAlias: function(alias) {
     if (this.alias === alias)
       return this;
 
-    for (var i = 0; i &lt; this.children.length; ++i) {
+    for (var i = 0; i < this.children.length; ++i) {
       var child = this.children[i];
       var object = child.getObjectByAlias(alias);
       if (object !== null)
@@ -273,13 +257,13 @@ LEEWGL.Object3D.prototype = {
   /**
    * Iterates through children array of this and returns object with given tagname or null otherwise
    * @param  {string} tagname
-   * @return {LEEWGL.Object3D|null}
+   * @return {LEEWGL.GameObject|null}
    */
   getObjectByTagname: function(tagname) {
     if (this.tagname === tagname)
       return this;
 
-    for (var i = 0; i &lt; this.children.length; ++i) {
+    for (var i = 0; i < this.children.length; ++i) {
       var child = this.children[i];
       var object = child.getObjectByTagname(tagname);
       if (object !== null)
@@ -293,7 +277,7 @@ LEEWGL.Object3D.prototype = {
    */
   traverse: function(callback) {
     callback(this);
-    for (var i = 0; i &lt; this.children.length; ++i) {
+    for (var i = 0; i < this.children.length; ++i) {
       var child = this.children[i];
       child.traverse(callback);
     }
@@ -306,18 +290,18 @@ LEEWGL.Object3D.prototype = {
     if (this.visible === false)
       return;
     callback(this);
-    for (var i = 0; i &lt; this.children.length; ++i) {
+    for (var i = 0; i < this.children.length; ++i) {
       var child = this.children[i];
       child.traverseVisible(callback);
     }
   },
   /**
    * Creates a deep copy of this object
-   * @param  {LEEWGL.Object3D} object
+   * @param  {LEEWGL.GameObject} object
    * @param  {bool} cloneID   - if set to true this.id gets also applied to the cloned object
    * @param  {bool} recursive - if set to true children of this get also applied to the cloned object
    * @param  {bool|string} addToAlias - if and what text should be appended to this.alias
-   * @return {LEEWGL.Object3D}
+   * @return {LEEWGL.GameObject}
    */
   clone: function(object, cloneID, recursive, addToAlias) {
     cloneID = (typeof cloneID !== 'undefined') ? cloneID : false;
@@ -325,7 +309,7 @@ LEEWGL.Object3D.prototype = {
     addToAlias = (typeof addToAlias !== 'undefined') ? addToAlias : 'Clone';
 
     if (typeof object === 'undefined')
-      object = new LEEWGL.Object3D(this.options);
+      object = new LEEWGL.GameObject(this.options);
 
     var alias = this.alias;
 
@@ -361,7 +345,7 @@ LEEWGL.Object3D.prototype = {
     object.render = this.render;
 
     if (recursive === true) {
-      for (var i = 0; i &lt; this.children.length; ++i) {
+      for (var i = 0; i < this.children.length; ++i) {
         var child = this.children[i];
         object.add(child.clone(undefined, cloneID, recursive, addToAlias));
       }
@@ -386,11 +370,11 @@ LEEWGL.Object3D.prototype = {
   /**
    *
    * @param  {string} stringified_json - the exported string form of the object.
-   * @return {LEEWGL.Object3D}
+   * @return {LEEWGL.GameObject}
    */
   import: function(stringified_json, recursive) {
     recursive = (typeof recursive !== 'undefined') ? recursive : true;
-    var object = new LEEWGL.Object3D();
+    var object = new LEEWGL.GameObject();
     var json = JSON.parse(stringified_json);
 
     console.log(json);
@@ -413,7 +397,7 @@ LEEWGL.Object3D.prototype = {
     // object.render = this.render;
     //
     // if (recursive === true) {
-    //   for (var i = 0; i &lt; this.children.length; ++i) {
+    //   for (var i = 0; i < this.children.length; ++i) {
     //     var child = this.children[i];
     //     object.add(child.clone());
     //   }
@@ -422,31 +406,9 @@ LEEWGL.Object3D.prototype = {
     return object;
   }
 };
+
 /**
  * Globals
  */
-LEEWGL.EventDispatcher.prototype.apply(LEEWGL.Object3D.prototype);
-LEEWGL.Object3DCount = 0;
-</code></pre>
-        </article>
-    </section>
-
-
-
-
-</div>
-
-<nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="LEEWGL.App.html">App</a></li><li><a href="LEEWGL.Buffer.html">Buffer</a></li><li><a href="LEEWGL.Camera.html">Camera</a></li><li><a href="LEEWGL.Color.html">Color</a></li><li><a href="LEEWGL.Component.html">Component</a></li><li><a href="LEEWGL.Component.CustomScript.html">CustomScript</a></li><li><a href="LEEWGL.Component.Texture.html">Texture</a></li><li><a href="LEEWGL.Component.Transform.html">Transform</a></li><li><a href="LEEWGL.Core.html">Core</a></li><li><a href="LEEWGL.DragDrop.html">DragDrop</a></li><li><a href="LEEWGL.EditorApp.html">EditorApp</a></li><li><a href="LEEWGL.Extension.html">Extension</a></li><li><a href="LEEWGL.FrameBuffer.html">FrameBuffer</a></li><li><a href="LEEWGL.Geometry.html">Geometry</a></li><li><a href="LEEWGL.Geometry.Cube.html">Cube</a></li><li><a href="LEEWGL.Geometry.Grid.html">Grid</a></li><li><a href="LEEWGL.Geometry.Sphere.html">Sphere</a></li><li><a href="LEEWGL.Geometry.Triangle.html">Triangle</a></li><li><a href="LEEWGL.HTMLHelper.html">HTMLHelper</a></li><li><a href="LEEWGL.IndexBuffer.html">IndexBuffer</a></li><li><a href="LEEWGL.Light.html">Light</a></li><li><a href="LEEWGL.Light.DirectionalLight.html">DirectionalLight</a></li><li><a href="LEEWGL.Light.PointLight.html">PointLight</a></li><li><a href="LEEWGL.Light.SpotLight.html">SpotLight</a></li><li><a href="LEEWGL.LocalStorage.html">LocalStorage</a></li><li><a href="LEEWGL.Object3D.html">Object3D</a></li><li><a href="LEEWGL.Options.html">Options</a></li><li><a href="LEEWGL.PerspectiveCamera.html">PerspectiveCamera</a></li><li><a href="LEEWGL.Picker.html">Picker</a></li><li><a href="LEEWGL.RenderBuffer.html">RenderBuffer</a></li><li><a href="LEEWGL.Scene.html">Scene</a></li><li><a href="LEEWGL.Settings.html">Settings</a></li><li><a href="LEEWGL.Shader.html">Shader</a></li><li><a href="LEEWGL.ShaderChunk.html">ShaderChunk</a></li><li><a href="LEEWGL.ShaderLibrary.html">ShaderLibrary</a></li><li><a href="LEEWGL.Texture.html">Texture</a></li><li><a href="LEEWGL.Timer.html">Timer</a></li><li><a href="LEEWGL.UI.html">UI</a></li><li><a href="LEEWGL.UI.BasicPopup.html">BasicPopup</a></li><li><a href="LEEWGL.UI.Popup.html">Popup</a></li><li><a href="LEEWGL.UI.Sidebar.html">Sidebar</a></li></ul><h3>Namespaces</h3><ul><li><a href="LEEWGL.html">LEEWGL</a></li></ul><h3>Global</h3><ul><li><a href="global.html#__extensionLoader">__extensionLoader</a></li><li><a href="global.html#A">A</a></li><li><a href="global.html#ColorHelper">ColorHelper</a></li><li><a href="global.html#Components">Components</a></li><li><a href="global.html#D">D</a></li><li><a href="global.html#DOWN_CURSOR">DOWN_CURSOR</a></li><li><a href="global.html#ENTER">ENTER</a></li><li><a href="global.html#F5">F5</a></li><li><a href="global.html#FILTER_LINEAR">FILTER_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_LINEAR">FILTER_LINEAR_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_NEAREST">FILTER_LINEAR_MIPMAP_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST">FILTER_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_LINEAR">FILTER_NEAREST_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_NEAREST">FILTER_NEAREST_MIPMAP_NEAREST</a></li><li><a href="global.html#FORMAT_ALPHA">FORMAT_ALPHA</a></li><li><a href="global.html#FORMAT_LUMINANCE">FORMAT_LUMINANCE</a></li><li><a href="global.html#FORMAT_LUMINANCE_ALPHA">FORMAT_LUMINANCE_ALPHA</a></li><li><a href="global.html#FORMAT_RGB">FORMAT_RGB</a></li><li><a href="global.html#FORMAT_RGBA">FORMAT_RGBA</a></li><li><a href="global.html#HTMLHELPER">HTMLHELPER</a></li><li><a href="global.html#id">id</a></li><li><a href="global.html#IMG_DEFAULT">IMG_DEFAULT</a></li><li><a href="global.html#KEYS">KEYS</a></li><li><a href="global.html#LEFT_CURSOR">LEFT_CURSOR</a></li><li><a href="global.html#MAPPING_DEFAULT">MAPPING_DEFAULT</a></li><li><a href="global.html#MaxVerticalAngle">MaxVerticalAngle</a></li><li><a href="global.html#MOUSE">MOUSE</a></li><li><a href="global.html#PAGE_DOWN">PAGE_DOWN</a></li><li><a href="global.html#PAGE_UP">PAGE_UP</a></li><li><a href="global.html#REQUIRES">REQUIRES</a></li><li><a href="global.html#RIGHT_CURSOR">RIGHT_CURSOR</a></li><li><a href="global.html#ROOT">ROOT</a></li><li><a href="global.html#S">S</a></li><li><a href="global.html#SETTINGS">SETTINGS</a></li><li><a href="global.html#TextureCount">TextureCount</a></li><li><a href="global.html#TYPE_BYTE">TYPE_BYTE</a></li><li><a href="global.html#TYPE_FLOAT">TYPE_FLOAT</a></li><li><a href="global.html#TYPE_INT">TYPE_INT</a></li><li><a href="global.html#TYPE_SHORT">TYPE_SHORT</a></li><li><a href="global.html#TYPE_UNSIGNED_BYTE">TYPE_UNSIGNED_BYTE</a></li><li><a href="global.html#TYPE_UNSIGNED_INT">TYPE_UNSIGNED_INT</a></li><li><a href="global.html#TYPE_UNSIGNED_SHORT">TYPE_UNSIGNED_SHORT</a></li><li><a href="global.html#UI">UI</a></li><li><a href="global.html#UP_CURSOR">UP_CURSOR</a></li><li><a href="global.html#W">W</a></li><li><a href="global.html#WRAPPING_CLAMP_TO_EDGE">WRAPPING_CLAMP_TO_EDGE</a></li><li><a href="global.html#WRAPPING_MIRRORED_REPEAT">WRAPPING_MIRRORED_REPEAT</a></li><li><a href="global.html#WRAPPING_REPEAT">WRAPPING_REPEAT</a></li></ul>
-</nav>
-
-<br class="clear">
-
-<footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Sat Aug 29 2015 19:41:55 GMT+0200 (CEST)
-</footer>
-
-<script> prettyPrint(); </script>
-<script src="scripts/linenumber.js"> </script>
-</body>
-</html>
+LEEWGL.EventDispatcher.prototype.apply(LEEWGL.GameObject.prototype);
+LEEWGL.GameObjectCount = 0;

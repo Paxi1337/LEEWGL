@@ -1,13 +1,13 @@
 /**
  * @constructor
- * @augments LEEWGL.Object3D
+ * @augments LEEWGL.GameObject
  * @param  {vec3} options.ambient
  * @param  {vec3} options.color
  * @param  {number} options.specular
  */
 LEEWGL.Light = function(options) {
   LEEWGL.REQUIRES.push('Light');
-  LEEWGL.Object3D.call(this, options);
+  LEEWGL.GameObject.call(this, options);
 
   var ext_options = {
     'ambient': [0.2, 0.2, 0.2],
@@ -31,7 +31,7 @@ LEEWGL.Light = function(options) {
   this.setEditables();
 };
 
-LEEWGL.Light.prototype = Object.create(LEEWGL.Object3D.prototype);
+LEEWGL.Light.prototype = Object.create(LEEWGL.GameObject.prototype);
 
 /**
  * Initializes this.editables
@@ -87,7 +87,7 @@ LEEWGL.Light.prototype.clone = function(light, cloneID, recursive, addToAlias) {
   if (typeof light === 'undefined')
     light = new LEEWGL.Light(this.options);
 
-  LEEWGL.Object3D.prototype.clone.call(this, light, cloneID, recursive, addToAlias);
+  LEEWGL.GameObject.prototype.clone.call(this, light, cloneID, recursive, addToAlias);
 
   vec3.copy(light.ambient, this.ambient);
   vec3.copy(light.color, this.color);

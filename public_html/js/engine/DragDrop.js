@@ -1,9 +1,9 @@
-LEEWGL.REQUIRES.push('DragDrop');
 /**
  * Class to handle drag and drop of dom-elements.
  * @constructor
  */
 LEEWGL.DragDrop = function() {
+  LEEWGL.REQUIRES.push('DragDrop');
   /**
    * @param  {DOMElement} obj   - the object which shall be dragged
    * @param  {DOMEvent} event - optional

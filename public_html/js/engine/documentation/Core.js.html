@@ -82,55 +82,80 @@ LEEWGL.KEYS.ENTER = 13;
 /** @global */
 LEEWGL.KEYS.F5 = 116;
 
+LEEWGL.TEXTURE = {};
+
 // wrapping modes
 /** @global */
-LEEWGL.WRAPPING_REPEAT = 1000;
+LEEWGL.TEXTURE.WRAPPING_REPEAT = 1000;
 /** @global */
-LEEWGL.WRAPPING_CLAMP_TO_EDGE = 1001;
+LEEWGL.TEXTURE.WRAPPING_CLAMP_TO_EDGE = 1001;
 /** @global */
-LEEWGL.WRAPPING_MIRRORED_REPEAT = 1002;
+LEEWGL.TEXTURE.WRAPPING_MIRRORED_REPEAT = 1002;
 
 // filters
 /** @global */
-LEEWGL.FILTER_NEAREST = 1003;
+LEEWGL.TEXTURE.FILTER_NEAREST = 1003;
 /** @global */
-LEEWGL.FILTER_NEAREST_MIPMAP_NEAREST = 1004;
+LEEWGL.TEXTURE.FILTER_NEAREST_MIPMAP_NEAREST = 1004;
 /** @global */
-LEEWGL.FILTER_NEAREST_MIPMAP_LINEAR = 1005;
+LEEWGL.TEXTURE.FILTER_NEAREST_MIPMAP_LINEAR = 1005;
 /** @global */
-LEEWGL.FILTER_LINEAR = 1006;
+LEEWGL.TEXTURE.FILTER_LINEAR = 1006;
 /** @global */
-LEEWGL.FILTER_LINEAR_MIPMAP_NEAREST = 1007;
+LEEWGL.TEXTURE.FILTER_LINEAR_MIPMAP_NEAREST = 1007;
 /** @global */
-LEEWGL.FILTER_LINEAR_MIPMAP_LINEAR = 1008;
+LEEWGL.TEXTURE.FILTER_LINEAR_MIPMAP_LINEAR = 1008;
+
+/** @global */
+LEEWGL.TEXTURE.IMG_DEFAULT = undefined;
+/** @global */
+LEEWGL.TEXTURE.MAPPING_DEFAULT = undefined;
+
+LEEWGL.TYPE = {};
 
 // data types
 /** @global */
-LEEWGL.TYPE_UNSIGNED_BYTE = 1009;
+LEEWGL.TYPE.UNSIGNED_BYTE = 1009;
 /** @global */
-LEEWGL.TYPE_BYTE = 1010;
+LEEWGL.TYPE.BYTE = 1010;
 /** @global */
-LEEWGL.TYPE_SHORT = 1011;
+LEEWGL.TYPE.SHORT = 1011;
 /** @global */
-LEEWGL.TYPE_UNSIGNED_SHORT = 1012;
+LEEWGL.TYPE.UNSIGNED_SHORT = 1012;
 /** @global */
-LEEWGL.TYPE_INT = 1013;
+LEEWGL.TYPE.INT = 1013;
 /** @global */
-LEEWGL.TYPE_UNSIGNED_INT = 1014;
+LEEWGL.TYPE.UNSIGNED_INT = 1014;
 /** @global */
-LEEWGL.TYPE_FLOAT = 1015;
+LEEWGL.TYPE.FLOAT = 1015;
+
+LEEWGL.FORMAT = {};
 
 // pixel formats
 /** @global */
-LEEWGL.FORMAT_ALPHA = 1016;
+LEEWGL.FORMAT.ALPHA = 1016;
 /** @global */
-LEEWGL.FORMAT_RGB = 1017;
+LEEWGL.FORMAT.RGB = 1017;
 /** @global */
-LEEWGL.FORMAT_RGBA = 1018;
+LEEWGL.FORMAT.RGBA = 1018;
 /** @global */
-LEEWGL.FORMAT_LUMINANCE = 1019;
+LEEWGL.FORMAT.LUMINANCE = 1019;
 /** @global */
-LEEWGL.FORMAT_LUMINANCE_ALPHA = 1020;
+LEEWGL.FORMAT.LUMINANCE_ALPHA = 1020;
+
+/** @global */
+LEEWGL.ENGINE = {};
+/** @global */
+LEEWGL.ENGINE.LIGHTS = ['Directional', 'Spot', 'Point'];
+
+
+
+/** @global */
+LEEWGL.VECTOR = {};
+LEEWGL.VECTOR2D = {};
+LEEWGL.VECTOR2D.UP = [0.0, 1.0];
+LEEWGL.VECTOR3D = {};
+LEEWGL.VECTOR3D.UP = [0.0, 1.0, 0.0];
 
 /**
  * @constructor
@@ -358,13 +383,13 @@ LEEWGL.Core = function(options) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="LEEWGL.App.html">App</a></li><li><a href="LEEWGL.Buffer.html">Buffer</a></li><li><a href="LEEWGL.Camera.html">Camera</a></li><li><a href="LEEWGL.Color.html">Color</a></li><li><a href="LEEWGL.Component.html">Component</a></li><li><a href="LEEWGL.Component.CustomScript.html">CustomScript</a></li><li><a href="LEEWGL.Component.Texture.html">Texture</a></li><li><a href="LEEWGL.Component.Transform.html">Transform</a></li><li><a href="LEEWGL.Core.html">Core</a></li><li><a href="LEEWGL.DragDrop.html">DragDrop</a></li><li><a href="LEEWGL.EditorApp.html">EditorApp</a></li><li><a href="LEEWGL.Extension.html">Extension</a></li><li><a href="LEEWGL.FrameBuffer.html">FrameBuffer</a></li><li><a href="LEEWGL.Geometry.html">Geometry</a></li><li><a href="LEEWGL.Geometry.Cube.html">Cube</a></li><li><a href="LEEWGL.Geometry.Grid.html">Grid</a></li><li><a href="LEEWGL.Geometry.Sphere.html">Sphere</a></li><li><a href="LEEWGL.Geometry.Triangle.html">Triangle</a></li><li><a href="LEEWGL.HTMLHelper.html">HTMLHelper</a></li><li><a href="LEEWGL.IndexBuffer.html">IndexBuffer</a></li><li><a href="LEEWGL.Light.html">Light</a></li><li><a href="LEEWGL.Light.DirectionalLight.html">DirectionalLight</a></li><li><a href="LEEWGL.Light.PointLight.html">PointLight</a></li><li><a href="LEEWGL.Light.SpotLight.html">SpotLight</a></li><li><a href="LEEWGL.LocalStorage.html">LocalStorage</a></li><li><a href="LEEWGL.Object3D.html">Object3D</a></li><li><a href="LEEWGL.Options.html">Options</a></li><li><a href="LEEWGL.PerspectiveCamera.html">PerspectiveCamera</a></li><li><a href="LEEWGL.Picker.html">Picker</a></li><li><a href="LEEWGL.RenderBuffer.html">RenderBuffer</a></li><li><a href="LEEWGL.Scene.html">Scene</a></li><li><a href="LEEWGL.Settings.html">Settings</a></li><li><a href="LEEWGL.Shader.html">Shader</a></li><li><a href="LEEWGL.ShaderChunk.html">ShaderChunk</a></li><li><a href="LEEWGL.ShaderLibrary.html">ShaderLibrary</a></li><li><a href="LEEWGL.Texture.html">Texture</a></li><li><a href="LEEWGL.Timer.html">Timer</a></li><li><a href="LEEWGL.UI.html">UI</a></li><li><a href="LEEWGL.UI.BasicPopup.html">BasicPopup</a></li><li><a href="LEEWGL.UI.Popup.html">Popup</a></li><li><a href="LEEWGL.UI.Sidebar.html">Sidebar</a></li></ul><h3>Namespaces</h3><ul><li><a href="LEEWGL.html">LEEWGL</a></li></ul><h3>Global</h3><ul><li><a href="global.html#__extensionLoader">__extensionLoader</a></li><li><a href="global.html#A">A</a></li><li><a href="global.html#ColorHelper">ColorHelper</a></li><li><a href="global.html#Components">Components</a></li><li><a href="global.html#D">D</a></li><li><a href="global.html#DOWN_CURSOR">DOWN_CURSOR</a></li><li><a href="global.html#ENTER">ENTER</a></li><li><a href="global.html#F5">F5</a></li><li><a href="global.html#FILTER_LINEAR">FILTER_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_LINEAR">FILTER_LINEAR_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_NEAREST">FILTER_LINEAR_MIPMAP_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST">FILTER_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_LINEAR">FILTER_NEAREST_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_NEAREST">FILTER_NEAREST_MIPMAP_NEAREST</a></li><li><a href="global.html#FORMAT_ALPHA">FORMAT_ALPHA</a></li><li><a href="global.html#FORMAT_LUMINANCE">FORMAT_LUMINANCE</a></li><li><a href="global.html#FORMAT_LUMINANCE_ALPHA">FORMAT_LUMINANCE_ALPHA</a></li><li><a href="global.html#FORMAT_RGB">FORMAT_RGB</a></li><li><a href="global.html#FORMAT_RGBA">FORMAT_RGBA</a></li><li><a href="global.html#HTMLHELPER">HTMLHELPER</a></li><li><a href="global.html#id">id</a></li><li><a href="global.html#IMG_DEFAULT">IMG_DEFAULT</a></li><li><a href="global.html#KEYS">KEYS</a></li><li><a href="global.html#LEFT_CURSOR">LEFT_CURSOR</a></li><li><a href="global.html#MAPPING_DEFAULT">MAPPING_DEFAULT</a></li><li><a href="global.html#MaxVerticalAngle">MaxVerticalAngle</a></li><li><a href="global.html#MOUSE">MOUSE</a></li><li><a href="global.html#PAGE_DOWN">PAGE_DOWN</a></li><li><a href="global.html#PAGE_UP">PAGE_UP</a></li><li><a href="global.html#REQUIRES">REQUIRES</a></li><li><a href="global.html#RIGHT_CURSOR">RIGHT_CURSOR</a></li><li><a href="global.html#ROOT">ROOT</a></li><li><a href="global.html#S">S</a></li><li><a href="global.html#SETTINGS">SETTINGS</a></li><li><a href="global.html#TextureCount">TextureCount</a></li><li><a href="global.html#TYPE_BYTE">TYPE_BYTE</a></li><li><a href="global.html#TYPE_FLOAT">TYPE_FLOAT</a></li><li><a href="global.html#TYPE_INT">TYPE_INT</a></li><li><a href="global.html#TYPE_SHORT">TYPE_SHORT</a></li><li><a href="global.html#TYPE_UNSIGNED_BYTE">TYPE_UNSIGNED_BYTE</a></li><li><a href="global.html#TYPE_UNSIGNED_INT">TYPE_UNSIGNED_INT</a></li><li><a href="global.html#TYPE_UNSIGNED_SHORT">TYPE_UNSIGNED_SHORT</a></li><li><a href="global.html#UI">UI</a></li><li><a href="global.html#UP_CURSOR">UP_CURSOR</a></li><li><a href="global.html#W">W</a></li><li><a href="global.html#WRAPPING_CLAMP_TO_EDGE">WRAPPING_CLAMP_TO_EDGE</a></li><li><a href="global.html#WRAPPING_MIRRORED_REPEAT">WRAPPING_MIRRORED_REPEAT</a></li><li><a href="global.html#WRAPPING_REPEAT">WRAPPING_REPEAT</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="LEEWGL.App.html">App</a></li><li><a href="LEEWGL.Billboard.html">Billboard</a></li><li><a href="LEEWGL.Buffer.html">Buffer</a></li><li><a href="LEEWGL.Camera.html">Camera</a></li><li><a href="LEEWGL.Color.html">Color</a></li><li><a href="LEEWGL.Component.html">Component</a></li><li><a href="LEEWGL.Component.CustomScript.html">CustomScript</a></li><li><a href="LEEWGL.Component.Texture.html">Texture</a></li><li><a href="LEEWGL.Component.Transform.html">Transform</a></li><li><a href="LEEWGL.Core.html">Core</a></li><li><a href="LEEWGL.DragDrop.html">DragDrop</a></li><li><a href="LEEWGL.EditorApp.html">EditorApp</a></li><li><a href="LEEWGL.Extension.html">Extension</a></li><li><a href="LEEWGL.FrameBuffer.html">FrameBuffer</a></li><li><a href="LEEWGL.GameObject.html">GameObject</a></li><li><a href="LEEWGL.Geometry.html">Geometry</a></li><li><a href="LEEWGL.Geometry3D.html">Geometry3D</a></li><li><a href="LEEWGL.Geometry3D.Cube.html">Cube</a></li><li><a href="LEEWGL.Geometry3D.Grid.html">Grid</a></li><li><a href="LEEWGL.Geometry3D.Sphere.html">Sphere</a></li><li><a href="LEEWGL.Geometry3D.Triangle.html">Triangle</a></li><li><a href="LEEWGL.HTMLHelper.html">HTMLHelper</a></li><li><a href="LEEWGL.IndexBuffer.html">IndexBuffer</a></li><li><a href="LEEWGL.Light.html">Light</a></li><li><a href="LEEWGL.Light.DirectionalLight.html">DirectionalLight</a></li><li><a href="LEEWGL.Light.PointLight.html">PointLight</a></li><li><a href="LEEWGL.Light.SpotLight.html">SpotLight</a></li><li><a href="LEEWGL.LocalStorage.html">LocalStorage</a></li><li><a href="LEEWGL.Options.html">Options</a></li><li><a href="LEEWGL.PerspectiveCamera.html">PerspectiveCamera</a></li><li><a href="LEEWGL.Picker.html">Picker</a></li><li><a href="LEEWGL.RenderBuffer.html">RenderBuffer</a></li><li><a href="LEEWGL.Scene.html">Scene</a></li><li><a href="LEEWGL.Settings.html">Settings</a></li><li><a href="LEEWGL.Shader.html">Shader</a></li><li><a href="LEEWGL.ShaderChunk.html">ShaderChunk</a></li><li><a href="LEEWGL.ShaderLibrary.html">ShaderLibrary</a></li><li><a href="LEEWGL.Texture.html">Texture</a></li><li><a href="LEEWGL.Timer.html">Timer</a></li><li><a href="LEEWGL.UI.html">UI</a></li><li><a href="LEEWGL.UI.BasicPopup.html">BasicPopup</a></li><li><a href="LEEWGL.UI.Popup.html">Popup</a></li><li><a href="LEEWGL.UI.Sidebar.html">Sidebar</a></li></ul><h3>Namespaces</h3><ul><li><a href="LEEWGL.html">LEEWGL</a></li></ul><h3>Global</h3><ul><li><a href="global.html#__extensionLoader">__extensionLoader</a></li><li><a href="global.html#A">A</a></li><li><a href="global.html#ALPHA">ALPHA</a></li><li><a href="global.html#BYTE">BYTE</a></li><li><a href="global.html#ColorHelper">ColorHelper</a></li><li><a href="global.html#Components">Components</a></li><li><a href="global.html#D">D</a></li><li><a href="global.html#DOWN_CURSOR">DOWN_CURSOR</a></li><li><a href="global.html#ENGINE">ENGINE</a></li><li><a href="global.html#ENTER">ENTER</a></li><li><a href="global.html#F5">F5</a></li><li><a href="global.html#FILTER_LINEAR">FILTER_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_LINEAR">FILTER_LINEAR_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_LINEAR_MIPMAP_NEAREST">FILTER_LINEAR_MIPMAP_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST">FILTER_NEAREST</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_LINEAR">FILTER_NEAREST_MIPMAP_LINEAR</a></li><li><a href="global.html#FILTER_NEAREST_MIPMAP_NEAREST">FILTER_NEAREST_MIPMAP_NEAREST</a></li><li><a href="global.html#FLOAT">FLOAT</a></li><li><a href="global.html#HTMLHELPER">HTMLHELPER</a></li><li><a href="global.html#id">id</a></li><li><a href="global.html#IMG_DEFAULT">IMG_DEFAULT</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#INT">INT</a></li><li><a href="global.html#KEYS">KEYS</a></li><li><a href="global.html#LEFT_CURSOR">LEFT_CURSOR</a></li><li><a href="global.html#LIGHTS">LIGHTS</a></li><li><a href="global.html#LUMINANCE">LUMINANCE</a></li><li><a href="global.html#LUMINANCE_ALPHA">LUMINANCE_ALPHA</a></li><li><a href="global.html#MAPPING_DEFAULT">MAPPING_DEFAULT</a></li><li><a href="global.html#MaxVerticalAngle">MaxVerticalAngle</a></li><li><a href="global.html#MOUSE">MOUSE</a></li><li><a href="global.html#PAGE_DOWN">PAGE_DOWN</a></li><li><a href="global.html#PAGE_UP">PAGE_UP</a></li><li><a href="global.html#REQUIRES">REQUIRES</a></li><li><a href="global.html#RGB">RGB</a></li><li><a href="global.html#RGBA">RGBA</a></li><li><a href="global.html#RIGHT_CURSOR">RIGHT_CURSOR</a></li><li><a href="global.html#ROOT">ROOT</a></li><li><a href="global.html#S">S</a></li><li><a href="global.html#SETTINGS">SETTINGS</a></li><li><a href="global.html#SHADER_LIBRARY">SHADER_LIBRARY</a></li><li><a href="global.html#SHORT">SHORT</a></li><li><a href="global.html#TextureCount">TextureCount</a></li><li><a href="global.html#UI">UI</a></li><li><a href="global.html#UNSIGNED_BYTE">UNSIGNED_BYTE</a></li><li><a href="global.html#UNSIGNED_INT">UNSIGNED_INT</a></li><li><a href="global.html#UNSIGNED_SHORT">UNSIGNED_SHORT</a></li><li><a href="global.html#UP_CURSOR">UP_CURSOR</a></li><li><a href="global.html#VECTOR">VECTOR</a></li><li><a href="global.html#W">W</a></li><li><a href="global.html#WRAPPING_CLAMP_TO_EDGE">WRAPPING_CLAMP_TO_EDGE</a></li><li><a href="global.html#WRAPPING_MIRRORED_REPEAT">WRAPPING_MIRRORED_REPEAT</a></li><li><a href="global.html#WRAPPING_REPEAT">WRAPPING_REPEAT</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Sat Aug 29 2015 19:41:55 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Mon Aug 31 2015 22:12:08 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>
