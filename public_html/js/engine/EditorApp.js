@@ -408,21 +408,21 @@ LEEWGL.EditorApp.prototype.handleKeyInput = function() {
   var camera = (this.playing === true) ? this.scenePlay.getObjectByTagname('GameCamera') : this.scene.getObjectByTagname('EditorCamera');
 
   if (this.activeKeys[LEEWGL.KEYS.PAGE_UP]) {
-    camera.transform.offsetPosition(vec3.negate(vec3.create(), vec3.scale(vec3.create(), this.camera.down(), SETTINGS.get('translation-speed').y)));
+    camera.transform.offsetPosition(vec3.negate(vec3.create(), vec3.scale(vec3.create(), camera.down(), SETTINGS.get('translation-speed').y)));
   } else if (this.activeKeys[LEEWGL.KEYS.PAGE_DOWN]) {
-    camera.transform.offsetPosition(vec3.scale(vec3.create(), this.camera.down(), SETTINGS.get('translation-speed').y));
+    camera.transform.offsetPosition(vec3.scale(vec3.create(), camera.down(), SETTINGS.get('translation-speed').y));
   }
 
   if (this.activeKeys[LEEWGL.KEYS.LEFT_CURSOR]) {
-    camera.transform.offsetPosition(vec3.negate(vec3.create(), vec3.scale(vec3.create(), this.camera.right(), SETTINGS.get('translation-speed').x)));
+    camera.transform.offsetPosition(vec3.negate(vec3.create(), vec3.scale(vec3.create(), camera.right(), SETTINGS.get('translation-speed').x)));
   } else if (this.activeKeys[LEEWGL.KEYS.RIGHT_CURSOR]) {
-    camera.transform.offsetPosition(vec3.scale(vec3.create(), this.camera.right(), SETTINGS.get('translation-speed').x));
+    camera.transform.offsetPosition(vec3.scale(vec3.create(), camera.right(), SETTINGS.get('translation-speed').x));
   }
 
   if (this.activeKeys[LEEWGL.KEYS.UP_CURSOR]) {
-    camera.transform.offsetPosition(vec3.scale(vec3.create(), this.camera.forward(), SETTINGS.get('translation-speed').z));
+    camera.transform.offsetPosition(vec3.scale(vec3.create(), camera.forward(), SETTINGS.get('translation-speed').z));
   } else if (this.activeKeys[LEEWGL.KEYS.DOWN_CURSOR]) {
-    camera.transform.offsetPosition(vec3.negate(vec3.create(), vec3.scale(vec3.create(), this.camera.forward(), SETTINGS.get('translation-speed').z)));
+    camera.transform.offsetPosition(vec3.negate(vec3.create(), vec3.scale(vec3.create(), camera.forward(), SETTINGS.get('translation-speed').z)));
   }
 };
 
