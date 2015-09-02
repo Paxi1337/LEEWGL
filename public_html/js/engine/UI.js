@@ -300,19 +300,32 @@ LEEWGL.UI = function(options) {
   };
 
   this.dispatchTypes = function(vector, type, num) {
+    var pos = function(args) {
+      this.transform.setPosition(args[0]);
+    };
+    var trans = function(args) {
+      this.transform.translate(args[0]);
+    };
+    var rot = function(args) {
+      if (args[1] === 0)
+        this.transform.rotateX(args[0][1]);
+      else if (args[1] === 1)
+        this.transform.rotateY(args[0][1]);
+      else if (args[1] === 2)
+        this.transform.rotateZ(args[0][1]);
+    };
+    var scale = function(args) {
+      this.transform.scale(args[0]);
+    };
+
     if (type === 'transform-position') {
-      this.activeElement.transform.setPosition(vector);
+      this.activeElement.traverse(pos, [vector]);
     } else if (type === 'transform-translation') {
-      this.activeElement.transform.translate(vector);
+      this.activeElement.traverse(trans, [vector]);
     } else if (type === 'transform-rotation') {
-      if (num === 0)
-        this.activeElement.transform.rotateX(vector[num]);
-      else if (num === 1)
-        this.activeElement.transform.rotateY(vector[num]);
-      else if (num === 2)
-        this.activeElement.transform.rotateZ(vector[num]);
+      this.activeElement.traverse(rot, [vector, num]);
     } else if (type === 'transform-scale') {
-      this.activeElement.transform.scale(vector);
+      this.activeElement.traverse(scale, [vector]);
     }
   };
 
@@ -333,7 +346,6 @@ LEEWGL.UI = function(options) {
       var num = parseInt(td.get('num'));
       var value = parseFloat(td.get('text'));
       var keys = Object.keys(vector);
-      // vector = vector.value;
 
       if (event.keyCode === LEEWGL.KEYS.ENTER) {
         if (typeof vector[num] === 'undefined') {

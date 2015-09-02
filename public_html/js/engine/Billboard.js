@@ -7,22 +7,30 @@ LEEWGL.Billboard = function(options) {
   LEEWGL.Geometry3D.call(this, options);
 
   this.picking = false;
-  this.texture = new LEEWGL.Texture();
 
-  var position = [-0.5, -0.5, 0.0,
-    0.5, -0.5, 0.0, -0.5, 0.5, 0.0,
+  this.addComponent(new LEEWGL.Component.Texture());
+  this.texture = this.components['Texture'];
+
+  var position = [
+    -0.5, -0.5, 0.0,
+    0.5, -0.5, 0.0,
+    -0.5, 0.5, 0.0,
     0.5, 0.5, 0.0,
   ];
 
+  var position = [
+    0.5, 0.5, 0.0,
+    -0.5, 0.5, 0.0,
+    0.5, -0.5, 0.0,
+    -0.5, -0.5, 0.0,
+  ];
   this.setVerticesByType('position', position);
 };
 
 LEEWGL.Billboard.prototype = Object.create(LEEWGL.Geometry3D.prototype);
 
-LEEWGL.Billboard.prototype.init = function(gl, image) {
-  this.texture.create(gl);
-  this.texture.setTextureImage(gl, image.src, 0);
-  this.buffers.position.setData(gl, this.vertices.position, new LEEWGL.BufferInformation.VertexTypePos3());
+LEEWGL.Billboard.prototype.setImage = function(gl, src) {
+  this.texture.init(gl, src);
 };
 
 /**
@@ -40,20 +48,21 @@ LEEWGL.Billboard.prototype.setBuffer = function(gl) {
  * @param  {string} type - fixed or normal
  */
 LEEWGL.Billboard.prototype.draw = function(gl, shader, camera, type) {
+  type = (typeof type !== 'undefined') ? type : 'normal';
   shader.use(gl);
   shader.attributes['aVertexPosition'](this.buffers.position);
   shader.uniforms['uModel'](this.transform.matrix());
   if (type === 'normal') {
     shader.uniforms['uCameraRight'](camera.right());
     shader.uniforms['uCameraUp'](camera.upVec());
-    shader.uniforms['uBillboardSize']([1.0, 1.0]);
+    shader.uniforms['uBillboardSize']([2.0, 2.0]);
   }
   shader.uniforms['uBillboardPosition']([0.0, 0.0, 0.0]);
   shader.uniforms['uSampler'](0);
-  this.texture.bind(gl);
-  this.texture.setActive(gl, 0);
+  this.texture.texture.bind(gl);
+  this.texture.texture.setActive(gl, 0);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-  this.texture.unbind(gl, 0);
+  this.texture.texture.unbind(gl, 0);
 };
 
 /**

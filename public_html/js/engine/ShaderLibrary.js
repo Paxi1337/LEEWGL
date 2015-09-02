@@ -316,7 +316,7 @@ LEEWGL.ShaderLibrary.POINT = 7;
 LEEWGL.ShaderLibrary.SHADOW_MAPPING = 8;
 LEEWGL.ShaderLibrary.DEPTH_RENDER_TARGET = 9;
 LEEWGL.ShaderLibrary.BILLBOARD = 10;
-LEEWGL.ShaderLibrary.BILLBOARD_FIXED = 10;
+LEEWGL.ShaderLibrary.BILLBOARD_FIXED = 11;
 
 /**
  * window load event to set global

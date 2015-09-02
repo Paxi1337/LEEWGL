@@ -479,13 +479,29 @@ LEEWGL.Geometry3D.Triangle = function(options) {
   this.type = 'Geometry.Triangle';
 
   var position = [
-    -1.0, -1.0, 1.0,
+    // Front face
+    0.0,  1.0,  0.0,
+   -1.0, -1.0, 1.0,
     1.0, -1.0, 1.0,
-    -1.0, -1.0, -1.0,
+    // Right face
+    0.0, 1.0, 0.0,
+    1.0, -1.0, 1.0,
     1.0, -1.0, -1.0,
-    0.0, 1.0, 0.0
+    // Back face
+    0.0, 1.0, 0.0,
+    1.0, -1.0, -1.0,
+   -1.0, -1.0, -1.0,
+    // Left face
+    0.0,  1.0,  0.0,
+   -1.0, -1.0, -1.0,
+   -1.0, -1.0, 1.0,
+    // Bottom face
+   -1.0, -1.0, -1.0,
+    1.0, -1.0, -1.0,
+    1.0, -1.0, 1.0,
+   -1.0, -1.0, 1.0
   ];
-
+  /// FIXME: uv coordinates
   var uv = [
     0.0, 0.0,
     1.0, 0.0,
@@ -495,12 +511,11 @@ LEEWGL.Geometry3D.Triangle = function(options) {
   ];
 
   var indices = [
-    0, 2, 1,
-    1, 2, 3,
-    0, 1, 4,
-    1, 3, 4,
-    3, 2, 4,
-    2, 0, 4
+    0, 1, 2,
+    3, 4, 5,
+    6, 7, 8,
+    9, 10, 11,
+    12, 13, 14, 12, 14, 15
   ];
 
   this.setVerticesByType('position', position);
@@ -509,6 +524,8 @@ LEEWGL.Geometry3D.Triangle = function(options) {
 
   this.calculateFaces();
   this.calculateNormals();
+
+  console.log(this.vertices.normal);
 };
 
 LEEWGL.Geometry3D.Triangle.prototype = Object.create(LEEWGL.Geometry3D.prototype);

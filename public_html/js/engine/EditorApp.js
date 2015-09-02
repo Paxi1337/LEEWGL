@@ -146,20 +146,24 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   this.grid.addColor(this.gl, ColorHelper.getUniqueColor());
   this.grid.transform.translate([0.0, -5.0, 0.0]);
 
-  var testImage = new Image();
-  testImage.src = LEEWGL.ROOT + 'texture/texture1.jpg';
-  this.billboard.init(this.gl, testImage);
+
+  this.billboard.setImage(this.gl, LEEWGL.ROOT + 'texture/lightbulb.png');
+  this.billboard.setBuffer(this.gl);
+  this.light.add(this.billboard);
+  // this.billboard.transform.translate([0.0, -5.0, 0.0]);
+  // this.gameCamera.add(this.billboard);
   // this.billboard.transform.setPosition([0, 0, 0]);
   // test load collada file
   // var Importer = new LEEWGL.Importer();
   // var model = Importer.import('models/cup.obj', this.gl);
 
-  // this.scene.add(this.camera, this.gameCamera, this.triangle, this.cube, this.grid, this.cameraGizmo, this.light);
-  this.scene.add(this.billboard, this.camera, this.gameCamera, this.triangle, this.cube, this.cameraGizmo, this.light);
+  this.scene.add(this.camera, this.gameCamera, this.triangle, this.cube, this.cameraGizmo, this.light);
 
   this.gl.enable(this.gl.DEPTH_TEST);
   this.gl.depthFunc(this.gl.LEQUAL);
-  /// FIXME: triangle vertices order
+  this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
+  this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+  this.gl.enable(this.gl.BLEND);
   this.gl.enable(this.gl.CULL_FACE);
 
   if (this.picking === true)
@@ -193,7 +197,7 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
 LEEWGL.EditorApp.prototype.initShaders = function(lightType) {
   SHADER_LIBRARY.reset();
 
-  SHADER_LIBRARY.addParameterChunk(LEEWGL.ShaderLibrary.BILLBOARD_FIXED);
+  SHADER_LIBRARY.addParameterChunk(LEEWGL.ShaderLibrary.BILLBOARD);
 
   var billboardShader = new LEEWGL.Shader();
   billboardShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, SHADER_LIBRARY.out(LEEWGL.Shader.VERTEX));
@@ -331,30 +335,46 @@ LEEWGL.EditorApp.prototype.onMouseMove = function(event) {
     var movementScale = [this.movement.x, -this.movement.y, this.movement.x];
 
     if (mode === 'translation') {
-      if (event.altKey)
-        this.activeElement.transform.translate(movementWorld, 'local');
-      else if (event.ctrlKey)
-        this.activeElement.transform.translate([movementWorld[2], movementWorld[1], movementWorld[0]]);
-      else
-        this.activeElement.transform.translate(movementWorld);
+      var trans = function(args) {
+        this.transform.translate(args[0], args[1]);
+      };
 
-        this.billboard.transform.translate(movementWorld);
-    } else if (mode === 'rotation') {
-      if (event.ctrlKey)
-        this.activeElement.transform.rotateX(rad, true);
-      else if (event.altKey)
-        this.activeElement.transform.rotateZ(rad, true);
+      if (event.altKey)
+        this.activeElement.traverse(trans, [movementWorld, 'local']);
+      else if (event.ctrlKey)
+        this.activeElement.traverse(trans, [
+          [movementWorld[2], movementWorld[1], movementWorld[0]]
+        ]);
       else
-        this.activeElement.transform.rotateY(rad, true);
+        this.activeElement.traverse(trans, [movementWorld]);
+    } else if (mode === 'rotation') {
+      var rot = function(args) {
+        if (args[1] === 'x')
+          this.transform.rotateX(args[0], true);
+        else if (args[1] === 'y')
+          this.transform.rotateY(args[0], true);
+        else
+          this.transform.rotateZ(args[0], true);
+      };
+      if (event.ctrlKey)
+        this.activeElement.traverse(rot, [rad, 'x']);
+      else if (event.altKey)
+        this.activeElement.traverse(rot, [rad, 'z']);
+      else
+        this.activeElement.traverse(rot, [rad, 'y']);
     } else if (mode === 'scale') {
+      var scale = function(args) {
+        this.transform.scale(args);
+      };
+
       var scaleVec = this.activeElement.transform.scaleVec;
       movementScale = vec3.add(vec3.create(), scaleVec, movementScale);
       if (event.ctrlKey)
-        this.activeElement.transform.scale([movementScale[0], scaleVec[1], scaleVec[2]]);
+        this.activeElement.traverse(scale, [movementScale[0], scaleVec[1], scaleVec[2]]);
       else if (event.altKey)
-        this.activeElement.transform.scale([scaleVec[0], scaleVec[1], movementScale[2]]);
+        this.activeElement.traverse(scale, [scaleVec[0], scaleVec[1], movementScale[2]]);
       else
-        this.activeElement.transform.scale([scaleVec[0], movementScale[1], scaleVec[2]]);
+        this.activeElement.traverse(scale, [scaleVec[0], movementScale[1], scaleVec[2]]);
     }
 
     UI.setInspectorContent(this.activeElement.id);
@@ -394,7 +414,7 @@ LEEWGL.EditorApp.prototype.onUpdate = function() {
   if (this.playing === true) {
     scene = this.scenePlay;
     for (var i = 0; i < scene.children.length; ++i) {
-      scene.children[i].onUpdate(this.scene);
+      scene.children[i].traverse(scene.children[i].onUpdate, scene);
     }
   }
 
@@ -432,6 +452,7 @@ LEEWGL.EditorApp.prototype.onRender = function() {
   var camera = (this.playing === true) ? this.scenePlay.getObjectByTagname('GameCamera') : this.scene.getObjectByTagname('EditorCamera');
   var viewProjection = camera.viewProjMatrix;
   var scene = this.scene;
+  var that = this;
 
   if (this.playing === true)
     scene = this.scenePlay;
@@ -439,16 +460,14 @@ LEEWGL.EditorApp.prototype.onRender = function() {
   this.light = scene.getObjectByTagname('Light');
   var activeShader = null;
 
-  for (var i = 0; i < scene.children.length; ++i) {
-    var element = scene.children[i];
+  var render = function(element) {
+    if (that.playing === true)
+      this.onRender(that.scene);
 
-    if (this.playing === true)
-      element.onRender(this.scene);
-
-    if (element.usesTexture === true) {
+    if (this.usesTexture === true) {
       activeShader = scene.shaders['texture'];
       scene.setActiveShader('texture');
-    } else if (element instanceof LEEWGL.Billboard) {
+    } else if (this instanceof LEEWGL.Billboard) {
       activeShader = scene.shaders['billboard'];
       scene.setActiveShader('billboard');
     } else {
@@ -456,28 +475,34 @@ LEEWGL.EditorApp.prototype.onRender = function() {
       scene.setActiveShader('color');
     }
 
-    activeShader.use(this.gl);
+    activeShader.use(that.gl);
 
-    if (this.picking === true && element.picking === true) {
-      this.picker.bind(this.gl);
+    if (that.picking === true && this.picking === true) {
+      that.picker.bind(that.gl);
 
       activeShader.uniforms['uOffscreen'](1);
 
-      this.draw(element, activeShader, camera);
-      this.picker.unbind(this.gl);
+      that.draw(this, activeShader, camera);
+      that.picker.unbind(that.gl);
       activeShader.uniforms['uOffscreen'](0);
     }
 
-    if (this.useShadows === true) {
-      this.shadowmap.bind(this.gl, activeShader);
+    if (that.useShadows === true) {
+      that.shadowmap.bind(that.gl, activeShader);
       var shadowVP = mat4.create();
-      mat4.multiply(shadowVP, this.light.getProjection(), this.light.getView([0, 0, 0]));
-      this.draw(element, activeShader, shadowVP);
+      mat4.multiply(shadowVP, that.light.getProjection(), that.light.getView([0, 0, 0]));
+      that.draw(this, activeShader, shadowVP);
 
-      this.shadowmap.unbind(this.gl, activeShader);
-      this.clear();
+      that.shadowmap.unbind(that.gl, activeShader);
+      that.clear();
     }
-    this.draw(element, activeShader, camera);
+    that.draw(this, activeShader, camera);
+  };
+
+  /// traverse all gameobjects and call draw method
+  for (var i = 0; i < scene.children.length; ++i) {
+    var element = scene.children[i];
+    element.traverse(render, element);
   }
 };
 
@@ -503,19 +528,19 @@ LEEWGL.EditorApp.prototype.onPlay = function() {
   this.playing = true;
   var that = this;
 
-  var onInit = function(element) {
-    var scripts = element.components['CustomScript'].applied;
+  var onInit = function() {
+    var scripts = this.components['CustomScript'].applied;
     for (var scriptID in scripts) {
-      element.addEventListener(scriptID, function() {
-        var src = element.components['CustomScript'].applied[scriptID];
-        var func = Function(src).bind(element);
+      this.addEventListener(scriptID, function() {
+        var src = this.components['CustomScript'].applied[scriptID];
+        var func = Function(src).bind(this);
         func();
       });
-      element.dispatchEvent({
+      this.dispatchEvent({
         'type': scriptID
       });
     }
-    element.onInit(that.scenePlay);
+    this.onInit(that.scenePlay);
   };
 
   /// create backup of scene
@@ -523,7 +548,7 @@ LEEWGL.EditorApp.prototype.onPlay = function() {
   for (var i = 0; i < this.scenePlay.children.length; ++i) {
     var element = this.scenePlay.children[i];
     if (typeof element.components['CustomScript'] !== 'undefined')
-      onInit(element);
+      element.traverse(onInit)
   }
 
   this.updatePickingList(this.scenePlay);
@@ -543,14 +568,14 @@ LEEWGL.EditorApp.prototype.onStop = function() {
   this.playing = false;
   var that = this;
 
-  var onStop = function(element) {
-    element.onStop(that.scene);
+  var onStop = function() {
+    this.onStop(that.scene);
   };
 
   for (var i = 0; i < this.scenePlay.children.length; ++i) {
     var element = this.scenePlay.children[i];
     if (typeof element.components['CustomScript'] !== 'undefined')
-      onStop(element);
+      element.traverse(onStop);
   }
 
   this.updatePickingList(this.scene);

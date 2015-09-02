@@ -98,7 +98,6 @@ LEEWGL.GameObject = function(options) {
     }
   });
 
-  ///TODO: make 2d transform component
   this.addComponent(new LEEWGL.Component.Transform());
   /** @inner {LEEWGL.Component.Transform} */
   this.transform = this.components['Transform'];
@@ -274,25 +273,27 @@ LEEWGL.GameObject.prototype = {
   /**
    * Calls callback function for this and each child
    * @param  {function} callback
+   * @param  {mixed} arg - arguments
    */
-  traverse: function(callback) {
-    callback(this);
+  traverse: function(callback, arg) {
+    callback.call(this, arg);
     for (var i = 0; i < this.children.length; ++i) {
       var child = this.children[i];
-      child.traverse(callback);
+      child.traverse(callback, arg);
     }
   },
   /**
    * Calls callback function for this and each child with visible option set to true
    * @param  {function} callback
+   * @param  {mixed} arg - arguments
    */
-  traverseVisible: function(callback) {
+  traverseVisible: function(callback, arg) {
     if (this.visible === false)
       return;
-    callback(this);
+    callback.call(this, arg);
     for (var i = 0; i < this.children.length; ++i) {
       var child = this.children[i];
-      child.traverseVisible(callback);
+      child.traverseVisible(callback, arg);
     }
   },
   /**
@@ -325,7 +326,7 @@ LEEWGL.GameObject.prototype = {
     if (cloneID === true)
       object.id = this.id;
 
-    LEEWGL.Component.Transform.prototype.clone.call(this.transform, object.transform);
+    object.transform = LEEWGL.Component.Transform.prototype.clone.call(this.transform, object.transform);
     for (var component in this.components) {
       if (this.components.hasOwnProperty(component))
         object.components[component] = LEEWGL.Component[component].prototype.clone.call(this.components[component], object.components[component]);
