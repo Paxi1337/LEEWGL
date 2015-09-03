@@ -97,7 +97,7 @@ LEEWGL.UI = function(options) {
         }
       });
 
-      this.setInspectorContent(this.activeIndex);
+      this.setInspectorElement(this.activeIndex);
     }
   }.bind(this)));
 
@@ -224,7 +224,7 @@ LEEWGL.UI = function(options) {
         that.activeElement.alias = element.get('text');
         that.setEditable(-1);
         that.updateOutline = true;
-        that.setInspectorContent(index);
+        that.setInspectorElement(index);
 
         event.preventDefault();
         event.stopPropagation();
@@ -237,7 +237,7 @@ LEEWGL.UI = function(options) {
         that.setActive(index);
         that.setEditable(-1);
         that.updateOutline = true;
-        that.setInspectorContent(index);
+        that.setInspectorElement(index);
       }
     };
 
@@ -290,7 +290,7 @@ LEEWGL.UI = function(options) {
           that.setActive(index);
           that.setEditable(-1);
           that.updateOutline = true;
-          that.setInspectorContent(index);
+          that.setInspectorElement(index);
         }
 
         that.displayOutlineContextMenu(index, event);
@@ -371,7 +371,7 @@ LEEWGL.UI = function(options) {
         }
 
         that.dispatchTypes(vector, td.get('identifier'), num);
-        that.setInspectorContent(element.id);
+        that.setInspectorElement(element.id);
 
         event.preventDefault();
         event.stopPropagation();
@@ -443,7 +443,7 @@ LEEWGL.UI = function(options) {
 
     removeComponent.addEvent('click', function() {
       element.removeComponent('CustomScript');
-      that.setInspectorContent(element.id);
+      that.setInspectorElement(element.id);
     });
 
     removeComponentContainer.grab(removeComponent);
@@ -529,7 +529,7 @@ LEEWGL.UI = function(options) {
 
           updateAppliedScript.addEvent('click', function(event) {
             that.addScriptToObject(id, element.id, codeContainer.e.value);
-            that.setInspectorContent(element.id);
+            that.setInspectorElement(element.id);
             event.preventDefault();
             event.stopPropagation();
           });
@@ -545,7 +545,7 @@ LEEWGL.UI = function(options) {
 
         deleteAppliedScript.addEvent('click', function(event) {
           that.removeScriptFromObject(id, element.id);
-          that.setInspectorContent(element.id);
+          that.setInspectorElement(element.id);
         });
       };
 
@@ -655,7 +655,7 @@ LEEWGL.UI = function(options) {
       if (scriptID === '')
         scriptID = 'custom-object-' + element.id + '-script-' + that.appliedScripts;
       that.addScriptToObject(scriptID, element.id, newScriptContent.e.value);
-      that.setInspectorContent(element.id);
+      that.setInspectorElement(element.id);
       event.preventDefault();
       event.stopPropagation();
     });
@@ -691,7 +691,7 @@ LEEWGL.UI = function(options) {
 
     removeComponent.addEvent('click', function() {
       element.removeComponent('Texture');
-      that.setInspectorContent(element.id);
+      that.setInspectorElement(element.id);
     });
 
     removeComponentContainer.grab(removeComponent);
@@ -813,7 +813,7 @@ LEEWGL.UI = function(options) {
         });
         that.scene.add(newLight);
         that.addObjToOutline(newLight);
-        that.setInspectorContent(newLight.id);
+        that.setInspectorElement(newLight.id);
 
         var typeShader = LEEWGL.ShaderLibrary[newLight.lightType.toUpperCase()];
         that.app.onShaderChange('light', typeShader);
@@ -845,7 +845,7 @@ LEEWGL.UI = function(options) {
     }
   };
 
-  this.setInspectorContent = function(index) {
+  this.setInspectorElement = function(index) {
     if (typeof this.inspector === 'undefined') {
       console.error('LEEWGL.UI: No inspector container set. Please use setInspector() first!');
       return;
@@ -1025,7 +1025,7 @@ LEEWGL.UI = function(options) {
     this.popup.addList(availableComponents, function(item) {
       var className = functionFromString('LEEWGL.Component.' + item);
       that.activeElement.addComponent(new className());
-      that.setInspectorContent(that.activeElement.id);
+      that.setInspectorElement(that.activeElement.id);
       that.popup.hide();
     });
 
@@ -1208,7 +1208,7 @@ LEEWGL.UI = function(options) {
 
   this.addCustomScriptComponent = function() {
     this.activeElement.addComponent(new LEEWGL.Component.CustomScript());
-    this.setInspectorContent(this.activeIndex);
+    this.setInspectorElement(this.activeIndex);
   };
 
   /**
@@ -1364,7 +1364,7 @@ LEEWGL.UI = function(options) {
       }
     }
 
-    this.setInspectorContent(this.activeIndex);
+    this.setInspectorElement(this.activeIndex);
   };
 
   this.displayExport = function() {

@@ -92,3 +92,12 @@
 .popup-list {
   padding: 5px;
 }
+.popup-tooltip {
+  width: 250px;
+  position: absolute;
+  background-color: #f4f4f4;
+  border: 1px solid #212121;
+  box-shadow: 1px 1px 10px 1px #000;
+  color: #212121 !important;
+  font-size: 85%;
+}

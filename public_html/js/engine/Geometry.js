@@ -146,8 +146,8 @@ LEEWGL.Geometry.prototype.draw = function(gl, shader, drawMode, indices) {
   if (this.usesTexture === true) {
     shader.attributes['aTextureCoord'](this.buffers.texture);
     this.components['Texture'].texture.bind(gl);
-    this.components['Texture'].texture.setActive(gl, 1);
-    shader.uniforms['uSampler'](1);
+    this.components['Texture'].texture.setActive(gl, this.components['Texture'].texture.textureID);
+    shader.uniforms['uSampler'](this.components['Texture'].texture.textureID);
   } else {
     shader.attributes['aVertexColor'](this.buffers.color);
   }
@@ -173,7 +173,7 @@ LEEWGL.Geometry.prototype.draw = function(gl, shader, drawMode, indices) {
   }
 
   if (this.usesTexture === true)
-    this.components['Texture'].texture.unbind(gl, 1);
+    this.components['Texture'].texture.unbind(gl, this.components['Texture'].texture.textureID);
 };
 
 /**
@@ -479,35 +479,50 @@ LEEWGL.Geometry3D.Triangle = function(options) {
   this.type = 'Geometry.Triangle';
 
   var position = [
-    // Front face
-    0.0,  1.0,  0.0,
-   -1.0, -1.0, 1.0,
-    1.0, -1.0, 1.0,
-    // Right face
-    0.0, 1.0, 0.0,
-    1.0, -1.0, 1.0,
-    1.0, -1.0, -1.0,
-    // Back face
-    0.0, 1.0, 0.0,
-    1.0, -1.0, -1.0,
-   -1.0, -1.0, -1.0,
-    // Left face
-    0.0,  1.0,  0.0,
-   -1.0, -1.0, -1.0,
-   -1.0, -1.0, 1.0,
-    // Bottom face
-   -1.0, -1.0, -1.0,
-    1.0, -1.0, -1.0,
-    1.0, -1.0, 1.0,
-   -1.0, -1.0, 1.0
+    // front face
+    0.0, 1.0, 0.0, //
+    -1.0, -1.0, 1.0, //
+    1.0, -1.0, 1.0, //
+    // right face
+    0.0, 1.0, 0.0, //
+    1.0, -1.0, 1.0, //
+    1.0, -1.0, -1.0, //
+    // back face
+    0.0, 1.0, 0.0, //
+    1.0, -1.0, -1.0, //
+    -1.0, -1.0, -1.0, //
+    // left face
+    0.0, 1.0, 0.0, //
+    -1.0, -1.0, -1.0, //
+    -1.0, -1.0, 1.0, //
+    // bottom face
+    -1.0, -1.0, -1.0, //
+    1.0, -1.0, -1.0, //
+    1.0, -1.0, 1.0, //
+    -1.0, -1.0, 1.0 //
   ];
-  /// FIXME: uv coordinates
   var uv = [
+    // front face
+    0.5, 1.0,
     0.0, 0.0,
     1.0, 0.0,
+    // right face
+    0.5, 1.0,
     0.0, 0.0,
     1.0, 0.0,
-    0.5, 0.75
+    // back face
+    0.5, 1.0,
+    0.0, 0.0,
+    1.0, 0.0,
+    // left face
+    0.5, 1.0,
+    0.0, 0.0,
+    1.0, 0.0,
+    // bottom face
+    0.0, 0.0,
+    1.0, 0.0,
+    1.0, 1.0,
+    0.0, 1.0,
   ];
 
   var indices = [
@@ -524,8 +539,6 @@ LEEWGL.Geometry3D.Triangle = function(options) {
 
   this.calculateFaces();
   this.calculateNormals();
-
-  console.log(this.vertices.normal);
 };
 
 LEEWGL.Geometry3D.Triangle.prototype = Object.create(LEEWGL.Geometry3D.prototype);
@@ -593,78 +606,78 @@ LEEWGL.Geometry3D.Cube = function(options) {
   this.type = 'Geometry.Cube';
 
   var position = [
-    // Front face
-    -1.0, -1.0, 1.0, // 0
-    1.0, -1.0, 1.0, // 1
-    1.0, 1.0, 1.0, // 2
-    -1.0, 1.0, 1.0, // 3
-    // Back face
-    -1.0, -1.0, -1.0, // 4
-    -1.0, 1.0, -1.0, // 5
-    1.0, 1.0, -1.0, // 6
-    1.0, -1.0, -1.0, // 7
-    // Top face
-    -1.0, 1.0, -1.0, // 8 = 5
-    -1.0, 1.0, 1.0, // 9 = 3
-    1.0, 1.0, 1.0, // 10 = 2
-    1.0, 1.0, -1.0, // 11 = 6
-    // Bottom face
-    -1.0, -1.0, -1.0, // 12 = 4
-    1.0, -1.0, -1.0, // 13 = 7
-    1.0, -1.0, 1.0, // 14 = 1
-    -1.0, -1.0, 1.0, // 15 = 0
-    // Right face
-    1.0, -1.0, -1.0, // 16 = 7
-    1.0, 1.0, -1.0, // 17 = 6
-    1.0, 1.0, 1.0, // 18 = 2
-    1.0, -1.0, 1.0, // 19 = 1
-    // Left face
-    -1.0, -1.0, -1.0, // 20 = 4
-    -1.0, -1.0, 1.0, // 21 = 0
-    -1.0, 1.0, 1.0, // 22 = 3
-     -1.0, 1.0, -1.0  // 23 = 5
+    // front face
+    -1.0, -1.0, 1.0, //
+    1.0, -1.0, 1.0, //
+    1.0, 1.0, 1.0, //
+    -1.0, 1.0, 1.0, //
+    // back face
+    -1.0, -1.0, -1.0, //
+    -1.0, 1.0, -1.0, //
+    1.0, 1.0, -1.0, //
+    1.0, -1.0, -1.0, //
+    // top face
+    -1.0, 1.0, -1.0, //
+    -1.0, 1.0, 1.0, //
+    1.0, 1.0, 1.0, //
+    1.0, 1.0, -1.0, //
+    // bottom face
+    -1.0, -1.0, -1.0, //
+    1.0, -1.0, -1.0, //
+    1.0, -1.0, 1.0, //
+    -1.0, -1.0, 1.0, //
+    // right face
+    1.0, -1.0, -1.0, //
+    1.0, 1.0, -1.0, //
+    1.0, 1.0, 1.0, //
+    1.0, -1.0, 1.0, //
+    // left face
+    -1.0, -1.0, -1.0, //
+    -1.0, -1.0, 1.0, //
+    -1.0, 1.0, 1.0, //
+    -1.0, 1.0, -1.0, //
   ];
 
   var uv = [
-    // Front
+    // front face
     0.0, 0.0,
     1.0, 0.0,
     1.0, 1.0,
     0.0, 1.0,
-    // Back
+    // back face
+    1.0, 0.0,
+    1.0, 1.0,
+    0.0, 1.0,
+    0.0, 0.0,
+    // top face
+    0.0, 1.0,
+    0.0, 0.0,
+    1.0, 0.0,
+    1.0, 1.0,
+    // bottom face
+    1.0, 1.0,
+    0.0, 1.0,
+    0.0, 0.0,
+    1.0, 0.0,
+    // right face
+    1.0, 0.0,
+    1.0, 1.0,
+    0.0, 1.0,
+    0.0, 0.0,
+    // left face
     0.0, 0.0,
     1.0, 0.0,
     1.0, 1.0,
     0.0, 1.0,
-    // Top
-    0.0, 0.0,
-    1.0, 0.0,
-    1.0, 1.0,
-    0.0, 1.0,
-    // Bottom
-    0.0, 0.0,
-    1.0, 0.0,
-    1.0, 1.0,
-    0.0, 1.0,
-    // Right
-    0.0, 0.0,
-    1.0, 0.0,
-    1.0, 1.0,
-    0.0, 1.0,
-    // Left
-    0.0, 0.0,
-    1.0, 0.0,
-    1.0, 1.0,
-    0.0, 1.0
   ];
 
   var indices = [
-    0, 1, 2, 0, 2, 3, // front
-    4, 5, 6, 4, 6, 7, // back
-    8, 9, 10, 8, 10, 11, // top
-    12, 13, 14, 12, 14, 15, // bottom
-    16, 17, 18, 16, 18, 19, // right
-    20, 21, 22, 20, 22, 23 // left
+    0, 1, 2, 0, 2, 3, // front face
+    4, 5, 6, 4, 6, 7, // back face
+    8, 9, 10, 8, 10, 11, // top face
+    12, 13, 14, 12, 14, 15, // bottom face
+    16, 17, 18, 16, 18, 19, // right face
+    20, 21, 22, 20, 22, 23 // left face
   ];
 
   this.setVerticesByType('position', position);

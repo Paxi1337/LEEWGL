@@ -287,9 +287,9 @@ LEEWGL.EditorApp.prototype.onMouseDown = function(event) {
       this.movement.x = 0;
       this.movement.y = 0;
 
-      UI.setInspectorContent(obj.id);
+      UI.setInspectorElement(obj.id);
     } else {
-      UI.setInspectorContent(-1);
+      UI.setInspectorElement(-1);
     }
   }
   event.preventDefault();
@@ -377,7 +377,7 @@ LEEWGL.EditorApp.prototype.onMouseMove = function(event) {
         this.activeElement.traverse(scale, [scaleVec[0], movementScale[1], scaleVec[2]]);
     }
 
-    UI.setInspectorContent(this.activeElement.id);
+    UI.setInspectorElement(this.activeElement.id);
   }
 };
 
@@ -557,7 +557,7 @@ LEEWGL.EditorApp.prototype.onPlay = function() {
   UI.clearOutline();
   UI.addObjToOutline(this.scenePlay.children);
   if (UI.activeElement !== null)
-    UI.setInspectorContent(UI.activeElement.id);
+    UI.setInspectorElement(UI.activeElement.id);
 };
 
 /**
@@ -584,5 +584,5 @@ LEEWGL.EditorApp.prototype.onStop = function() {
   UI.clearOutline();
   UI.addObjToOutline(this.scene.children);
   if (UI.activeElement !== null)
-    UI.setInspectorContent(UI.activeElement.id);
+    UI.setInspectorElement(UI.activeElement.id);
 };

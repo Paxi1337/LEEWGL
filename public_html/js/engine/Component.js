@@ -266,6 +266,7 @@ LEEWGL.Component.CustomScript.prototype.clone = function(customScript) {
 LEEWGL.Component.Texture = function() {
   LEEWGL.Component.call(this);
 
+  this.textureID = LEEWGL.Component.Texture.TextureCount++;
   /** @inner {string} */
   this.type = 'Component.Texture';
   /** @inner {LEEWGL.Texture} */
@@ -281,7 +282,7 @@ LEEWGL.Component.Texture.prototype.init = function(gl, src) {
   this.src = src;
 
   this.texture.create(gl);
-  this.texture.setTextureImage(gl, this.src, 1);
+  this.texture.setTextureImage(gl, this.src, this.textureID);
 };
 
 LEEWGL.Component.Texture.prototype.clone = function(texture) {
@@ -289,9 +290,10 @@ LEEWGL.Component.Texture.prototype.clone = function(texture) {
     texture = new LEEWGL.Component.Texture();
 
   LEEWGL.Component.prototype.clone.call(this, texture);
+  texture.textureID = this.textureID;
   texture.texture = LEEWGL.Texture.prototype.clone.call(this.texture);
-
   texture.src = this.src;
-
   return texture;
 };
+
+LEEWGL.Component.Texture.TextureCount = 0;

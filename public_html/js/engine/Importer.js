@@ -42,7 +42,7 @@ LEEWGL.Importer = function() {
   };
 
   this.import = function(path, gl) {
-    var geometry = new LEEWGL.Geometry();
+    var geometry = new LEEWGL.Geometry3D();
     var s = ajax.send('GET', LEEWGL.ROOT + path, false).response.responseText;
 
     if (path.toLowerCase().indexOf('.obj') !== -1) {

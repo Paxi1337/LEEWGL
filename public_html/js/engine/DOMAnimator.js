@@ -87,7 +87,6 @@ LEEWGL.DOM.Animator = function() {
             adjacentFunction();
           }
         }
-
       }, (duration * 1000) / steps);
     }
   };

@@ -168,9 +168,9 @@
                 <div class="clearer"></div>
               </div>
               <div class="object-controls-container">
-                <a class="translation-control mright20 pointer fleft" title="Translation-Mode" onclick="UI.setTransformationMode('translation');"></a>
-                <a class="rotation-control mright20 pointer fleft" title="Rotation-Mode" onclick="UI.setTransformationMode('rotation');"></a>
-                <a class="scale-control pointer fleft" title="Scale-Mode" onclick="UI.setTransformationMode('scale');"></a>
+                <a class="translation-control mright20 pointer fleft tooltip" data-tooltip="Click to enable translation mode" onclick="UI.setTransformationMode('translation');"></a>
+                <a class="rotation-control mright20 pointer fleft tooltip" data-tooltip="Click to enable rotation mode" onclick="UI.setTransformationMode('rotation');"></a>
+                <a class="scale-control pointer fleft tooltip" data-tooltip="Click to enable scale mode" onclick="UI.setTransformationMode('scale');"></a>
                 <div class="clearer"></div>
               </div>
             </div>
@@ -216,6 +216,7 @@
   <script>
     var init = function() {
       UI.dynamicContainers('.icon-container', '.dynamic-container');
+      UI.tooltipEvent('.tooltip');
       UI.setInspector('#dynamic-inspector');
       UI.setStatusBar('#status-bar');
       // UI.preventRefresh();

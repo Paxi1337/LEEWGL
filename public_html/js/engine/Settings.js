@@ -55,14 +55,35 @@ LEEWGL.Settings = function(options) {
   this.setOptions(options);
 
   /** @inner {object} */
-  this.types = {
-    'display-precision': 'input',
-    'translation-speed': 'table',
-    'rotation-speed': 'table',
-    'background-color': 'table',
-    'depth-buffer': 'select',
-    'viewport': 'table',
-    'fps': 'input'
+  this.additionalInfo = {
+    'display-precision': {
+      'type' : 'input',
+      'alias' : 'Display Precision'
+    },
+    'translation-speed': {
+      'type' : 'table',
+      'alias' : 'Translation Speed'
+    },
+    'rotation-speed': {
+      'type' : 'table',
+      'alias' : 'Rotation Speed'
+    },
+    'background-color': {
+      'type' : 'table',
+      'alias' : 'Background Color'
+    },
+    'depth-buffer': {
+      'type' : 'select',
+      'alias' : 'Depth Buffer'
+    },
+    'viewport': {
+      'type' : 'table',
+      'alias' : 'Viewport'
+    },
+    'fps': {
+      'type' : 'input',
+      'alias' : 'Frames Per Second'
+    }
   };
 
   /**
@@ -138,18 +159,18 @@ LEEWGL.Settings = function(options) {
     }.bind(this));
 
     for (var prop in this.options) {
-      if (this.types[prop] === 'input') {
-        container.grab(HTMLHELPER.createContainerDetailInput(prop, prop, this.options[prop], keydownInput));
-      } else if (this.types[prop] === 'table') {
+      if (this.additionalInfo[prop]['type'] === 'input') {
+        container.grab(HTMLHELPER.createContainerDetailInput(prop, this.additionalInfo[prop]['alias'], this.options[prop], keydownInput));
+      } else if (this.additionalInfo[prop]['type'] === 'table') {
         container.grab(HTMLHELPER.createTable(prop, Object.keys(this.options[prop]), this.options[prop], {
-          'title': prop,
+          'title': this.additionalInfo[prop]['alias'],
           'type': 'h4',
           'class': 'component-detail-headline'
         }, keydownTable));
-      } else if (this.types[prop] === 'select') {
+      } else if (this.additionalInfo[prop]['type'] === 'select') {
         var content = JSON.parse(JSON.stringify(this.options[prop]['values']));
         content.splice(this.options[prop]['values'].indexOf(this.options[prop]['active']), 1);
-        container.grab(HTMLHELPER.createDropdown(prop, prop, content, change, this.options[prop]['active']));
+        container.grab(HTMLHELPER.createDropdown(prop, this.additionalInfo[prop]['alias'], content, change, this.options[prop]['active']));
       }
     }
 
@@ -164,10 +185,10 @@ LEEWGL.Settings = function(options) {
   this.updateFromHTML = function() {
     var element = null;
     for (var prop in this.options) {
-      if (this.types[prop] === 'input') {
+      if (this.additionalInfo[prop]['type'] === 'input') {
         element = new LEEWGL.DOM.Element(document.querySelector('input[identifier="' + prop + '"]'));
         this.set(prop, element.e.value);
-      } else if (this.types[prop] === 'table') {
+      } else if (this.additionalInfo[prop]['type'] === 'table') {
         var elements = document.querySelectorAll('td[identifier="' + prop + '"]');
         var arr = {};
         for (var i = 0; i < elements.length; ++i) {
