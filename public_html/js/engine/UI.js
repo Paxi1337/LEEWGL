@@ -86,6 +86,9 @@ LEEWGL.UI = function(options) {
 
   this.clipBoard = null;
 
+  /** @inner {LEEWGL.AsynchRequest} */
+  this.ajax = new LEEWGL.AsynchRequest();
+
   this.saved = {};
 
   this.importer = new LEEWGL.Importer();
@@ -1058,6 +1061,34 @@ LEEWGL.UI = function(options) {
     this.body.grab(newScript);
   };
 
+  this.displaySettings = function(displayInSidebar) {
+    displayInSidebar = (typeof displayInSidebar !== 'undefined') ? displayInSidebar : true;
+
+    if (displayInSidebar === true)
+      this.setSidebarContent('Settings', SETTINGS.toHTML());
+    else
+      this.setInspectorContent(SETTINGS.toHTML());
+    this.editableDOM();
+  };
+
+  this.displayUpdatePopup = function() {
+    var pos = this.inspector.position();
+    var size = this.updatePopup.getSize();
+
+    this.updatePopup.setPosition({
+      'x': (pos.x + size.width) + 75,
+      'y': pos.y
+    });
+    this.updatePopup.show();
+  };
+
+  this.displaySidebar = function() {
+    if (this.sidebar.isDisplayed === false)
+      this.sidebar.show();
+    else
+      this.sidebar.hide();
+  };
+
   this.displayOutlineContextMenu = function(index, event) {
     var that = this;
 
@@ -1140,24 +1171,6 @@ LEEWGL.UI = function(options) {
     return availableComponents;
   };
 
-  this.displayUpdatePopup = function() {
-    var pos = this.inspector.position();
-    var size = this.updatePopup.getSize();
-
-    this.updatePopup.setPosition({
-      'x': (pos.x + size.width) + 75,
-      'y': pos.y
-    });
-    this.updatePopup.show();
-  };
-
-  this.displaySidebar = function() {
-    if (this.sidebar.isDisplayed === false)
-      this.sidebar.show();
-    else
-      this.sidebar.hide();
-  };
-
   /**
    * Transformation Control
    */
@@ -1217,16 +1230,6 @@ LEEWGL.UI = function(options) {
     this.app.onStop();
     this.playing = false;
     this.paused = false;
-  };
-
-  this.displaySettings = function(displayInSidebar) {
-    displayInSidebar = (typeof displayInSidebar !== 'undefined') ? displayInSidebar : true;
-
-    if (displayInSidebar === true)
-      this.setSidebarContent('Settings', SETTINGS.toHTML());
-    else
-      this.setInspectorContent(SETTINGS.toHTML());
-    this.editableDOM();
   };
 
   /**
@@ -1451,16 +1454,12 @@ LEEWGL.UI = function(options) {
     this.popup.empty();
     this.popup.setOptions({
       'wrapper-width': 500,
-      'center' : true
+      'center': true
     });
     this.popup.setDimensions();
 
     this.setPopupHTML('Export', 'html/export.html');
 
-    this.export();
-  };
-
-  this.export = function() {
     var textarea_vertex_shaders = new LEEWGL.DOM.Element(document.getElementById('export-vertex-shaders'));
     var textarea_fragment_shaders = new LEEWGL.DOM.Element(document.getElementById('export-fragment-shaders'));
     textarea_vertex_shaders.set('html', this.scene.activeShader.code.vertex);
@@ -1497,6 +1496,10 @@ LEEWGL.UI = function(options) {
     ".trim();
 
     textarea_export.set('html', code_export_init + '\n\n' + code_export_shader);
+  };
+
+  this.export = function() {
+    this.ajax.send('POST', LEEWGL.ROOT + 'php/write_to_file.php', false, "code=" + encodeURIComponent(this.scene.export()));
   };
 
   this.preventRefresh = function() {

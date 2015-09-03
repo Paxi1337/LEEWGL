@@ -48,21 +48,72 @@ LEEWGL.Scene.prototype.clone = function(scene, cloneID, recursive, addToAlias) {
   return scene;
 };
 
-LEEWGL.Scene.prototype.import = function(stringified_json, recursive) {
+LEEWGL.Scene.prototype.import = function(gl, stringified_json) {
   var json = JSON.parse(stringified_json);
-
-  console.log(json);
+  var className, child;
 
   var scene = new LEEWGL.Scene(json);
   scene.shaders = json.shaders;
 
-  for (var i = 0; i < scene.children.length; ++i) {
-    var child = scene.children[i];
-    var className = functionFromString('LEEWGL.' + child.type);
-    scene.children[i] = new className(child);
+  var createChildren = function(jsonElement, element) {
+    if (jsonElement.children.length > 0) {
+      for (var i = 0; i < jsonElement.children.length; ++i) {
+        var child = jsonElement.children[i];
+        className = functionFromString('LEEWGL.' + child.type);
+        element.add(new className(child.options));
+
+        for (var name in child.components) {
+          var component = element.children[i].components[name];
+          className = functionFromString('LEEWGL.Component.' + name);
+          component = new className(component);
+        }
+
+        element.children[i].transform.dispatchEvent({
+          'type': 'update-all',
+          'data': {
+            'position': child.transform.position,
+            'translation': child.transform.transVec,
+            'rotation': child.transform.rotVec,
+            'scale': child.transform.scaleVec,
+          }
+        });
+
+        if (typeof element.children[i].components['Texture'] !== 'undefined') {
+          element.children[i].components['Texture'].dispatchEvent({
+            'type': 'init',
+            'data': {
+              'gl': gl,
+              'src': child.components['Texture'].src
+            }
+          });
+        }
+        createChildren(child, element.children[i]);
+      }
+    }
+  };
+
+  for (var i = 0; i < json.children.length; ++i) {
+    child = json.children[i];
+    className = functionFromString('LEEWGL.' + child.type);
+    scene.add(new className(child.options));
+    createChildren(child, scene.children[i]);
+    scene.children[i].transform.dispatchEvent({
+      'type': 'update-all',
+      'data': {
+        'position': child.transform.position,
+        'translation': child.transform.transVec,
+        'rotation': child.transform.rotVec,
+        'scale': child.transform.scaleVec,
+      }
+    });
     scene.children[i].parent = scene;
   }
 
-  // scene = LEEWGL.GameObject.prototype.import.call(this, stringified_json, recursive, scene);
+  // var validateParent = function() {
+  //   this.parent = scene;
+  // };
+
+  // scene.traverse(validateParent);
+
   return scene;
 };

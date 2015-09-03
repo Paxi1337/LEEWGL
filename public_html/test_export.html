@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>LEEWGL Editor View</title>
+  <link rel="stylesheet" type="text/css" href="css/styles.css">
+  <link rel="stylesheet" type="text/css" href="css/general.css">
+  <link rel="stylesheet" type="text/css" href="css/form.css">
+  <link rel="stylesheet" type="text/css" href="css/table.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script type="text/javascript" src="js/gl-matrix/common.js"></script>
+  <script type="text/javascript" src="js/gl-matrix/mat4.js"></script>
+  <script type="text/javascript" src="js/gl-matrix/vec4.js"></script>
+  <script type="text/javascript" src="js/gl-matrix/vec3.js"></script>
+  <script type="text/javascript" src="js/gl-matrix/vec2.js"></script>
+  <script type="text/javascript" src="js/engine/Globals.js"></script>
+  <script type="text/javascript" src="js/engine/Core.js"></script>
+  <script type="text/javascript" src="js/engine/Options.js"></script>
+  <script type="text/javascript" src="js/engine/Settings.js"></script>
+  <script type="text/javascript" src="js/engine/HTMLHelper.js"></script>
+  <script type="text/javascript" src="js/engine/EventDispatcher.js"></script>
+  <script type="text/javascript" src="js/engine/DOMElement.js"></script>
+  <script type="text/javascript" src="js/engine/DOMAnimator.js"></script>
+  <script type="text/javascript" src="js/engine/Extension.js"></script>
+  <script type="text/javascript" src="js/engine/AsynchRequest.js"></script>
+  <script type="text/javascript" src="js/engine/Math.js"></script>
+  <script type="text/javascript" src="js/engine/VertexDeclarations.js"></script>
+  <script type="text/javascript" src="js/engine/Buffer.js"></script>
+  <script type="text/javascript" src="js/engine/Color.js"></script>
+  <script type="text/javascript" src="js/engine/Shader.js"></script>
+  <script type="text/javascript" src="js/engine/Component.js"></script>
+  <script type="text/javascript" src="js/engine/GameObject.js"></script>
+  <script type="text/javascript" src="js/engine/Texture.js"></script>
+  <script type="text/javascript" src="js/engine/Geometry.js"></script>
+  <script type="text/javascript" src="js/engine/Billboard.js"></script>
+  <script type="text/javascript" src="js/engine/Camera.js"></script>
+  <script type="text/javascript" src="js/engine/PerspectiveCamera.js"></script>
+  <script type="text/javascript" src="js/engine/App.js"></script>
+  <script type="text/javascript" src="js/engine/TestApp.js"></script>
+  <script type="text/javascript" src="js/engine/Picker.js"></script>
+  <script type="text/javascript" src="js/engine/Storage.js"></script>
+  <script type="text/javascript" src="js/engine/DragDrop.js"></script>
+  <script type="text/javascript" src="js/engine/ShaderChunk.js"></script>
+  <script type="text/javascript" src="js/engine/ShaderLibrary.js"></script>
+  <script type="text/javascript" src="js/engine/Importer.js"></script>
+  <script type="text/javascript" src="js/engine/Light.js"></script>
+  <script type="text/javascript" src="js/engine/Scene.js"></script>
+  <script type="text/javascript" src="js/engine/Shadowmap.js"></script>
+  <script type="text/javascript" src="js/engine/Lightbox.js"></script>
+</head>
+
+<body>
+  <script>
+    var init = function() {
+      var body = new LEEWGL.DOM.Element(document.body);
+      var canvas = new LEEWGL.DOM.Element('canvas', {
+        'styles': {
+          'width': '512px',
+          'height': '512px'
+        }
+      });
+      body.grab(canvas);
+      var core = new window.LEEWGL.Core({
+        'canvas': canvas.e
+      });
+      var testapp = new window.LEEWGL.TestApp({
+        'core': core
+      });
+
+      core.attachApp(testapp);
+      core.init();
+      window.requestAnimationFrame(core.run.bind(core));
+      var gl = core.getContext();
+    };
+    addLoadEvent(init);
+  </script>
+</body>
+
+</html>

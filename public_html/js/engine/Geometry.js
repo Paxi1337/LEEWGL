@@ -239,6 +239,7 @@ LEEWGL.Geometry.prototype.clone = function(geometry, cloneID, recursive, addToAl
 LEEWGL.Geometry3D = function(options) {
   LEEWGL.Geometry.call(this, options);
 
+  this.type = 'Geometry3D';
   this.options['up'] = vec3.clone(LEEWGL.VECTOR3D.UP);
 };
 
@@ -407,6 +408,7 @@ LEEWGL.Geometry3D.Grid = function(options) {
   this.addOptions(ext_options);
   this.setOptions(options);
 
+  this.type = 'Geometry3D.Grid';
   this.lines = this.options['lines'];
   this.dimension = this.options['dimension'];
 
@@ -476,7 +478,7 @@ LEEWGL.Geometry3D.Grid.prototype.clone = function(grid, cloneID, recursive, addT
 LEEWGL.Geometry3D.Triangle = function(options) {
   LEEWGL.Geometry3D.call(this, options);
 
-  this.type = 'Geometry.Triangle';
+  this.type = 'Geometry3D.Triangle';
 
   var position = [
     // front face
@@ -603,7 +605,7 @@ LEEWGL.Geometry3D.Triangle.prototype.clone = function(triangle, cloneID, recursi
 LEEWGL.Geometry3D.Cube = function(options) {
   LEEWGL.Geometry3D.call(this, options);
 
-  this.type = 'Geometry.Cube';
+  this.type = 'Geometry3D.Cube';
 
   var position = [
     // front face
@@ -714,7 +716,6 @@ LEEWGL.Geometry3D.Cube.prototype.clone = function(cube, cloneID, recursive, addT
 LEEWGL.Geometry3D.Sphere = function(options) {
   LEEWGL.Geometry3D.call(this, options);
 
-  this.type = 'Geometry.Sphere';
 
   var ext_options = {
     'latitude': 10,
@@ -725,6 +726,7 @@ LEEWGL.Geometry3D.Sphere = function(options) {
   this.addOptions(ext_options);
   this.setOptions(options);
 
+  this.type = 'Geometry3D.Sphere';
   this.latitude = this.options['latitude'];
   this.longitude = this.options['longitude'];
   this.radius = this.options['radius'];

@@ -144,6 +144,13 @@ LEEWGL.GameObject.prototype = {
       return this;
     }
 
+    if(object instanceof Array) {
+      for (var i = 0; i < object.length; ++i) {
+        this.add(object[i]);
+      }
+      return this;
+    }
+
     if (object === this) {
       console.error("LEEWGL.GameObject.add:", object, " can't be added as a child of itself");
       return this;
@@ -360,9 +367,15 @@ LEEWGL.GameObject.prototype = {
   export: function() {
     var json = {};
 
-    for (var prop in this) {
-      if (this.hasOwnProperty(prop))
-        json[prop] = this[prop];
+    var exportObject = this.clone(undefined, true, true, false);
+    var invalidateParent = function() {
+      this.parent = null;
+    };
+    exportObject.traverse(invalidateParent);
+
+    for (var prop in exportObject) {
+      if (exportObject.hasOwnProperty(prop))
+        json[prop] = exportObject[prop];
     }
 
     var stringified = JSON.stringify(json);

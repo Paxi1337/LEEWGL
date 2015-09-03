@@ -6,7 +6,16 @@ LEEWGL.Billboard = function(options) {
   LEEWGL.REQUIRES.push('Billboard');
   LEEWGL.Geometry3D.call(this, options);
 
+  var ext_options = {
+    'type': 'normal'
+  };
+
+  this.addOptions(ext_options);
+  this.setOptions(options);
+
+  this.type = 'Billboard';
   this.picking = false;
+  this.billboardType = this.options['type'];
 
   this.addComponent(new LEEWGL.Component.Texture());
   this.texture = this.components['Texture'];
@@ -16,13 +25,6 @@ LEEWGL.Billboard = function(options) {
     0.5, -0.5, 0.0,
     -0.5, 0.5, 0.0,
     0.5, 0.5, 0.0,
-  ];
-
-  var position = [
-    0.5, 0.5, 0.0,
-    -0.5, 0.5, 0.0,
-    0.5, -0.5, 0.0,
-    -0.5, -0.5, 0.0,
   ];
   this.setVerticesByType('position', position);
 };
@@ -45,14 +47,12 @@ LEEWGL.Billboard.prototype.setBuffer = function(gl) {
  * @param  {webGLContext} gl
  * @param  {LEEWGL.Shader} shader
  * @param  {LEEWGL.Camera} camera
- * @param  {string} type - fixed or normal
  */
-LEEWGL.Billboard.prototype.draw = function(gl, shader, camera, type) {
-  type = (typeof type !== 'undefined') ? type : 'normal';
+LEEWGL.Billboard.prototype.draw = function(gl, shader, camera) {
   shader.use(gl);
   shader.attributes['aVertexPosition'](this.buffers.position);
   shader.uniforms['uModel'](this.transform.matrix());
-  if (type === 'normal') {
+  if (this.billboardType === 'normal') {
     shader.uniforms['uCameraRight'](camera.right());
     shader.uniforms['uCameraUp'](camera.upVec());
     shader.uniforms['uBillboardSize']([2.0, 2.0]);
@@ -77,5 +77,6 @@ LEEWGL.Billboard.prototype.clone = function(billboard, cloneID, recursive, addTo
   if (typeof billboard === 'undefined')
     billboard = new LEEWGL.Billboard(this.options);
   LEEWGL.Geometry3D.prototype.clone.call(this, billboard, cloneID, recursive, addToAlias);
+  billboard.texture = LEEWGL.Component.Texture.prototype.clone.call(this.texture);
   return billboard;
 };

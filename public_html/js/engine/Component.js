@@ -2,8 +2,14 @@
  * Components can be added to LEEWGL.GameObject
  * @constructor
  */
-LEEWGL.Component = function() {
+LEEWGL.Component = function(options) {
   LEEWGL.REQUIRES.push('Component');
+
+  this.options = {};
+
+  extend(LEEWGL.Component.prototype, LEEWGL.Options.prototype);
+  this.setOptions(options);
+
   this.type = 'Component';
 };
 
@@ -25,37 +31,45 @@ LEEWGL.EventDispatcher.prototype.apply(LEEWGL.Component.prototype);
  * @constructor
  * @augments LEEWGL.Component
  */
-LEEWGL.Component.Transform = function() {
-  LEEWGL.Component.call(this);
+LEEWGL.Component.Transform = function(options) {
+  LEEWGL.Component.call(this, options);
+
+  var ext_options = {
+    'translation': mat4.create(),
+    'rotation': mat4.create(),
+    'scaling': mat4.create(),
+    'position-vector': vec3.create(),
+    'translation-vector': vec3.create(),
+    'rotation-vector': vec3.create(),
+    'scale-vector': vec3.fromValues(1.0, 1.0, 1.0)
+  };
+
+  this.addOptions(ext_options);
+  this.setOptions(options);
 
   this.type = 'Component.Transform';
   this.mat = mat4.create();
 
-  var position = [0.0, 0.0, 0.0];
-  var translation = mat4.create();
-  var rotation = mat4.create();
-  var scaling = mat4.create();
-
-  this.transVec = [0, 0, 0];
-  this.rotVec = [0, 0, 0];
-  this.scaleVec = [1.0, 1.0, 1.0];
+  this.transVec = vec3.clone(this.options['translation-vector']);
+  this.rotVec = vec3.clone(this.options['rotation-vector']);
+  this.scaleVec = vec3.clone(this.options['scale-vector']);
 
   // private properties - configurable tag defaults to false
   Object.defineProperties(this, {
     position: {
-      value: position,
+      value: vec3.clone(this.options['position-vector']),
       enumerable: true
     },
     translation: {
-      value: translation,
+      value: mat4.clone(this.options['translation']),
       enumerable: true
     },
     rotation: {
-      value: rotation,
+      value: mat4.clone(this.options['rotation']),
       enumerable: true
     },
     scaling: {
-      value: scaling,
+      value: mat4.clone(this.options['scaling']),
       enumerable: true
     }
   });
@@ -202,7 +216,7 @@ LEEWGL.Component.Transform.prototype.matrix = function() {
 
 LEEWGL.Component.Transform.prototype.clone = function(transform) {
   if (typeof transform === 'undefined')
-    transform = new LEEWGL.Component.Transform();
+    transform = new LEEWGL.Component.Transform(this.options);
 
   LEEWGL.Component.prototype.clone.call(this, transform);
 
@@ -263,16 +277,30 @@ LEEWGL.Component.CustomScript.prototype.clone = function(customScript) {
  * @constructor
  * @augments LEEWGL.Component
  */
-LEEWGL.Component.Texture = function() {
-  LEEWGL.Component.call(this);
+LEEWGL.Component.Texture = function(options) {
+  LEEWGL.Component.call(this, options);
+
+  var ext_options = {
+    'src': '',
+    'texture': new LEEWGL.Texture()
+  };
+
+  this.addOptions(ext_options);
+  this.setOptions(options);
 
   this.textureID = LEEWGL.Component.Texture.TextureCount++;
   /** @inner {string} */
   this.type = 'Component.Texture';
   /** @inner {LEEWGL.Texture} */
-  this.texture = new LEEWGL.Texture();
+  this.texture = this.options['texture'].clone();
   /** @inner {string} */
-  this.src = '';
+  this.src = this.options['src'];
+
+  this.addEventListener('init', function(event) {
+    var gl = event['data']['gl'];
+    var src = event['data']['src'];
+    this.init(gl, src);
+  }.bind(this));
 };
 
 LEEWGL.Component.Texture.prototype = Object.create(LEEWGL.Component.prototype);
@@ -281,13 +309,14 @@ LEEWGL.Component.Texture.prototype.init = function(gl, src) {
   var that = this;
   this.src = src;
 
+  this.usesTexture = true;
   this.texture.create(gl);
   this.texture.setTextureImage(gl, this.src, this.textureID);
 };
 
 LEEWGL.Component.Texture.prototype.clone = function(texture) {
   if (typeof texture === 'undefined')
-    texture = new LEEWGL.Component.Texture();
+    texture = new LEEWGL.Component.Texture(this.options);
 
   LEEWGL.Component.prototype.clone.call(this, texture);
   texture.textureID = this.textureID;

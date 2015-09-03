@@ -180,9 +180,6 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   UI.addObjToOutline(this.scene.children);
   UI.setTransformationMode('translation');
 
-
-  // var test = this.scene.export();
-
   // console.log(encodeURI(test));
 
   // console.log(this.scene.shaders.color.code.fragment);
@@ -548,7 +545,7 @@ LEEWGL.EditorApp.prototype.onPlay = function() {
   for (var i = 0; i < this.scenePlay.children.length; ++i) {
     var element = this.scenePlay.children[i];
     if (typeof element.components['CustomScript'] !== 'undefined')
-      element.traverse(onInit)
+      element.traverse(onInit);
   }
 
   this.updatePickingList(this.scenePlay);
