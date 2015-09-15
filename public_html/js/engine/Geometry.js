@@ -132,22 +132,28 @@ LEEWGL.Geometry.prototype.calculateTangents = function() {
  * Sets geometry own shader attributes and uniforms and renders the geometry
  * @param  {webGLContext} gl
  * @param  {LEEWGL.Shader} shader
- * @param  {webGLDrawMode} drawMode [description]
- * @param  {bool} indices  - if geometry makes use of indices buffer
+ * @param  {webGLDrawMode} drawMode
  */
-LEEWGL.Geometry.prototype.draw = function(gl, shader, drawMode, indices) {
-  indices = (typeof indices !== 'undefined') ? indices : true;
+LEEWGL.Geometry.prototype.draw = function(gl, shader, drawMode) {
+  var indices = (this.indices.length > 0) ? true : false;
 
   shader.use(gl);
 
   shader.attributes['aVertexPosition'](this.buffers.position);
+  shader.uniforms['uModel'](this.transform.matrix());
+
+  var draw = drawMode;
+
+  if (this.options['wireframe'] === true)
+    draw = gl.LINES;
+
   shader.attributes['aVertexNormal'](this.buffers.normal);
 
   if (this.usesTexture === true) {
     shader.attributes['aTextureCoord'](this.buffers.texture);
+    this.components['Texture'].texture.setActive(gl);
     this.components['Texture'].texture.bind(gl);
-    this.components['Texture'].texture.setActive(gl, this.components['Texture'].texture.textureID);
-    shader.uniforms['uSampler'](this.components['Texture'].texture.textureID);
+    shader.uniforms['uSampler'](this.components['Texture'].texture.id);
   } else {
     shader.attributes['aVertexColor'](this.buffers.color);
   }
@@ -158,12 +164,6 @@ LEEWGL.Geometry.prototype.draw = function(gl, shader, drawMode, indices) {
 
   shader.uniforms['uColorMapColor'](new Float32Array(this.buffers.position.colorMapColor));
   shader.uniforms['uNormalMatrix'](normalMatrix);
-  shader.uniforms['uModel'](this.transform.matrix());
-
-  var draw = drawMode;
-
-  if (this.options['wireframe'] === true)
-    draw = gl.LINES;
 
   if (indices === true) {
     this.buffers.indices.bind(gl);
@@ -173,7 +173,7 @@ LEEWGL.Geometry.prototype.draw = function(gl, shader, drawMode, indices) {
   }
 
   if (this.usesTexture === true)
-    this.components['Texture'].texture.unbind(gl, this.components['Texture'].texture.textureID);
+    this.components['Texture'].texture.unbind(gl);
 };
 
 /**

@@ -167,42 +167,40 @@ LEEWGL.ShaderLibrary = function() {
       }
     };
 
-    this.chunks[LEEWGL.ShaderLibrary.SHADOW_MAPPING] = {
+    this.chunks[LEEWGL.ShaderLibrary.DEPTH] = {
       vertex: {
         parameters: [
-          LEEWGL.ShaderChunk['vertex_shadow_mapping_para'],
+          LEEWGL.ShaderChunk['vertex_depth_para'],
         ],
         main: [
-          LEEWGL.ShaderChunk['vertex_shadow_mapping'],
+          LEEWGL.ShaderChunk['vertex_depth'],
         ]
       },
       fragment: {
         parameters: [
-          LEEWGL.ShaderChunk['fragment_shadow_mapping_para']
+          LEEWGL.ShaderChunk['fragment_depth_para']
         ],
         main: [
-          LEEWGL.ShaderChunk['fragment_shadow_mapping']
+          LEEWGL.ShaderChunk['fragment_depth']
         ]
       }
     };
 
-    this.chunks[LEEWGL.ShaderLibrary.DEPTH_RENDER_TARGET] = {
+    this.chunks[LEEWGL.ShaderLibrary.SHADOW_MAPPING_POSITIONAL_LIGHT] = {
       vertex: {
         parameters: [
-          LEEWGL.ShaderChunk['vertex_default_para'],
+          LEEWGL.ShaderChunk['vertex_shadow_mapping_position_light_para'],
         ],
         main: [
-          "void main() {",
-          LEEWGL.ShaderChunk['vertex_default'],
+          LEEWGL.ShaderChunk['vertex_shadow_mapping_position_light'],
         ]
       },
       fragment: {
         parameters: [
-          "precision lowp float;",
+          LEEWGL.ShaderChunk['fragment_shadow_mapping_position_light_para'],
         ],
         main: [
-          "void main() {",
-          LEEWGL.ShaderChunk['fragment_depth_render_target']
+          LEEWGL.ShaderChunk['fragment_shadow_mapping_position_light']
         ]
       }
     };
@@ -291,9 +289,7 @@ LEEWGL.ShaderLibrary = function() {
         outMain += arr[index].main.join('\n');
       }
     }
-
     outMain += '}';
-
     return outPara + outMain;
   };
 
@@ -313,10 +309,9 @@ LEEWGL.ShaderLibrary.AMBIENT = 4;
 LEEWGL.ShaderLibrary.DIRECTIONAL = 5;
 LEEWGL.ShaderLibrary.SPOT = 6;
 LEEWGL.ShaderLibrary.POINT = 7;
-LEEWGL.ShaderLibrary.SHADOW_MAPPING = 8;
-LEEWGL.ShaderLibrary.DEPTH_RENDER_TARGET = 9;
-LEEWGL.ShaderLibrary.BILLBOARD = 10;
-LEEWGL.ShaderLibrary.BILLBOARD_FIXED = 11;
+LEEWGL.ShaderLibrary.SHADOW_MAPPING_POSITIONAL_LIGHT = 8;
+LEEWGL.ShaderLibrary.BILLBOARD = 9;
+LEEWGL.ShaderLibrary.BILLBOARD_FIXED = 10;
 
 /**
  * window load event to set global

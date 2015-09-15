@@ -92,28 +92,24 @@ LEEWGL.Texture.prototype = {
 
   bind: function(gl) {
     gl.bindTexture(gl.TEXTURE_2D, this.webglTexture);
+    // gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
   },
 
   setActive: function(gl, unit) {
-    unit = (typeof unit === 'undefined') ? 0 : unit;
-    unit = 'TEXTURE' + unit;
-    gl.activeTexture(gl[unit]);
+    unit = (typeof unit !== 'undefined') ? unit : this.id;
+    gl.activeTexture(gl.TEXTURE0 + unit);
   },
 
-  unbind: function(gl, unit) {
-    unit = (typeof unit === 'undefined') ? 0 : unit;
-    unit = 'TEXTURE' + unit;
-
+  unbind: function(gl) {
     gl.bindTexture(gl.TEXTURE_2D, null);
-    gl.activeTexture(gl[unit], null);
+    gl.activeTexture(gl.TEXTURE0 + this.id, null);
   },
 
   setParameteri: function(gl, name, param) {
     gl.texParameteri(gl.TEXTURE_2D, name, param);
   },
 
-  setTextureImage: function(gl, src, unit) {
-    unit = (typeof unit === 'undefined') ? 0 : unit;
+  setTextureImage: function(gl, src) {
     this.img = new Image();
     this.img.src = src;
     var that = this;
@@ -122,7 +118,7 @@ LEEWGL.Texture.prototype = {
       that.bind(gl);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, that.img);
       that.setTextureParameters(gl, gl.TEXTURE_2D, ((that.img.width % 2) === 0 && (that.img.height % 2) === 0));
-      that.unbind(gl, unit);
+      that.unbind(gl);
     };
   },
 
@@ -157,6 +153,11 @@ LEEWGL.Texture.prototype = {
     this.setParameteri(gl, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT, width, height, 0, gl.DEPTH_COMPONENT, gl.UNSIGNED_SHORT, null);
+  },
+
+  setRenderBuffer: function(gl) {
+    this.setParameteri(gl, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0);
   },
 
   paramToGL: function(gl, param) {
@@ -211,6 +212,8 @@ LEEWGL.Texture.prototype = {
   clone: function(texture) {
     if (texture === undefined)
       texture = new LEEWGL.Texture(this.options);
+
+    texture.id = this.id;
 
     texture.img = this.img;
     texture.mipmaps = this.mipmaps.slice(0);

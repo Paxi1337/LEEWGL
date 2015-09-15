@@ -12,7 +12,6 @@ LEEWGL.TestApp = function(options) {
 LEEWGL.TestApp.prototype = Object.create(LEEWGL.App.prototype);
 
 LEEWGL.TestApp.prototype.onCreate = function() {
-  console.log(LEEWGL.ROOT);
   var stringified = this.ajax.send('POST', LEEWGL.ROOT + 'php/get_file_content.php', false, null).response.responseText;
   this.scene = this.scene.import(this.gl, stringified);
 

@@ -52,17 +52,18 @@ LEEWGL.Billboard.prototype.draw = function(gl, shader, camera) {
   shader.use(gl);
   shader.attributes['aVertexPosition'](this.buffers.position);
   shader.uniforms['uModel'](this.transform.matrix());
+
   if (this.billboardType === 'normal') {
     shader.uniforms['uCameraRight'](camera.right());
     shader.uniforms['uCameraUp'](camera.upVec());
     shader.uniforms['uBillboardSize']([2.0, 2.0]);
   }
   shader.uniforms['uBillboardPosition']([0.0, 0.0, 0.0]);
-  shader.uniforms['uSampler'](this.texture.textureID);
+  this.texture.texture.setActive(gl);
   this.texture.texture.bind(gl);
-  this.texture.texture.setActive(gl, this.texture.textureID);
+  shader.uniforms['uSampler'](this.texture.texture.id);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-  this.texture.texture.unbind(gl, this.texture.textureID);
+  this.texture.texture.unbind(gl);
 };
 
 /**

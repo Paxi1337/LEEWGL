@@ -1,11 +1,10 @@
-LEEWGL.REQUIRES.push('EditorApp');
-
 /**
  * @constructor
  * @augments LEEWGL.App
  * @param  {Object} options
  */
 LEEWGL.EditorApp = function(options) {
+  LEEWGL.REQUIRES.push('EditorApp');
   LEEWGL.App.call(this, options);
 
   /** @inner {LEEWGL.PerspectiveCamera} */
@@ -102,7 +101,7 @@ LEEWGL.EditorApp = function(options) {
   /** @inner {LEEWGL.Shadowmap} */
   this.shadowmap = new LEEWGL.Shadowmap();
   /** @inner {bool} */
-  this.useShadows = false;
+  this.useShadows = true;
 };
 
 LEEWGL.EditorApp.prototype = Object.create(LEEWGL.App.prototype);
@@ -114,11 +113,14 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   this.core.setSize(512, 512);
 
   this.camera.transform.setPosition([0.0, 0.0, 10.0]);
-  this.camera.setLookAt([0.0, 0.0, -1.0]);
+  this.camera.setLookAt([0.0, 0.0, 1.0]);
 
   this.gameCamera.transform.setPosition([10.0, 0.0, 10.0]);
   this.gameCamera.setLookAt([0.0, 0.0, -1.0]);
+  this.gameCamera.add(this.cameraGizmo);
   this.cameraGizmo.transform.setPosition([10.0, 0.0, 10.0]);
+
+  this.light.transform.setPosition([0.0, 10.0, 10.0]);
 
   var shader = this.initShaders(LEEWGL.ShaderLibrary.SPOT);
 
@@ -146,20 +148,19 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   this.grid.addColor(this.gl, ColorHelper.getUniqueColor());
   this.grid.transform.translate([0.0, -5.0, 0.0]);
 
-
   this.billboard.setImage(this.gl, LEEWGL.ROOT + 'texture/lightbulb.png');
   this.billboard.setBuffer(this.gl);
   this.light.add(this.billboard);
-  // this.billboard.transform.translate([0.0, -5.0, 0.0]);
+  this.billboard.transform.translate([0.0, 10.0, 10.0]);
   // this.gameCamera.add(this.billboard);
   // this.billboard.transform.setPosition([0, 0, 0]);
+
   // test load collada file
   // var Importer = new LEEWGL.Importer();
   // var model = Importer.import('models/cup.obj', this.gl);
 
   this.scene.add(this.camera, this.gameCamera, this.triangle, this.cube, this.cameraGizmo, this.light);
 
-  this.gl.enable(this.gl.DEPTH_TEST);
   this.gl.depthFunc(this.gl.LEQUAL);
   this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
   this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
@@ -170,7 +171,7 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
     this.picker.init(this.gl, this.canvas.width, this.canvas.height);
 
   if (this.useShadows === true)
-    this.shadowmap.init(this.gl, 1024, 1024);
+    this.shadowmap.init(this.gl, 2048, 2048);
 
   this.scene.setActiveShader('color');
   this.scenePlay.setActiveShader('color');
@@ -207,28 +208,32 @@ LEEWGL.EditorApp.prototype.initShaders = function(lightType) {
 
   SHADER_LIBRARY.reset();
 
-  SHADER_LIBRARY.addParameterChunks([LEEWGL.ShaderLibrary.DEFAULT, LEEWGL.ShaderLibrary.PICKING, LEEWGL.ShaderLibrary.COLOR, LEEWGL.ShaderLibrary.AMBIENT, lightType]);
-
-  if (this.useShadows === true)
-    SHADER_LIBRARY.addParameterChunk(LEEWGL.ShaderLibrary.SHADOW_MAPPING);
-
   var colorShader = new LEEWGL.Shader();
+  var textureShader = new LEEWGL.Shader();
+  var shadowShader = new LEEWGL.Shader();
+  var shadowTextureShader = new LEEWGL.Shader();
 
+  if (this.useShadows === true) {
+    if (lightType === LEEWGL.ShaderLibrary.POINT || lightType === LEEWGL.ShaderLibrary.SPOT)
+      SHADER_LIBRARY.addParameterChunk(LEEWGL.ShaderLibrary.SHADOW_MAPPING_POSITIONAL_LIGHT);
+  }
+
+  SHADER_LIBRARY.addParameterChunks([LEEWGL.ShaderLibrary.DEFAULT, LEEWGL.ShaderLibrary.PICKING, LEEWGL.ShaderLibrary.COLOR, LEEWGL.ShaderLibrary.AMBIENT, lightType]);
   colorShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, SHADER_LIBRARY.out(LEEWGL.Shader.VERTEX));
   colorShader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, SHADER_LIBRARY.out(LEEWGL.Shader.FRAGMENT));
+  SHADER_LIBRARY.removeParameterChunk(LEEWGL.ShaderLibrary.COLOR);
+  SHADER_LIBRARY.addParameterChunk(LEEWGL.ShaderLibrary.TEXTURE);
+
+  textureShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, SHADER_LIBRARY.out(LEEWGL.Shader.VERTEX));
+  textureShader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, SHADER_LIBRARY.out(LEEWGL.Shader.FRAGMENT));
+  SHADER_LIBRARY.addParameterChunk(LEEWGL.ShaderLibrary.TEXTURE);
+
   colorShader.linkShader(this.gl);
   colorShader.use(this.gl);
 
   colorShader.createUniformSetters(this.gl);
   colorShader.createAttributeSetters(this.gl);
 
-  SHADER_LIBRARY.removeParameterChunk(LEEWGL.ShaderLibrary.COLOR);
-  SHADER_LIBRARY.addParameterChunk(LEEWGL.ShaderLibrary.TEXTURE);
-
-  var textureShader = new LEEWGL.Shader();
-
-  textureShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, SHADER_LIBRARY.out(LEEWGL.Shader.VERTEX));
-  textureShader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, SHADER_LIBRARY.out(LEEWGL.Shader.FRAGMENT));
   textureShader.linkShader(this.gl);
   textureShader.use(this.gl);
 
@@ -250,8 +255,10 @@ LEEWGL.EditorApp.prototype.onShaderChange = function(typeChange, typeShaderlib) 
     var shader = this.initShaders(typeShaderlib);
     this.scene.setShader('color', shader.color);
     this.scene.setShader('texture', shader.texture);
+    this.scene.setShader('billboard', shader.billboard);
     this.scenePlay.setShader('color', shader.color);
     this.scenePlay.setShader('texture', shader.texture);
+    this.scenePlay.setShader('billboard', shader.billboard);
 
     this.scene.setActiveShader('color');
     this.scenePlay.setActiveShader('color');
@@ -447,7 +454,6 @@ LEEWGL.EditorApp.prototype.onRender = function() {
   this.clear();
 
   var camera = (this.playing === true) ? this.scenePlay.getObjectByTagname('GameCamera') : this.scene.getObjectByTagname('EditorCamera');
-  var viewProjection = camera.viewProjMatrix;
   var scene = this.scene;
   var that = this;
 
@@ -456,6 +462,18 @@ LEEWGL.EditorApp.prototype.onRender = function() {
 
   this.light = scene.getObjectByTagname('Light');
   var activeShader = null;
+
+  var renderShadowMap = function(element) {
+    if (this.usesTexture === true) {
+      activeShader = scene.shaders['texture'];
+      scene.setActiveShader('texture');
+    } else {
+      activeShader = scene.shaders['color'];
+      scene.setActiveShader('color');
+    }
+    var mat = mat4.multiply(mat4.create(), that.light.getProjection(), that.light.getView([0, 0, 0]));
+    that.draw(this, activeShader, mat, camera, true);
+  };
 
   var render = function(element) {
     if (that.playing === true)
@@ -472,50 +490,65 @@ LEEWGL.EditorApp.prototype.onRender = function() {
       scene.setActiveShader('color');
     }
 
-    activeShader.use(that.gl);
-
     if (that.picking === true && this.picking === true) {
+      activeShader.use(that.gl);
       that.picker.bind(that.gl);
 
       activeShader.uniforms['uOffscreen'](1);
-
-      that.draw(this, activeShader, camera);
+      that.draw(this, activeShader, camera.viewProjMatrix, camera);
       that.picker.unbind(that.gl);
       activeShader.uniforms['uOffscreen'](0);
     }
 
-    if (that.useShadows === true) {
-      that.shadowmap.bind(that.gl, activeShader);
-      var shadowVP = mat4.create();
-      mat4.multiply(shadowVP, that.light.getProjection(), that.light.getView([0, 0, 0]));
-      that.draw(this, activeShader, shadowVP);
-
-      that.shadowmap.unbind(that.gl, activeShader);
-      that.clear();
-    }
-    that.draw(this, activeShader, camera);
+    that.draw(this, activeShader, camera.viewProjMatrix, camera);
   };
 
+
+  var element = null;
+  var i = 0;
+
+  if (this.useShadows === true) {
+    this.gl.cullFace(this.gl.FRONT);
+
+    this.shadowmap.bind(this.gl);
+    this.gl.viewport(0, 0, this.shadowmap.size.x, this.shadowmap.size.y);
+    this.gl.colorMask(false, false, false, false);
+    this.gl.clear(this.gl.DEPTH_BUFFER_BIT);
+
+    for (i = 0; i < scene.children.length; ++i) {
+      element = scene.children[i];
+      element.traverse(renderShadowMap, element);
+    }
+
+    this.shadowmap.unbind(this.gl);
+    this.gl.colorMask(true, true, true, true);
+    this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+
+    this.gl.cullFace(this.gl.BACK);
+  }
+
   /// traverse all gameobjects and call draw method
-  for (var i = 0; i < scene.children.length; ++i) {
-    var element = scene.children[i];
+  for (i = 0; i < scene.children.length; ++i) {
+    element = scene.children[i];
     element.traverse(render, element);
   }
 };
 
-LEEWGL.EditorApp.prototype.draw = function(element, shader, camera) {
+LEEWGL.EditorApp.prototype.draw = function(element, shader, viewProj, camera, shadow) {
   if (element.render === true) {
     shader.use(this.gl);
-    shader.uniforms['uVP'](camera.viewProjMatrix);
-
-    if (this.useShadows === true)
-      this.shadowmap.draw(this.gl, shader, this.light);
+    shader.uniforms['uVP'](viewProj);
 
     if (element instanceof LEEWGL.Billboard) {
-      element.draw(this.gl, shader, camera);
+      if (shadow !== true)
+        element.draw(this.gl, shader, camera);
     } else {
-      if (this.light !== null)
+      if (this.useShadows === true)
+        this.shadowmap.draw(this.gl, shader, this.light);
+      if (this.light !== null) {
         this.light.draw(this.gl, shader);
+      }
       element.draw(this.gl, shader, this.gl.TRIANGLES);
     }
   }

@@ -18,7 +18,7 @@ LEEWGL.GameObject = function(options) {
   this.options = {
     'alias': 'GameObject_' + LEEWGL.GameObjectCount,
     'tagname': 'GameObject_' + LEEWGL.GameObjectCount,
-    'up': vec2.clone(LEEWGL.VECTOR2D.UP),
+    'up': vec3.clone(LEEWGL.VECTOR3D.UP),
     'inOutline': true,
     'picking': true,
     'visible': true,

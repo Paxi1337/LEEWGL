@@ -15,7 +15,6 @@ LEEWGL.Light = function(options) {
     'specular': 1.0,
   };
 
-
   extend(LEEWGL.Light.prototype, LEEWGL.Options.prototype);
   this.addOptions(ext_options);
   this.setOptions(options);
@@ -208,17 +207,17 @@ LEEWGL.Light.SpotLight.prototype.setEditables = function() {
       'type': 'vector',
       'value': this.spotDirection
     },
-    'radius' : {
+    'radius': {
       'name': 'Radius',
       'type': 'number',
       'value': this.radius
     },
-    'innerAngle' : {
+    'innerAngle': {
       'name': 'InnerAngle',
       'type': 'number',
       'value': this.innerAngle
     },
-    'outerAngle' : {
+    'outerAngle': {
       'name': 'OuterAngle',
       'type': 'number',
       'value': this.outerAngle
@@ -235,18 +234,29 @@ LEEWGL.Light.SpotLight.prototype.setEditables = function() {
  */
 LEEWGL.Light.SpotLight.prototype.getView = function(target) {
   var view = mat4.create();
-  mat4.lookAt(view, this.transform.position, target, this.up);
+  mat4.lookAt(view, this.transform.position, target,  this.up);
   return view;
 };
 
 /**
- * Generates a projection matrix with given this.outerAngle
+ * Generates a projection matrix with this.outerAngle
  * @return  {mat4} projection
  */
 LEEWGL.Light.SpotLight.prototype.getProjection = function() {
+  var angle = this.outerAngle * (180 / Math.PI) * 2.0;
   var projection = mat4.create();
-  mat4.perspective(projection, LEEWGL.Math.degToRad(this.outerAngle), 1.0, 1.0, 256);
+  mat4.perspective(projection, angle, 1.0, 1.0, 100.0);
   return projection;
+};
+
+/**
+ * Generates a view-projection matrix
+ * @return  {mat4} mat
+ */
+LEEWGL.Light.SpotLight.prototype.matrix = function() {
+  var view = this.getView([0.0, 0.0, 0.0]);
+  var proj = this.getProjection();
+  return mat4.multiply(mat4.create(), proj, view);
 };
 
 /**
@@ -256,6 +266,8 @@ LEEWGL.Light.SpotLight.prototype.getProjection = function() {
  */
 LEEWGL.Light.SpotLight.prototype.draw = function(gl, shader) {
   LEEWGL.Light.prototype.draw.call(this, gl, shader);
+  shader.use(gl);
+
   shader.uniforms['uLightPosition'](this.transform.position);
   shader.uniforms['uSpotDirection'](this.spotDirection);
   shader.uniforms['uSpotInnerAngle'](this.innerAngle);
@@ -337,8 +349,9 @@ LEEWGL.Light.PointLight.prototype.getView = function(target) {
  * @return  {mat4} projection
  */
 LEEWGL.Light.PointLight.prototype.getProjection = function() {
+  var angle = this.outerAngle * (180 / Math.PI) * 2.0;
   var projection = mat4.create();
-  mat4.perspective(projection, LEEWGL.Math.degToRad(this.outerAngle), 1.0, 1.0, 256);
+  mat4.perspective(projection, angle, 1.0, 1.0, 256);
   return projection;
 };
 

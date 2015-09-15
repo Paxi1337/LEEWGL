@@ -1,8 +1,9 @@
-LEEWGL.REQUIRES.push('Shadowmap');
-
+/**
+ * @constructor
+ */
 LEEWGL.Shadowmap = function() {
+  LEEWGL.REQUIRES.push('Shadowmap');
   this.frameBuffer = new LEEWGL.FrameBuffer();
-  this.renderBuffer = new LEEWGL.RenderBuffer();
   this.colorTexture = new LEEWGL.Texture();
   this.depthTexture = new LEEWGL.Texture();
 
@@ -18,8 +19,8 @@ LEEWGL.Shadowmap = function() {
     this.size.x = (typeof width !== 'undefined') ? width : this.size.x;
     this.size.y = (typeof height !== 'undefined') ? height : this.size.y;
 
-    gl.enable(gl.CULL_FACE);
     gl.clearDepth(1.0);
+    gl.enable(gl.DEPTH_TEST);
 
     var depthExtension = __extensionLoader.getExtension(gl, 'WEBGL_depth_texture');
 
@@ -31,38 +32,30 @@ LEEWGL.Shadowmap = function() {
     this.depthTexture.bind(gl);
     this.depthTexture.setDepthBuffer(gl, this.size.x, this.size.y);
 
-    this.frameBuffer.create(gl, this.size.x, this.size.y);
+    this.frameBuffer.create(gl, width, height);
     this.frameBuffer.bind(gl);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.colorTexture.webglTexture, 0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, this.depthTexture.webglTexture, 0);
 
+    this.frameBuffer.unbind(gl);
     this.colorTexture.unbind(gl);
     this.depthTexture.unbind(gl);
-    this.frameBuffer.unbind(gl);
   };
 
-  this.bind = function(gl, shader) {
+  this.bind = function(gl) {
     this.frameBuffer.bind(gl);
-
-    gl.viewport(0, 0, this.size.x, this.size.y);
-    gl.colorMask(false, false, false, false);
-    gl.cullFace(gl.FRONT);
-    gl.clear(gl.DEPTH_BUFFER_BIT);
   };
 
-  this.unbind = function(gl, shader) {
+  this.unbind = function(gl) {
     this.frameBuffer.unbind(gl);
-    this.depthTexture.unbind(gl, 1);
-    shader.uniforms['uShadowMap'](null);
-    gl.cullFace(gl.BACK);
   };
 
   this.draw = function(gl, shader, light) {
-    this.depthTexture.setActive(gl, 1);
+    this.depthTexture.setActive(gl);
     this.depthTexture.bind(gl);
-
-    shader.uniforms['uLightProjectionMatrix'](light.getProjection());
-    shader.uniforms['uLightViewMatrix'](light.getView([0, 0, 0]));
-    shader.uniforms['uShadowMap'](1);
+    shader.use(gl);
+    shader.uniforms['uLightProj'](light.getProjection());
+    shader.uniforms['uLightView'](light.getView([0, 0, 0]));
+    shader.uniforms['uShadowMap'](this.depthTexture.id);
   };
 };

@@ -282,17 +282,15 @@ LEEWGL.Component.Texture = function(options) {
 
   var ext_options = {
     'src': '',
-    'texture': new LEEWGL.Texture()
   };
 
   this.addOptions(ext_options);
   this.setOptions(options);
 
-  this.textureID = LEEWGL.Component.Texture.TextureCount++;
   /** @inner {string} */
   this.type = 'Component.Texture';
   /** @inner {LEEWGL.Texture} */
-  this.texture = this.options['texture'].clone();
+  this.texture = new LEEWGL.Texture();
   /** @inner {string} */
   this.src = this.options['src'];
 
@@ -309,9 +307,8 @@ LEEWGL.Component.Texture.prototype.init = function(gl, src) {
   var that = this;
   this.src = src;
 
-  this.usesTexture = true;
   this.texture.create(gl);
-  this.texture.setTextureImage(gl, this.src, this.textureID);
+  this.texture.setTextureImage(gl, this.src);
 };
 
 LEEWGL.Component.Texture.prototype.clone = function(texture) {
@@ -319,10 +316,7 @@ LEEWGL.Component.Texture.prototype.clone = function(texture) {
     texture = new LEEWGL.Component.Texture(this.options);
 
   LEEWGL.Component.prototype.clone.call(this, texture);
-  texture.textureID = this.textureID;
   texture.texture = LEEWGL.Texture.prototype.clone.call(this.texture);
   texture.src = this.src;
   return texture;
 };
-
-LEEWGL.Component.Texture.TextureCount = 0;
