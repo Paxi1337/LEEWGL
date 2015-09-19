@@ -181,6 +181,12 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   UI.addObjToOutline(this.scene.children);
   UI.setTransformationMode('translation');
 
+  this.cube.addComponent('Collider').init(this.cube);
+  this.triangle.addComponent('Collider').init(this.triangle);
+
+  console.log(this.triangle.collider.overlaps(this.cube.collider));
+  console.log(this.cube.collider.overlaps(this.triangle.collider));
+
   // console.log(encodeURI(test));
 
   // console.log(this.scene.shaders.color.code.fragment);
@@ -381,6 +387,9 @@ LEEWGL.EditorApp.prototype.onMouseMove = function(event) {
         this.activeElement.traverse(scale, [scaleVec[0], movementScale[1], scaleVec[2]]);
     }
 
+    if (typeof this.activeElement.collider !== 'undefined')
+      this.activeElement.collider.init(this.activeElement);
+
     UI.setInspectorElement(this.activeElement.id);
   }
 };
@@ -426,6 +435,8 @@ LEEWGL.EditorApp.prototype.onUpdate = function() {
     this.updatePickingList(scene);
     scene.needsUpdate = false;
   }
+
+  console.log(this.cube.collider.overlaps(this.triangle.collider));
 };
 
 LEEWGL.EditorApp.prototype.handleKeyInput = function() {

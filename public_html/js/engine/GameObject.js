@@ -144,7 +144,7 @@ LEEWGL.GameObject.prototype = {
       return this;
     }
 
-    if(object instanceof Array) {
+    if (object instanceof Array) {
       for (var i = 0; i < object.length; ++i) {
         this.add(object[i]);
       }
@@ -174,7 +174,14 @@ LEEWGL.GameObject.prototype = {
    * @param  {LEEWGL.Component} component
    */
   addComponent: function(component) {
-    this.components[component.type.substr('Component.'.length)] = component;
+    if (component instanceof LEEWGL.Component) {
+      this.components[component.type.substr('Component.'.length)] = component;
+      return this.components[component.type.substr('Component.'.length)];
+    } else {
+      var c = functionFromString('LEEWGL.Component.' + component);
+      this.components[component] = new c();
+      return this.components[component];
+    }
   },
   /**
    * Removes the given component from the components object of this.

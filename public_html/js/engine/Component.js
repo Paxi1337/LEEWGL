@@ -24,7 +24,7 @@ LEEWGL.Component.prototype = {
 };
 
 /** @global */
-LEEWGL.Component.Components = ['Transform', 'CustomScript', 'Texture'];
+LEEWGL.Component.Components = ['Transform', 'CustomScript', 'Texture', 'Collider'];
 LEEWGL.EventDispatcher.prototype.apply(LEEWGL.Component.prototype);
 
 /**
@@ -319,4 +319,44 @@ LEEWGL.Component.Texture.prototype.clone = function(texture) {
   texture.texture = LEEWGL.Texture.prototype.clone.call(this.texture);
   texture.src = this.src;
   return texture;
+};
+
+/**
+ * @constructor
+ * @augments LEEWGL.Component
+ */
+LEEWGL.Component.Collider = function(options) {
+  LEEWGL.Component.call(this, options);
+
+  var ext_options = {
+  };
+
+  /** @inner {string} */
+  this.type = 'Component.Collider';
+
+  this.addOptions(ext_options);
+  this.setOptions(options);
+
+  this.collider = new LEEWGL.Collider.Sphere();
+};
+
+LEEWGL.Component.Collider.prototype = Object.create(LEEWGL.Component.prototype);
+
+LEEWGL.Component.Collider.prototype.init = function(obj) {
+  this.collider.create(obj);
+  obj.collider = this;
+};
+
+LEEWGL.Component.Collider.prototype.overlaps = function(other) {
+  return this.collider.overlaps(other.collider);
+};
+
+LEEWGL.Component.Collider.prototype.clone = function(coll) {
+  if (typeof coll === 'undefined')
+    coll = new LEEWGL.Component.Collider(this.options);
+
+  LEEWGL.Component.prototype.clone.call(this, texture);
+
+  coll.collider = LEEWGL.Collider.Sphere.prototype.clone.call(this, this.collider);
+  return coll;
 };

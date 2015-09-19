@@ -150,9 +150,13 @@ LEEWGL.Timer.prototype = {
     this.oldTime = this.startTime;
     this.running = true;
   },
+  restart: function() {
+    this.reset();
+    this.start();
+  },
   stop: function() {
-    this.getElapsedTime();
     this.running = false;
+    return this.getElapsedTime();
   },
   getElapsedTime: function() {
     this.getDeltaTime();
@@ -166,12 +170,18 @@ LEEWGL.Timer.prototype = {
 
     if (this.running === true) {
       var newTime = self.performance !== undefined && self.performance.now !== undefined ? self.performance.now() : Date.now();
-      diff = 0.001 * (newTime - this.oldTime);
+      diff = (newTime - this.oldTime);
       this.oldTime = newTime;
       this.elapsedTime += diff;
     }
 
     return diff;
+  },
+  reset: function() {
+    this.startTime = 0;
+    this.oldTime = 0;
+    this.elapsedTime = 0;
+    this.running = false;
   }
 };
 
@@ -198,6 +208,8 @@ LEEWGL.Core = function(options) {
   this.canvas = _canvas;
   this.context = null;
   this.timer = new LEEWGL.Timer();
+
+  this.initTime = 0;
 
   var _this = this,
     _programs = [],
@@ -323,25 +335,27 @@ LEEWGL.Core = function(options) {
 
     if (_app !== null)
       _app.onCreate();
+
+    _this.timer.start();
   };
 
   this.run = function() {
+    window.requestAnimationFrame(_this.run);
     if (typeof UI !== 'undefined') {
       UI.outlineToHTML('#dynamic-outline');
     }
 
-    ///FIXME: TIMER - make depending on fps
-    _this.timer.start();
-    window.requestAnimationFrame(_this.run);
+    var dt = (1000 / SETTINGS.get('fps'));
 
-    var requiredElapsed = (100 / SETTINGS.get('fps'));
-
-    if (_this.timer.getElapsedTime() * 1000 >= requiredElapsed) {
-      _gl.clear(_gl.COLOR_BUFFER_BIT | _gl.DEPTH_BUFFER_BIT);
-      if (_app !== null) {
-        _app.onUpdate();
-        _app.onRender();
-      }
+    if (dt > _this.timer.getElapsedTime()) {
+      if (_app !== null)
+        _app.onUpdate(dt);
+      return;
     }
+
+    if (_app !== null)
+      _app.onRender();
+
+    _this.timer.restart();
   };
 };
