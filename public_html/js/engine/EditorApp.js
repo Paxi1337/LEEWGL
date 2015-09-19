@@ -140,7 +140,7 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
 
   this.cube.setBuffer(this.gl);
   this.cube.addColor(this.gl, ColorHelper.getUniqueColor());
-  this.cube.transform.setPosition([5, 0, 0]);
+  this.cube.transform.setPosition([5, 10, 0]);
 
   this.cube.addComponent(new LEEWGL.Component.CustomScript());
 
@@ -184,8 +184,10 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   this.cube.addComponent('Collider').init(this.cube);
   this.triangle.addComponent('Collider').init(this.triangle);
 
-  console.log(this.triangle.collider.overlaps(this.cube.collider));
-  console.log(this.cube.collider.overlaps(this.triangle.collider));
+  // var coll = this.cube.collider.draw();
+  // coll.setBuffer(this.gl);
+  // coll.addColor(this.gl, ColorHelper.getUniqueColor());
+  // this.scene.add(coll);
 
   // console.log(encodeURI(test));
 
@@ -387,8 +389,10 @@ LEEWGL.EditorApp.prototype.onMouseMove = function(event) {
         this.activeElement.traverse(scale, [scaleVec[0], movementScale[1], scaleVec[2]]);
     }
 
-    if (typeof this.activeElement.collider !== 'undefined')
-      this.activeElement.collider.init(this.activeElement);
+    if (typeof this.activeElement.collider !== 'undefined') {
+      this.activeElement.collider.update(this.activeElement);
+      console.log(this.activeElement.collider.overlaps(this.triangle));
+    }
 
     UI.setInspectorElement(this.activeElement.id);
   }
@@ -435,8 +439,6 @@ LEEWGL.EditorApp.prototype.onUpdate = function() {
     this.updatePickingList(scene);
     scene.needsUpdate = false;
   }
-
-  console.log(this.cube.collider.overlaps(this.triangle.collider));
 };
 
 LEEWGL.EditorApp.prototype.handleKeyInput = function() {

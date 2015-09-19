@@ -337,26 +337,37 @@ LEEWGL.Component.Collider = function(options) {
   this.addOptions(ext_options);
   this.setOptions(options);
 
-  this.collider = new LEEWGL.Collider.Sphere();
+  this.bounding = new LEEWGL.Collider.Sphere();
 };
 
 LEEWGL.Component.Collider.prototype = Object.create(LEEWGL.Component.prototype);
 
 LEEWGL.Component.Collider.prototype.init = function(obj) {
-  this.collider.create(obj);
+  this.bounding.create(obj);
   obj.collider = this;
 };
 
 LEEWGL.Component.Collider.prototype.overlaps = function(other) {
-  return this.collider.overlaps(other.collider);
+  return this.bounding.overlaps(other.collider.bounding);
+};
+
+LEEWGL.Component.Collider.prototype.update = function(obj) {
+  this.bounding.update(obj);
+};
+
+LEEWGL.Component.Collider.prototype.draw = function() {
+  var sphere = new LEEWGL.Geometry3D.Sphere({
+    'radius' : this.bounding.radius
+  });
+  sphere.transform.setPosition(this.bounding.center);
+  return sphere;
 };
 
 LEEWGL.Component.Collider.prototype.clone = function(coll) {
   if (typeof coll === 'undefined')
     coll = new LEEWGL.Component.Collider(this.options);
 
-  LEEWGL.Component.prototype.clone.call(this, texture);
-
-  coll.collider = LEEWGL.Collider.Sphere.prototype.clone.call(this, this.collider);
+  LEEWGL.Component.prototype.clone.call(this, coll);
+  coll.bounding = LEEWGL.Collider.Sphere.prototype.clone.call(this, this.bounding);
   return coll;
 };

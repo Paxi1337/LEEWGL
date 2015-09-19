@@ -204,7 +204,6 @@ LEEWGL.GameObject.prototype = {
       for (var i = 0; i < arguments.length; ++i) {
         this.remove(arguments[i]);
       }
-
       return this;
     }
 
