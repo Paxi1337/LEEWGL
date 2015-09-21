@@ -1,0 +1,12 @@
+ENGINE:
+  -ShadowMapping DirectionalLight
+  -BumpMapping
+  -Orthogonal Camera
+  -Mesh animation
+
+UI:
+  -User settable ids/globals
+  -Import Scene
+  -Some kind of load scene?
+  -Layouts
+  -Save / load incomplete
