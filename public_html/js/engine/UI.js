@@ -1219,6 +1219,8 @@ LEEWGL.UI = function(options) {
       oldControl.addClass(this.transformationMode + '-control');
     }
     this.transformationMode = mode;
+
+    this.statusBarToHTML();
   };
 
   /**
@@ -1543,11 +1545,28 @@ LEEWGL.UI = function(options) {
   };
 
   this.statusBarToHTML = function() {
+    this.statusBar.empty()
     if (this.statusBar !== null) {
-      if (this.clipBoard !== null)
-        this.statusBar.set('html', '1 Element selected');
-      else
-        this.statusBar.set('html', 'Nothing selected');
+      var clipBoardContent = new LEEWGL.DOM.Element('div', {
+        'class': 'fright mright10'
+      });
+      this.statusBar.grab(clipBoardContent);
+      var helpContent = new LEEWGL.DOM.Element('div', {
+        'class': 'mright10'
+      });
+      this.statusBar.grab(helpContent);
+
+      if (this.transformationMode === 'translation')
+        helpContent.set('html', '<strong>[CTRL]</strong> - Move element in Z-axis <strong>[ALT]</strong> - Move element in local space');
+      else if (this.transformationMode === 'scale')
+        helpContent.set('html', '<strong>[CTRL]</strong> - Scale element in X-axis <strong>[ALT]</strong> - Scale element in Z-axis');
+      else if (this.transformationMode === 'rotation')
+        helpContent.set('html', '<strong>[CTRL]</strong> - Rotate element in X-axis <strong>[ALT]</strong> - Rotate element in Z-axis');
+
+      if (this.clipBoard !== null) {
+        clipBoardContent.set('html', '1 Element selected');
+      } else
+        clipBoardContent.set('html', 'Nothing selected');
     }
   };
 };

@@ -272,6 +272,10 @@ LEEWGL.DOM.Element.prototype = {
     return this.e;
   },
 
+  empty: function() {
+    this.set('html', '');
+  },
+
   size: function(inserted, parent) {
     inserted = (typeof inserted !== 'undefined') ? inserted : true;
     parent = (typeof parent !== 'undefined') ? parent : new LEEWGL.DOM.Element(document.body);
