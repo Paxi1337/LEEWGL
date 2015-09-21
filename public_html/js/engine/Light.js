@@ -253,8 +253,8 @@ LEEWGL.Light.SpotLight.prototype.getProjection = function() {
  * Generates a view-projection matrix
  * @return  {mat4} mat
  */
-LEEWGL.Light.SpotLight.prototype.matrix = function() {
-  var view = this.getView([0.0, 0.0, 0.0]);
+LEEWGL.Light.SpotLight.prototype.matrix = function(target) {
+  var view = this.getView(target);
   var proj = this.getProjection();
   return mat4.multiply(mat4.create(), proj, view);
 };
@@ -349,11 +349,22 @@ LEEWGL.Light.PointLight.prototype.getView = function(target) {
  * @return  {mat4} projection
  */
 LEEWGL.Light.PointLight.prototype.getProjection = function() {
-  var angle = this.outerAngle * (180 / Math.PI) * 2.0;
+  var angle = LEEWGL.Math.degToRad(90);
   var projection = mat4.create();
-  mat4.perspective(projection, angle, 1.0, 1.0, 256);
+  mat4.perspective(projection, angle, 1.0, 1.0, 100);
   return projection;
 };
+
+/**
+ * Generates a view-projection matrix
+ * @return  {mat4} mat
+ */
+LEEWGL.Light.PointLight.prototype.matrix = function(target) {
+  var view = this.getView(target);
+  var proj = this.getProjection();
+  return mat4.multiply(mat4.create(), proj, view);
+};
+
 
 /**
  * Calls Light.draw and sets point light specific uniforms in the shader

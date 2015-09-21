@@ -54,6 +54,7 @@ LEEWGL.Shadowmap = function() {
     this.depthTexture.setActive(gl);
     this.depthTexture.bind(gl);
     shader.use(gl);
+
     shader.uniforms['uLightProj'](light.getProjection());
     shader.uniforms['uLightView'](light.getView([0, 0, 0]));
     shader.uniforms['uShadowMap'](this.depthTexture.id);

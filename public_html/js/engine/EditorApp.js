@@ -140,7 +140,7 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
 
   this.cube.setBuffer(this.gl);
   this.cube.addColor(this.gl, ColorHelper.getUniqueColor());
-  this.cube.transform.setPosition([5, 10, 0]);
+  this.cube.transform.setPosition([5, 0, 0]);
 
   this.cube.addComponent(new LEEWGL.Component.CustomScript());
 
@@ -180,14 +180,6 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   UI.setScene(this.scene);
   UI.addObjToOutline(this.scene.children);
   UI.setTransformationMode('translation');
-
-  this.cube.addComponent('Collider').init(this.cube);
-  this.triangle.addComponent('Collider').init(this.triangle);
-
-  // var coll = this.cube.collider.draw();
-  // coll.setBuffer(this.gl);
-  // coll.addColor(this.gl, ColorHelper.getUniqueColor());
-  // this.scene.add(coll);
 
   // console.log(encodeURI(test));
 
@@ -387,11 +379,6 @@ LEEWGL.EditorApp.prototype.onMouseMove = function(event) {
         this.activeElement.traverse(scale, [scaleVec[0], scaleVec[1], movementScale[2]]);
       else
         this.activeElement.traverse(scale, [scaleVec[0], movementScale[1], scaleVec[2]]);
-    }
-
-    if (typeof this.activeElement.collider !== 'undefined') {
-      this.activeElement.collider.update(this.activeElement);
-      console.log(this.activeElement.collider.overlaps(this.triangle));
     }
 
     UI.setInspectorElement(this.activeElement.id);

@@ -728,6 +728,37 @@ LEEWGL.UI = function(options) {
     return container;
   };
 
+  this.colliderToHTML = function(element) {
+    var collider = element.components['Collider'];
+    var container = new LEEWGL.DOM.Element('div', {
+      'class': 'component-container',
+      'id': 'collider-component-container'
+    });
+    var title = new LEEWGL.DOM.Element('h3', {
+      'class': 'component-headline',
+      'html': 'Collider'
+    });
+    container.grab(title);
+
+    var removeComponentContainer = new LEEWGL.DOM.Element('div', {
+      'class': 'icon-container-small fright'
+    });
+    var removeComponent = new LEEWGL.DOM.Element('a', {
+      'class': 'delete-icon bg-pos54 pointer',
+      'title': 'Remove Component'
+    });
+
+    removeComponent.addEvent('click', function() {
+      element.removeComponent('Collider');
+      that.setInspectorElement(element.id);
+    });
+
+    removeComponentContainer.grab(removeComponent);
+    container.grab(removeComponentContainer, 'top');
+
+    return container;
+  };
+
   this.componentsToHTML = function(element) {
     var container;
     var title;
@@ -746,7 +777,8 @@ LEEWGL.UI = function(options) {
         container = this.customScriptToHTML(element);
       else if (component instanceof LEEWGL.Component.Texture)
         container = this.textureToHTML(element);
-
+      else if (component instanceof LEEWGL.Component.Collider)
+        container = this.colliderToHTML(element);
 
       this.inspector.grab(container);
       this.editableDOM();
