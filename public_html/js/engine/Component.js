@@ -131,7 +131,7 @@ LEEWGL.Component.Transform.prototype.setPosition = function() {
   } else {
     vec3.set(this.position, arguments[0], arguments[1], arguments[2]);
   }
-  vec3.copy(this.transVec, this.position);
+  // vec3.copy(this.transVec, this.position);
   mat4.translate(this.translation, mat4.create(), this.position);
 };
 LEEWGL.Component.Transform.prototype.translate = function(vector, space) {
@@ -204,7 +204,8 @@ LEEWGL.Component.Transform.prototype.scale = function() {
 
 LEEWGL.Component.Transform.prototype.matrix = function() {
   var mat = mat4.create();
-  var negated = vec3.negate(vec3.create(), this.transVec);
+  var negated = vec3.add(vec3.create, this.transVec, this.position);
+  vec3.negate(negated, negated);
   mat4.multiply(mat, mat, this.translation);
   mat4.multiply(mat, mat, this.rotation);
   mat4.multiply(mat, mat, this.scaling);
