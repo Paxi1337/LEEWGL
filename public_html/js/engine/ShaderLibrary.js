@@ -12,14 +12,12 @@ LEEWGL.ShaderLibrary = function() {
   this.chunks = {};
 
   this.initializeChunks = function() {
-    this.chunks[LEEWGL.ShaderLibrary.DEFAULT] = {
+    this.chunks[LEEWGL.ShaderLibrary.INIT] = {
       vertex: {
         parameters: [
-          LEEWGL.ShaderChunk['vertex_default_para'],
         ],
         main: [
           "void main() {",
-          LEEWGL.ShaderChunk['vertex_default'],
         ]
       },
       fragment: {
@@ -28,6 +26,23 @@ LEEWGL.ShaderLibrary = function() {
         ],
         main: [
           "void main() {",
+        ]
+      }
+    };
+
+    this.chunks[LEEWGL.ShaderLibrary.DEFAULT] = {
+      vertex: {
+        parameters: [
+          LEEWGL.ShaderChunk['vertex_default_para'],
+        ],
+        main: [
+          LEEWGL.ShaderChunk['vertex_default'],
+        ]
+      },
+      fragment: {
+        parameters: [
+        ],
+        main: [
         ]
       }
     };
@@ -211,17 +226,14 @@ LEEWGL.ShaderLibrary = function() {
           LEEWGL.ShaderChunk['vertex_billboard_para'],
         ],
         main: [
-          "void main() {",
           LEEWGL.ShaderChunk['vertex_billboard'],
         ]
       },
       fragment: {
         parameters: [
-          "precision highp float;",
           LEEWGL.ShaderChunk['fragment_billboard_para']
         ],
         main: [
-          "void main() {",
           LEEWGL.ShaderChunk['fragment_billboard']
         ]
       }
@@ -233,17 +245,14 @@ LEEWGL.ShaderLibrary = function() {
           LEEWGL.ShaderChunk['vertex_billboard_fixed_para'],
         ],
         main: [
-          "void main() {",
           LEEWGL.ShaderChunk['vertex_billboard_fixed'],
         ]
       },
       fragment: {
         parameters: [
-          "precision highp float;",
           LEEWGL.ShaderChunk['fragment_billboard_para']
         ],
         main: [
-          "void main() {",
           LEEWGL.ShaderChunk['fragment_billboard']
         ]
       }
@@ -301,17 +310,18 @@ LEEWGL.ShaderLibrary = function() {
   this.initializeChunks();
 };
 
-LEEWGL.ShaderLibrary.DEFAULT = 0;
-LEEWGL.ShaderLibrary.COLOR = 1;
-LEEWGL.ShaderLibrary.TEXTURE = 2;
-LEEWGL.ShaderLibrary.PICKING = 3;
-LEEWGL.ShaderLibrary.AMBIENT = 4;
-LEEWGL.ShaderLibrary.DIRECTIONAL = 5;
-LEEWGL.ShaderLibrary.SPOT = 6;
-LEEWGL.ShaderLibrary.POINT = 7;
-LEEWGL.ShaderLibrary.SHADOW_MAPPING_POSITIONAL_LIGHT = 8;
-LEEWGL.ShaderLibrary.BILLBOARD = 9;
-LEEWGL.ShaderLibrary.BILLBOARD_FIXED = 10;
+LEEWGL.ShaderLibrary.INIT = 0;
+LEEWGL.ShaderLibrary.DEFAULT = 1;
+LEEWGL.ShaderLibrary.COLOR = 2;
+LEEWGL.ShaderLibrary.TEXTURE = 3;
+LEEWGL.ShaderLibrary.PICKING = 4;
+LEEWGL.ShaderLibrary.AMBIENT = 5;
+LEEWGL.ShaderLibrary.DIRECTIONAL = 6;
+LEEWGL.ShaderLibrary.SPOT = 7;
+LEEWGL.ShaderLibrary.POINT = 8;
+LEEWGL.ShaderLibrary.SHADOW_MAPPING_POSITIONAL_LIGHT = 9;
+LEEWGL.ShaderLibrary.BILLBOARD = 10;
+LEEWGL.ShaderLibrary.BILLBOARD_FIXED = 11;
 
 /**
  * window load event to set global

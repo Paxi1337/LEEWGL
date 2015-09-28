@@ -109,6 +109,7 @@ LEEWGL.Component.Transform.prototype.lookAt = function(vector, up) {
   mat4.lookAt(matrix, vector, this.position, up);
   return matrix;
 };
+
 LEEWGL.Component.Transform.prototype.offsetPosition = function(vector) {
   vec3.add(this.position, this.position, vector);
   this.translate(vector, 'world');
@@ -126,12 +127,12 @@ LEEWGL.Component.Transform.prototype.setPosition = function() {
     return false;
   }
 
-  if (typeof arguments[0] === 'object') {
+  if (typeof arguments[0] === 'object')
     vec3.copy(this.position, arguments[0]);
-  } else {
+  else
     vec3.set(this.position, arguments[0], arguments[1], arguments[2]);
-  }
-  // vec3.copy(this.transVec, this.position);
+
+  this.transVec = vec3.fromValues(0.0, 0.0, 0.0);
   mat4.translate(this.translation, mat4.create(), this.position);
 };
 LEEWGL.Component.Transform.prototype.translate = function(vector, space) {
@@ -329,8 +330,7 @@ LEEWGL.Component.Texture.prototype.clone = function(texture) {
 LEEWGL.Component.Collider = function(options) {
   LEEWGL.Component.call(this, options);
 
-  var ext_options = {
-  };
+  var ext_options = {};
 
   /** @inner {string} */
   this.type = 'Component.Collider';
@@ -358,7 +358,7 @@ LEEWGL.Component.Collider.prototype.update = function(obj) {
 
 LEEWGL.Component.Collider.prototype.draw = function() {
   var sphere = new LEEWGL.Geometry3D.Sphere({
-    'radius' : this.bounding.radius
+    'radius': this.bounding.radius
   });
   sphere.transform.setPosition(this.bounding.center);
   return sphere;

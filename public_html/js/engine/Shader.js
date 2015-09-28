@@ -135,6 +135,7 @@ LEEWGL.Shader.prototype = {
   /**
    * Fills the object uniforms with the functions to set shader uniforms
    * @param {webGLContext} gl
+   * @return {Array} this.uniforms
    */
   createUniformSetters: function(gl) {
     var that = this;
@@ -240,10 +241,10 @@ LEEWGL.Shader.prototype = {
   /**
    * Fills the object attributes with the functions to set shader attributes
    * @param {webGLContext} gl
+   * @return {Array} this.attributes
    */
   createAttributeSetters: function(gl) {
     /**
-     * [createAttributeSetter description]
      * @param {number} index
      * @return {function}
      */
@@ -266,6 +267,8 @@ LEEWGL.Shader.prototype = {
       var index = gl.getAttribLocation(this.program, attributeInfo.name);
       this.attributes[attributeInfo.name] = createAttributeSetter(index);
     }
+
+    return this.attributes;
   },
   /**
    * Creates a deep copy of the object

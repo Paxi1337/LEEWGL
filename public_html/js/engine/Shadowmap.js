@@ -50,13 +50,22 @@ LEEWGL.Shadowmap = function() {
     this.frameBuffer.unbind(gl);
   };
 
-  this.draw = function(gl, shader, light) {
+  this.draw = function(gl, shader, camera, light) {
     this.depthTexture.setActive(gl);
     this.depthTexture.bind(gl);
     shader.use(gl);
 
-    shader.uniforms['uLightProj'](light.getProjection());
-    shader.uniforms['uLightView'](light.getView([0, 0, 0]));
+    var proj = mat4.create(), view = mat4.create();
+
+    if(light instanceof LEEWGL.Light.DirectionalLight) {
+      proj = light.getProjection(camera);
+      view = light.getView(camera);
+    } else {
+      proj = light.getProjection();
+      view = light.getView([0.0, 0.0, 0.0]);
+    }
+    shader.uniforms['uLightProj'](proj);
+    shader.uniforms['uLightView'](view);
     shader.uniforms['uShadowMap'](this.depthTexture.id);
   };
 };

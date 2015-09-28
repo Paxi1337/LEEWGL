@@ -151,6 +151,10 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   this.billboard.setImage(this.gl, LEEWGL.ROOT + 'texture/lightbulb.png');
   this.billboard.setBuffer(this.gl);
   this.light.add(this.billboard);
+  this.cube.add(this.cameraGizmo);
+
+  console.log(this.light.children);
+
   this.billboard.transform.translate([0.0, 10.0, 10.0]);
   // this.gameCamera.add(this.billboard);
   // this.billboard.transform.setPosition([0, 0, 0]);
@@ -159,7 +163,7 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   // var Importer = new LEEWGL.Importer();
   // var model = Importer.import('models/cup.obj', this.gl);
 
-  this.scene.add(this.camera, this.gameCamera, this.triangle, this.cube, this.cameraGizmo, this.light);
+  this.scene.add(this.camera, this.gameCamera, this.triangle, this.cube, this.light);
 
   this.gl.depthFunc(this.gl.LEQUAL);
   this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -195,7 +199,7 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
 LEEWGL.EditorApp.prototype.initShaders = function(lightType) {
   SHADER_LIBRARY.reset();
 
-  SHADER_LIBRARY.addParameterChunk(LEEWGL.ShaderLibrary.BILLBOARD);
+  SHADER_LIBRARY.addParameterChunks([LEEWGL.ShaderLibrary.INIT, LEEWGL.ShaderLibrary.BILLBOARD, LEEWGL.ShaderLibrary.PICKING]);
 
   var billboardShader = new LEEWGL.Shader();
   billboardShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, SHADER_LIBRARY.out(LEEWGL.Shader.VERTEX));
@@ -214,11 +218,11 @@ LEEWGL.EditorApp.prototype.initShaders = function(lightType) {
   var shadowTextureShader = new LEEWGL.Shader();
 
   if (this.useShadows === true) {
-    if (lightType === LEEWGL.ShaderLibrary.POINT || lightType === LEEWGL.ShaderLibrary.SPOT)
+    // if (lightType === LEEWGL.ShaderLibrary.POINT || lightType === LEEWGL.ShaderLibrary.SPOT)
       SHADER_LIBRARY.addParameterChunk(LEEWGL.ShaderLibrary.SHADOW_MAPPING_POSITIONAL_LIGHT);
   }
 
-  SHADER_LIBRARY.addParameterChunks([LEEWGL.ShaderLibrary.DEFAULT, LEEWGL.ShaderLibrary.PICKING, LEEWGL.ShaderLibrary.COLOR, LEEWGL.ShaderLibrary.AMBIENT, lightType]);
+  SHADER_LIBRARY.addParameterChunks([LEEWGL.ShaderLibrary.INIT, LEEWGL.ShaderLibrary.DEFAULT, LEEWGL.ShaderLibrary.PICKING, LEEWGL.ShaderLibrary.COLOR, LEEWGL.ShaderLibrary.AMBIENT, lightType]);
   colorShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, SHADER_LIBRARY.out(LEEWGL.Shader.VERTEX));
   colorShader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, SHADER_LIBRARY.out(LEEWGL.Shader.FRAGMENT));
   SHADER_LIBRARY.removeParameterChunk(LEEWGL.ShaderLibrary.COLOR);
@@ -268,10 +272,15 @@ LEEWGL.EditorApp.prototype.onShaderChange = function(typeChange, typeShaderlib) 
 LEEWGL.EditorApp.prototype.updatePickingList = function(scene) {
   if (this.picking === true) {
     this.picker.clear();
+    var that = this;
+    var addToPicker = function() {
+      if (typeof this.buffers !== 'undefined')
+        that.picker.addToList(this);
+    };
+
     for (var i = 0; i < scene.children.length; ++i) {
       var element = scene.children[i];
-      if (typeof element.buffers !== 'undefined')
-        this.picker.addToList(element);
+      element.traverse(addToPicker);
     }
     this.picker.init(this.gl, this.canvas.width, this.canvas.height);
   }
@@ -340,7 +349,7 @@ LEEWGL.EditorApp.prototype.onMouseMove = function(event) {
 
     if (mode === 'translation') {
       var trans = function(args) {
-        this.transform.translate(args[0], args[1]);
+        this.translate(args[0], args[1]);
       };
 
       if (event.altKey)
@@ -426,6 +435,8 @@ LEEWGL.EditorApp.prototype.onUpdate = function() {
     this.updatePickingList(scene);
     scene.needsUpdate = false;
   }
+
+  UI.outlineToHTML('#dynamic-outline');
 };
 
 LEEWGL.EditorApp.prototype.handleKeyInput = function() {
@@ -463,7 +474,7 @@ LEEWGL.EditorApp.prototype.onRender = function() {
   this.light = scene.getObjectByTagname('Light');
   var activeShader = null;
 
-  var renderShadowMap = function(element) {
+  var renderShadowMap = function() {
     if (this.usesTexture === true) {
       activeShader = scene.shaders['texture'];
       scene.setActiveShader('texture');
@@ -471,11 +482,22 @@ LEEWGL.EditorApp.prototype.onRender = function() {
       activeShader = scene.shaders['color'];
       scene.setActiveShader('color');
     }
-    var mat = mat4.multiply(mat4.create(), that.light.getProjection(), that.light.getView([0, 0, 0]));
+
+    var proj = mat4.create(), view = mat4.create();
+
+    if(that.light instanceof LEEWGL.Light.DirectionalLight) {
+      proj = that.light.getProjection(camera);
+      view = that.light.getView(camera);
+    } else {
+      proj = that.light.getProjection();
+      view = that.light.getView([0.0, 0.0, 0.0]);
+    }
+
+    var mat = mat4.multiply(mat4.create(), proj, view);
     that.draw(this, activeShader, mat, camera, true);
   };
 
-  var render = function(element) {
+  var render = function() {
     if (that.playing === true)
       this.onRender(that.scene);
 
@@ -517,7 +539,7 @@ LEEWGL.EditorApp.prototype.onRender = function() {
 
     for (i = 0; i < scene.children.length; ++i) {
       element = scene.children[i];
-      element.traverse(renderShadowMap, element);
+      element.traverse(renderShadowMap);
     }
 
     this.shadowmap.unbind(this.gl);
@@ -531,7 +553,7 @@ LEEWGL.EditorApp.prototype.onRender = function() {
   /// traverse all gameobjects and call draw method
   for (i = 0; i < scene.children.length; ++i) {
     element = scene.children[i];
-    element.traverse(render, element);
+    element.traverse(render);
   }
 };
 
@@ -545,7 +567,7 @@ LEEWGL.EditorApp.prototype.draw = function(element, shader, viewProj, camera, sh
         element.draw(this.gl, shader, camera);
     } else {
       if (this.useShadows === true)
-        this.shadowmap.draw(this.gl, shader, this.light);
+        this.shadowmap.draw(this.gl, shader, camera, this.light);
       if (this.light !== null) {
         this.light.draw(this.gl, shader);
       }

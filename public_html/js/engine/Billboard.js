@@ -14,7 +14,7 @@ LEEWGL.Billboard = function(options) {
   this.setOptions(options);
 
   this.type = 'Billboard';
-  this.picking = false;
+  this.picking = true;
   this.billboardType = this.options['type'];
 
   this.addComponent(new LEEWGL.Component.Texture());
@@ -58,6 +58,7 @@ LEEWGL.Billboard.prototype.draw = function(gl, shader, camera) {
     shader.uniforms['uCameraUp'](camera.upVec());
     shader.uniforms['uBillboardSize']([2.0, 2.0]);
   }
+  shader.uniforms['uColorMapColor'](new Float32Array(this.buffers.position.colorMapColor));
   shader.uniforms['uBillboardPosition']([0.0, 0.0, 0.0]);
   this.texture.texture.setActive(gl);
   this.texture.texture.bind(gl);

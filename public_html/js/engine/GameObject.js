@@ -195,9 +195,10 @@ LEEWGL.GameObject.prototype = {
       type = component;
     delete this.components[type];
   },
+
   /**
    * Removes the given object from the children array of this.
-   * @param  {LEEWGL.Component} object
+   * @param  {LEEWGL.GameObject} object
    */
   remove: function(object) {
     if (arguments.length > 1) {
@@ -207,11 +208,9 @@ LEEWGL.GameObject.prototype = {
       return this;
     }
 
-    var index = this.children.indexOf(object);
-    if (index !== -1) {
-      object.parent = undefined;
-      this.children.splice(index, 1);
-    }
+    var index = object.parent.children.indexOf(object);
+    object.parent.children.splice(index, 1);
+    object.parent = undefined;
 
     this.needsUpdate = true;
   },
@@ -308,6 +307,62 @@ LEEWGL.GameObject.prototype = {
       var child = this.children[i];
       child.traverseVisible(callback, arg);
     }
+  },
+  /**
+   * Calls setPosition on element and all its children
+   */
+  setPosition: function() {
+    var pos = function() {
+      this.transform.setPosition();
+    };
+    this.traverse(pos);
+  },
+  /**
+   * Calls translate on element and all its children
+   * @param  {vec3} vector
+   * @param  {string} space - can be local or world
+   */
+  translate: function(vector, space) {
+    var trans = function() {
+      this.transform.translate(vector, space);
+    };
+    this.traverse(trans);
+  },
+  /**
+   * Calls rotateX on element and its children
+   */
+  rotateX: function() {
+    var rot = function() {
+      this.transform.rotateX();
+    };
+    this.traverse(rot);
+  },
+  /**
+   * Calls rotateY on element and its children
+   */
+  rotateY: function() {
+    var rot = function() {
+      this.transform.rotateY();
+    };
+    this.traverse(rot);
+  },
+  /**
+   * Calls rotateZ on element and its children
+   */
+  rotateZ: function() {
+    var rot = function() {
+      this.transform.rotateZ();
+    };
+    this.traverse(rot);
+  },
+  /**
+   * Calls scale on element and its children
+   */
+  scale: function() {
+    var s = function() {
+      this.transform.scale();
+    };
+    this.traverse(s);
   },
   /**
    * Creates a deep copy of this object
@@ -428,7 +483,10 @@ LEEWGL.GameObject.prototype = {
 };
 
 /**
- * Globals
+ * Add event dispatcher prototype to gameobject
  */
 LEEWGL.EventDispatcher.prototype.apply(LEEWGL.GameObject.prototype);
+/**
+ * Globals
+ */
 LEEWGL.GameObjectCount = 0;

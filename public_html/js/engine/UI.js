@@ -9,6 +9,7 @@ LEEWGL.UI = function(options) {
   this.statusBar = undefined;
 
   this.outline = {};
+  this.activeOutline = null;
 
   this.updateOutline = false;
 
@@ -115,39 +116,75 @@ LEEWGL.UI = function(options) {
   };
 
   this.setEditable = function(index) {
+    index = (typeof index !== 'undefined') ? index : -1;
+    var that = this;
+    var outline = null;
+    var resetEditable = function(outlineObject) {
+      outlineObject.editable = false;
+
+      if (outlineObject.obj.id === index)
+        outline = outlineObject;
+
+      for (var i in outlineObject.children) {
+        resetEditable(outlineObject.children[i]);
+      }
+    };
+
     for (var i in this.outline) {
-      this.outline[i].editable = false;
+      resetEditable(this.outline[i]);
     }
 
-    if (index !== -1)
-      this.outline[index].editable = true;
+    if (outline !== null)
+      outline.editable = true;
   };
 
   this.setActive = function(index) {
+    index = (typeof index !== 'undefined') ? index : -1;
+    var that = this;
+    var resetActive = function(outlineObject) {
+      outlineObject.active = false;
+
+      if (outlineObject.obj.id === index)
+        that.activeOutline = outlineObject;
+
+      for (var i in outlineObject.children) {
+        resetActive(outlineObject.children[i]);
+      }
+    };
+
     for (var i in this.outline) {
-      this.outline[i].active = false;
+      resetActive(this.outline[i]);
     }
 
-    if (index !== -1)
-      this.outline[index].active = true;
+    if (this.activeOutline !== null)
+      this.activeOutline.active = true;
   };
 
   this.addObjToOutline = function(obj) {
-    var add = (function(obj) {
-      this.outline[obj.id] = {};
-      this.outline[obj.id].obj = obj;
-      this.outline[obj.id].active = false;
-      this.outline[obj.id].editable = false;
-    }.bind(this));
-
+    var that = this;
+    var add = (function() {
+      var id = this.id;
+      if (this.parent instanceof LEEWGL.Scene === true) {
+        that.outline[id] = {};
+        that.outline[id].obj = this;
+        that.outline[id].active = false;
+        that.outline[id].editable = false;
+        that.outline[id].children = {};
+      } else {
+        id = this.parent.id;
+        that.outline[id].children[this.id] = {};
+        that.outline[id].children[this.id].obj = this;
+        that.outline[id].children[this.id].active = false;
+        that.outline[id].children[this.id].editable = false;
+      }
+    });
     if (obj.length) {
       for (var i = 0; i < obj.length; ++i) {
-        add(obj[i]);
+        obj[i].traverse(add);
       }
     } else {
-      add(obj);
+      obj.traverse(add);
     }
-
     this.updateOutline = true;
   };
 
@@ -156,7 +193,12 @@ LEEWGL.UI = function(options) {
   };
 
   this.removeObjFromOutline = function(index) {
-    delete this.outline[index];
+    if (this.activeOutline.obj.parent instanceof LEEWGL.Scene === false) {
+      var parentID = this.activeOutline.obj.parent.id;
+      delete this.outline[parentID].children[index];
+    } else {
+      delete this.outline[index];
+    }
     this.updateOutline = true;
   };
 
@@ -183,13 +225,13 @@ LEEWGL.UI = function(options) {
     };
   };
 
-  this.editableOutline = function(elem, index) {
+  this.editableOutline = function(elem, outline) {
     var that = this;
     var dblclick, keydown, click;
 
     dblclick = function() {
-      if (that.outline[index].editable === false) {
-        that.setEditable(index);
+      if (outline.editable === false) {
+        that.setEditable(outline.obj.id);
         that.updateOutline = true;
       }
     };
@@ -197,9 +239,9 @@ LEEWGL.UI = function(options) {
     keydown = function(event, element) {
       if (event.keyCode === LEEWGL.KEYS.ENTER) {
         that.activeElement.alias = element.get('text');
-        that.setEditable(-1);
+        that.setEditable();
         that.updateOutline = true;
-        that.setInspectorElement(index);
+        that.setInspectorElement(outline.obj.id);
 
         event.preventDefault();
         event.stopPropagation();
@@ -207,12 +249,11 @@ LEEWGL.UI = function(options) {
     };
 
     click = function() {
-      var activeOutline = that.outline[index];
-      if (activeOutline.active === false && activeOutline.editable === false) {
-        that.setActive(index);
-        that.setEditable(-1);
+      if (outline.active === false && outline.editable === false) {
+        that.setActive(outline.obj.id);
+        that.setEditable();
         that.updateOutline = true;
-        that.setInspectorElement(index);
+        that.setInspectorElement(outline.obj.id);
       }
     };
 
@@ -257,45 +298,54 @@ LEEWGL.UI = function(options) {
 
     var list = new LEEWGL.DOM.Element('ul');
 
-    var setActive = function(element, index) {
+    var setActive = function(element, outline) {
       element.addEvent('contextmenu', function(event) {
-        var activeOutline = that.outline[index];
-
-        if (activeOutline.active === false && activeOutline.editable === false) {
-          that.setActive(index);
-          that.setEditable(-1);
+        if (outline.active === false && outline.editable === false) {
+          that.setActive(outline.obj.id);
+          that.setEditable();
           that.updateOutline = true;
-          that.setInspectorElement(index);
+          that.setInspectorElement(outline.obj.id);
         }
 
-        that.displayOutlineContextMenu(index, event);
+        that.displayOutlineContextMenu(outline.obj.id, event);
       });
     };
 
-    for (var i in this.outline) {
-      var outline = this.outline[i];
-
-      var obj = outline.obj;
+    var level = 0;
+    var constructOutline = function(outlineObj) {
+      var obj = outlineObj.obj;
       var item = new LEEWGL.DOM.Element('li');
       var element = new LEEWGL.DOM.Element('a', {
         'href': '#',
-        'html': obj.alias
+        'html': obj.alias,
+        'styles': {
+          'margin-left': level + 'px'
+        }
       });
 
       item.grab(element);
       list.grab(item);
 
-      if (outline.active === true)
+      if (outlineObj.active === true)
         item.set('class', 'active');
 
-      if (outline.editable === true) {
+      if (outlineObj.editable === true) {
         item.set('class', 'edited');
         element.set('contenteditable', true);
       }
+      that.editableOutline(element, outlineObj);
+      setActive(element, outlineObj);
 
-      /// events
-      this.editableOutline(element, i);
-      setActive(element, i);
+      level = 0;
+      for (var i in outlineObj.children) {
+        level += 10;
+        constructOutline(outlineObj.children[i]);
+      }
+    };
+
+    for (var i in this.outline) {
+      var outline = this.outline[i];
+      constructOutline(outline);
     }
 
     container.grab(list);
@@ -889,12 +939,13 @@ LEEWGL.UI = function(options) {
 
     if (index === -1) {
       this.activeElement = null;
+      this.activeOutline = null;
       window.activeElement = this.activeElement;
       this.updateOutline = true;
       return;
     }
 
-    this.activeElement = this.outline[index].obj;
+    this.activeElement = this.activeOutline.obj;
     window.activeElement = this.activeElement;
 
     var name = new LEEWGL.DOM.Element('h3', {
@@ -905,12 +956,12 @@ LEEWGL.UI = function(options) {
     this.inspector.grab(name);
     this.componentsToHTML(activeElement);
     this.valuesToHTML(activeElement);
-    this.componentsButton(index);
+    this.componentsButton();
 
     this.updateOutline = true;
   };
 
-  this.componentsButton = function(index) {
+  this.componentsButton = function() {
     var that = this;
     var componentsControlContainer = new LEEWGL.DOM.Element('div', {
       'class': 'controls-container'
@@ -923,7 +974,7 @@ LEEWGL.UI = function(options) {
     componentsControlContainer.grab(addComponentControl);
 
     addComponentControl.addEvent('click', function(event) {
-      that.displayComponentMenu(index, event);
+      that.displayComponentMenu(event);
     });
 
     this.inspector.grab(componentsControlContainer);
@@ -1130,7 +1181,7 @@ LEEWGL.UI = function(options) {
       'y': event.clientY
     });
 
-    var listItems = ['Duplicate', 'Copy', 'Cut', 'Paste', 'Delete'];
+    var listItems = ['Duplicate', 'Copy', 'Cut', 'Paste', 'Paste into', 'Delete'];
 
     this.contextMenu.addList(listItems, function(item) {
       if (item.toLowerCase() === 'duplicate')
@@ -1141,6 +1192,8 @@ LEEWGL.UI = function(options) {
         that.cutObject();
       else if (item.toLowerCase() === 'paste')
         that.pasteObject();
+      else if (item.toLowerCase() === 'paste into')
+        that.pasteObjectInto();
       else if (item.toLowerCase() === 'delete')
         that.deleteObject();
 
@@ -1159,9 +1212,9 @@ LEEWGL.UI = function(options) {
     event.preventDefault();
   };
 
-  this.displayComponentMenu = function(index, event) {
+  this.displayComponentMenu = function(event) {
     // / get all not already added components
-    var availableComponents = this.getAvailableComponents(this.outline[index].obj);
+    var availableComponents = this.getAvailableComponents(this.activeOutline.obj);
 
     this.popup.empty();
     this.popup.addTitleText('Add Component');
@@ -1271,6 +1324,9 @@ LEEWGL.UI = function(options) {
    *
    */
 
+  /**
+   * Duplicates selected object
+   */
   this.duplicateObject = function() {
     if (this.activeElement === null) {
       console.warn('LEEWGL.UI: No active element selected!');
@@ -1281,17 +1337,22 @@ LEEWGL.UI = function(options) {
     this.scene.add(copy);
     this.addObjToOutline(copy);
   };
-
+  /**
+   * Deletes selected object
+   */
   this.deleteObject = function() {
     if (this.activeElement === null) {
       console.warn('LEEWGL.UI: No active element selected!');
       return;
     }
-    this.scene.remove(this.activeElement);
     this.removeObjFromOutline(this.activeIndex);
+    this.scene.remove(this.activeElement);
     this.activeElement = null;
+    this.activeOutline = null;
   };
-
+  /**
+   * Copies selected object
+   */
   this.copyObject = function() {
     if (this.activeElement === null) {
       console.warn('LEEWGL.UI: No active element selected!');
@@ -1301,7 +1362,9 @@ LEEWGL.UI = function(options) {
     this.clipBoard = this.activeElement.clone();
     this.statusBarToHTML();
   };
-
+  /**
+   * Cuts selected object
+   */
   this.cutObject = function() {
     if (this.activeElement === null) {
       console.warn('LEEWGL.UI: No active element selected!');
@@ -1309,13 +1372,15 @@ LEEWGL.UI = function(options) {
     }
 
     this.clipBoard = this.activeElement.clone();
-    this.scene.remove(this.activeElement);
     this.removeObjFromOutline(this.activeIndex);
+    this.scene.remove(this.activeElement);
     this.activeElement = null;
 
     this.statusBarToHTML();
   };
-
+  /**
+   * Pastes cut / copied object into scene
+   */
   this.pasteObject = function() {
     if (this.clipBoard === null) {
       console.warn('LEEWGL.UI: No element in clipboard!');
@@ -1328,40 +1393,68 @@ LEEWGL.UI = function(options) {
     this.clipBoard = null;
     this.statusBarToHTML();
   };
+  /**
+   * Pastes cut / copied object into selected object
+   */
+  this.pasteObjectInto = function() {
+    if (this.clipBoard === null) {
+      console.warn('LEEWGL.UI: No element in clipboard!');
+      return;
+    }
 
+    this.activeOutline.obj.add(this.clipBoard);
+    this.addObjToOutline(this.clipBoard);
+
+    this.clipBoard = null;
+    this.statusBarToHTML();
+  };
+  /**
+   * Adds a new custom script component to active object
+   */
   this.addCustomScriptComponent = function() {
     this.activeElement.addComponent(new LEEWGL.Component.CustomScript());
     this.setInspectorElement(this.activeIndex);
   };
 
   /**
-   * Insert Objects
+   * Insert predefined objectes
    */
 
+  /**
+   * Creates and inserts a new LEEWGL.Geometry3D.Triangle
+   */
   this.insertTriangle = function() {
-    var triangle = new LEEWGL.Geometry.Triangle();
+    var triangle = new LEEWGL.Geometry3D.Triangle();
     triangle.setBuffer(this.gl);
     triangle.setColor(this.gl, ColorHelper.getUniqueColor());
     this.addObjToOutline(triangle);
     this.scene.add(triangle);
   };
-
+  /**
+   * Creates and inserts a new LEEWGL.Geometry3D.Cube
+   */
   this.insertCube = function() {
-    var cube = new LEEWGL.Geometry.Cube();
+    var cube = new LEEWGL.Geometry3D.Cube();
     cube.setBuffer(this.gl);
     cube.setColor(this.gl, ColorHelper.getUniqueColor());
     this.addObjToOutline(cube);
     this.scene.add(cube);
   };
-
+  /**
+   * Creates and inserts a new LEEWGL.Geometry3D.Sphere
+   */
   this.insertSphere = function() {
-    var sphere = new LEEWGL.Geometry.Sphere();
+    var sphere = new LEEWGL.Geometry3D.Sphere();
     sphere.setBuffer(this.gl);
     sphere.setColor(this.gl, ColorHelper.getUniqueColor());
     this.addObjToOutline(sphere);
     this.scene.add(sphere);
   };
 
+  /**
+   * Inserts a light with given options
+   * @param  {string} options.type - can be Directional, Point or Spot
+   */
   this.insertLight = function(options) {
     if (typeof options === 'undefined') {
       console.error('LEEWGL.UI.insertLight: No options param given!');
@@ -1379,7 +1472,10 @@ LEEWGL.UI = function(options) {
     this.addObjToOutline(light);
     this.scene.add(light);
   };
-
+  /**
+   * Inserts a camera with given options
+   * @param  {string} options.type - can be Perspective or Orthogonal
+   */
   this.insertCamera = function(options) {
     if (typeof options === 'undefined') {
       console.error('LEEWGL.UI.insertCamera: No options param given!');
@@ -1545,7 +1641,7 @@ LEEWGL.UI = function(options) {
   };
 
   this.statusBarToHTML = function() {
-    this.statusBar.empty()
+    this.statusBar.empty();
     if (this.statusBar !== null) {
       var clipBoardContent = new LEEWGL.DOM.Element('div', {
         'class': 'fright mright10'

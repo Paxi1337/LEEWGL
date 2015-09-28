@@ -341,9 +341,6 @@ LEEWGL.Core = function(options) {
 
   this.run = function() {
     window.requestAnimationFrame(_this.run);
-    if (typeof UI !== 'undefined') {
-      UI.outlineToHTML('#dynamic-outline');
-    }
 
     var dt = (1000 / SETTINGS.get('fps'));
 

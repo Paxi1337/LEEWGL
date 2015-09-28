@@ -146,6 +146,29 @@ LEEWGL.Light.DirectionalLight.prototype.draw = function(gl, shader) {
 };
 
 /**
+ * Generates a lookAt matrix with given eye position
+ * @param  {vec3} target - where the viewer is looking at
+ * @return  {mat4} view
+ */
+LEEWGL.Light.DirectionalLight.prototype.getView = function(camera) {
+  var view = mat4.create();
+  var pos = camera.transform.position;
+  mat4.lookAt(view, pos, vec3.add(vec3.create(), pos, vec3.normalize(vec3.create(), this.direction)),  this.up);
+  return view;
+};
+
+/**
+ * Generates a projection matrix with this.outerAngle
+ * @return  {mat4} projection
+ */
+LEEWGL.Light.DirectionalLight.prototype.getProjection = function(camera) {
+  var projection = mat4.create();
+  var pos = camera.transform.position;
+  mat4.ortho(projection, pos[0] - 100.0, pos[0] + 100.0, pos[1] - 100.0, pos[1] + 100.0, camera.near, camera.far);
+  return projection;
+};
+
+/**
  * @param  {LEEWGL.Light.DirectionalLight} directionalLight
  * @param  {bool} cloneID
  * @param  {bool} recursive
