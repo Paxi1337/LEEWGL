@@ -14,10 +14,10 @@ LEEWGL.Billboard = function(options) {
   this.setOptions(options);
 
   this.type = 'Billboard';
-  this.picking = true;
   this.billboardType = this.options['type'];
 
   this.addComponent(new LEEWGL.Component.Texture());
+  /** @inner {LEEWGL.Component.Texture} */
   this.texture = this.components['Texture'];
 
   var position = [
@@ -30,7 +30,10 @@ LEEWGL.Billboard = function(options) {
 };
 
 LEEWGL.Billboard.prototype = Object.create(LEEWGL.Geometry3D.prototype);
-
+/**
+ * @param  {webGLContext} gl
+ * @param  {string} src
+ */
 LEEWGL.Billboard.prototype.setImage = function(gl, src) {
   this.texture.init(gl, src);
 };
@@ -51,6 +54,7 @@ LEEWGL.Billboard.prototype.setBuffer = function(gl) {
 LEEWGL.Billboard.prototype.draw = function(gl, shader, camera) {
   shader.use(gl);
   shader.attributes['aVertexPosition'](this.buffers.position);
+  shader.uniforms['uVP'](camera.viewProjMatrix);
   shader.uniforms['uModel'](this.transform.matrix());
 
   if (this.billboardType === 'normal') {
@@ -73,7 +77,7 @@ LEEWGL.Billboard.prototype.draw = function(gl, shader, camera) {
  * @param  {LEEWGL.Billboard} geometry
  * @param  {bool} cloneID
  * @param  {bool} addToAlias
- * @return {LEEWGL.Billboard}
+ * @return {LEEWGL.Billboard} billboard
  */
 LEEWGL.Billboard.prototype.clone = function(billboard, cloneID, recursive, addToAlias) {
   if (typeof billboard === 'undefined')

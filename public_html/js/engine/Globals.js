@@ -30,12 +30,14 @@ function functionFromString(str) {
   return fn;
 }
 
-function setEditables(editables) {
-  for (var attribute in editables) {
-    editables[attribute]['alias'] = attribute;
+function addPropertyToAllJSON(arr, key) {
+  for(var attribute in arr) {
+      arr[attribute][key] = attribute;
   }
+}
 
-  editables.set = function(that, key, value, index) {
+function addSetMethodToJSON(arr) {
+  arr.set = function(that, key, value, index) {
     if (typeof index !== 'undefined') {
       this[key].value[index] = value;
       that[this[key]['alias']][index] = value;
@@ -46,7 +48,7 @@ function setEditables(editables) {
   };
 }
 
-function addEditables(destination, source) {
+function addToJSON(destination, source) {
   for (var attribute in source) {
     destination[attribute] = source[attribute];
     destination[attribute]['alias'] = attribute;

@@ -1,5 +1,5 @@
 /**
- * Components can be added to LEEWGL.GameObject
+ * Components can be added to LEEWGL.GameObject to provide them with further functionality
  * @constructor
  */
 LEEWGL.Component = function(options) {
@@ -14,6 +14,23 @@ LEEWGL.Component = function(options) {
 };
 
 LEEWGL.Component.prototype = {
+  /**
+   * Function which needs to get called in the update loop of the application
+   */
+  update: function() {
+
+  },
+  /**
+   * Function which needs to get called in the render loop of the application
+   */
+  draw: function() {
+
+  },
+  /**
+   * Creates deep copy of this
+   * @param  {LEEWGL.Component} component
+   * @return {LEEWGL.Component} component
+   */
   clone: function(component) {
     if (typeof component === 'undefined')
       component = new LEEWGL.Component();
@@ -28,6 +45,9 @@ LEEWGL.Component.Components = ['Transform', 'CustomScript', 'Texture', 'Collider
 LEEWGL.EventDispatcher.prototype.apply(LEEWGL.Component.prototype);
 
 /**
+ * Handels transform of gameobjects
+ * Gets added to every gameobject
+ * Has methods to translate, rotate, scale the gameobject
  * @constructor
  * @augments LEEWGL.Component
  */
@@ -215,7 +235,11 @@ LEEWGL.Component.Transform.prototype.matrix = function() {
   this.mat = mat;
   return mat;
 };
-
+/**
+ * Creates deep copy of this
+ * @param  {LEEWGL.Component.Transform} transform
+ * @return {LEEWGL.Component.Transform} transform
+ */
 LEEWGL.Component.Transform.prototype.clone = function(transform) {
   if (typeof transform === 'undefined')
     transform = new LEEWGL.Component.Transform(this.options);
@@ -235,6 +259,7 @@ LEEWGL.Component.Transform.prototype.clone = function(transform) {
 };
 
 /**
+ * Provides gameobjects with script functionality
  * @constructor
  * @augments LEEWGL.Component
  */
@@ -251,14 +276,26 @@ LEEWGL.Component.CustomScript = function() {
 
 LEEWGL.Component.CustomScript.prototype = Object.create(LEEWGL.Component.prototype);
 
+/**
+ * Add script to this.applied
+ * @param  {string} id
+ * @param  {string} script
+ */
 LEEWGL.Component.CustomScript.prototype.addScript = function(id, script) {
   this.applied[id] = script;
 };
-
+/**
+ * Remove script by id from this.applied
+ * @param  {string} id
+ */
 LEEWGL.Component.CustomScript.prototype.removeScript = function(id) {
   delete this.applied[id];
 };
-
+/**
+ * Creates deep copy of this
+ * @param  {LEEWGL.Component.CustomScript} customScript
+ * @return {LEEWGL.Component.CustomScript} customScript
+ */
 LEEWGL.Component.CustomScript.prototype.clone = function(customScript) {
   if (typeof customScript === 'undefined')
     customScript = new LEEWGL.Component.CustomScript();
@@ -276,8 +313,11 @@ LEEWGL.Component.CustomScript.prototype.clone = function(customScript) {
 };
 
 /**
+ * Offers a abstraction of the LEEWGL.Texture class to provide the gameobject
+ * with a renderable texture
  * @constructor
  * @augments LEEWGL.Component
+ * @param {string} options.src
  */
 LEEWGL.Component.Texture = function(options) {
   LEEWGL.Component.call(this, options);
@@ -304,15 +344,24 @@ LEEWGL.Component.Texture = function(options) {
 };
 
 LEEWGL.Component.Texture.prototype = Object.create(LEEWGL.Component.prototype);
-
+/**
+ * Creates texture and sets texture image
+ * @param  {webGLContext} gl
+ * @param  {string} src
+ */
 LEEWGL.Component.Texture.prototype.init = function(gl, src) {
+  src = (typeof src !== 'undefined') ? src : this.options['src'];
   var that = this;
   this.src = src;
 
   this.texture.create(gl);
   this.texture.setTextureImage(gl, this.src);
 };
-
+/**
+ * Creates deep copy of this
+ * @param  {LEEWGL.Component.Texture} texture
+ * @return {LEEWGL.Component.Texture} texture
+ */
 LEEWGL.Component.Texture.prototype.clone = function(texture) {
   if (typeof texture === 'undefined')
     texture = new LEEWGL.Component.Texture(this.options);
@@ -338,6 +387,7 @@ LEEWGL.Component.Collider = function(options) {
   this.addOptions(ext_options);
   this.setOptions(options);
 
+  /** @inner {LEEWGL.Collider.Sphere} */
   this.bounding = new LEEWGL.Collider.Sphere();
 };
 
@@ -363,7 +413,11 @@ LEEWGL.Component.Collider.prototype.draw = function() {
   sphere.transform.setPosition(this.bounding.center);
   return sphere;
 };
-
+/**
+ * Creates deep copy of this
+ * @param  {LEEWGL.Component.Collider} coll
+ * @return {LEEWGL.Component.Collider} coll
+ */
 LEEWGL.Component.Collider.prototype.clone = function(coll) {
   if (typeof coll === 'undefined')
     coll = new LEEWGL.Component.Collider(this.options);
@@ -371,4 +425,69 @@ LEEWGL.Component.Collider.prototype.clone = function(coll) {
   LEEWGL.Component.prototype.clone.call(this, coll);
   coll.bounding = LEEWGL.Collider.Sphere.prototype.clone.call(this, this.bounding);
   return coll;
+};
+
+/**
+ * @constructor
+ * @param {string} options.type - type of the billboard; can be normal or fixed
+ * @param {bool} options.picking
+ * @augments LEEWGL.Component
+ */
+LEEWGL.Component.Billboard = function(options) {
+  LEEWGL.Component.call(this, options);
+
+  var ext_options = {};
+
+  /** @inner {string} */
+  this.type = 'Component.Billboard';
+
+  this.addOptions(ext_options);
+  this.setOptions(options);
+
+  /** @inner {LEEWGL.Billboard} */
+  this.billboard = new LEEWGL.Billboard(options);
+};
+
+LEEWGL.Component.Billboard.prototype = Object.create(LEEWGL.Component.prototype);
+
+/**
+ * Sets buffer of this.billboard and adds this to obj.billboard
+ * @param  {webGLContext} gl
+ * @param  {string} src
+ * @param  {LEEWGL.GameObject} obj
+ */
+LEEWGL.Component.Billboard.prototype.init = function(gl, src, obj) {
+  this.billboard.setBuffer(gl);
+  this.billboard.setImage(gl, src);
+  this.billboard.transform = obj.transform;
+  obj.billboard = this;
+};
+/**
+ * Sets transform of this.billboard to obj.transform
+ * @param  {LEEWGL.GameObject} obj
+ */
+LEEWGL.Component.Billboard.prototype.update = function(obj) {
+  this.billboard.transform = obj.transform;
+};
+/**
+ * Calls draw method of LEEWGL.Billboard
+ * @param  {webGLContext} gl
+ * @param  {LEEWGL.Shader} shader
+ * @param  {LEEWGL.Camera} camera
+ */
+LEEWGL.Component.Billboard.prototype.draw = function(gl, shader, camera) {
+  this.billboard.draw(gl, shader, camera);
+};
+/**
+ * Creates deep copy of this
+ * @param  {LEEWGL.Component.Billboard} bill
+ * @return {LEEWGL.Component.Billboard} bill
+ */
+LEEWGL.Component.Billboard.prototype.clone = function(bill) {
+  if (typeof bill === 'undefined')
+    bill = new LEEWGL.Component.Billboard(this.options);
+
+  LEEWGL.Component.prototype.clone.call(this, bill);
+  coll.billboard = LEEWGL.Billboard.prototype.clone.call(this, this.billboard);
+  return bill;
 };

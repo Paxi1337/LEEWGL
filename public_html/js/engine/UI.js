@@ -225,6 +225,11 @@ LEEWGL.UI = function(options) {
     };
   };
 
+  /**
+   * Adds UI events to outline elements
+   * @param  {LEEWGL.DOM.Element} elem
+   * @param  {Array} outline
+   */
   this.editableOutline = function(elem, outline) {
     var that = this;
     var dblclick, keydown, click;
@@ -235,10 +240,9 @@ LEEWGL.UI = function(options) {
         that.updateOutline = true;
       }
     };
-
     keydown = function(event, element) {
       if (event.keyCode === LEEWGL.KEYS.ENTER) {
-        that.activeElement.alias = element.get('text');
+        that.activeElement.editables.set(that.activeElement, 'alias', element.get('text'));
         that.setEditable();
         that.updateOutline = true;
         that.setInspectorElement(outline.obj.id);
@@ -247,7 +251,6 @@ LEEWGL.UI = function(options) {
         event.stopPropagation();
       }
     };
-
     click = function() {
       if (outline.active === false && outline.editable === false) {
         that.setActive(outline.obj.id);
@@ -272,7 +275,6 @@ LEEWGL.UI = function(options) {
 
   this.editableDOM = function() {
     var that = this;
-    // var dblclick, keydown;
     var elements = document.querySelectorAll('.editable');
 
     var edit = function(element) {
@@ -286,6 +288,11 @@ LEEWGL.UI = function(options) {
     }
   };
 
+  /**
+   * Sets given container to a HTML-form of this.outline
+   * Calls this.displayOutlineContextMenu
+   * @param  {LEEWGL.GameObject} container
+   */
   this.outlineToHTML = function(container) {
     if (this.updateOutline === false)
       return;
@@ -352,7 +359,7 @@ LEEWGL.UI = function(options) {
     this.updateOutline = false;
   };
 
-  this.dispatchTypes = function(vector, type, num) {
+  this.dispatchTypes = function(element, vector, type, num) {
     var pos = function(args) {
       this.transform.setPosition(args[0]);
     };
@@ -372,16 +379,22 @@ LEEWGL.UI = function(options) {
     };
 
     if (type === 'transform-position') {
-      this.activeElement.traverse(pos, [vector]);
+      element.traverse(pos, [vector]);
     } else if (type === 'transform-translation') {
-      this.activeElement.traverse(trans, [vector]);
+      element.traverse(trans, [vector]);
     } else if (type === 'transform-rotation') {
-      this.activeElement.traverse(rot, [vector, num]);
+      element.traverse(rot, [vector, num]);
     } else if (type === 'transform-scale') {
-      this.activeElement.traverse(scale, [vector]);
+      element.traverse(scale, [vector]);
     }
   };
 
+  /**
+   * Returns a HTML-form of the transform component of given element
+   * Adds UI events to change transform values
+   * @param  {LEEWGL.GameObject} element
+   * @return {LEEWGL.DOM.Element} container
+   */
   this.transformToHTML = function(element) {
     var container = new LEEWGL.DOM.Element('div', {
       'class': 'component-container'
@@ -407,7 +420,7 @@ LEEWGL.UI = function(options) {
           vector[num] = value;
         }
 
-        that.dispatchTypes(vector, td.get('identifier'), num);
+        that.dispatchTypes(element, vector, td.get('identifier'), num);
         that.setInspectorElement(element.id);
 
         event.preventDefault();
@@ -425,7 +438,7 @@ LEEWGL.UI = function(options) {
       } else {
         vector[num] = value;
       }
-      that.dispatchTypes(vector, td.get('identifier'), num);
+      that.dispatchTypes(element, vector, td.get('identifier'), num);
     });
 
     // / position
@@ -457,6 +470,12 @@ LEEWGL.UI = function(options) {
     return container;
   };
 
+  /**
+   * Returns a HTML-form of the custom script component of given element
+   * Adds UI events to add/delete/modify scripts
+   * @param  {LEEWGL.GameObject} element
+   * @return {LEEWGL.DOM.Element} container
+   */
   this.customScriptToHTML = function(element) {
     var that = this;
     var script = element.components['CustomScript'];
@@ -706,6 +725,11 @@ LEEWGL.UI = function(options) {
     return container;
   };
 
+  /**
+   * Returns a HTML-form of the texture component of given element
+   * @param  {LEEWGL.GameObject} element
+   * @return {LEEWGL.DOM.Element} container
+   */
   this.textureToHTML = function(element) {
     var texture = element.components['Texture'];
     var container = new LEEWGL.DOM.Element('div', {
@@ -778,6 +802,11 @@ LEEWGL.UI = function(options) {
     return container;
   };
 
+  /**
+   * Returns a HTML-form of the collider component of given element
+   * @param  {LEEWGL.GameObject} element
+   * @return {LEEWGL.DOM.Element} container
+   */
   this.colliderToHTML = function(element) {
     var collider = element.components['Collider'];
     var container = new LEEWGL.DOM.Element('div', {
@@ -809,8 +838,13 @@ LEEWGL.UI = function(options) {
     return container;
   };
 
+  /**
+   * Iterates through components of given element and returns a HTML-form of all components
+   * @param  {LEEWGL.GameObject} element
+   * @return {LEEWGL.DOM.Element} container
+   */
   this.componentsToHTML = function(element) {
-    var container;
+    var container = new LEEWGL.DOM.Element('div');
     var title;
 
     var that = this;
@@ -822,26 +856,29 @@ LEEWGL.UI = function(options) {
       var component = element.components[name];
 
       if (component instanceof LEEWGL.Component.Transform)
-        container = this.transformToHTML(element);
+        container.grab(this.transformToHTML(element));
       else if (component instanceof LEEWGL.Component.CustomScript)
-        container = this.customScriptToHTML(element);
+        container.grab(this.customScriptToHTML(element));
       else if (component instanceof LEEWGL.Component.Texture)
-        container = this.textureToHTML(element);
+        container.grab(this.textureToHTML(element));
       else if (component instanceof LEEWGL.Component.Collider)
-        container = this.colliderToHTML(element);
-
-      this.inspector.grab(container);
-      this.editableDOM();
+        container.grab(this.colliderToHTML(element));
     }
+    return container;
   };
 
-  this.valuesToHTML = function(activeElement) {
+  /**
+   * Returns a HTML-form of the editable json array of given obj
+   * @param  {LEEWGL.GameObject} obj
+   * @return {LEEWGL.DOM.Element} container
+   */
+  this.valuesToHTML = function(obj) {
     var container;
     var title;
 
     var that = this;
 
-    if (typeof activeElement.editables !== 'undefined') {
+    if (typeof obj.editables !== 'undefined') {
       container = new LEEWGL.DOM.Element('div', {
         'class': 'component-container'
       });
@@ -851,21 +888,35 @@ LEEWGL.UI = function(options) {
       });
       container.grab(title);
 
-      var keyup = (function(event, element, vector) {
+      var keyFunction = (function(element, vector) {
         var num = parseInt(element.get('num'));
         var id = element.get('identifier');
         var value = '';
         if (typeof vector === 'object') {
           value = parseFloat(element.get('text'));
-          activeElement.editables.set(activeElement, id, value, num);
+          obj.editables.set(obj, id, value, num);
         } else {
-          value = parseFloat(element.e.value);
-          activeElement.editables.set(activeElement, id, value);
+          value = element.e.value;
+          if (obj.editables.type === 'number')
+            value = parseFloat(element.e.value);
+          obj.editables.set(obj, id, value);
+        }
+      });
+
+      var keyup = (function(event, element, vector) {
+        keyFunction(element, vector);
+      });
+
+      var keydown = (function(event, element, vector) {
+        if (event.keyCode === LEEWGL.KEYS.ENTER) {
+          keyFunction(element, vector);
+          that.updateOutline = true;
+          that.setInspectorElement(obj.id);
         }
       });
 
       /// FIXME: can be called in play mode and doesnt work as expected
-      var change = (function(event, element, content) {
+      var changeLight = (function(event, element, content) {
         var old = that.scene.getObjectByType('Light');
         var newType = element.e.value;
 
@@ -888,34 +939,47 @@ LEEWGL.UI = function(options) {
         that.app.onShaderChange('light', typeShader);
       });
 
-      for (var e in activeElement.editables) {
-        var editable = activeElement.editables[e];
+      for (var e in obj.editables) {
+        var editable = obj.editables[e];
         if (editable.type === 'vector') {
           container.grab(HTMLHELPER.createTable(e, editable['table-titles'], editable.value, {
             'title': editable.name,
             'type': 'h4',
             'class': 'component-detail-headline'
-          }, null, keyup));
+          }, keydown, keyup));
         } else if (editable.type === 'string' || editable.type === 'number') {
-          container.grab(HTMLHELPER.createContainerDetailInput(e, editable.name, editable.value, null, keyup));
+          container.grab(HTMLHELPER.createContainerDetailInput(e, editable.name, editable.value, keydown, keyup));
         } else if (editable.type === 'array') {
-          if (activeElement instanceof LEEWGL.Light) {
+          if (obj instanceof LEEWGL.Light) {
             var light = this.scene.getObjectByType('Light');
             /// deep copy of string array
             var content = JSON.parse(JSON.stringify(LEEWGL.ENGINE.LIGHTS));
             /// get all but the actual light type
             content.splice(LEEWGL.ENGINE.LIGHTS.indexOf(light.lightType), 1);
-            container.grab(HTMLHELPER.createDropdown(e, editable.name, content, change, light.lightType));
+            container.grab(HTMLHELPER.createDropdown(e, editable.name, content, changeLight, light.lightType));
           }
+        } else if (editable.type === 'checkbox') {
+          var ids = [];
+          var c = [];
+          var d = [];
+          for(var checkbox in editable) {
+            if(checkbox !== 'alias' && checkbox !== 'type' && checkbox !== 'name') {
+              ids.push(checkbox);
+              c.push(editable[checkbox]['name']);
+              d.push(editable[checkbox]['value']);
+            }
+          }
+          /// FIXME: add change event
+          container.grab(HTMLHELPER.createCheckbox(ids, editable.name, c, null, d));
         }
       }
-      this.inspector.grab(container);
-      this.editableDOM();
+      return container;
     }
   };
 
   /**
-   * @param  {DOMElement} content
+   * Sets inspector content to given dom content
+   * @param  {LEEWGL.DOM.Element | DOMElement} content
    */
   this.setInspectorContent = function(content) {
     if (typeof this.inspector === 'undefined') {
@@ -926,6 +990,10 @@ LEEWGL.UI = function(options) {
     this.inspector.grab(content);
   };
 
+  /**
+   * Sets inspector to given id of gameobject
+   * @param  {number} index
+   */
   this.setInspectorElement = function(index) {
     if (typeof this.inspector === 'undefined') {
       console.error('LEEWGL.UI: No inspector container set. Please use setInspector() first!');
@@ -954,16 +1022,24 @@ LEEWGL.UI = function(options) {
     });
 
     this.inspector.grab(name);
-    this.componentsToHTML(activeElement);
-    this.valuesToHTML(activeElement);
-    this.componentsButton();
 
+    var components = this.componentsToHTML(activeElement);
+    var componentsButton = this.componentsButton();
+    var values = this.valuesToHTML(activeElement);
+
+    this.inspector.grab([components, componentsButton, values]);
+
+    this.editableDOM();
     this.updateOutline = true;
   };
 
+  /**
+   * Returns container with button to add further components to gameobject on click
+   * @return {LEEWGL.DOM.Element} container
+   */
   this.componentsButton = function() {
     var that = this;
-    var componentsControlContainer = new LEEWGL.DOM.Element('div', {
+    var container = new LEEWGL.DOM.Element('div', {
       'class': 'controls-container'
     });
     var addComponentControl = new LEEWGL.DOM.Element('input', {
@@ -971,13 +1047,13 @@ LEEWGL.UI = function(options) {
       'type': 'submit',
       'value': 'Add Component'
     });
-    componentsControlContainer.grab(addComponentControl);
+    container.grab(addComponentControl);
 
     addComponentControl.addEvent('click', function(event) {
       that.displayComponentMenu(event);
     });
 
-    this.inspector.grab(componentsControlContainer);
+    return container;
   };
 
   /**
@@ -1427,8 +1503,8 @@ LEEWGL.UI = function(options) {
     var triangle = new LEEWGL.Geometry3D.Triangle();
     triangle.setBuffer(this.gl);
     triangle.setColor(this.gl, ColorHelper.getUniqueColor());
-    this.addObjToOutline(triangle);
     this.scene.add(triangle);
+    this.addObjToOutline(triangle);
   };
   /**
    * Creates and inserts a new LEEWGL.Geometry3D.Cube
@@ -1437,8 +1513,8 @@ LEEWGL.UI = function(options) {
     var cube = new LEEWGL.Geometry3D.Cube();
     cube.setBuffer(this.gl);
     cube.setColor(this.gl, ColorHelper.getUniqueColor());
-    this.addObjToOutline(cube);
     this.scene.add(cube);
+    this.addObjToOutline(cube);
   };
   /**
    * Creates and inserts a new LEEWGL.Geometry3D.Sphere
@@ -1447,8 +1523,11 @@ LEEWGL.UI = function(options) {
     var sphere = new LEEWGL.Geometry3D.Sphere();
     sphere.setBuffer(this.gl);
     sphere.setColor(this.gl, ColorHelper.getUniqueColor());
-    this.addObjToOutline(sphere);
-    this.scene.add(sphere);
+
+    this.displayInsertPrompt(sphere);
+    //
+    // this.scene.add(sphere);
+    // this.addObjToOutline(sphere);
   };
 
   /**
@@ -1469,8 +1548,8 @@ LEEWGL.UI = function(options) {
     else if (options.type === 'Spot')
       light = new LEEWGL.Light.SpotLight();
 
-    this.addObjToOutline(light);
     this.scene.add(light);
+    this.addObjToOutline(light);
   };
   /**
    * Inserts a camera with given options
@@ -1484,6 +1563,55 @@ LEEWGL.UI = function(options) {
     var camera = null;
     if (options.type === 'Perspective')
       camera = new LEEWGL.Camera.PerspectiveCamera();
+    else
+      camera = new LEEWGL.Camera.OrthogonalCamera();
+
+    this.scene.add(camera);
+    this.addObjToOutline(camera);
+  };
+
+  this.displayInsertPrompt = function(obj) {
+    var that = this;
+    this.popup.empty();
+    this.popup.setOptions({
+      'wrapper-width': 400,
+      'wrapper-height': 'auto',
+      'center': true
+    });
+
+    this.popup.title.addClass('fsize15');
+    this.popup.addTitleText('Insert ' + obj.type);
+
+    var content = new LEEWGL.DOM.Element('div', {
+      'styles' : {
+        'width' : '290px',
+        'margin' : '0 auto'
+      }
+    });
+    content.grab(this.componentsToHTML(obj));
+    content.grab(this.valuesToHTML(obj));
+
+    /// TODO: inject to div container
+    var insertButton = new LEEWGL.DOM.Element('input', {
+      'type' : 'submit',
+      'class' : 'submit',
+      'value' : 'Insert'
+    });
+
+    insertButton.addEvent('click', function(e) {
+      that.scene.add(obj);
+      that.addObjToOutline(obj);
+      that.setInspectorElement(obj.id);
+      that.popup.hide();
+    });
+
+    content.grab(insertButton);
+
+    this.popup.addCustomElementToContent(content);
+
+    this.popup.setDimensions();
+    this.popup.show();
+    this.editableDOM();
   };
 
   /**
@@ -1586,9 +1714,9 @@ LEEWGL.UI = function(options) {
       'wrapper-width': 500,
       'center': true
     });
-    this.popup.setDimensions();
 
     this.setPopupHTML('Export', 'html/export.html');
+    this.popup.setDimensions();
 
     var textarea_vertex_shaders = new LEEWGL.DOM.Element(document.getElementById('export-vertex-shaders'));
     var textarea_fragment_shaders = new LEEWGL.DOM.Element(document.getElementById('export-fragment-shaders'));
@@ -1782,14 +1910,12 @@ LEEWGL.UI.BasicPopup.prototype = {
     this.options['center'] = false;
     this.position();
   },
-
   /**
    * Set style of this.wrapper
    */
   setStyle: function(styles) {
     this.wrapper.setStyles(styles);
   },
-
   /**
    * Sets this.options.center to true and positions the popup
    */
@@ -1798,15 +1924,28 @@ LEEWGL.UI.BasicPopup.prototype = {
     this.position();
   },
   /**
+   * Centers this.wrapper on x axis
+   */
+  centerX: function() {
+    var size = this.getSize();
+    var parentSize = this.parent.size();
+    this.pos.x = (parentSize.width / 2) - (size['scroll-width'] / 2);
+  },
+  /**
+   * Centers this.wrapper on y axis
+   */
+  centerY: function() {
+    var size = this.getSize();
+    var parentSize = this.parent.size();
+    this.pos.y = (parentSize.height / 2) - (size['scroll-height'] / 2);
+  },
+  /**
    * Gets size of this.wrapper
    * @return {object}
    */
   getSize: function() {
     var size = this.wrapper.size(this.isDisplayed, this.parent);
-    return {
-      'width': size.width,
-      'height': size.height
-    };
+    return size;
   },
   /**
    * Sets top and left style of this.wrapper
@@ -1814,10 +1953,8 @@ LEEWGL.UI.BasicPopup.prototype = {
    */
   position: function() {
     if (this.options['center'] === true) {
-      var size = this.getSize();
-      var parentSize = this.parent.size();
-      this.pos.x = (parentSize.width / 2) - (size.width / 2);
-      this.pos.y = (parentSize.height / 2) - (size.height / 2);
+      this.centerX();
+      this.centerY();
     }
 
     this.wrapper.setStyles({

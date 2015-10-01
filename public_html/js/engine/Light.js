@@ -36,7 +36,8 @@ LEEWGL.Light.prototype = Object.create(LEEWGL.GameObject.prototype);
  * Initializes this.editables
  */
 LEEWGL.Light.prototype.setEditables = function() {
-  this.editables = {
+  LEEWGL.GameObject.prototype.setEditables.call(this);
+  var editables = {
     'ambient': {
       'name': 'Ambient',
       'table-titles': ['r', 'g', 'b'],
@@ -60,7 +61,7 @@ LEEWGL.Light.prototype.setEditables = function() {
       'value': this.lightType
     }
   };
-  setEditables(this.editables);
+  addToJSON(this.editables, editables);
 };
 
 /**
@@ -125,14 +126,17 @@ LEEWGL.Light.DirectionalLight.prototype = Object.create(LEEWGL.Light.prototype);
 LEEWGL.Light.DirectionalLight.prototype.setEditables = function() {
   LEEWGL.Light.prototype.setEditables.call(this);
 
-  this.editables.direction = {
-    'name': 'Direction',
-    'table-titles': ['x', 'y', 'z'],
-    'type': 'vector',
-    'value': this.direction
+  var editables = {
+    'direction': {
+      'name': 'Direction',
+      'table-titles': ['x', 'y', 'z'],
+      'type': 'vector',
+      'value': this.direction
+    }
   };
-  this.editables.set(this, 'lightType', this.lightType);
-  addEditables(this.editables);
+
+  addToJSON(this.editables, editables);
+  addPropertyToAllJSON(this.editables, 'alias');
 };
 
 /**
@@ -153,7 +157,7 @@ LEEWGL.Light.DirectionalLight.prototype.draw = function(gl, shader) {
 LEEWGL.Light.DirectionalLight.prototype.getView = function(camera) {
   var view = mat4.create();
   var pos = camera.transform.position;
-  mat4.lookAt(view, pos, vec3.add(vec3.create(), pos, vec3.normalize(vec3.create(), this.direction)),  this.up);
+  mat4.lookAt(view, pos, vec3.add(vec3.create(), pos, vec3.normalize(vec3.create(), this.direction)), this.up);
   return view;
 };
 
@@ -246,8 +250,8 @@ LEEWGL.Light.SpotLight.prototype.setEditables = function() {
       'value': this.outerAngle
     }
   };
-  this.editables.set(this, 'lightType', this.lightType);
-  addEditables(this.editables, editables);
+  addToJSON(this.editables, editables);
+  addPropertyToAllJSON(this.editables, 'alias');
 };
 
 /**
@@ -257,7 +261,7 @@ LEEWGL.Light.SpotLight.prototype.setEditables = function() {
  */
 LEEWGL.Light.SpotLight.prototype.getView = function(target) {
   var view = mat4.create();
-  mat4.lookAt(view, this.transform.position, target,  this.up);
+  mat4.lookAt(view, this.transform.position, target, this.up);
   return view;
 };
 
@@ -346,14 +350,18 @@ LEEWGL.Light.PointLight.prototype = Object.create(LEEWGL.Light.prototype);
  */
 LEEWGL.Light.PointLight.prototype.setEditables = function() {
   LEEWGL.Light.prototype.setEditables.call(this);
-  this.editables.radius = {
-    'name': 'Radius',
-    'alias': 'radius',
-    'type': 'number',
-    'value': this.radius
+
+  var editables = {
+    'radius': {
+      'name': 'Radius',
+      'alias': 'radius',
+      'type': 'number',
+      'value': this.radius
+    }
   };
-  this.editables.set(this, 'lightType', this.lightType);
-  addEditables(this.editables);
+
+  addToJSON(this.editables, editables);
+  addPropertyToAllJSON(this.editables, 'alias');
 };
 
 /**

@@ -102,6 +102,9 @@ LEEWGL.GameObject = function(options) {
   /** @inner {LEEWGL.Component.Transform} */
   this.transform = this.components['Transform'];
 
+  this.editables = {};
+  this.setEditables();
+
   /**
    * Gets called at begin of the play event
    * @abstract
@@ -131,6 +134,43 @@ LEEWGL.GameObject = function(options) {
 LEEWGL.GameObject.prototype = {
   constructor: LEEWGL.GameObject,
 
+  /**
+   * Initializes this.editables
+   */
+  setEditables: function() {
+    var editables = {
+      'alias': {
+        'name': 'Alias',
+        'type': 'string',
+        'value': this.alias
+      },
+      'tagname': {
+        'name': 'Tagname',
+        'type': 'string',
+        'value': this.tagname
+      },
+      'renderProperties': {
+        'picking': {
+          'name': 'Picking',
+          'value': this.picking
+        },
+        'visible': {
+          'name': 'Visible',
+          'value': this.visible
+        },
+        'render': {
+          'name': 'Render',
+          'value': this.render
+        },
+        'name' : 'RenderProperties',
+        'type': 'checkbox'
+      }
+    };
+
+    addToJSON(this.editables, editables);
+    addPropertyToAllJSON(this.editables, 'alias');
+    addSetMethodToJSON(this.editables);
+  },
   /**
    * Adds the given object to the children array of this.
    * @param  {LEEWGL.GameObject} object

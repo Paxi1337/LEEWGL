@@ -146,8 +146,14 @@ a:hover {
 .divider-color {
   border-color: #B6B6B6;
 }
+.fsize15 {
+  font-size: 15px;
+}
 .fsize17 {
   font-size: 17px;
+}
+.fsize20 {
+  font-size: 20px;
 }
 .fcenter {
   text-align: center;

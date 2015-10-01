@@ -246,15 +246,21 @@ LEEWGL.DOM.Element.prototype = {
 
   grab: function(element, where) {
     where = (typeof where !== 'undefined') ? where : 'bottom';
-    var el = (element instanceof LEEWGL.DOM.Element) ? element.e : element;
 
+    if(element instanceof Array) {
+      for(var i = 0; i < element.length; ++i) {
+        this.grab(element[i], where);
+      }
+      return;
+    }
+
+    var el = (element instanceof LEEWGL.DOM.Element) ? element.e : element;
     this.insert(this.e, el, where);
   },
 
   inject: function(parent, where) {
     where = (typeof where !== 'undefined') ? where : 'bottom';
     var p = (parent instanceof LEEWGL.DOM.Element) ? parent.e : parent;
-
     this.insert(p, this.e, where);
   },
 

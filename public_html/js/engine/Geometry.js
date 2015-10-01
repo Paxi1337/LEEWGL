@@ -50,9 +50,6 @@ LEEWGL.Geometry = function(options) {
     }
   });
 
-  this.boundingBox = null;
-  this.boundingSphere = null;
-
   this.facesNum = 1;
   this.faces = [];
   this.vectors = [];

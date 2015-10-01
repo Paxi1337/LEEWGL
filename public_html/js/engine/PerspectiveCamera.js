@@ -54,44 +54,45 @@ LEEWGL.PerspectiveCamera.prototype = Object.create(LEEWGL.Camera.prototype);
  * Initializes this.editables
  */
 LEEWGL.PerspectiveCamera.prototype.setEditables = function() {
-  this.editables = {
+  LEEWGL.GameObject.prototype.setEditables.call(this);
+  var editables = {
     'fov': {
       'name': 'Field of View',
-      'type' : 'number',
+      'type': 'number',
       'value': this.fov
     },
     'aspect': {
       'name': 'Aspect Ratio',
-      'type' : 'number',
+      'type': 'number',
       'value': this.aspect
     },
     'near': {
       'name': 'Near',
-      'type' : 'number',
+      'type': 'number',
       'value': this.near
     },
     'far': {
       'name': 'Far',
-      'type' : 'number',
+      'type': 'number',
       'value': this.far
     },
     'invertY': {
       'name': 'Invert Y Axis',
-      'type' : 'bool',
+      'type': 'bool',
       'value': this.invertY
     },
     'horizontalAngle': {
       'name': 'Horizontal Angle',
-      'type' : 'number',
+      'type': 'number',
       'value': this.horizontalAngle
     },
     'verticalAngle': {
       'name': 'Vertical Angle',
-      'type' : 'number',
+      'type': 'number',
       'value': this.verticalAngle
     }
   };
-  setEditables(this.editables);
+  addToJSON(this.editables, editables);
 };
 
 /**
@@ -140,7 +141,6 @@ LEEWGL.PerspectiveCamera.prototype.view = function() {
  */
 LEEWGL.PerspectiveCamera.prototype.projection = function() {
   mat4.perspective(this.projMatrix, LEEWGL.Math.degToRad(this.fov), this.aspect, this.near, this.far);
-  // mat4.ortho(this.projMatrix, 0, 100, 0, 100, this.near, this.far);
   return this.projMatrix;
 };
 

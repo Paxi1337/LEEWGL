@@ -9,6 +9,7 @@ LEEWGL.HTMLHelper = function() {
    * @param {object} title
    * @param {function} keydown
    * @param {function} keyup
+   * @return {LEEWGL.DOM.Element} container
    */
   this.createTable = function(id, header, content, title, keydown, keyup) {
     keydown = (typeof keydown !== 'undefined' && keydown !== null) ? keydown : (function() {});
@@ -106,6 +107,7 @@ LEEWGL.HTMLHelper = function() {
    * @param {number|string} content
    * @param {function} keydown
    * @param {function} keyup
+   * @return {LEEWGL.DOM.Element} container
    */
   this.createContainerDetailInput = function(id, title, content, keydown, keyup) {
     keydown = (typeof keydown !== 'undefined' && keydown !== null) ? keydown : (function() {});
@@ -146,8 +148,9 @@ LEEWGL.HTMLHelper = function() {
    * @param {element} container
    * @param {string} title
    * @param {array} content
-   * @param {function} keydown
-   * @param {function} keyup
+   * @param {function} change
+   * @param {string} defaultValue
+   * @return {LEEWGL.DOM.Element} container
    */
   this.createDropdown = function(id, title, content, change, defaultValue) {
     change = (typeof change !== 'undefined') ? change : (function() {});
@@ -192,6 +195,71 @@ LEEWGL.HTMLHelper = function() {
 
     container.grab(name);
     container.grab(select);
+    return container;
+  };
+
+  /**
+   * @param {string} id
+   * @param {element} container
+   * @param {string} title
+   * @param {array} content
+   * @param {function} change
+   * @param {bool} defaultValue
+   * @return {LEEWGL.DOM.Element} container
+   */
+  this.createCheckbox = function(id, title, content, change, defaultValue) {
+    change = (typeof change !== 'undefined') ? change : (function() {});
+    defaultValue = (typeof defaultValue !== 'undefined') ? defaultValue : '';
+
+    var container = new LEEWGL.DOM.Element('div', {
+      'class': 'component-detail-container'
+    });
+    var name = new LEEWGL.DOM.Element('h4', {
+      'class': 'component-detail-headline',
+      'text': title
+    });
+
+    var create = function(i, c, checked) {
+      var checkbox = new LEEWGL.DOM.Element('input', {
+        'type': 'checkbox',
+        'class': 'settings-checkbox',
+        'checked': checked
+      });
+      if (i !== null) {
+        checkbox.setAttribute('identifier', i);
+        checkbox.setAttribute('id', i);
+      }
+
+      checkbox.addEvent('change', function(event) {
+        change(event, checkbox, c);
+      });
+
+
+      var label = new LEEWGL.DOM.Element('label', {
+        'for': checkbox.get('id'),
+        'text': c,
+      });
+
+      return {
+        'checkbox' : checkbox,
+        'label' : label
+      };
+    };
+
+    container.grab(name);
+
+    var element = null;
+    if (content instanceof Array) {
+      for (var i = 0; i < content.length; ++i) {
+      element = create(id[i], content[i], defaultValue[i]);
+      container.grab(element.checkbox);
+      container.grab(element.label);
+      }
+    } else {
+      element = create(id, content, defaultValue);
+      container.grab(element.checkbox);
+      container.grab(element.label);
+    }
     return container;
   };
 };
