@@ -56,3 +56,12 @@ table tr:hover td {
 .component-table {
   width: 100%;
 }
+.table-title {
+  font-weight: bold;
+  float: left;
+  margin: 5px 2px 0 5px;
+}
+.table-content {
+  float: left;
+  margin: 5px 5px 0 5px;
+}

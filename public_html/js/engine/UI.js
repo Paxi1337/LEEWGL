@@ -286,7 +286,6 @@ LEEWGL.UI = function(options) {
 
     var edit = function(element) {
       element.set('contenteditable', true);
-      element.set('class', 'editable');
     };
 
     for (var i = 0; i < elements.length; ++i) {
@@ -367,21 +366,37 @@ LEEWGL.UI = function(options) {
   };
 
   this.dispatchTypes = function(element, vector, type, num) {
+
+    var checkNaN = function(vector) {
+      for (var i = 0; i < vector.length; ++i) {
+        if (isNaN(vector[i]))
+          return false
+      }
+      return true;
+    };
     var pos = function(args) {
+      if (!checkNaN(args[0]))
+        return;
       this.transform.setPosition(args[0]);
     };
     var trans = function(args) {
+      if (!checkNaN(args[0]))
+        return;
       this.transform.translate(args[0]);
     };
     var rot = function(args) {
+      if (!checkNaN(args[0]))
+        return;
       if (args[1] === 0)
-        this.transform.rotateX(args[0][1]);
+        this.transform.rotateX(args[0][0]);
       else if (args[1] === 1)
         this.transform.rotateY(args[0][1]);
       else if (args[1] === 2)
-        this.transform.rotateZ(args[0][1]);
+        this.transform.rotateZ(args[0][2]);
     };
     var scale = function(args) {
+      if (!checkNaN(args[0]))
+        return;
       this.transform.scale(args[0]);
     };
 
@@ -473,30 +488,46 @@ LEEWGL.UI = function(options) {
     });
 
     // / position
-    container.grab(HTMLHELPER.createTable('transform-position', ['x', 'y', 'z'], vec3.clone(transform.position), {
-      'title': 'Position',
-      'type': 'h4',
-      'class': 'component-detail-headline'
-    }, keydown, keyup));
+    container.grab(HTMLHELPER.createTableAsDiv({
+      'id': 'transform-position',
+      'container-class': 'component-detail-container',
+      'table-class': 'w75percent m0auto',
+      'headline-class': 'component-detail-headline',
+      'headline-type': 'h4',
+      'title-class': 'table-title',
+      'content-class': 'editable table-content',
+    }, ['x:', 'y:', 'z:'], vec3.clone(transform.position), 'Position', keydown, keyup));
     // / translation
-    container.grab(HTMLHELPER.createTable('transform-translation', ['x', 'y', 'z'], vec3.clone(transform.transVec), {
-      'title': 'Translation',
-      'type': 'h4',
-      'class': 'component-detail-headline'
-    }, keydown, keyup));
+    container.grab(HTMLHELPER.createTableAsDiv({
+      'id': 'transform-translation',
+      'container-class': 'component-detail-container',
+      'table-class': 'w75percent m0auto',
+      'headline-class': 'component-detail-headline',
+      'headline-type': 'h4',
+      'title-class': 'table-title',
+      'content-class': 'editable table-content',
+    }, ['x:', 'y:', 'z:'], vec3.clone(transform.transVec), 'Translation', keydown, keyup));
 
     // / rotation
-    container.grab(HTMLHELPER.createTable('transform-rotation', ['x', 'y', 'z'], vec3.clone(transform.rotVec), {
-      'title': 'Rotation',
-      'type': 'h4',
-      'class': 'component-detail-headline'
-    }, keydown, keyup));
+    container.grab(HTMLHELPER.createTableAsDiv({
+      'id': 'transform-rotation',
+      'container-class': 'component-detail-container',
+      'table-class': 'w75percent m0auto',
+      'headline-class': 'component-detail-headline',
+      'headline-type': 'h4',
+      'title-class': 'table-title',
+      'content-class': 'editable table-content',
+    }, ['x:', 'y:', 'z:'], vec3.clone(transform.rotVec), 'Rotation', keydown, keyup));
     // / scale
-    container.grab(HTMLHELPER.createTable('transform-scale', ['x', 'y', 'z'], vec3.clone(transform.scaleVec), {
-      'title': 'Scale',
-      'type': 'h4',
-      'class': 'component-detail-headline'
-    }, keydown, keyup));
+    container.grab(HTMLHELPER.createTableAsDiv({
+      'id': 'transform-scale',
+      'container-class': 'component-detail-container',
+      'table-class': 'w75percent m0auto',
+      'headline-class': 'component-detail-headline',
+      'headline-type': 'h4',
+      'title-class': 'table-title',
+      'content-class': 'editable table-content',
+    }, ['x:', 'y:', 'z:'], vec3.clone(transform.scaleVec), 'Scale', keydown, keyup));
 
     return container;
   };
@@ -1030,13 +1061,22 @@ LEEWGL.UI = function(options) {
       for (var e in obj.editables) {
         var editable = obj.editables[e];
         if (editable.type === 'vector') {
-          container.grab(HTMLHELPER.createTable(e, editable['table-titles'], editable.value, {
-            'title': editable.name,
-            'type': 'h4',
-            'class': 'component-detail-headline'
-          }, keydown, keyup));
+          container.grab(HTMLHELPER.createTableAsDiv({
+            'id': e,
+            'container-class': 'component-detail-container',
+            'table-class': 'w75percent m0auto',
+            'headline-class': 'component-detail-headline',
+            'headline-type': 'h4',
+            'title-class': 'table-title',
+            'content-class': 'editable table-content'
+          }, editable['table-titles'], editable.value, editable.name, keydown, keyup));
         } else if (editable.type === 'string' || editable.type === 'number') {
-          container.grab(HTMLHELPER.createContainerDetailInput(e, editable.name, editable.value, keydown, keyup));
+          container.grab(HTMLHELPER.createContainerDetailInput({
+            'id': e,
+            'container-class': 'component-detail-container',
+            'headline-class': 'component-detail-headline',
+            'headline-type': 'h4'
+          }, editable.name, editable.value, keydown, keyup));
         } else if (editable.type === 'array') {
           if (obj instanceof LEEWGL.Light) {
             var light = this.scene.getObjectByType('Light');
@@ -1044,7 +1084,13 @@ LEEWGL.UI = function(options) {
             var content = JSON.parse(JSON.stringify(LEEWGL.ENGINE.LIGHTS));
             /// get all but the actual light type
             content.splice(LEEWGL.ENGINE.LIGHTS.indexOf(light.lightType), 1);
-            container.grab(HTMLHELPER.createDropdown(e, editable.name, content, changeLight, light.lightType));
+            container.grab(HTMLHELPER.createDropdown({
+              'id': e,
+              'container-class': 'component-detail-container',
+              'headline-class': 'component-detail-headline',
+              'headline-type': 'h4',
+              'input-class': 'settings-dropdown'
+            }, editable.name, content, changeLight, light.lightType));
           }
         } else if (editable.type === 'checkbox') {
           var ids = [];
@@ -1057,8 +1103,12 @@ LEEWGL.UI = function(options) {
               d.push(editable[checkbox]['value']);
             }
           }
-          /// FIXME: add change event
-          container.grab(HTMLHELPER.createCheckbox(ids, editable.name, c, changeRenderProperties, d));
+          container.grab(HTMLHELPER.createCheckbox({
+            'container-class': 'component-detail-container',
+            'headline-class': 'component-detail-headline',
+            'headline-type': 'h4',
+            'input-class': 'settings-checkbox fleft'
+          }, ids, editable.name, c, changeRenderProperties, d));
         }
       }
       return container;
@@ -1151,9 +1201,13 @@ LEEWGL.UI = function(options) {
    * @param  {DOMElement} content
    */
   this.setSidebarContent = function(title, content) {
+    this.sidebar.setOptions({
+      'wrapper-height': this.sidebar.parent.size()['scroll-height']
+    });
     this.sidebar.empty();
     this.sidebar.addTitleText(title);
     this.sidebar.addCustomElementToContent(content);
+    this.sidebar.setDimensions();
     this.sidebar.show();
   };
 
@@ -1175,9 +1229,13 @@ LEEWGL.UI = function(options) {
    * @param  {string} src
    */
   this.setSidebarHTML = function(title, src) {
+    this.sidebar.setOptions({
+      'wrapper-height': this.sidebar.parent.size()['scroll-height']
+    });
     this.sidebar.empty();
     this.sidebar.addTitleText(title);
     this.sidebar.addHTMLFile(src);
+    this.sidebar.setDimensions();
     this.sidebar.show();
   };
 
@@ -1333,10 +1391,11 @@ LEEWGL.UI = function(options) {
   };
 
   this.displaySidebar = function() {
-    if (this.sidebar.isDisplayed === false)
-      this.sidebar.show();
-    else
-      this.sidebar.hide();
+    this.sidebar.setOptions({
+      'wrapper-height': this.sidebar.parent.size()['scroll-height']
+    });
+    this.sidebar.setDimensions();
+    this.sidebar.toggle();
   };
 
   this.displayOutlineContextMenu = function(index, event) {
@@ -1682,7 +1741,7 @@ LEEWGL.UI = function(options) {
     this.popup.setOptions({
       'wrapper-width': 450,
       'wrapper-height': 'auto',
-      'title-fontsize' : 19
+      'title-fontsize': 19
     });
 
     this.popup.addTitleText('Insert ' + obj.type);
@@ -1804,7 +1863,7 @@ LEEWGL.UI = function(options) {
     this.popup.empty();
     this.popup.setOptions({
       'wrapper-width': 500,
-      'title-fontsize' : 23
+      'title-fontsize': 23
     });
 
     this.setPopupHTML('Export', 'html/export.html');

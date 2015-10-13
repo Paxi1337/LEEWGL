@@ -159,17 +159,32 @@ LEEWGL.Settings = function(options) {
 
     for (var prop in this.options) {
       if (this.additionalInfo[prop]['type'] === 'input') {
-        container.grab(HTMLHELPER.createContainerDetailInput(prop, this.additionalInfo[prop]['alias'], this.options[prop], keydownInput));
+        container.grab(HTMLHELPER.createContainerDetailInput({
+          'id' : prop,
+          'container-class' : 'component-detail-container',
+          'headline-class' : 'component-detail-headline',
+          'headline-type' : 'h4'
+        }, this.additionalInfo[prop]['alias'], this.options[prop], keydownInput));
       } else if (this.additionalInfo[prop]['type'] === 'table') {
-        container.grab(HTMLHELPER.createTable(prop, Object.keys(this.options[prop]), this.options[prop], {
-          'title': this.additionalInfo[prop]['alias'],
-          'type': 'h4',
-          'class': 'component-detail-headline'
-        }, keydownTable));
+        container.grab(HTMLHELPER.createTableAsDiv({
+          'id' : prop,
+          'container-class' : 'component-detail-container',
+          'table-class' : 'w100percent m0auto',
+          'headline-class' : 'component-detail-headline',
+          'headline-type' : 'h4',
+          'title-class' : 'table-title',
+          'content-class' : 'editable table-content'
+        }, Object.keys(this.options[prop]), this.options[prop], this.additionalInfo[prop]['alias'], keydownTable));
       } else if (this.additionalInfo[prop]['type'] === 'select') {
         var content = JSON.parse(JSON.stringify(this.options[prop]['values']));
         content.splice(this.options[prop]['values'].indexOf(this.options[prop]['active']), 1);
-        container.grab(HTMLHELPER.createDropdown(prop, this.additionalInfo[prop]['alias'], content, change, this.options[prop]['active']));
+        container.grab(HTMLHELPER.createDropdown({
+          'id' : prop,
+          'container-class' : 'component-detail-container',
+          'headline-class' : 'component-detail-headline',
+          'headline-type' : 'h4',
+          'input-class' : 'settings-dropdown'
+        }, this.additionalInfo[prop]['alias'], content, change, this.options[prop]['active']));
       }
     }
 
@@ -188,7 +203,7 @@ LEEWGL.Settings = function(options) {
         element = new LEEWGL.DOM.Element(document.querySelector('input[identifier="' + prop + '"]'));
         this.set(prop, element.e.value);
       } else if (this.additionalInfo[prop]['type'] === 'table') {
-        var elements = document.querySelectorAll('td[identifier="' + prop + '"]');
+        var elements = document.querySelectorAll('div[identifier="' + prop + '"]');
         var arr = {};
         for (var i = 0; i < elements.length; ++i) {
           element = new LEEWGL.DOM.Element(elements[i]);
