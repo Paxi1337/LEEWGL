@@ -14,8 +14,7 @@ LEEWGL.ShaderLibrary = function() {
   this.initializeChunks = function() {
     this.chunks[LEEWGL.ShaderLibrary.INIT] = {
       vertex: {
-        parameters: [
-        ],
+        parameters: [],
         main: [
           "void main() {",
         ]
@@ -31,6 +30,8 @@ LEEWGL.ShaderLibrary = function() {
     };
 
     this.chunks[LEEWGL.ShaderLibrary.DEFAULT] = {
+      attributes: ['aVertexPosition'],
+      uniforms: ['uVP', 'uModel'],
       vertex: {
         parameters: [
           LEEWGL.ShaderChunk['vertex_default_para'],
@@ -40,14 +41,14 @@ LEEWGL.ShaderLibrary = function() {
         ]
       },
       fragment: {
-        parameters: [
-        ],
-        main: [
-        ]
+        parameters: [],
+        main: []
       }
     };
 
     this.chunks[LEEWGL.ShaderLibrary.COLOR] = {
+      attributes: ['aVertexColor'],
+      uniforms: [],
       vertex: {
         parameters: [
           LEEWGL.ShaderChunk['vertex_color_para']
@@ -67,6 +68,8 @@ LEEWGL.ShaderLibrary = function() {
     };
 
     this.chunks[LEEWGL.ShaderLibrary.TEXTURE] = {
+      attributes: ['aTextureCoord'],
+      uniforms: ['uSampler'],
       vertex: {
         parameters: [
           LEEWGL.ShaderChunk['vertex_texture_para']
@@ -87,6 +90,8 @@ LEEWGL.ShaderLibrary = function() {
     };
 
     this.chunks[LEEWGL.ShaderLibrary.PICKING] = {
+      attributes: [],
+      uniforms: ['uOffscreen', 'uColorMapColor'],
       vertex: {
         parameters: [],
         main: []
@@ -105,6 +110,8 @@ LEEWGL.ShaderLibrary = function() {
     };
 
     this.chunks[LEEWGL.ShaderLibrary.AMBIENT] = {
+      attributes: [],
+      uniforms: ['uOffscreen', 'uColorMapColor'],
       vertex: {
         parameters: [],
         main: []
@@ -332,4 +339,4 @@ var init = function() {
   window.SHADER_LIBRARY = shaderLibrary;
 };
 
-addLoadEvent(init);
+addEventToWindow('onload', init);

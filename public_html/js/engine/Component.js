@@ -5,12 +5,16 @@
 LEEWGL.Component = function(options) {
   LEEWGL.REQUIRES.push('Component');
 
+  /** @inner {Array} */
   this.options = {};
 
   extend(LEEWGL.Component.prototype, LEEWGL.Options.prototype);
   this.setOptions(options);
 
+  /** @inner {string} */
   this.type = 'Component';
+  /** @inner {bool} */
+  this.initialized = false;
 };
 
 LEEWGL.Component.prototype = {
@@ -36,12 +40,13 @@ LEEWGL.Component.prototype = {
       component = new LEEWGL.Component();
 
     component.type = this.type;
+    component.initialized = this.initialized;
     return component;
   }
 };
 
 /** @global */
-LEEWGL.Component.Components = ['Transform', 'CustomScript', 'Texture', 'Collider'];
+LEEWGL.Component.Components = ['Transform', 'CustomScript', 'Texture', 'Collider', 'Billboard'];
 LEEWGL.EventDispatcher.prototype.apply(LEEWGL.Component.prototype);
 
 /**
@@ -116,6 +121,7 @@ LEEWGL.Component.Transform = function(options) {
     this.rotateZ(LEEWGL.Math.degToRad(rot[2]));
   }.bind(this));
 
+  this.initialized = true;
 };
 
 LEEWGL.Component.Transform.prototype = Object.create(LEEWGL.Component.prototype);
@@ -272,6 +278,8 @@ LEEWGL.Component.CustomScript = function() {
   this.code = 'Type your custom code in here!';
   /** @inner {object} */
   this.applied = {};
+  /** @inner {bool} */
+  this.initialized = true;
 };
 
 LEEWGL.Component.CustomScript.prototype = Object.create(LEEWGL.Component.prototype);
@@ -356,6 +364,15 @@ LEEWGL.Component.Texture.prototype.init = function(gl, src) {
 
   this.texture.create(gl);
   this.texture.setTextureImage(gl, this.src);
+
+  this.initialized = true;
+};
+/**
+ * Return src of this.texture
+ * @return {string} src
+ */
+LEEWGL.Component.Texture.prototype.getSource = function() {
+  return this.src;
 };
 /**
  * Creates deep copy of this
@@ -395,7 +412,7 @@ LEEWGL.Component.Collider.prototype = Object.create(LEEWGL.Component.prototype);
 
 LEEWGL.Component.Collider.prototype.init = function(obj) {
   this.bounding.create(obj);
-  obj.collider = this;
+  this.initialized = true;
 };
 
 LEEWGL.Component.Collider.prototype.overlaps = function(other) {
@@ -453,14 +470,20 @@ LEEWGL.Component.Billboard.prototype = Object.create(LEEWGL.Component.prototype)
 /**
  * Sets buffer of this.billboard and adds this to obj.billboard
  * @param  {webGLContext} gl
+ * @param  {LEEWGL.Camera} camera
  * @param  {string} src
- * @param  {LEEWGL.GameObject} obj
  */
-LEEWGL.Component.Billboard.prototype.init = function(gl, src, obj) {
+LEEWGL.Component.Billboard.prototype.init = function(gl, camera, src) {
   this.billboard.setBuffer(gl);
-  this.billboard.setImage(gl, src);
-  this.billboard.transform = obj.transform;
-  obj.billboard = this;
+  this.billboard.init(gl, camera, src);
+  this.initialized = true;
+};
+/**
+ * Return src of this.billboard
+ * @return {string} src
+ */
+LEEWGL.Component.Billboard.prototype.getSource = function() {
+  return this.billboard.texture.src;
 };
 /**
  * Sets transform of this.billboard to obj.transform
@@ -489,5 +512,97 @@ LEEWGL.Component.Billboard.prototype.clone = function(bill) {
 
   LEEWGL.Component.prototype.clone.call(this, bill);
   coll.billboard = LEEWGL.Billboard.prototype.clone.call(this, this.billboard);
+  return bill;
+};
+
+/**
+ * @constructor
+ * @param {LEEWGL.Shader} options.shader
+ * @param {bool} options.picking
+ * @param {bool} options.visible
+ * @param {bool} options.cast-shadow
+ * @augments LEEWGL.Component
+ */
+LEEWGL.Component.Renderer = function(options) {
+  LEEWGL.Component.call(this, options);
+
+  var ext_options = {
+    'shader': null,
+    'picking': true,
+    'visible': true,
+    'cast-shadow': true
+  };
+
+  /** @inner {string} */
+  this.type = 'Component.Renderer';
+
+  this.addOptions(ext_options);
+  this.setOptions(options);
+
+  /** @inner {LEEWGL.Shader} */
+  this.shader = this.options['shader'];
+  /** @inner {Array} */
+  this.attributes = {};
+  /** @inner {Array} */
+  this.uniforms = {};
+  /** @inner {bool} */
+  this.initialized = true;
+};
+
+LEEWGL.Component.Renderer.prototype = Object.create(LEEWGL.Component.prototype);
+
+LEEWGL.Component.Renderer.prototype.setShader = function(shader) {
+  this.shader = shader;
+};
+
+LEEWGL.Component.Renderer.prototype.set = function(data) {
+  var uniforms = data.uniforms,
+    attributes = data.attributes;
+
+  for (var uni in uniforms) {
+    this.uniforms[uni] = uniforms[uni];
+  }
+  for (var att in attributes) {
+    this.attributes[att] = attributes[att];
+  }
+};
+/**
+ * Sets buffer of this.billboard and adds this to obj.billboard
+ * @param  {webGLContext} gl
+ * @param  {LEEWGL.GameObject} obj
+ */
+LEEWGL.Component.Renderer.prototype.draw = function(gl, shader) {
+  shader.use(gl);
+
+  // if(typeof this.shader.uniforms['uSampler'] !== 'undefined') {
+  //   console.log(this.shader.uniforms);
+  //   console.log(this.uniforms);
+  //   console.log(this.shader.attributes);
+  //   console.log(this.attributes);
+  // }
+
+  for (var att in this.attributes) {
+    if (shader.attributes.hasOwnProperty(att))
+      shader.attributes[att](this.attributes[att]);
+  }
+  for (var uni in this.uniforms) {
+    if (shader.uniforms.hasOwnProperty(uni))
+      shader.uniforms[uni](this.uniforms[uni]);
+  }
+};
+/**
+ * @param  {LEEWGL.GameObject} obj
+ */
+LEEWGL.Component.Renderer.prototype.update = function(obj) {
+};
+/**
+ * Creates deep copy of this
+ * @param  {LEEWGL.Component.Billboard} bill
+ * @return {LEEWGL.Component.Billboard} bill
+ */
+LEEWGL.Component.Renderer.prototype.clone = function(bill) {
+  if (typeof bill === 'undefined')
+    bill = new LEEWGL.Component.Billboard(this.options);
+
   return bill;
 };

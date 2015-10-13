@@ -51,7 +51,6 @@ LEEWGL.Settings = function(options) {
   };
 
   extend(LEEWGL.Settings.prototype, LEEWGL.Options.prototype);
-
   this.setOptions(options);
 
   /** @inner {object} */

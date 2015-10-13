@@ -67,7 +67,7 @@
       window.requestAnimationFrame(core.run.bind(core));
       var gl = core.getContext();
     };
-    addLoadEvent(init);
+    addEventToWindow('onload', init);
   </script>
 </body>
 

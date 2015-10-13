@@ -153,7 +153,7 @@ LEEWGL.HTMLHelper = function() {
    * @return {LEEWGL.DOM.Element} container
    */
   this.createDropdown = function(id, title, content, change, defaultValue) {
-    change = (typeof change !== 'undefined') ? change : (function() {});
+    change = (typeof change !== 'undefined' && change !== null) ? change : (function() {});
     defaultValue = (typeof defaultValue !== 'undefined') ? defaultValue : '';
 
     var container = new LEEWGL.DOM.Element('div', {
@@ -204,12 +204,12 @@ LEEWGL.HTMLHelper = function() {
    * @param {string} title
    * @param {array} content
    * @param {function} change
-   * @param {bool} defaultValue
+   * @param {bool | Array} checked
    * @return {LEEWGL.DOM.Element} container
    */
-  this.createCheckbox = function(id, title, content, change, defaultValue) {
-    change = (typeof change !== 'undefined') ? change : (function() {});
-    defaultValue = (typeof defaultValue !== 'undefined') ? defaultValue : '';
+  this.createCheckbox = function(id, title, content, change, checked) {
+    change = (typeof change !== 'undefined' && change !== null) ? change : (function() {});
+    checked = (typeof checked !== 'undefined') ? checked : true;
 
     var container = new LEEWGL.DOM.Element('div', {
       'class': 'component-detail-container'
@@ -219,10 +219,17 @@ LEEWGL.HTMLHelper = function() {
       'text': title
     });
 
+    var checkboxesContainer = new LEEWGL.DOM.Element('div', {
+      'class': 'checkbox-container'
+    });
+
     var create = function(i, c, checked) {
+      var checkboxContainer = new LEEWGL.DOM.Element('div', {
+        'class': 'settings-checkbox fleft'
+      });
       var checkbox = new LEEWGL.DOM.Element('input', {
         'type': 'checkbox',
-        'class': 'settings-checkbox',
+        'value': 'none',
         'checked': checked
       });
       if (i !== null) {
@@ -234,16 +241,15 @@ LEEWGL.HTMLHelper = function() {
         change(event, checkbox, c);
       });
 
-
       var label = new LEEWGL.DOM.Element('label', {
         'for': checkbox.get('id'),
         'text': c,
       });
 
-      return {
-        'checkbox' : checkbox,
-        'label' : label
-      };
+      checkboxContainer.grab(checkbox);
+      checkboxContainer.grab(label);
+
+      return checkboxContainer;
     };
 
     container.grab(name);
@@ -251,15 +257,15 @@ LEEWGL.HTMLHelper = function() {
     var element = null;
     if (content instanceof Array) {
       for (var i = 0; i < content.length; ++i) {
-      element = create(id[i], content[i], defaultValue[i]);
-      container.grab(element.checkbox);
-      container.grab(element.label);
+        element = create(id[i], content[i], checked[i]);
+        checkboxesContainer.grab(element);
       }
     } else {
-      element = create(id, content, defaultValue);
-      container.grab(element.checkbox);
-      container.grab(element.label);
+      element = create(id, content, checked);
+      checkboxesContainer.grab(element);
     }
+
+    container.grab(checkboxesContainer);
     return container;
   };
 };

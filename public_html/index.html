@@ -10,6 +10,7 @@
   <link rel="stylesheet" type="text/css" href="css/list.css">
   <link rel="stylesheet" type="text/css" href="css/popup.css">
   <link rel="stylesheet" type="text/css" href="css/sidebar.css">
+  <link rel="stylesheet" type="text/css" href="css/lightbox.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script type="text/javascript" src="js/gl-matrix/common.js"></script>
@@ -40,6 +41,7 @@
   <script type="text/javascript" src="js/engine/Billboard.js"></script>
   <script type="text/javascript" src="js/engine/Camera.js"></script>
   <script type="text/javascript" src="js/engine/PerspectiveCamera.js"></script>
+  <script type="text/javascript" src="js/engine/OrthogonalCamera.js"></script>
   <script type="text/javascript" src="js/engine/App.js"></script>
   <script type="text/javascript" src="js/engine/EditorApp.js"></script>
   <script type="text/javascript" src="js/engine/Picker.js"></script>
@@ -169,9 +171,9 @@
                 <div class="clearer"></div>
               </div>
               <div class="object-controls-container">
-                <a class="translation-control mright20 pointer fleft tooltip" data-tooltip="Click to enable translation mode" onclick="UI.setTransformationMode('translation');"></a>
-                <a class="rotation-control mright20 pointer fleft tooltip" data-tooltip="Click to enable rotation mode" onclick="UI.setTransformationMode('rotation');"></a>
-                <a class="scale-control pointer fleft tooltip" data-tooltip="Click to enable scale mode" onclick="UI.setTransformationMode('scale');"></a>
+                <a class="translation-control mright20 pointer fleft tooltip" data-tooltip="Click to enable translation mode" onclick="UI.setTransformationMode(LEEWGL.EDITOR.TRANSFORMATION.TRANSLATE);"></a>
+                <a class="rotation-control mright20 pointer fleft tooltip" data-tooltip="Click to enable rotation mode" onclick="UI.setTransformationMode(LEEWGL.EDITOR.TRANSFORMATION.ROTATE);"></a>
+                <a class="scale-control pointer fleft tooltip" data-tooltip="Click to enable scale mode" onclick="UI.setTransformationMode(LEEWGL.EDITOR.TRANSFORMATION.SCALE);"></a>
                 <div class="clearer"></div>
               </div>
             </div>
@@ -255,11 +257,8 @@
       // animator.animate(testContent, {'width' : '500px'}, 5, undefined, 100);
       //
       //
-      // var lightbox = new window.LEEWGL.Lightbox({
-      //   'anchor': 'div.icon-container'
-      // });
     };
-    addLoadEvent(init);
+    addEventToWindow('onload', init);
   </script>
 </body>
 

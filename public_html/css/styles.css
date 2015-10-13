@@ -275,12 +275,12 @@ hr {
   margin: 10px auto;
   width: 186px;
 }
-.texture-preview-container {
-  margin: 10px auto;
-  width: 250px;
+.image-preview-container {
+  margin: 5px auto;
+  width: 200px;
 }
-.texture-preview-container img {
-  width: 250px;
+.image-preview-container img {
+  width: 200px;
 }
 .edited {
   background-color: #47bf48 !important;

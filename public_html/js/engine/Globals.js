@@ -1,14 +1,40 @@
-function addLoadEvent(func) {
-  var oldonload = window.onload;
-  if (typeof window.onload != 'function') {
-    window.onload = func;
+function addEventToWindow(event, func) {
+  var oldFunc = window[event];
+  if (typeof window[event] != 'function') {
+    window[event] = func;
   } else {
-    window.onload = function() {
-      if (oldonload)
-        oldonload();
+    window[event] = function() {
+      if (oldFunc)
+        oldFunc();
       func();
     };
   }
+}
+
+function getMouseInformation(event) {
+  var movement = {
+    'x' : 0,
+    'y' : 0
+  };
+  var button = null;
+
+  /// Chrome
+  if (typeof event.movementX !== 'undefined') {
+    movement.x = event.movementX;
+    movement.y += event.movementY;
+    button = event.button;
+  }
+  /// FF
+  else {
+    movement.x += event.mozMovementX;
+    movement.y += event.mozMovementY;
+    button = event.buttons;
+  }
+
+  return {
+    'movement' : movement,
+    'button' : button
+  };
 }
 
 function extend(dest, src) {
@@ -31,8 +57,8 @@ function functionFromString(str) {
 }
 
 function addPropertyToAllJSON(arr, key) {
-  for(var attribute in arr) {
-      arr[attribute][key] = attribute;
+  for (var attribute in arr) {
+    arr[attribute][key] = attribute;
   }
 }
 

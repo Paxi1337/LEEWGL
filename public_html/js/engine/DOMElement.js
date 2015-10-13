@@ -297,12 +297,13 @@ LEEWGL.DOM.Element.prototype = {
       });
       parent.grab(tmp);
     }
+    var isBody = (tmp.e === document.body);
 
     var size = {
       'width': parseInt(tmp.e.offsetWidth),
       'height': parseInt(tmp.e.offsetHeight),
-      'display-width': parseInt(tmp.e.clientWidth),
-      'display-height': parseInt(tmp.e.clientHeight),
+      'display-width': (isBody === true) ? parseInt(window.innerWidth) : parseInt(tmp.e.clientWidth),
+      'display-height': (isBody === true) ? parseInt(window.innerHeight) : parseInt(tmp.e.clientHeight),
       'scroll-width': parseInt(tmp.e.scrollWidth),
       'scroll-height': parseInt(tmp.e.scrollHeight),
     };
@@ -346,6 +347,13 @@ LEEWGL.DOM.Element.prototype = {
       element.remove(parent);
 
     return pos;
+  },
+
+  getScroll: function() {
+    return {
+      'x' : (window.pageXOffset || this.e.scrollLeft) - (this.e.clientLeft || 0),
+      'y' : (window.pageYOffset || this.e.scrollTop) - (this.e.clientTop || 0)
+    };
   },
 
   addEvent: function(type, callback) {

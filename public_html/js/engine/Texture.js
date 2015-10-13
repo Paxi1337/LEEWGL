@@ -1,6 +1,5 @@
 /**
  * @constructor
- * @param  {image} options.img
  * @param  {number} options.wrap-s
  * @param  {number} options.wrap-t
  * @param  {number} options.mapping
@@ -19,12 +18,11 @@ LEEWGL.Texture = function(options) {
   LEEWGL.REQUIRES.push('Texture');
 
   this.options = {
-    'img': LEEWGL.TEXTURE.IMG_DEFAULT,
     'wrap-s': LEEWGL.TEXTURE.WRAPPING_CLAMP_TO_EDGE,
     'wrap-t': LEEWGL.TEXTURE.WRAPPING_CLAMP_TO_EDGE,
     'mapping': LEEWGL.TEXTURE.MAPPING_DEFAULT,
     'mag-filter': LEEWGL.TEXTURE.FILTER_NEAREST,
-    'min-filter': LEEWGL.TEXTURE.FILTER_NEAREST,
+    'min-filter': LEEWGL.TEXTURE.FILTER_LINEAR_MIPMAP_LINEAR,
     'anisotropy': 1,
     'format': LEEWGL.FORMAT.RGBA,
     'type': LEEWGL.TYPE.UNSIGNED_BYTE,
@@ -39,8 +37,6 @@ LEEWGL.Texture = function(options) {
   this.setOptions(options);
 
   this.id = LEEWGL.TextureCount++;
-  /** @inner */
-  this.img = this.options['img'];
   /** @inner */
   this.wrapS = this.options['wrap-s'];
   /** @inner */
@@ -69,7 +65,6 @@ LEEWGL.Texture = function(options) {
   this.offset = this.options['offset'];
   /** @inner */
   this.repeat = this.options['repeat'];
-
   /** @inner */
   this.mipmaps = [];
 };
@@ -78,6 +73,8 @@ LEEWGL.Texture.prototype = {
   constructor: LEEWGL.Texture,
   create: function(gl) {
     this.webglTexture = gl.createTexture();
+    this.bind(gl);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([255, 0, 0, 255]));
   },
 
   createSolid: function(gl, color) {
@@ -92,7 +89,6 @@ LEEWGL.Texture.prototype = {
 
   bind: function(gl) {
     gl.bindTexture(gl.TEXTURE_2D, this.webglTexture);
-    // gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
   },
 
   setActive: function(gl, unit) {
@@ -110,31 +106,32 @@ LEEWGL.Texture.prototype = {
   },
 
   setTextureImage: function(gl, src) {
-    this.img = new Image();
-    this.img.src = src;
     var that = this;
+    var img = new Image();
+    img.src = src;
 
-    this.img.onload = function() {
+    img.onload = function() {
       that.bind(gl);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, that.img);
-      that.setTextureParameters(gl, gl.TEXTURE_2D, ((that.img.width % 2) === 0 && (that.img.height % 2) === 0));
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+      that.setTextureParameters(gl, gl.TEXTURE_2D, img.width, img.height);
       that.unbind(gl);
     };
   },
 
-  setTextureParameters: function(gl, type, isPowerOfTwo) {
-    if (isPowerOfTwo) {
-      gl.texParameteri(type, gl.TEXTURE_WRAP_S, this.paramToGL(gl, this.wrapS));
-      gl.texParameteri(type, gl.TEXTURE_WRAP_T, this.paramToGL(gl, this.wrapT));
+  isPowerOfTwo: function(value) {
+    return (value & (value - 1)) === 0;
+  },
+
+  setTextureParameters: function(gl, type, width, height) {
+    if (this.isPowerOfTwo(width) && this.isPowerOfTwo(height)) {
       if (this.genMipmaps === true)
         gl.generateMipmap(type);
+      gl.texParameteri(type, gl.TEXTURE_MIN_FILTER, this.paramToGL(gl, this.minFilter));
     } else {
       gl.texParameteri(type, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(type, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(type, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     }
-    gl.texParameteri(type, gl.TEXTURE_MAG_FILTER, this.paramToGL(gl, this.magFilter));
-    gl.texParameteri(type, gl.TEXTURE_MIN_FILTER, this.paramToGL(gl, this.minFilter));
-
   },
 
   setFrameBuffer: function(gl, width, height) {
@@ -215,7 +212,6 @@ LEEWGL.Texture.prototype = {
 
     texture.id = this.id;
 
-    texture.img = this.img;
     texture.mipmaps = this.mipmaps.slice(0);
 
     texture.wrapS = this.wrapS;

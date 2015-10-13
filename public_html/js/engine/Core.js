@@ -52,6 +52,8 @@ LEEWGL.KEYS.W = 87;
 /** @global */
 LEEWGL.KEYS.ENTER = 13;
 /** @global */
+LEEWGL.KEYS.ESC = 27;
+/** @global */
 LEEWGL.KEYS.F5 = 116;
 
 LEEWGL.TEXTURE = {};
@@ -120,7 +122,12 @@ LEEWGL.ENGINE = {};
 /** @global */
 LEEWGL.ENGINE.LIGHTS = ['Directional', 'Spot', 'Point'];
 
-
+/** @global */
+LEEWGL.EDITOR = {};
+LEEWGL.EDITOR.TRANSFORMATION = {};
+LEEWGL.EDITOR.TRANSFORMATION.TRANSLATE = 'translation';
+LEEWGL.EDITOR.TRANSFORMATION.ROTATE = 'rotation';
+LEEWGL.EDITOR.TRANSFORMATION.SCALE = 'scale';
 
 /** @global */
 LEEWGL.VECTOR = {};
@@ -128,6 +135,7 @@ LEEWGL.VECTOR2D = {};
 LEEWGL.VECTOR2D.UP = [0.0, 1.0];
 LEEWGL.VECTOR3D = {};
 LEEWGL.VECTOR3D.UP = [0.0, 1.0, 0.0];
+
 
 /**
  * @constructor

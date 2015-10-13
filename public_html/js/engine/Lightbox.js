@@ -1,49 +1,75 @@
-LEEWGL.REQUIRES.push('Lightbox');
-
+/**
+ * The Lightbox class is able to automatically group images together if more than one image with the given anchor is found on site.
+ * It is capable of automatically resize the lightbox when the browser window gets resized.
+ *
+ * @constructor
+ * @param {string} options.anchor
+ * @param {bool} options.resize
+ * @param {bool} options.link - if set to true [default] the lightbox class relies on the images being wrapped by an a-element. The src of the full-size image is then in the 'href'-tag of the a-element
+ * @param {bool} options.auto-group
+ * @param {bool} options.animation
+ * @param {bool} options.navigation-inside
+ * @param {number} options.max-width
+ * @param {number} options.max-height
+ * @param {number} options.min-width
+ * @param {number} options.min-height
+ * @param {number} options.gallery-height
+ * @param {number} options.gallery-quantity
+ * @param {string} options.title-attribute
+ * @param {number} options.size-factor
+ */
 LEEWGL.Lightbox = function(options) {
+  LEEWGL.REQUIRES.push('Lightbox');
+
+  /** @inner {object} */
   this.options = {
-    'id': 0,
-    'standalone': false,
     'anchor': null,
     'resize': true,
     'link': true,
     'auto-group': true,
     'animation': true,
     'navigation-inside': false,
-    'max-height': null,
     'max-width': null,
+    'max-height': null,
+    'min-width': 400,
+    'min-height': 400,
     'gallery-height': 100,
     'gallery-quantity': 6,
-    'title-attribute': 'data-src'
+    'title-attribute': 'data-src',
+    'size-factor': 0.85
   };
 
+  /** @inner {object} */
   this.lightbox = {
     'wrapper': null,
-    'outer_container': null,
-    'inner_container': null,
-    'data_container': null,
-    'nav_container': null
+    'outerContainer': null,
+    'innerContainer': null,
+    'dataContainer': null,
+    'navContainer': null
   };
 
+  /** @inner {number} */
+  this.id = LEEWGL.Lightbox.LightboxCount++;
+  /** @inner {LEEWGL.DOM.Element} */
   this.loading = null;
+  /** @inner {LEEWGL.DOM.Element} */
   this.overlay = null;
 
-  this.images_src = [];
-  this.thumbnails_src = [];
+  this.images = [];
+  this.thumbnails = [];
+  this.activeImage = new LEEWGL.DOM.Element('img');
 
-  this.img = {
-    'img': null,
-    'path': null,
-    'coordinates': null
-  };
-  this.image_title = {
+  /** @inner {object} */
+  this.imageTitle = {
     'container': null,
     'text': null
   };
-  this.image_desc = {
+  /** @inner {object} */
+  this.imageDesc = {
     'container': null,
     'text': null
   };
+  /** @inner {object} */
   this.gallery = {
     'container': null,
     'imgs': [],
@@ -51,153 +77,121 @@ LEEWGL.Lightbox = function(options) {
     'prev': null
   };
 
+  /** @inner {LEEWGL.DOM.Element} */
   this.next = null;
+  /** @inner {LEEWGL.DOM.Element} */
   this.prev = null;
+  /** @inner {bool} */
   this.grouped = false;
 
-  this.sizeFactor = 0.85;
-  this.anchor = [];
-  this.visible = false;
-  this.current_image = 0;
-  this.count = 0;
-  this.resized = true;
-  this.scroll = 0;
+  /** @inner {bool} */
   this.initialized = false;
+  /** @inner {Array} */
+  this.anchor = [];
+  /** @inner {number} */
+  this.activeImageID = 0;
+  /** @inner {number} */
+  this.count = 0;
+  /** @inner {bool} */
+  this.visible = false;
+
+  this.body = new LEEWGL.DOM.Element(document.body);
 
   extend(LEEWGL.Lightbox.prototype, LEEWGL.Options.prototype);
 
   this.setOptions(options);
 
+  /**
+   * Initializes the lightbox
+   */
   this.initialize = function() {
-    if (this.options.standalone !== true) {
+    if (this.initialized === false) {
       var domElements = document.querySelectorAll(this.options.anchor);
-      for (var i = 0; i < domElements.length; ++i) {
-
-        this.anchor.push(new LEEWGL.DOM.Element(domElements[i]));
-        // console.log(this.anchor[i].getChildren('img'));
-
-        if (this.options.link === true) {
-          this.images_src.push(this.anchor[i].get(this.options['title-attribute']));
-          this.thumbnails_src.push(this.anchor[i].getChildren('img')[0].get('src'));
-        } else {
-          this.images_src.push(this.anchor[i].get('src'));
-        }
-
-        this.anchor[i].set('count', i);
-
-
-        this.anchor[i].addEvent('click', function(e) {
-          var element = event.target;
-
-          if (this.options.link === true) {
-            element = (e.target.tagName === 'A') ? event.target : event.target.getParent();
-            this.img.path = element.get(this.options['title-attribute']);
-          } else {
-            element = (e.target.tagName === 'A') ? event.target.getChildren('img')[0] : event.target;
-            this.img.path = element.get('src');
-          }
-
-          this.image_title.text = element.get('title');
-          this.image_desc.text = element.get('rel');
-
-          if (this.initialized === false) {
-            this.current_image = (parseInt(element.get('count')));
-            if (this.options['auto-group'] === true) {
-              // / if there is more than one img on the current website
-              if (this.count > 1)
-                this.createGrouped();
-              else
-                this.create();
-            } else {
-              if (event.target.hasClass('grouped') === true)
-                this.createGrouped();
-              else
-                this.create();
-            }
-            this.initialized = true;
-          } else {
-            this.changeImage(element);
-          }
-          return false;
-        }.bind(this));
+      if (this.options['auto-group'] === true) {
+        if (domElements.length > 1)
+          this.createGrouped();
+        else
+          this.create();
+      } else {
+        var tmp = new LEEWGL.DOM.Element(domElements[0]);
+        if (tmp.hasClass('grouped'))
+          this.createGrouped();
+        else
+          this.create();
       }
-      this.count = this.anchor.length;
-    } else {
-
+      this.initialized = true;
     }
   };
 
   this.setupContainers = function() {
+    var that = this;
+
     this.lightbox.wrapper = new LEEWGL.DOM.Element('div', {
-      'id': 'lb-' + this.options.id,
+      'id': 'lb-' + this.id,
       'class': 'lb',
+      'tabindex' : -1,
       'styles': {
         'display': 'none'
       }
     });
 
-    this.lightbox.outer_container = new LEEWGL.DOM.Element('div', {
-      'id': 'lb-outer-' + this.options.id,
+    this.lightbox.outerContainer = new LEEWGL.DOM.Element('div', {
+      'id': 'lb-outer-' + this.id,
       'class': 'lb-outer'
     });
 
-    this.lightbox.inner_container = new LEEWGL.DOM.Element('div', {
-      'id': 'lb-inner-' + this.options.id,
+    this.lightbox.innerContainer = new LEEWGL.DOM.Element('div', {
+      'id': 'lb-inner-' + this.id,
       'class': 'lb-inner'
     });
 
-    this.lightbox.data_container = new LEEWGL.DOM.Element('div', {
-      'id': 'lb-data-' + this.options.id,
+    this.lightbox.dataContainer = new LEEWGL.DOM.Element('div', {
+      'id': 'lb-data-' + this.id,
       'class': 'lb-data',
       'styles': {
         'opacity': '0'
       }
     });
 
-    this.lightbox.wrapper.addEvent('click', function(e) {
-      this.disappear();
-      return false;
-    }.bind(this));
-
     /**
-     * close the lightbox by hitting 'esc'
+     * Close the lightbox by hitting 'esc'
      */
-    window.addEvent('keydown', function(e) {
-      if (e.key === 'esc') {
-        this.lightbox.wrapper.dispatchEvent({
-          'type': 'click'
-        });
-        return false;
+    this.lightbox.wrapper.addEvent('keydown', function(e) {
+      if (e.keyCode === LEEWGL.KEYS.ESC) {
+        that.hide();
+        e.preventDefault();
       }
-    }.bind(this));
+    });
 
-    /**
-     * resize event
-     */
-    if (this.options.resize) {
-      window.addEvent('resize', function(e) {
-        if (this.resized === false && this.visible === true) {
-          this.resized = true;
-          this.lightbox.data_container.setStyle('opacity', 0);
-          this.scale();
-        }
-        return false;
-      }.bind(this));
+    if (this.options.resize === true) {
+      addEventToWindow('onresize', function(e) {
+        if (that.visible === true)
+          that.scale();
+      });
     }
 
-    /**
-     * insert elements into DOM
-     */
-    this.lightbox.wrapper.inject(document.body);
-    this.lightbox.outer_container.inject(this.lightbox.wrapper);
-    this.lightbox.inner_container.inject(this.lightbox.outer_container);
+    /** Title */
+    this.imageTitle.container = new LEEWGL.DOM.Element('div', {
+      'id': 'lb-title-' + this.id,
+      'class': 'lb-title'
+    });
 
-    if (this.image_title.text !== null && typeof this.image_desc.text !== null)
-      this.lightbox.data_container.inject(this.lightbox.outer_container);
+    this.imageTitle.container.inject(this.lightbox.dataContainer);
+
+    /** Description */
+    this.imageDesc.container = new LEEWGL.DOM.Element('div', {
+      'id': 'lb-desc-' + this.id,
+      'class': 'lb-desc'
+    });
+
+    this.imageDesc.container.inject(this.lightbox.dataContainer);
+
+    this.lightbox.wrapper.inject(this.body);
+    this.lightbox.outerContainer.inject(this.lightbox.wrapper);
+    this.lightbox.innerContainer.inject(this.lightbox.outerContainer);
+    this.lightbox.dataContainer.inject(this.lightbox.outerContainer);
   };
-
   /**
-   * [create description]
    * calls all functions needed to create a lightbox for one image
    */
   this.create = function() {
@@ -205,14 +199,10 @@ LEEWGL.Lightbox = function(options) {
     this.setupContainers();
     this.addOverlay();
     this.addLoadingGif();
-    this.addCloseIcon('close.png');
-    this.addTitle();
-    this.addDescription();
+    this.addCloseIcon('close_circle.png');
     this.addImage();
   };
-
   /**
-   * [createGrouped description]
    * calls all functions needed to create a lightbox for a group of images
    */
   this.createGrouped = function() {
@@ -220,61 +210,118 @@ LEEWGL.Lightbox = function(options) {
     this.setupContainers();
     this.addOverlay();
     this.addLoadingGif();
-    this.addCloseIcon('close.png');
-    this.addTitle();
-    this.addDescription();
+    this.addCloseIcon('close_circle.png');
     this.addGallery();
     this.addNavigation();
-    this.addImage();
+  };
+  /**
+   * Reiterates through given element selector [this.options.anchor] and registers click event to open lightox
+   */
+  this.update = function() {
+    this.anchor = [];
+    this.images = [];
+    this.thumbnails = [];
+    var that = this;
+    var domElements = document.querySelectorAll(this.options.anchor);
+
+    var getImage = function(anchor, count) {
+      var children = anchor.getChildren();
+      if (that.options.link === true) {
+        if (anchor.get('href') === null) {
+          for (var i = 0; i < children.length; ++i) {
+            getImage(children[i]);
+          }
+          return null;
+        } else {
+          that.thumbnails.push(new LEEWGL.DOM.Element('img', {
+            'src': anchor.getChildren('img')[0].get('src')
+          }));
+          that.images.push(new LEEWGL.DOM.Element('img', {
+            'src': anchor.get('href'),
+            'count': count
+          }));
+          anchor.set('count', count);
+          return anchor;
+        }
+      } else {
+        if (anchor.get('src') === null) {
+          for (var i = 0; i < children.length; ++i) {
+            getImage(children[i]);
+          }
+          return null;
+        } else {
+          that.images.push(new LEEWGL.DOM.Element('img', {
+            'src': anchor.get('src'),
+            'count': count
+          }));
+          return anchor;
+        }
+      }
+    };
+
+    var registerEvent = function(handler, image) {
+      handler.addEvent('click', function(e) {
+        var anchor = e.target;
+        that.imageTitle.text = image.get('title');
+        that.imageDesc.text = image.get('rel');
+        that.changeImage(parseInt(image.get('count')));
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    };
+
+    for (var i = 0; i < domElements.length; i++) {
+      var anchor = new LEEWGL.DOM.Element(domElements[i]);
+      this.anchor.push(anchor);
+      image = getImage(anchor, i);
+      registerEvent(anchor, image);
+    }
+    this.count = this.anchor.length;
+
+    this.updateGallery();
   };
 
   /**
-   * [addImage description]
-   * Adds an image to the lightbox based on the 'src' attribute from anchor
+   * Adds an image to the lightbox
    */
   this.addImage = function() {
-    this.img.img = new LEEWGL.DOM.Element('img', {
-      title: 'Click to close the image',
-      src: this.img.path
-    });
+    var that = this;
+    this.lightbox.innerContainer.grab(this.activeImage, 'top');
 
-    this.img.img.inject(this.lightbox.inner_container, 'top');
-
-    /**
-     * img load event - gets called when image is loaded
-     */
-    this.img.img.addEvent('load', function() {
+    this.activeImage.addEvent('load', function() {
       // if (this.options.animation === true)
       // 	this.loading.tween('opacity', 0);
       // else
-      this.loading.setStyle('opacity', 0);
-
-      this.scale();
-      this.display();
-    }.bind(this));
+      that.loading.setStyle('opacity', 0);
+      that.scale();
+      that.show();
+    });
   };
-
   /**
-   * [changeImage description]
-   * change the image without opening a new lightbox
-   * @param {DOM.Element} image
+   * Change the image without opening a new lightbox
+   * @param {number} imageID
    */
-  this.changeImage = function(image) {
-    var src = image.get(this.options['title-attribute']);
+  this.changeImage = function(imageID) {
+    var that = this;
 
-    this.image_title.text = image.get('title');
-    this.image_desc.text = image.get('rel');
+    this.lightbox.wrapper.e.focus();
+
+    if (this.gallery.container !== null) {
+      this.gallery.imgs[this.activeImageID].removeClass('active-lb');
+      this.gallery.imgs[imageID].removeClass('active-lb');
+    }
+
     // this.loading.tween('opacity', 1);
-
-    var run = (function(src) {
-      this.lightbox.inner_container.setStyle('opacity', 0);
-      this.img.img.set('src', src);
-      this.image_title.container.getChildren()[0].set('text', this.image_title.text);
-      this.image_desc.container.getChildren()[0].set('text', this.image_desc.text);
-    }.bind(this));
+    this.activeImageID = imageID;
+    var run = (function() {
+      that.lightbox.innerContainer.setStyle('opacity', 0);
+      that.activeImage.set('src', that.images[imageID].get('src'));
+      that.imageTitle.container.set('text', that.imageTitle.text);
+      that.imageDesc.container.set('text', that.imageDesc.text);
+    });
 
     // if (this.options.animation === true) {
-    //     var fx = new Fx.Tween(this.lightbox.inner_container, {
+    //     var fx = new Fx.Tween(this.lightbox.innerContainer, {
     //         property: 'opacity',
     //         duration: 200,
     //         transition: Fx.Transitions.Sine.easeOut
@@ -284,170 +331,108 @@ LEEWGL.Lightbox = function(options) {
     //         run.attempt(src);
     //     });
     // } else {
-    run(src);
+    run();
     // }
 
-    if (this.gallery.container !== null)
-      this.gallery.imgs[this.current_image].removeClass('active');
-
-    this.img.img.dispatchEvent({
+    this.activeImage.dispatchEvent({
       'type': 'load'
     });
-
-    if (this.current_image !== parseInt(image.get('count')))
-      this.current_image = parseInt(image.get('count'));
-
-    if (this.gallery.container !== null)
-      this.gallery.imgs[this.current_image].addClass('active');
   };
-
   /**
-   * [addCloseIcon description]
-   * Function to add a close icon in the left upper edge
+   * Function to add a close icon in the right upper edge
    * @param {string} src
    */
   this.addCloseIcon = function(src) {
+    var that = this;
     var path = LEEWGL.ROOT + 'img/icons/' + src;
-
     var close_icon = new LEEWGL.DOM.Element('div', {
-      'id': 'lb-close-icon-' + this.options.id,
+      'id': 'lb-close-icon-' + this.id,
       'class': 'lb-close-icon',
       'title': 'click to close',
       styles: {
         'background-image': 'url(' + path + ')'
       }
     });
+    close_icon.inject(this.lightbox.outerContainer);
 
-    close_icon.inject(this.lightbox.outer_container);
+    close_icon.addEvent('click', function(e) {
+      that.hide();
+      e.preventDefault();
+    });
   };
-
   /**
-   * [addOverlay description]
    * Adds an overlay to document.body
    */
   this.addOverlay = function() {
     this.overlay = new LEEWGL.DOM.Element('div', {
-      'id': 'lb-overlay-' + this.options.id,
+      'id': 'lb-overlay-' + this.id,
       'class': 'lb-overlay',
       styles: {
-        // 'height': document.body.getScrollSize().y,
+        'height': this.body.size()['scroll-height'] + 'px',
         'display': 'none',
         'opacity': 0
       }
     });
-    this.overlay.inject(document.body, 'top');
+    this.overlay.inject(this.body, 'top');
   };
-
   /**
-   * [addLoadingGif description]
-   * adds a gif image when lightbox is loading
+   * Adds a gif image when lightbox is loading
    */
   this.addLoadingGif = function() {
     this.loading = new LEEWGL.DOM.Element('div', {
-      'id': 'lb-loading-' + this.options.id,
+      'id': 'lb-loading-' + this.id,
       'class': 'lb-loading',
       styles: {
         'top': 0,
         'left': 0
       }
     });
-
-    this.loading.inject(this.lightbox.inner_container);
+    this.loading.inject(this.lightbox.innerContainer);
   };
-
   /**
-   * [addTitle description]
-   * Adds a title to the lightbox based on the 'title' attribute from anchor
-   */
-  this.addTitle = function() {
-    this.image_title.container = new LEEWGL.DOM.Element('div', {
-      'id': 'lb-title-' + this.options.id,
-      'class': 'lb-title'
-    });
-
-    if (this.image_title.text === null)
-      return;
-
-    var paragraph = new LEEWGL.DOM.Element('p');
-    paragraph.set('text', this.image_title.text);
-    paragraph.inject(this.image_title.container);
-    this.image_title.container.inject(this.lightbox.data_container);
-  };
-
-  /**
-   * [addDescription description]
-   * Adds a description based on the 'rel' attribute from anchor
-   */
-  this.addDescription = function() {
-    this.image_desc.container = new LEEWGL.DOM.Element('div', {
-      'id': 'lb-desc-' + this.options.id,
-      'class': 'lb-desc'
-    });
-
-    if (this.image_desc.text === null)
-      return;
-
-    var paragraph = new LEEWGL.DOM.Element('p');
-    paragraph.set('text', this.image_desc.text);
-    paragraph.inject(this.image_desc.container);
-    this.image_desc.container.inject(this.lightbox.data_container);
-  };
-
-  /**
-   * [addNavigation description]
    * Adds two links to the nav-container with a background-graphic which gets visible when the user moves the mouse into the right or left side of the image
    */
   this.addNavigation = function() {
-    /**
-     * main nav container
-     */
-    this.lightbox.nav_container = new LEEWGL.DOM.Element('div', {
-      'id': 'lb-nav-' + this.options.id,
+    var that = this;
+
+    this.lightbox.navContainer = new LEEWGL.DOM.Element('div', {
+      'id': 'lb-nav-' + this.id,
       'class': 'lb-nav'
     });
 
     if (this.options['navigation-inside'] === true)
-      this.lightbox.nav_container.inject(this.lightbox.inner_container);
+      this.lightbox.navContainer.inject(this.lightbox.innerContainer);
     else
-      this.lightbox.nav_container.inject(this.lightbox.wrapper);
+      this.lightbox.navContainer.inject(this.lightbox.outerContainer);
 
-    /**
-     * prev link
-     */
     this.prev = new LEEWGL.DOM.Element('a', {
       'class': 'lb-prev',
       'href': '#',
     });
 
     this.prev.addEvent('click', function(e) {
-      this.changeImage(this.gallery.imgs[this.current_image - 1]);
-      return false;
-    }.bind(this));
-    this.prev.inject(this.lightbox.nav_container);
+      that.changeImage(that.gallery.imgs[that.activeImageID - 1]);
+      e.preventDefault();
+    });
+    this.prev.inject(this.lightbox.navContainer);
 
-    /**
-     * next link
-     */
     this.next = new LEEWGL.DOM.Element('a', {
       'class': 'lb-next',
       'href': '#',
     });
 
     this.next.addEvent('click', function(e) {
-      this.changeImage(this.gallery.imgs[this.current_image + 1]);
-      return false;
-    }.bind(this));
-    this.next.inject(this.lightbox.nav_container);
+      that.changeImage(that.gallery.imgs[that.activeImageID + 1]);
+      e.preventDefault();
+    });
+    this.next.inject(this.lightbox.navContainer);
   };
-
   /**
-   * [addGalleryNavigation description]
    * Adds two links to the gallery container with a background-graphic which gets visible when the user moves the mouse into the right or left side of the image
    */
   this.addGalleryNavigation = function() {
-    if (this.options['gallery-quantity'] >= this.count) {
+    if (this.options['gallery-quantity'] >= this.count)
       return;
-    }
 
     this.gallery.prev = new LEEWGL.DOM.Element('a', {
       'class': 'lb-gallery-prev',
@@ -462,26 +447,24 @@ LEEWGL.Lightbox = function(options) {
     this.gallery.prev.inject(this.gallery.container, 'top');
     this.gallery.next.inject(this.gallery.container, 'bottom');
 
-    // var fx = new Fx.Scroll(this.gallery.container);
-
     this.gallery.prev.addEvent('click', function(e) {
       // fx.start(-this.gallery.container.getSize().x, 0);
-      return false;
-    }.bind(this));
+      e.preventDefault();
+    });
 
     this.gallery.next.addEvent('click', function(e) {
       // fx.start(this.gallery.container.getSize().x, 0);
-      return false;
-    }.bind(this));
+      e.preventDefault();
+    });
   };
 
   /**
-   * [addGallery description]
    * Adds available pictures as thumbnails to the bottom of the lightbox container
    */
   this.addGallery = function() {
+    var that = this;
     this.gallery.container = new LEEWGL.DOM.Element('div', {
-      'id': 'lb-gallery-' + this.options.id,
+      'id': 'lb-gallery-' + this.id,
       'class': 'lb-gallery',
       styles: {
         'opacity': 0
@@ -490,206 +473,220 @@ LEEWGL.Lightbox = function(options) {
 
     this.addGalleryNavigation();
 
+    this.gallery.container.inject(this.lightbox.wrapper, 'bottom');
+    this.gallery.imgs[this.activeImageID].addClass('active-lb');
+  };
+
+  this.updateGallery = function() {
+    if (this.gallery.container === null)
+      return;
+
     for (var i = 0; i < this.count; ++i) {
+      var src = (typeof this.thumbnails[i] !== 'undefined') ? this.thumbnails[i].get('src') : this.images[i].get('src');
       this.gallery.imgs[i] = new LEEWGL.DOM.Element('img', {
         'class': 'lb-galleryimage',
-        'src': (this.thumbnail_src === null) ? this.images_src[i] : this.thumbnail_src[i],
+        'src': src,
         'title': this.anchor[i].get('title'),
         'rel': this.anchor[i].get('rel'),
         'count': this.anchor[i].get('count'),
         styles: {
-          'height': this.options['gallery-height']
+          'height': this.options['gallery-height'] + 'px'
         }
       });
 
-      this.gallery.imgs[i].set(this.options['title-attribute'], this.images_src[i]);
+      this.gallery.imgs[i].set(this.options['title-attribute'], this.images[i].get('src'));
 
-      if (i === (this.count - 1) && this.options.gallery_quantity >= this.count)
+      if (i === (this.count - 1) && this.options['gallery_quantity'] >= this.count)
         this.gallery.imgs[i].addClass('last');
 
       this.gallery.imgs[i].addEvent('click', function(e) {
-        this.gallery.imgs[this.current_image].removeClass('active');
-        this.changeImage(e.target);
-        return false;
-      }.bind(this));
+        that.gallery.imgs[that.activeImageID].removeClass('active-lb');
+        that.changeImage(that.gallery.imgs[i].get('count'));
+        e.preventDefault();
+      });
 
       if (this.options.link === true) {
         var link = new LEEWGL.DOM.Element('a', {
-          'href': this.images_src[i]
+          'href': this.images[i].get('src')
         });
-
         this.gallery.imgs[i].inject(link);
         link.inject(this.gallery.container);
       } else {
         this.gallery.imgs[i].inject(this.gallery.container);
       }
     }
-    this.gallery.container.inject(this.lightbox.wrapper, 'bottom');
-    this.gallery.imgs[this.current_image].addClass('active');
   };
 
   /**
-   * [scale description]
-   * resize image function
+   * Set dimensions of image and containers
    */
   this.scale = function() {
-    // / need to remove the style tag of the image because else javascript
-    // / can't get the original height and width
-    this.img.img.removeAttribute('style');
-
-    // / need to set wrapper and outer_container to be visible in the DOM
-    // / because otherway the img-size is { x : 0, y: 0 }
+    var that = this;
+    /** need to remove the style tag of the image because else javascript
+        can't get the original height and width */
+    this.activeImage.removeAttribute('style');
+    /** need to set wrapper and outerContainer to be visible in the DOM
+        because otherway the img-size is { x : 0, y: 0 } */
     this.lightbox.wrapper.setStyle('display', 'block');
 
-    var body_size = document.body.size();
-    this.img.coordinates = this.img.img.position();
-    var newX = this.img.coordinates.x;
-    var newY = this.img.coordinates.y;
-
-    var big_enough = true;
-
-    var container_height = this.lightbox.data_container.size().height;
-    var inner_container_padding = {
-      'x': parseFloat(this.lightbox.inner_container.getStyle('padding-left')) + parseFloat(this.lightbox.inner_container.getStyle('padding-right')),
-      'y': parseFloat(this.lightbox.inner_container.getStyle('padding-top')) + parseFloat(this.lightbox.inner_container.getStyle('padding-bottom')),
+    var bodySize = this.body.size();
+    var imageSize = this.activeImage.size();
+    var newX = imageSize.width;
+    var newY = imageSize.height;
+    var bigEnough = true;
+    var additionalContainerHeight = this.lightbox.dataContainer.size().height;
+    var innerContainerPadding = {
+      'x': parseFloat(this.lightbox.innerContainer.getStyle('padding-left')) + parseFloat(this.lightbox.innerContainer.getStyle('padding-right')),
+      'y': parseFloat(this.lightbox.innerContainer.getStyle('padding-top')) + parseFloat(this.lightbox.innerContainer.getStyle('padding-bottom')),
     };
+
+    if (this.imageTitle.text === null) {
+      additionalContainerHeight = 0;
+      this.lightbox.dataContainer.setStyle('opacity', 0);
+    }
 
     if (this.grouped === true)
-      container_height += parseFloat(this.gallery.container.getStyle('height'));
+      additionalContainerHeight += parseFloat(this.gallery.container.getStyle('height'));
 
-    var max_proportions = {
-      x: (body_size.x * this.sizeFactor) - container_height,
-      y: (body_size.y * this.sizeFactor) - container_height
+    var getMaxDimensions = function() {
+      var dimensions = {
+        x: (bodySize.width * that.options['size-factor']) - additionalContainerHeight,
+        y: (bodySize.height * that.options['size-factor']) - additionalContainerHeight
+      };
+
+      if (that.options['max-width'] !== null) {
+        dimensions.x = that.options['max-width'];
+        dimensions.y = imageSize.height * (dimensions.x / imageSize.width);
+      }
+
+      if (that.options['max-height'] !== null && dimensions.y > that.options['max_height']) {
+        dimensions.y = that.options['max-height'];
+        dimensions.x = imageSize.width * (dimensions.y / imageSize.height);
+      }
+      return dimensions;
     };
 
-    if (this.options.max_width !== null) {
-      max_proportions.x = this.options['max-width'];
-      max_proportions.y = this.img.coordinates.height * (max_proportions.x / this.img.coordinates.width);
-    }
+    var maxDimensions = getMaxDimensions();
 
-    if (typeOf(this.options.max_height) !== 'null' && max_proportions.y > this.options.max_height) {
-      max_proportions.y = this.options['max-height'];
-      max_proportions.x = this.img.coordinates.width * (max_proportions.y / this.img.coordinates.height);
-    }
+    var calculateImageSize = function() {
+      var size = {
+        'width': imageSize.width,
+        'height': imageSize.height
+      };
+
+      if (size.width > maxDimensions.x) {
+        size.width = maxDimensions.x;
+        size.height = imageSize.height * (size.width / imageSize.width);
+      }
+      if (size.height > maxDimensions.y) {
+        size.height = maxDimensions.y;
+        size.width = imageSize.width * (size.height / imageSize.height);
+      }
+
+      if (size.width < that.options['min-width'] || size.height < that.options['min-height']) {
+        size.width = that.options['min-width'];
+        size.height = imageSize.height * (size.width / imageSize.width);
+        additionalContainerHeight = 0;
+        bigEnough = false;
+      }
+      return size;
+    };
+
+    var newImageSize = calculateImageSize();
+    var scroll = newImageSize.height + innerContainerPadding.y + additionalContainerHeight;
+    scroll = this.body.getScroll().y + ((bodySize['display-height'] - scroll) / 2);
 
     /**
-     * if image is too big rescale
+     * set width of lightbox outerContainer to center it
      */
-    if (newX > max_proportions.x) {
-      newX = max_proportions.x;
-      newY = this.img.coordinates.height * (newX / this.img.coordinates.width);
-    }
-    if (newY > max_proportions.y) {
-      newY = max_proportions.y;
-      newX = this.img.coordinates.width * (newY / this.img.coordinates.height);
-    }
+    var outerContainerWidth = newImageSize.width + innerContainerPadding.x;
+    var outerContainerHeight = (newImageSize.height + additionalContainerHeight);
 
-    this.img.img.setStyles({
-      'width': newX,
-      'height': newY,
+    this.activeImage.setStyles({
+      'width': newImageSize.width + 'px',
+      'height': newImageSize.height + 'px',
       'opacity': 0
     });
 
-    /**
-     * if too small don't display gallery and description
-     */
-    if (newX < 400 || newY < 400) {
-      container_height = 0;
-      big_enough = false;
-    }
+    this.lightbox.wrapper.setStyle('height', bodySize['scroll-height'] + 'px');
+    this.overlay.setStyle('height', this.body.size()['scroll-height'] + 'px');
 
-    this.scroll = newY + inner_container_padding.y + container_height;
-    this.scroll = (body_size.y - this.scroll) / 2;
-
-    if (this.grouped === true)
-      container_height -= this.gallery.container.size().height;
-
-    /**
-     * set width of lightbox outer_container to center it
-     */
-    var outer_container_width = newX + inner_container_padding.x;
-    var outer_container_height = body_size.y - (this.scroll + this.options['gallery-height'] + (body_size.y * 1 / 100));
-
-    this.lightbox.outer_container.setStyles({
-      'width': outer_container_width,
-      'height': outer_container_height
+    this.lightbox.outerContainer.setStyles({
+      'top': scroll + 'px',
+      'width': outerContainerWidth + 'px',
+      'height': outerContainerHeight + 'px'
     });
 
-    this.run(body_size, big_enough);
-
-    /**
-     * prev / next buttons
-     */
-
     if (this.prev !== null) {
-      if (this.current_image > 0)
+      if (this.activeImageID > 0) {
         this.prev.setStyles({
-          'height': newY,
+          'height': newImageSize.height + 'px',
           'display': 'block'
         });
-      else
+      } else {
         this.prev.setStyle('display', 'none');
+      }
     }
 
     if (this.next !== null) {
-      if (this.current_image < (this.count - 1))
+      if (this.activeImageID < (this.count - 1)) {
         this.next.setStyles({
-          'height': newY,
+          'height': newImageSize.height + 'px',
           'display': 'block'
         });
-      else
+      } else {
         this.next.setStyle('display', 'none');
+      }
     }
 
-    this.lightbox.wrapper.setStyles({
-      'top': document.body.getScroll().y + this.scroll,
-      'height': body_size.y - this.scroll
-    });
-
-    // / set correct height for overlay
-    this.overlay.setStyle('height', document.body.getScrollSize().y);
     // / center loading gif
     this.loading.setStyles({
-      'left': (newX / 2) - 16,
-      'top': (newY / 2) - 16
+      'left': (newImageSize.width / 2) - 16 + 'px',
+      'top': (newImageSize.height / 2) - 16 + 'px'
     });
 
-    this.resized = false;
+    this.run(bodySize, bigEnough);
   };
-
   /**
-   * [run description]
-   * Function to display various containers or hide them, calculate gallery width
-   * @param  {object} body_size
-   * @param  {boolean} big_enough
+   * Function to display various containers or hide them and calculate the gallery width
+   * @param  {object} bodySize
+   * @param  {bool} bigEnough
    */
-  this.run = function(body_size, big_enough) {
-    this.lightbox.inner_container.setStyle('opacity', 1);
-    var gallery_calulation = (function(body_size, big_enough) {
-      this.lightbox.inner_container.setStyle('opacity', 1);
-      this.img.img.setStyle('opacity', 1);
-      if (this.grouped === true && big_enough) {
+  this.run = function(bodySize, bigEnough) {
+    var that = this;
+    this.lightbox.innerContainer.setStyle('opacity', 1);
+    var gallery_calulation = (function(bodySize, bigEnough) {
+      that.lightbox.innerContainer.setStyle('opacity', 1);
+      that.activeImage.setStyle('opacity', 1);
+      if (that.grouped === true) {
         // / set gallery container size
         var gallery_width = 0;
-        var gallery_img_height = this.options['gallery-height'];
-        var gallery_img_width = this.gallery.imgs[0].size().width * (gallery_img_height / this.gallery.imgs[0].size().height);
+        var gallery_img_height = that.options['gallery-height'];
+        var gallery_img_width = that.gallery.imgs[0].size().width * (gallery_img_height / that.gallery.imgs[0].size().height);
 
-        for (var i = 0; i < this.gallery.imgs.length && i < this.options['gallery-quantity']; ++i) {
+        for (var i = 0; i < that.gallery.imgs.length && i < that.options['gallery-quantity']; ++i) {
           gallery_width += gallery_img_width;
-          this.gallery.imgs[i].setStyle('width', gallery_img_width);
+          that.gallery.imgs[i].setStyle('width', gallery_img_width + 'px');
         }
 
-        gallery_width += parseFloat(this.gallery.imgs[0].getStyle('margin-right')) * (this.options.gallery_quantity - 1);
-        this.gallery.container.setStyle('width', gallery_width);
-        this.lightbox.data_container.setStyle('opacity', 1);
-        this.gallery.container.setStyle('opacity', 1);
-      } else if (big_enough === true) {
-        this.lightbox.data_container.setStyle('opacity', 1);
+        gallery_width += parseFloat(that.gallery.imgs[0].getStyle('margin-right')) * (that.options.gallery_quantity - 1);
+        that.gallery.container.setStyle('width', gallery_width + 'px');
+
+        if (bigEnough === true) {
+          if (that.imageTitle.text !== null)
+            that.lightbox.dataContainer.setStyle('opacity', 1);
+          that.gallery.container.setStyle('opacity', 1);
+        } else {
+          that.lightbox.dataContainer.setStyle('opacity', 0);
+          that.gallery.container.setStyle('opacity', 0);
+        }
       } else {
-        this.lightbox.data_container.setStyle('opacity', 0);
-        this.gallery.container.setStyle('opacity', 0);
+        if (bigEnough === true && that.imageTitle.text !== null)
+          that.lightbox.dataContainer.setStyle('opacity', 1);
+        else
+          that.lightbox.dataContainer.setStyle('opacity', 0);
       }
-    }.bind(this));
+    });
 
     // if (this.options.animation === true) {
     //     var fx = new Fx.Tween(this.img.img, {
@@ -699,15 +696,14 @@ LEEWGL.Lightbox = function(options) {
     //
     //     fx.start('opacity', 1).chain( //
     //         function() {
-    //             gallery_calulation.attempt([body_size, big_enough]);
+    //             gallery_calulation.attempt([bodySize, bigEnough]);
     //         });
     // } else {
-    gallery_calulation(body_size, big_enough);
+    gallery_calulation(bodySize, bigEnough);
     // }
   };
 
   /**
-   * [show description]
    * Displays the lightbox
    */
   this.show = function() {
@@ -724,13 +720,12 @@ LEEWGL.Lightbox = function(options) {
   };
 
   /**
-   * [hide description]
    * Function to make the lightbox and the overlay disappear
    */
   this.hide = function() {
     if (this.visible === true) {
       this.lightbox.wrapper.setStyle('display', 'none');
-      this.lightbox.data_container.setStyle('opacity', '0');
+      this.lightbox.dataContainer.setStyle('opacity', '0');
 
       if (this.grouped === true)
         this.gallery.container.setStyle('opacity', '0');
@@ -742,7 +737,7 @@ LEEWGL.Lightbox = function(options) {
       // 	});
       // 	fx.start('opacity', 0).chain( //
       // 	function() {
-      // 		this.lightbox.inner_container.tween('opacity', 0);
+      // 		this.lightbox.innerContainer.tween('opacity', 0);
       // 		this.loading.setStyle('display', 'none');
       // 		this.overlay.setStyle('display', 'none');
       // 	}.bind(this));
@@ -756,3 +751,6 @@ LEEWGL.Lightbox = function(options) {
 
   this.initialize();
 };
+
+/** @global */
+LEEWGL.Lightbox.LightboxCount = 0;

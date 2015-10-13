@@ -50,6 +50,8 @@ LEEWGL.Geometry = function(options) {
     }
   });
 
+  this.addComponent(new LEEWGL.Component.Renderer());
+
   this.facesNum = 1;
   this.faces = [];
   this.vectors = [];
@@ -109,14 +111,6 @@ LEEWGL.Geometry.prototype.setColor = function(gl, color) {
 };
 
 /**
- * Sets this.usesTexture
- * @param  {LEEWGL.Texture} texture
- */
-LEEWGL.Geometry.prototype.setTexture = function(texture) {
-  this.usesTexture = true;
-};
-
-/**
  * Calculates tangents and saves them in this.tangents
  */
 LEEWGL.Geometry.prototype.calculateTangents = function() {
@@ -124,43 +118,60 @@ LEEWGL.Geometry.prototype.calculateTangents = function() {
     this.tangents[i] = 0.0;
   }
 };
-
 /**
- * Sets geometry own shader attributes and uniforms and renders the geometry
- * @param  {webGLContext} gl
- * @param  {LEEWGL.Shader} shader
- * @param  {webGLDrawMode} drawMode
+ * Returns geometry render data as json array
+ * @return {object}
  */
-LEEWGL.Geometry.prototype.draw = function(gl, shader, drawMode) {
-  var indices = (this.indices.length > 0) ? true : false;
-
-  shader.use(gl);
-
-  shader.attributes['aVertexPosition'](this.buffers.position);
-  shader.uniforms['uModel'](this.transform.matrix());
-
-  var draw = drawMode;
-
-  if (this.options['wireframe'] === true)
-    draw = gl.LINES;
-
-  shader.attributes['aVertexNormal'](this.buffers.normal);
-
-  if (this.usesTexture === true) {
-    shader.attributes['aTextureCoord'](this.buffers.texture);
-    this.components['Texture'].texture.setActive(gl);
-    this.components['Texture'].texture.bind(gl);
-    shader.uniforms['uSampler'](this.components['Texture'].texture.id);
-  } else {
-    shader.attributes['aVertexColor'](this.buffers.color);
-  }
+LEEWGL.Geometry.prototype.renderData = function() {
+  var texture = (this.usesTexture === true) ? this.components['Texture'].texture : false;
 
   var normalMatrix = mat4.create();
   mat4.invert(normalMatrix, this.transform.matrix());
   mat4.transpose(normalMatrix, normalMatrix);
 
-  shader.uniforms['uColorMapColor'](new Float32Array(this.buffers.position.colorMapColor));
-  shader.uniforms['uNormalMatrix'](normalMatrix);
+  var attributes = {
+    'aVertexPosition': this.buffers.position,
+    'aVertexNormal': this.buffers.normal,
+  };
+
+  var uniforms = {
+    'uModel': this.transform.matrix(),
+    'uNormalMatrix': normalMatrix
+  };
+
+  if (texture === false) {
+    attributes['aVertexColor'] = this.buffers.color;
+  } else {
+    attributes['aTextureCoord'] = this.buffers.texture;
+    uniforms['uSampler'] = texture.id;
+  }
+
+  if (this.picking === true)
+    uniforms['uColorMapColor'] = new Float32Array(this.buffers.position.colorMapColor);
+
+  return {
+    'attributes': attributes,
+    'uniforms': uniforms
+  };
+};
+
+/**
+ * Sets geometry own shader attributes and uniforms and renders the geometry
+ * @param  {webGLContext} gl
+ * @param  {webGLDrawMode} drawMode
+ */
+LEEWGL.Geometry.prototype.draw = function(gl, drawMode) {
+  var indices = (this.indices.length > 0) ? true : false;
+
+  var draw = drawMode;
+
+  if (this.options['wireframe'] === true)
+    draw = gl.LINE_STRIP;
+
+  if (this.usesTexture === true) {
+    this.components['Texture'].texture.setActive(gl);
+    this.components['Texture'].texture.bind(gl);
+  }
 
   if (indices === true) {
     this.buffers.indices.bind(gl);

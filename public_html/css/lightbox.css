@@ -1,7 +1,7 @@
 .lb {
-  font-family: PFDinDisplayPro-Light, sans-serif;
   position: absolute;
   left: 0;
+  top: 0;
   width: 100%;
   z-index: 10000;
   line-height: 0;
@@ -17,6 +17,7 @@
 }
 .lb-inner img {
   -webkit-box-shadow: 1px 1px 10px 1px #000;
+  -moz-box-shadow: 1px 1px 10px 1px #000;
   box-shadow: 1px 1px 10px 1px #000;
 }
 .lb-data {
@@ -26,10 +27,10 @@
   background-color: #000;
   color: #e0e1de;
   -webkit-box-shadow: 1px 1px 10px 1px #000;
+  -moz-box-shadow: 1px 1px 10px 1px #000;
   box-shadow: 1px 1px 10px 1px #000;
 }
 .lb-title {
-  font-family: PFDinDisplayPro-Bold, sans-serif;
   padding: 10px 0 0 10px;
   font-size: 1.3em;
   height: 25px;
@@ -70,9 +71,10 @@
   -o-transition: opacity .3s ease-out;
   transition: opacity .3s ease-out;
   -webkit-box-shadow: 1px 1px 10px 1px #000;
+  -moz-box-shadow: 1px 1px 10px 1px #000;
   box-shadow: 1px 1px 10px 1px #000;
 }
-.active {
+.active-lb {
   opacity: 0.3;
 }
 .lb-galleryimage:hover {
@@ -85,8 +87,7 @@
   position: absolute;
   width: 48px;
   height: 48px;
-  background: transparent url(images/general/48/loader.gif) no-repeat 45% 50%;
-  background: rgba(0, 0, 0, 0) url(images/general/48/loader.gif) no-repeat 45% 50%;
+  background: rgba(0, 0, 0, 0) url(../img/gif/loader.gif) no-repeat 45% 50%;
   z-index: 10001;
 }
 a.lb-next {
@@ -95,7 +96,6 @@ a.lb-next {
   width: 40%;
   right: 0;
   top: 35px;
-  background: transparent url(images/lightbox/next_light.png) no-repeat 85% 50%;
   background: rgba(0, 0, 0, 0) url(images/lightbox/next_light.png) no-repeat 85% 50%;
   opacity: 0.5;
   -moz-transition: opacity .3s ease-out;
@@ -110,7 +110,6 @@ a.lb-prev {
   left: 0;
   top: 35px;
   background: rgba(0, 0, 0, 0) url(images/lightbox/prev_light.png) no-repeat 15% 50%;
-  background: transparent url(images/lightbox/prev_light.png) no-repeat 15% 50%;
   opacity: 0.5;
   -moz-transition: opacity .3s ease-out;
   -webkit-transition: opacity .3s ease-out;
@@ -131,7 +130,6 @@ a.lb-gallery-next {
   right: 0;
   opacity: 0.5;
   background: rgba(0, 0, 0, 0) url(images/lightbox/next_small_light.png) no-repeat 20% 50%;
-  background: transparent url(images/lightbox/next_small_light.png) no-repeat 20% 50%;
   -moz-transition: opacity .3s ease-out;
   -webkit-transition: opacity .3s ease-out;
   -o-transition: opacity .3s ease-out;
@@ -145,7 +143,6 @@ a.lb-gallery-prev {
   left: 0;
   opacity: 0.5;
   background: rgba(0, 0, 0, 0) url(images/lightbox/prev_small_light.png) no-repeat 80% 50%;
-  background: transparent url(images/lightbox/prev_small_light.png) no-repeat 80% 50%;
   -moz-transition: opacity .3s ease-out;
   -webkit-transition: opacity .3s ease-out;
   -o-transition: opacity .3s ease-out;
@@ -159,10 +156,10 @@ a.lb-gallery-prev:hover {
 }
 .lb-close-icon {
   position: absolute;
-  width: 32px;
-  height: 32px;
-  top: -12px;
-  right: -11px;
+  width: 50px;
+  height: 50px;
+  top: -23px;
+  right: -23px;
   margin: 0;
   cursor: pointer;
   opacity: 0.5;

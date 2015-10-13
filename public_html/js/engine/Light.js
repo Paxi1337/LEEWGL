@@ -21,7 +21,6 @@ LEEWGL.Light = function(options) {
 
   this.type = 'Light';
   this.lightType = 'Base';
-  this.render = false;
 
   this.ambient = vec3.clone(this.options.ambient);
   this.color = vec3.clone(this.options.color);
@@ -63,19 +62,19 @@ LEEWGL.Light.prototype.setEditables = function() {
   };
   addToJSON(this.editables, editables);
 };
-
 /**
- * Sets light specific uniforms in the shader
- * @param  {webGLContext} gl
- * @param  {LEEWGL.Shader} shader
+ * Returns render data in form of json array
+ * @returns  {object} data
  */
-LEEWGL.Light.prototype.draw = function(gl, shader) {
-  shader.use(gl);
-  shader.uniforms['uAmbient'](this.ambient);
-  shader.uniforms['uSpecular'](this.specular);
-  shader.uniforms['uLightColor'](this.color);
+LEEWGL.Light.prototype.renderData = function() {
+  return {
+    'uniforms': {
+      'uAmbient': this.ambient,
+      'uSpecular': this.specular,
+      'uLightColor': this.color
+    }
+  };
 };
-
 /**
  * @param  {LEEWGL.Light} light
  * @param  {bool} cloneID
@@ -96,7 +95,6 @@ LEEWGL.Light.prototype.clone = function(light, cloneID, recursive, addToAlias) {
 
   return light;
 };
-
 /**
  * @constructor
  * @augments LEEWGL.Light
@@ -108,11 +106,11 @@ LEEWGL.Light.DirectionalLight = function(options) {
   var ext_options = {
     'direction': [1.0, 0.0, 0.0]
   };
+
   this.addOptions(ext_options);
   this.setOptions(options);
 
   this.lightType = 'Directional';
-
   this.direction = vec3.clone(this.options['direction']);
 
   this.setEditables();
@@ -138,17 +136,6 @@ LEEWGL.Light.DirectionalLight.prototype.setEditables = function() {
   addToJSON(this.editables, editables);
   addPropertyToAllJSON(this.editables, 'alias');
 };
-
-/**
- * Calls Light.draw and sets directional light specific uniforms in the shader
- * @param  {webGLContext} gl
- * @param  {LEEWGL.Shader} shader
- */
-LEEWGL.Light.DirectionalLight.prototype.draw = function(gl, shader) {
-  LEEWGL.Light.prototype.draw.call(this, gl, shader);
-  shader.uniforms['uLightDirection'](this.direction);
-};
-
 /**
  * Generates a lookAt matrix with given eye position
  * @param  {vec3} target - where the viewer is looking at
@@ -160,7 +147,6 @@ LEEWGL.Light.DirectionalLight.prototype.getView = function(camera) {
   mat4.lookAt(view, pos, vec3.add(vec3.create(), pos, vec3.normalize(vec3.create(), this.direction)), this.up);
   return view;
 };
-
 /**
  * Generates a projection matrix with this.outerAngle
  * @return  {mat4} projection
@@ -171,7 +157,15 @@ LEEWGL.Light.DirectionalLight.prototype.getProjection = function(camera) {
   mat4.ortho(projection, pos[0] - 100.0, pos[0] + 100.0, pos[1] - 100.0, pos[1] + 100.0, camera.near, camera.far);
   return projection;
 };
-
+/**
+ * Returns render data in form of json array
+ * @returns  {object} data
+ */
+LEEWGL.Light.DirectionalLight.prototype.renderData = function() {
+  var data = LEEWGL.Light.prototype.renderData.call(this);
+  data.uniforms['uLightDirection'] = this.direction;
+  return data;
+};
 /**
  * @param  {LEEWGL.Light.DirectionalLight} directionalLight
  * @param  {bool} cloneID
@@ -264,7 +258,6 @@ LEEWGL.Light.SpotLight.prototype.getView = function(target) {
   mat4.lookAt(view, this.transform.position, target, this.up);
   return view;
 };
-
 /**
  * Generates a projection matrix with this.outerAngle
  * @return  {mat4} projection
@@ -275,7 +268,6 @@ LEEWGL.Light.SpotLight.prototype.getProjection = function() {
   mat4.perspective(projection, angle, 1.0, 1.0, 100.0);
   return projection;
 };
-
 /**
  * Generates a view-projection matrix
  * @return  {mat4} mat
@@ -285,23 +277,19 @@ LEEWGL.Light.SpotLight.prototype.matrix = function(target) {
   var proj = this.getProjection();
   return mat4.multiply(mat4.create(), proj, view);
 };
-
 /**
- * Calls Light.draw and sets spot light specific uniforms in the shader
- * @param  {webGLContext} gl
- * @param  {LEEWGL.Shader} shader
+ * Returns render data in form of json array
+ * @returns  {object} data
  */
-LEEWGL.Light.SpotLight.prototype.draw = function(gl, shader) {
-  LEEWGL.Light.prototype.draw.call(this, gl, shader);
-  shader.use(gl);
-
-  shader.uniforms['uLightPosition'](this.transform.position);
-  shader.uniforms['uSpotDirection'](this.spotDirection);
-  shader.uniforms['uSpotInnerAngle'](this.innerAngle);
-  shader.uniforms['uSpotOuterAngle'](this.outerAngle);
-  shader.uniforms['uLightRadius'](this.radius);
+LEEWGL.Light.SpotLight.prototype.renderData = function() {
+  var data = LEEWGL.Light.prototype.renderData.call(this);
+  data.uniforms['uLightPosition'] = this.transform.position;
+  data.uniforms['uSpotDirection'] = this.spotDirection;
+  data.uniforms['uSpotInnerAngle'] = this.innerAngle;
+  data.uniforms['uSpotOuterAngle'] = this.outerAngle;
+  data.uniforms['uLightRadius'] = this.radius;
+  return data;
 };
-
 /**
  * @param  {LEEWGL.Light.SpotLight} spotLight
  * @param  {bool} cloneID
@@ -363,7 +351,6 @@ LEEWGL.Light.PointLight.prototype.setEditables = function() {
   addToJSON(this.editables, editables);
   addPropertyToAllJSON(this.editables, 'alias');
 };
-
 /**
  * Generates a lookAt matrix with given eye position
  * @param  {vec3} target - where the viewer is looking at
@@ -374,7 +361,6 @@ LEEWGL.Light.PointLight.prototype.getView = function(target) {
   mat4.lookAt(view, this.transform.position, target, this.up);
   return view;
 };
-
 /**
  * Generates a projection matrix with given this.outerAngle
  * @return  {mat4} projection
@@ -385,7 +371,6 @@ LEEWGL.Light.PointLight.prototype.getProjection = function() {
   mat4.perspective(projection, angle, 1.0, 1.0, 100);
   return projection;
 };
-
 /**
  * Generates a view-projection matrix
  * @return  {mat4} mat
@@ -395,19 +380,16 @@ LEEWGL.Light.PointLight.prototype.matrix = function(target) {
   var proj = this.getProjection();
   return mat4.multiply(mat4.create(), proj, view);
 };
-
-
 /**
- * Calls Light.draw and sets point light specific uniforms in the shader
- * @param  {webGLContext} gl
- * @param  {LEEWGL.Shader} shader
+ * Returns render data in form of json array
+ * @returns  {object} data
  */
-LEEWGL.Light.PointLight.prototype.draw = function(gl, shader) {
-  LEEWGL.Light.prototype.draw.call(this, gl, shader);
-  shader.uniforms['uLightPosition'](this.transform.position);
-  shader.uniforms['uLightRadius'](this.radius);
+LEEWGL.Light.PointLight.prototype.renderData = function() {
+  var data = LEEWGL.Light.prototype.renderData.call(this);
+  data.uniforms['uLightPosition'] = this.transform.position;
+  data.uniforms['uLightRadius'] = this.radius;
+  return data;
 };
-
 /**
  * @param  {LEEWGL.Light.PointLight} pointLight
  * @param  {bool} cloneID

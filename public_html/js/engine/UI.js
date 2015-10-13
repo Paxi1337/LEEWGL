@@ -29,7 +29,7 @@ LEEWGL.UI = function(options) {
 
   this.drag = new LEEWGL.DragDrop();
 
-  this.transformationMode = 'translation';
+  this.transformationMode = LEEWGL.EDITOR.TRANSFORMATION.TRANSLATE;
 
   this.popup = new LEEWGL.UI.Popup({});
   this.popup.create();
@@ -81,6 +81,7 @@ LEEWGL.UI = function(options) {
     }
   });
   this.sidebar.create();
+  this.sidebar.setPosition();
 
   this.importedScripts = [];
   this.objectScripts = [];
@@ -95,6 +96,12 @@ LEEWGL.UI = function(options) {
   this.importer = new LEEWGL.Importer();
 
   this.body = new LEEWGL.DOM.Element(document.body);
+
+  this.lightbox = new window.LEEWGL.Lightbox({
+    'anchor': 'a.lb-image',
+    'link': true,
+    'auto-group': false
+  });
 
   extend(LEEWGL.UI.prototype, LEEWGL.Options.prototype);
 
@@ -388,6 +395,30 @@ LEEWGL.UI = function(options) {
       element.traverse(scale, [vector]);
     }
   };
+  /**
+   * Returns link with event handler to remove component from given element
+   * @param  {LEEWGL.GameObject} element
+   * @param  {LEEWGL.Component} component
+   * @return {LEEWGL.DOM.Element}
+   */
+  this.removeComponentButton = function(element, component) {
+    var removeComponentContainer = new LEEWGL.DOM.Element('div', {
+      'class': 'icon-container-small fright'
+    });
+    var removeComponent = new LEEWGL.DOM.Element('a', {
+      'class': 'delete-icon bg-pos54 pointer',
+      'title': 'Remove Component'
+    });
+
+    removeComponent.addEvent('click', function() {
+      element.removeComponent(component);
+      that.setInspectorElement(element.id);
+    });
+
+    removeComponentContainer.grab(removeComponent);
+
+    return removeComponentContainer;
+  };
 
   /**
    * Returns a HTML-form of the transform component of given element
@@ -489,20 +520,7 @@ LEEWGL.UI = function(options) {
     });
     container.grab(title);
 
-    var removeComponentContainer = new LEEWGL.DOM.Element('div', {
-      'class': 'icon-container-small fright'
-    });
-    var removeComponent = new LEEWGL.DOM.Element('a', {
-      'class': 'delete-icon bg-pos54 pointer',
-      'title': 'Remove Component'
-    });
-
-    removeComponent.addEvent('click', function() {
-      element.removeComponent('CustomScript');
-      that.setInspectorElement(element.id);
-    });
-
-    removeComponentContainer.grab(removeComponent);
+    var removeComponentContainer = this.removeComponentButton(element, script);
 
     var appliedScriptsContainer = new LEEWGL.DOM.Element('div', {
       'class': 'component-detail-container'
@@ -565,7 +583,6 @@ LEEWGL.UI = function(options) {
         editAppliedScript.addEvent('click', function(event) {
           that.popup.setOptions({
             'wrapper-width': 400,
-            'center': true
           });
           that.popup.empty();
           that.popup.addTitleText(id);
@@ -593,6 +610,7 @@ LEEWGL.UI = function(options) {
           that.popup.addCustomElementToContent(codeContainer);
           that.popup.addCustomElementToContent(updateAppliedScript);
           that.popup.setDimensions();
+          that.popup.center();
           that.popup.setStyle({
             'word-wrap': 'break-word'
           });
@@ -724,7 +742,6 @@ LEEWGL.UI = function(options) {
 
     return container;
   };
-
   /**
    * Returns a HTML-form of the texture component of given element
    * @param  {LEEWGL.GameObject} element
@@ -742,20 +759,7 @@ LEEWGL.UI = function(options) {
     });
     container.grab(title);
 
-    var removeComponentContainer = new LEEWGL.DOM.Element('div', {
-      'class': 'icon-container-small fright'
-    });
-    var removeComponent = new LEEWGL.DOM.Element('a', {
-      'class': 'delete-icon bg-pos54 pointer',
-      'title': 'Remove Component'
-    });
-
-    removeComponent.addEvent('click', function() {
-      element.removeComponent('Texture');
-      that.setInspectorElement(element.id);
-    });
-
-    removeComponentContainer.grab(removeComponent);
+    var removeComponentContainer = this.removeComponentButton(element, texture);
 
     var fileName = new LEEWGL.DOM.Element('h4', {
       'class': 'component-sub-headline'
@@ -765,14 +769,17 @@ LEEWGL.UI = function(options) {
     });
     var imageContainer = new LEEWGL.DOM.Element('div', {
       'id': 'texture-preview-container',
-      'class': 'texture-preview-container p5'
+      'class': 'image-preview-container'
     });
-    var image = new LEEWGL.DOM.Element('img', {
-      'class': 'lightbox'
+    var imageAnchor = new LEEWGL.DOM.Element('a', {
+      'class': 'lb-image'
     });
-    imageContainer.grab(image);
+    var image = new LEEWGL.DOM.Element('img');
+    imageAnchor.grab(image);
+    imageContainer.grab(imageAnchor);
 
     if (typeof this.saved['object-' + element.id + '-texture-path'] !== 'undefined') {
+      imageAnchor.set('href', this.saved['object-' + element.id + '-texture-path']);
       image.set('src', this.saved['object-' + element.id + '-texture-path']);
       fileInput.set('value', this.saved['object-' + element.id + '-texture-path']);
       fileName.set('text', this.saved['object-' + element.id + '-texture-path']);
@@ -780,18 +787,102 @@ LEEWGL.UI = function(options) {
       fileName.set('text', 'No Texture');
     }
 
-    var that = this;
+    var path = LEEWGL.ROOT + 'texture/';
+    var name = '';
+    if (texture.initialized === true) {
+      name = texture.getSource();
+      imageAnchor.set('href', name);
+      image.set('src', name);
+      fileName.set('text', name);
+    }
 
+    var that = this;
     fileInput.addEvent('change', function(event) {
-      var name = this.value.substr(this.value.lastIndexOf('\\') + 1, this.value.length);
-      var path = LEEWGL.ROOT + 'texture/';
+      name = this.value.substr(this.value.lastIndexOf('\\') + 1, this.value.length);
+      path = LEEWGL.ROOT + 'texture/';
       texture.init(that.gl, path + name);
-      element.setTexture(texture);
+      element.usesTexture = true;
 
       that.saved['object-' + element.id + '-texture-path'] = path + name;
       fileName.set('text', path + name);
 
+      imageAnchor.set('href', path + name);
       image.set('src', path + name);
+      that.lightbox.update();
+    });
+
+    container.grab(fileName);
+    container.grab(fileInput);
+    container.grab(imageContainer);
+    container.grab(removeComponentContainer, 'top');
+
+    return container;
+  };
+  /**
+   * Returns a HTML-form of the billboard component of given element
+   * @param  {LEEWGL.GameObject} element
+   * @return {LEEWGL.DOM.Element} container
+   */
+  this.billboardToHTML = function(element) {
+    var billboard = element.components['Billboard'];
+    var container = new LEEWGL.DOM.Element('div', {
+      'class': 'component-container',
+      'id': 'billboard-component-container'
+    });
+    var title = new LEEWGL.DOM.Element('h3', {
+      'class': 'component-headline',
+      'html': 'Billboard'
+    });
+    container.grab(title);
+
+    var removeComponentContainer = this.removeComponentButton(element, billboard);
+
+    var fileName = new LEEWGL.DOM.Element('h4', {
+      'class': 'component-sub-headline'
+    });
+    var fileInput = new LEEWGL.DOM.Element('input', {
+      'type': 'file'
+    });
+    var imageContainer = new LEEWGL.DOM.Element('div', {
+      'id': 'billboard-preview-container',
+      'class': 'image-preview-container'
+    });
+    var imageAnchor = new LEEWGL.DOM.Element('a', {
+      'class': 'lb-image'
+    });
+    var image = new LEEWGL.DOM.Element('img');
+    imageAnchor.grab(image);
+    imageContainer.grab(imageAnchor);
+
+    // if (typeof this.saved['object-' + element.id + '-texture-path'] !== 'undefined') {
+    //   image.set('src', this.saved['object-' + element.id + '-texture-path']);
+    //   fileInput.set('value', this.saved['object-' + element.id + '-texture-path']);
+    //   fileName.set('text', this.saved['object-' + element.id + '-texture-path']);
+    // } else {
+    //   fileName.set('text', 'No Texture');
+    // }
+
+    var that = this;
+
+    var path = LEEWGL.ROOT + 'billboard/';
+    var name = '';
+    if (billboard.initialized === true) {
+      name = billboard.getSource();
+      imageAnchor.set('href', name);
+      image.set('src', name);
+      fileName.set('text', name);
+    }
+
+    fileInput.addEvent('change', function(event) {
+      name = this.value.substr(this.value.lastIndexOf('\\') + 1, this.value.length);
+      billboard.init(that.gl, path + name);
+
+      that.saved['object-' + element.id + '-billboard-path'] = path + name;
+      fileName.set('text', path + name);
+
+      imageAnchor.set('href', path + name);
+      image.set('src', path + name);
+      that.lightbox.update();
     });
 
     container.grab(fileName);
@@ -808,6 +899,7 @@ LEEWGL.UI = function(options) {
    * @return {LEEWGL.DOM.Element} container
    */
   this.colliderToHTML = function(element) {
+    var that = this;
     var collider = element.components['Collider'];
     var container = new LEEWGL.DOM.Element('div', {
       'class': 'component-container',
@@ -819,25 +911,12 @@ LEEWGL.UI = function(options) {
     });
     container.grab(title);
 
-    var removeComponentContainer = new LEEWGL.DOM.Element('div', {
-      'class': 'icon-container-small fright'
-    });
-    var removeComponent = new LEEWGL.DOM.Element('a', {
-      'class': 'delete-icon bg-pos54 pointer',
-      'title': 'Remove Component'
-    });
+    var removeComponentContainer = this.removeComponentButton(element, collider);
 
-    removeComponent.addEvent('click', function() {
-      element.removeComponent('Collider');
-      that.setInspectorElement(element.id);
-    });
-
-    removeComponentContainer.grab(removeComponent);
     container.grab(removeComponentContainer, 'top');
 
     return container;
   };
-
   /**
    * Iterates through components of given element and returns a HTML-form of all components
    * @param  {LEEWGL.GameObject} element
@@ -863,6 +942,8 @@ LEEWGL.UI = function(options) {
         container.grab(this.textureToHTML(element));
       else if (component instanceof LEEWGL.Component.Collider)
         container.grab(this.colliderToHTML(element));
+      else if (component instanceof LEEWGL.Component.Billboard)
+        container.grab(this.billboardToHTML(element));
     }
     return container;
   };
@@ -939,6 +1020,13 @@ LEEWGL.UI = function(options) {
         that.app.onShaderChange('light', typeShader);
       });
 
+      var changeRenderProperties = (function(event, element, vector) {
+        var id = element.get('identifier');
+        // obj.editables.set(obj, '')
+        console.log(obj.editables);
+        console.log(element.e.checked);
+      });
+
       for (var e in obj.editables) {
         var editable = obj.editables[e];
         if (editable.type === 'vector') {
@@ -962,15 +1050,15 @@ LEEWGL.UI = function(options) {
           var ids = [];
           var c = [];
           var d = [];
-          for(var checkbox in editable) {
-            if(checkbox !== 'alias' && checkbox !== 'type' && checkbox !== 'name') {
+          for (var checkbox in editable) {
+            if (checkbox !== 'alias' && checkbox !== 'type' && checkbox !== 'name') {
               ids.push(checkbox);
               c.push(editable[checkbox]['name']);
               d.push(editable[checkbox]['value']);
             }
           }
           /// FIXME: add change event
-          container.grab(HTMLHELPER.createCheckbox(ids, editable.name, c, null, d));
+          container.grab(HTMLHELPER.createCheckbox(ids, editable.name, c, changeRenderProperties, d));
         }
       }
       return container;
@@ -1030,6 +1118,8 @@ LEEWGL.UI = function(options) {
     this.inspector.grab([components, componentsButton, values]);
 
     this.editableDOM();
+
+    this.lightbox.update();
     this.updateOutline = true;
   };
 
@@ -1076,6 +1166,7 @@ LEEWGL.UI = function(options) {
     this.popop.addTitleText(title);
     this.popop.addCustomElementToContent(content);
     this.popop.setDimensions();
+    this.popup.center();
     this.popop.show();
   };
 
@@ -1099,6 +1190,7 @@ LEEWGL.UI = function(options) {
     this.popup.addTitleText(title);
     this.popup.addHTMLFile(src);
     this.popup.setDimensions();
+    this.popup.center();
     this.popup.show();
   };
 
@@ -1135,7 +1227,6 @@ LEEWGL.UI = function(options) {
       'wrapper-class': 'popup-tooltip',
       'content-class': 'popup-content fcenter',
       'title-enabled': false,
-      'center': false
     });
     tooltipPopup.create();
 
@@ -1252,10 +1343,6 @@ LEEWGL.UI = function(options) {
     var that = this;
 
     this.contextMenu.empty();
-    this.contextMenu.setPosition({
-      'x': event.clientX,
-      'y': event.clientY
-    });
 
     var listItems = ['Duplicate', 'Copy', 'Cut', 'Paste', 'Paste into', 'Delete'];
 
@@ -1276,6 +1363,14 @@ LEEWGL.UI = function(options) {
       that.contextMenu.hide();
     });
 
+    var scroll = this.popup.parent.getScroll();
+    var spacing = 20;
+
+    this.contextMenu.setPosition({
+      'x': scroll.x + event.clientX,
+      'y': scroll.y + event.clientY + spacing
+    });
+    this.contextMenu.setDimensions();
     this.contextMenu.show();
 
     var documentClickHandler = (function(evt) {
@@ -1289,13 +1384,20 @@ LEEWGL.UI = function(options) {
   };
 
   this.displayComponentMenu = function(event) {
+    var that = this;
+
     // / get all not already added components
     var availableComponents = this.getAvailableComponents(this.activeOutline.obj);
 
+    this.popup.setOptions({
+      'title-fontsize': 19,
+      'wrapper-width': 275
+    });
     this.popup.empty();
     this.popup.addTitleText('Add Component');
 
-    var that = this;
+    var scroll = this.popup.parent.getScroll();
+    var spacing = 20;
 
     this.popup.addList(availableComponents, function(item) {
       var className = functionFromString('LEEWGL.Component.' + item);
@@ -1305,9 +1407,10 @@ LEEWGL.UI = function(options) {
     });
 
     this.popup.setPosition({
-      'x': event.clientX,
-      'y': event.clientY
+      'x': scroll.x + event.clientX,
+      'y': scroll.y + event.clientY + spacing
     });
+    this.popup.setDimensions();
     this.popup.show();
   };
 
@@ -1569,23 +1672,25 @@ LEEWGL.UI = function(options) {
     this.scene.add(camera);
     this.addObjToOutline(camera);
   };
-
+  /**
+   * Shows this.popup with a form to edit values and components of given obj
+   * @param  {LEEWGL.GameObject} obj
+   */
   this.displayInsertPrompt = function(obj) {
     var that = this;
     this.popup.empty();
     this.popup.setOptions({
-      'wrapper-width': 400,
+      'wrapper-width': 450,
       'wrapper-height': 'auto',
-      'center': true
+      'title-fontsize' : 19
     });
 
-    this.popup.title.addClass('fsize15');
     this.popup.addTitleText('Insert ' + obj.type);
 
     var content = new LEEWGL.DOM.Element('div', {
-      'styles' : {
-        'width' : '290px',
-        'margin' : '0 auto'
+      'styles': {
+        'width': '290px',
+        'margin': '0 auto'
       }
     });
     content.grab(this.componentsToHTML(obj));
@@ -1593,9 +1698,9 @@ LEEWGL.UI = function(options) {
 
     /// TODO: inject to div container
     var insertButton = new LEEWGL.DOM.Element('input', {
-      'type' : 'submit',
-      'class' : 'submit',
-      'value' : 'Insert'
+      'type': 'submit',
+      'class': 'submit',
+      'value': 'Insert'
     });
 
     insertButton.addEvent('click', function(e) {
@@ -1610,29 +1715,26 @@ LEEWGL.UI = function(options) {
     this.popup.addCustomElementToContent(content);
 
     this.popup.setDimensions();
+    this.popup.center();
     this.popup.show();
     this.editableDOM();
   };
-
   /**
-   * UI exposed methods
+   * Shows this.popup with a form to import a custom script
    */
-
   this.displayImportScript = function() {
     this.popup.empty();
     this.popup.setOptions({
       'wrapper-width': 500,
       'wrapper-height': 'auto',
-      'center': true
     });
 
     this.popup.addTitleText('Import Script');
     this.popup.addHTMLFile('html/import_script.html');
     this.popup.setDimensions();
-
+    this.popup.center();
     this.popup.show();
   };
-
   this.importScriptFromSource = function(textarea) {
     this.addScriptToDOM(this.importedScripts, textarea.value);
     this.importedScripts++;
@@ -1641,15 +1743,15 @@ LEEWGL.UI = function(options) {
   this.displayImportModel = function() {
     this.popup.empty();
     this.popup.setOptions({
-      'wrapper-width': 500,
+      'wrapper-width': 350,
       'wrapper-height': 'auto',
-      'center': true
+      'title-fontsize': 23
     });
 
     this.popup.addTitleText('Import Model');
     this.popup.addHTMLFile('html/import_model.html');
     this.popup.setDimensions();
-
+    this.popup.center();
     this.popup.show();
   };
 
@@ -1667,21 +1769,11 @@ LEEWGL.UI = function(options) {
   this.displayAbout = function(displayInSidebar) {
     displayInSidebar = (typeof displayInSidebar !== 'undefined') ? displayInSidebar : false;
 
-    var container = this.popup;
-    var center = true;
-    if (displayInSidebar === true) {
-      container = this.sidebar;
-      center = false;
-    }
-    container.setOptions({
-      'wrapper-width': 350,
-      'center': center
-    });
-
-    if (displayInSidebar === false)
+    if (displayInSidebar === false) {
       this.setPopupHTML('About LEEWGL', 'html/about.html');
-    else
+    } else {
       this.setSidebarHTML('About LEEWGL', 'html/about.html');
+    }
   };
 
   this.save = function() {
@@ -1712,11 +1804,12 @@ LEEWGL.UI = function(options) {
     this.popup.empty();
     this.popup.setOptions({
       'wrapper-width': 500,
-      'center': true
+      'title-fontsize' : 23
     });
 
     this.setPopupHTML('Export', 'html/export.html');
     this.popup.setDimensions();
+    this.popup.center();
 
     var textarea_vertex_shaders = new LEEWGL.DOM.Element(document.getElementById('export-vertex-shaders'));
     var textarea_fragment_shaders = new LEEWGL.DOM.Element(document.getElementById('export-fragment-shaders'));
@@ -1806,7 +1899,6 @@ LEEWGL.UI = function(options) {
  * @param {DOMElement} options.parent
  * @param {number} options.position.x
  * @param {number} options.position.y
- * @param {bool} options.center
  * @param {bool} options.hidden
  * @param {bool} options.title-enabled
  */
@@ -1814,6 +1906,7 @@ LEEWGL.UI.BasicPopup = function(options) {
   this.options = {
     'wrapper-class': 'popup',
     'title-class': 'popup-title',
+    'title-fontsize': 23,
     'content-class': 'popup-content',
     'wrapper-width': 350,
     'wrapper-height': 'auto',
@@ -1822,7 +1915,6 @@ LEEWGL.UI.BasicPopup = function(options) {
       'x': 0,
       'y': 0
     },
-    'center': true,
     'hidden': true,
     'title-enabled': true
   };
@@ -1892,23 +1984,20 @@ LEEWGL.UI.BasicPopup.prototype = {
   setDimensions: function() {
     this.wrapper.setStyle('width', (typeof this.options['wrapper-width'] === 'number') ? this.options['wrapper-width'] + 'px' : this.options['wrapper-width']);
     this.wrapper.setStyle('height', (typeof this.options['wrapper-height'] === 'number') ? this.options['wrapper-height'] + 'px' : this.options['wrapper-height']);
-    this.position();
   },
   /**
-   * Sets absolute position of popup and positions the popup
-   * Sets options.center to false
-   * @param {object|number} arguments
+   * Sets top and left style of this.wrapper
+   * @param {number} pos.x
+   * @param {number} pos.y
    */
-  setPosition: function() {
-    if (arguments.length === 1) {
-      this.pos = arguments[0];
-    } else {
-      this.pos.x = arguments[0];
-      this.pos.y = arguments[1];
-    }
-
-    this.options['center'] = false;
-    this.position();
+  setPosition: function(pos) {
+    pos = (typeof pos !== 'undefined') ? pos : this.pos;
+    this.pos = pos;
+    this.wrapper.setStyles({
+      'top': this.pos.y + 'px',
+      'left': this.pos.x + 'px',
+      'position': 'absolute'
+    });
   },
   /**
    * Set style of this.wrapper
@@ -1920,8 +2009,8 @@ LEEWGL.UI.BasicPopup.prototype = {
    * Sets this.options.center to true and positions the popup
    */
   center: function() {
-    this.options['center'] = true;
-    this.position();
+    this.centerX();
+    this.centerY();
   },
   /**
    * Centers this.wrapper on x axis
@@ -1929,7 +2018,9 @@ LEEWGL.UI.BasicPopup.prototype = {
   centerX: function() {
     var size = this.getSize();
     var parentSize = this.parent.size();
-    this.pos.x = (parentSize.width / 2) - (size['scroll-width'] / 2);
+    var parentScroll = this.parent.getScroll();
+    this.pos.x = ((parentSize['display-width'] / 2) - (size['display-width'] / 2) + parentScroll.x);
+    this.setPosition();
   },
   /**
    * Centers this.wrapper on y axis
@@ -1937,7 +2028,9 @@ LEEWGL.UI.BasicPopup.prototype = {
   centerY: function() {
     var size = this.getSize();
     var parentSize = this.parent.size();
-    this.pos.y = (parentSize.height / 2) - (size['scroll-height'] / 2);
+    var parentScroll = this.parent.getScroll();
+    this.pos.y = ((parentSize['display-height'] / 2) - (size['display-height'] / 2) + parentScroll.y);
+    this.setPosition();
   },
   /**
    * Gets size of this.wrapper
@@ -1946,21 +2039,6 @@ LEEWGL.UI.BasicPopup.prototype = {
   getSize: function() {
     var size = this.wrapper.size(this.isDisplayed, this.parent);
     return size;
-  },
-  /**
-   * Sets top and left style of this.wrapper
-   * If options.center === true - centers the popup
-   */
-  position: function() {
-    if (this.options['center'] === true) {
-      this.centerX();
-      this.centerY();
-    }
-
-    this.wrapper.setStyles({
-      'top': this.pos.y + 'px',
-      'left': this.pos.x + 'px'
-    });
   },
   /**
    * Adds text to content
@@ -1997,7 +2075,10 @@ LEEWGL.UI.BasicPopup.prototype = {
       return;
     }
     var header = new LEEWGL.DOM.Element('h1', {
-      'text': text
+      'text': text,
+      'styles': {
+        'font-size': this.options['title-fontsize'] + 'px'
+      }
     });
     this.title.grab(header);
   },
@@ -2327,7 +2408,6 @@ LEEWGL.UI.Sidebar = function(options) {
   this.options['wrapper-class'] = 'sidebar';
   this.options['title-class'] = 'sidebar-title';
   this.options['content-class'] = 'sidebar-content';
-  this.options['center'] = false;
   this.options['hidden'] = false;
 
   var ext_options = {
@@ -2482,4 +2562,4 @@ var init = function() {
   window.UI = ui;
 };
 
-addLoadEvent(init);
+addEventToWindow('onload', init);

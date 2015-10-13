@@ -9,7 +9,6 @@
  * @param  {array} options.up - representation of the up vector
  * @param  {bool} options.inOutline
  * @param  {bool} options.picking - if the object is affected by LEEWGL.Picker
- * @param  {bool} options.visible
  * @param  {bool} options.render
  * @param  {bool} options.needsUpdate
  */
@@ -21,7 +20,6 @@ LEEWGL.GameObject = function(options) {
     'up': vec3.clone(LEEWGL.VECTOR3D.UP),
     'inOutline': true,
     'picking': true,
-    'visible': true,
     'render': true,
     'needsUpdate': true
   };
@@ -78,11 +76,6 @@ LEEWGL.GameObject = function(options) {
     },
     'picking': {
       value: this.options.picking,
-      enumerable: true,
-      writable: true
-    },
-    'visible': {
-      value: this.options.visible,
       enumerable: true,
       writable: true
     },
@@ -153,10 +146,6 @@ LEEWGL.GameObject.prototype = {
         'picking': {
           'name': 'Picking',
           'value': this.picking
-        },
-        'visible': {
-          'name': 'Visible',
-          'value': this.visible
         },
         'render': {
           'name': 'Render',
@@ -335,12 +324,12 @@ LEEWGL.GameObject.prototype = {
     }
   },
   /**
-   * Calls callback function for this and each child with visible option set to true
+   * Calls callback function for this and each child with render option set to true
    * @param  {function} callback
    * @param  {mixed} arg - arguments
    */
   traverseVisible: function(callback, arg) {
-    if (this.visible === false)
+    if (this.render === false)
       return;
     callback.call(this, arg);
     for (var i = 0; i < this.children.length; ++i) {
@@ -526,7 +515,5 @@ LEEWGL.GameObject.prototype = {
  * Add event dispatcher prototype to gameobject
  */
 LEEWGL.EventDispatcher.prototype.apply(LEEWGL.GameObject.prototype);
-/**
- * Globals
- */
+/** @global */
 LEEWGL.GameObjectCount = 0;

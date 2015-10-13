@@ -17,4 +17,4 @@
     }
   };
 
-  addLoadEvent(init);
+  addEventToWindow('onload', init);
