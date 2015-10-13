@@ -22,8 +22,8 @@ LEEWGL.Light = function(options) {
   this.type = 'Light';
   this.lightType = 'Base';
 
-  this.ambient = vec3.clone(this.options.ambient);
-  this.color = vec3.clone(this.options.color);
+  this.ambient = vec3.copy([], this.options.ambient);
+  this.color = vec3.copy([], this.options.color);
   this.specular = this.options.specular;
 
   this.setEditables();
