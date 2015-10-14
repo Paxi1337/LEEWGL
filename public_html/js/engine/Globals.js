@@ -13,8 +13,8 @@ function addEventToWindow(event, func) {
 
 function getMouseInformation(event) {
   var movement = {
-    'x' : 0,
-    'y' : 0
+    'x': 0,
+    'y': 0
   };
   var button = null;
 
@@ -32,8 +32,8 @@ function getMouseInformation(event) {
   }
 
   return {
-    'movement' : movement,
-    'button' : button
+    'movement': movement,
+    'button': button
   };
 }
 
@@ -81,6 +81,16 @@ function addToJSON(destination, source) {
   }
 }
 
-function numDigits(x) {
+/**
+ * Returns number of digits in given number
+ * @param  {number} x
+ * @param  {bool} integer - defaults to false; if set to true treats number like integer
+ * @return {number}
+ */
+function numDigits(x, integer) {
+  integer = (typeof integer !== 'undefined') ? integer : false;
+  if (integer === false)
+    x = Number(String(x).replace(/[^0-9]/g, ''));
+
   return Math.max(Math.floor(Math.log10(Math.abs(x))), 0) + 1;
 }

@@ -6,6 +6,8 @@ LEEWGL.HTMLHelper = function() {
    * @param {string} options.id
    * @param {string} options.container-class
    * @param {string} options.table-class
+   * @param {string} options.table-width
+   * @param {number} options.table-width-padding
    * @param {string} options.headline-class
    * @param {string} options.headline-type
    * @param {string} options.title-class
@@ -48,9 +50,10 @@ LEEWGL.HTMLHelper = function() {
 
       if (typeof c === 'number') {
         /// remove trailing zeros
-        var n  = parseFloat(c.toString());
-        var displayPrecision = SETTINGS.get('display-precision');
-        if(numDigits(n) > displayPrecision)
+        var n = parseFloat(c.toString());
+        var displayPrecision = SETTINGS.get('displayPrecision');
+
+        if (numDigits(n) > displayPrecision)
           n = n.toPrecision(displayPrecision);
         td.set('html', n);
       } else {
@@ -61,11 +64,11 @@ LEEWGL.HTMLHelper = function() {
         td.setAttribute('identifier', options.id);
 
       td.addEvent('keydown', function(event) {
-        keydown(event, td, content);
+        keydown(event, td, table, content);
       });
 
       td.addEvent('keyup', function(event) {
-        keyup(event, td, content);
+        keyup(event, td, table, content);
       });
 
       return td;
@@ -111,6 +114,17 @@ LEEWGL.HTMLHelper = function() {
           table.grab(lineBreak);
       }
     }
+
+    if (typeof options['table-width'] !== 'undefined') {
+      if (options['table-width'] === 'fit') {
+        options['table-width-padding'] = (typeof options['table-width-padding'] !== 'undefined') ? options['table-width-padding'] : 0;
+        var size = table.size(false);
+        table.setStyle('width', size.width + options['table-width-padding'] + 'px');
+      } else {
+        table.setStyle('width', options['table-width']);
+      }
+    }
+
     container.grab(table);
     return container;
   };
@@ -118,6 +132,8 @@ LEEWGL.HTMLHelper = function() {
    * @param {string} options.id
    * @param {string} options.container-class
    * @param {string} options.table-class
+   * @param {string} options.table-width
+   * @param {number} options.table-width-padding
    * @param {string} options.headline-class
    * @param {string} options.headline-type
    * @param {string} options.title-class
@@ -164,9 +180,9 @@ LEEWGL.HTMLHelper = function() {
 
       if (typeof c === 'number') {
         /// remove trailing zeros
-        var n  = parseFloat(c.toString());
-        var displayPrecision = SETTINGS.get('display-precision');
-        if(numDigits(n) > displayPrecision)
+        var n = parseFloat(c.toString());
+        var displayPrecision = SETTINGS.get('displayPrecision');
+        if (numDigits(n) > displayPrecision)
           n = n.toPrecision(displayPrecision);
         td.set('html', n);
       } else {
@@ -177,11 +193,11 @@ LEEWGL.HTMLHelper = function() {
         td.setAttribute('identifier', options.id);
 
       td.addEvent('keydown', function(event) {
-        keydown(event, td, content);
+        keydown(event, td, table, content);
       });
 
       td.addEvent('keyup', function(event) {
-        keyup(event, td, content);
+        keyup(event, td, table, content);
       });
 
       return td;
@@ -223,6 +239,17 @@ LEEWGL.HTMLHelper = function() {
     }
 
     table.grab(tbody);
+
+    if (typeof options['table-width'] !== 'undefined') {
+      if (options['table-width'] === 'fit') {
+        options['table-width-padding'] = (typeof options['table-width-padding'] !== 'undefined') ? options['table-width-padding'] : 0;
+        var size = table.size(false);
+        table.setStyle('width', size.width + options['table-width-padding'] + 'px');
+      } else {
+        table.setStyle('width', options['table-width']);
+      }
+    }
+
     container.grab(table);
     return container;
   };

@@ -10,6 +10,9 @@ a:hover {
 .w100percent {
   width: 100%;
 }
+.max-width-280 {
+  max-width: 280px;
+}
 .p5 {
   padding: 5px;
 }
@@ -157,6 +160,9 @@ a:hover {
 }
 .fsize15 {
   font-size: 15px;
+}
+.fsize16 {
+  font-size: 16px;
 }
 .fsize17 {
   font-size: 17px;

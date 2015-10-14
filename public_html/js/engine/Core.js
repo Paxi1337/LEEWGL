@@ -4,7 +4,7 @@
  * @type {Object}
  */
 var LEEWGL = {
-  version: '0.7'
+  version: '0.8'
 };
 
 /** @global */
@@ -28,102 +28,76 @@ LEEWGL.MOUSE = {
 
 /** @global */
 LEEWGL.KEYS = {};
-
-/** @global */
 LEEWGL.KEYS.PAGE_UP = 33;
-/** @global */
 LEEWGL.KEYS.PAGE_DOWN = 34;
-/** @global */
 LEEWGL.KEYS.LEFT_CURSOR = 37;
-/** @global */
 LEEWGL.KEYS.UP_CURSOR = 38;
-/** @global */
 LEEWGL.KEYS.RIGHT_CURSOR = 39;
-/** @global */
 LEEWGL.KEYS.DOWN_CURSOR = 40;
-/** @global */
 LEEWGL.KEYS.A = 65;
-/** @global */
 LEEWGL.KEYS.D = 68;
-/** @global */
 LEEWGL.KEYS.S = 83;
-/** @global */
 LEEWGL.KEYS.W = 87;
-/** @global */
 LEEWGL.KEYS.ENTER = 13;
-/** @global */
 LEEWGL.KEYS.ESC = 27;
-/** @global */
 LEEWGL.KEYS.F5 = 116;
 
+/** @global */
 LEEWGL.TEXTURE = {};
 
 // wrapping modes
-/** @global */
 LEEWGL.TEXTURE.WRAPPING_REPEAT = 1000;
-/** @global */
 LEEWGL.TEXTURE.WRAPPING_CLAMP_TO_EDGE = 1001;
-/** @global */
 LEEWGL.TEXTURE.WRAPPING_MIRRORED_REPEAT = 1002;
 
 // filters
-/** @global */
 LEEWGL.TEXTURE.FILTER_NEAREST = 1003;
-/** @global */
 LEEWGL.TEXTURE.FILTER_NEAREST_MIPMAP_NEAREST = 1004;
-/** @global */
 LEEWGL.TEXTURE.FILTER_NEAREST_MIPMAP_LINEAR = 1005;
-/** @global */
 LEEWGL.TEXTURE.FILTER_LINEAR = 1006;
-/** @global */
 LEEWGL.TEXTURE.FILTER_LINEAR_MIPMAP_NEAREST = 1007;
-/** @global */
 LEEWGL.TEXTURE.FILTER_LINEAR_MIPMAP_LINEAR = 1008;
 
-/** @global */
 LEEWGL.TEXTURE.IMG_DEFAULT = undefined;
-/** @global */
 LEEWGL.TEXTURE.MAPPING_DEFAULT = undefined;
-
-LEEWGL.TYPE = {};
 
 // data types
 /** @global */
+LEEWGL.TYPE = {};
 LEEWGL.TYPE.UNSIGNED_BYTE = 1009;
-/** @global */
 LEEWGL.TYPE.BYTE = 1010;
-/** @global */
 LEEWGL.TYPE.SHORT = 1011;
-/** @global */
 LEEWGL.TYPE.UNSIGNED_SHORT = 1012;
-/** @global */
 LEEWGL.TYPE.INT = 1013;
-/** @global */
 LEEWGL.TYPE.UNSIGNED_INT = 1014;
-/** @global */
 LEEWGL.TYPE.FLOAT = 1015;
-
-LEEWGL.FORMAT = {};
 
 // pixel formats
 /** @global */
+LEEWGL.FORMAT = {};
 LEEWGL.FORMAT.ALPHA = 1016;
-/** @global */
 LEEWGL.FORMAT.RGB = 1017;
-/** @global */
 LEEWGL.FORMAT.RGBA = 1018;
-/** @global */
 LEEWGL.FORMAT.LUMINANCE = 1019;
-/** @global */
 LEEWGL.FORMAT.LUMINANCE_ALPHA = 1020;
 
 /** @global */
 LEEWGL.ENGINE = {};
-/** @global */
 LEEWGL.ENGINE.LIGHTS = ['Directional', 'Spot', 'Point'];
 
 /** @global */
 LEEWGL.EDITOR = {};
+
+/** @global */
+LEEWGL.EDITOR.RENDERING = {};
+LEEWGL.EDITOR.RENDERING.SHADOW = true;
+LEEWGL.EDITOR.RENDERING.DEPTH_BUFFER = true;
+LEEWGL.EDITOR.RENDERING.BLENDING = true;
+LEEWGL.EDITOR.RENDERING.CULLING = 'front';
+
+LEEWGL.EDITOR.PICKING = true;
+
+/** @global */
 LEEWGL.EDITOR.TRANSFORMATION = {};
 LEEWGL.EDITOR.TRANSFORMATION.TRANSLATE = 'translation';
 LEEWGL.EDITOR.TRANSFORMATION.ROTATE = 'rotation';

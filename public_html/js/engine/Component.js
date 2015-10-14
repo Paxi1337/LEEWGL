@@ -46,7 +46,7 @@ LEEWGL.Component.prototype = {
 };
 
 /** @global */
-LEEWGL.Component.Components = ['Transform', 'CustomScript', 'Texture', 'Collider', 'Billboard'];
+LEEWGL.Component.Components = ['Transform', 'CustomScript', 'Texture', 'Collider', 'Billboard', 'Renderer'];
 LEEWGL.EventDispatcher.prototype.apply(LEEWGL.Component.prototype);
 
 /**

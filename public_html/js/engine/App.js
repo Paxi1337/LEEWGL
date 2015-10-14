@@ -39,7 +39,7 @@ LEEWGL.App.prototype = {
   onStop: function() {},
   clear: function() {
     this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
-    this.gl.clearColor(SETTINGS.get('background-color').r, SETTINGS.get('background-color').g, SETTINGS.get('background-color').b, SETTINGS.get('background-color').a);
+    this.gl.clearColor(SETTINGS.get('backgroundColor').r, SETTINGS.get('backgroundColor').g, SETTINGS.get('backgroundColor').b, SETTINGS.get('backgroundColor').a);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
     this.gl.colorMask(true, true, true, true);
   }

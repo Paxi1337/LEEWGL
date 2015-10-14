@@ -290,7 +290,6 @@ LEEWGL.UI = function(options) {
 
     for (var i = 0; i < elements.length; ++i) {
       edit(new LEEWGL.DOM.Element(elements[i]));
-      var elem = new LEEWGL.DOM.Element(elements[i]);
     }
   };
 
@@ -366,7 +365,6 @@ LEEWGL.UI = function(options) {
   };
 
   this.dispatchTypes = function(element, vector, type, num) {
-
     var checkNaN = function(vector) {
       for (var i = 0; i < vector.length; ++i) {
         if (isNaN(vector[i]))
@@ -454,10 +452,13 @@ LEEWGL.UI = function(options) {
     var transform = element.components['Transform'];
     var that = this;
 
-    var keydown = (function(event, td, vector) {
+    var keydown = (function(event, td, table, vector) {
       var num = parseInt(td.get('num'));
       var value = parseFloat(td.get('text'));
       var keys = Object.keys(vector);
+
+      var size = table.size(false);
+      table.setStyle('width', size.width + 'px');
 
       if (event.keyCode === LEEWGL.KEYS.ENTER) {
         if (typeof vector[num] === 'undefined') {
@@ -474,7 +475,7 @@ LEEWGL.UI = function(options) {
       }
     });
 
-    var keyup = (function(event, td, vector) {
+    var keyup = (function(event, td, table, vector) {
       var num = parseInt(td.get('num'));
       var value = parseFloat(td.get('text'));
       var keys = Object.keys(vector);
@@ -491,7 +492,8 @@ LEEWGL.UI = function(options) {
     container.grab(HTMLHELPER.createTableAsDiv({
       'id': 'transform-position',
       'container-class': 'component-detail-container',
-      'table-class': 'w75percent m0auto',
+      'table-class': 'm0auto dark-primary-color p5 max-width-280',
+      'table-width' : 'fit',
       'headline-class': 'component-detail-headline',
       'headline-type': 'h4',
       'title-class': 'table-title',
@@ -501,7 +503,8 @@ LEEWGL.UI = function(options) {
     container.grab(HTMLHELPER.createTableAsDiv({
       'id': 'transform-translation',
       'container-class': 'component-detail-container',
-      'table-class': 'w75percent m0auto',
+      'table-class': 'm0auto dark-primary-color p5 max-width-280',
+      'table-width' : 'fit',
       'headline-class': 'component-detail-headline',
       'headline-type': 'h4',
       'title-class': 'table-title',
@@ -512,7 +515,8 @@ LEEWGL.UI = function(options) {
     container.grab(HTMLHELPER.createTableAsDiv({
       'id': 'transform-rotation',
       'container-class': 'component-detail-container',
-      'table-class': 'w75percent m0auto',
+      'table-class': 'm0auto dark-primary-color p5 max-width-280',
+      'table-width' : 'fit',
       'headline-class': 'component-detail-headline',
       'headline-type': 'h4',
       'title-class': 'table-title',
@@ -522,7 +526,8 @@ LEEWGL.UI = function(options) {
     container.grab(HTMLHELPER.createTableAsDiv({
       'id': 'transform-scale',
       'container-class': 'component-detail-container',
-      'table-class': 'w75percent m0auto',
+      'table-class': 'm0auto dark-primary-color p5 max-width-280',
+      'table-width' : 'fit',
       'headline-class': 'component-detail-headline',
       'headline-type': 'h4',
       'title-class': 'table-title',
@@ -1015,11 +1020,13 @@ LEEWGL.UI = function(options) {
         }
       });
 
-      var keyup = (function(event, element, vector) {
+      var keyup = (function(event, element, table, vector) {
         keyFunction(element, vector);
       });
 
-      var keydown = (function(event, element, vector) {
+      var keydown = (function(event, element, table, vector) {
+        var size = table.size(false);
+        table.setStyle('width', size.width + 'px');
         if (event.keyCode === LEEWGL.KEYS.ENTER) {
           keyFunction(element, vector);
           that.updateOutline = true;
@@ -1061,10 +1068,12 @@ LEEWGL.UI = function(options) {
       for (var e in obj.editables) {
         var editable = obj.editables[e];
         if (editable.type === 'vector') {
+          console.log(editable);
           container.grab(HTMLHELPER.createTableAsDiv({
             'id': e,
             'container-class': 'component-detail-container',
-            'table-class': 'w75percent m0auto',
+            'table-class': 'm0auto dark-primary-color p5 max-width-280',
+            'table-width': 'fit',
             'headline-class': 'component-detail-headline',
             'headline-type': 'h4',
             'title-class': 'table-title',

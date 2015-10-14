@@ -287,14 +287,17 @@ LEEWGL.DOM.Element.prototype = {
     parent = (typeof parent !== 'undefined') ? parent : new LEEWGL.DOM.Element(document.body);
 
     var tmp = this.clone();
-
     if (inserted === false) {
       tmp = new LEEWGL.DOM.Element(tmp.e.cloneNode(true), {
-        'style': {
-          'display': 'block',
-          'position': 'static'
+        'styles': {
+          'position' : 'absolute',
+          'visibility' : 'hidden',
+          'height' : 'auto',
+          'width' : 'auto',
+          'white-space' : 'nowrap'
         }
       });
+
       parent.grab(tmp);
     }
     var isBody = (tmp.e === document.body);
@@ -318,18 +321,20 @@ LEEWGL.DOM.Element.prototype = {
     inserted = (typeof inserted !== 'undefined') ? inserted : true;
     parent = (typeof parent !== 'undefined') ? parent : new LEEWGL.DOM.Element(document.body);
 
-    var element = this;
     var tmp = this.clone();
 
     if (inserted === false) {
-      element = new LEEWGL.DOM.Element(element.e.cloneNode(true), {
+      tmp = new LEEWGL.DOM.Element(tmp.e.cloneNode(true), {
         'styles': {
-          'display': 'block',
-          'position': 'static'
+          'position' : 'absolute',
+          'visibility' : 'hidden',
+          'height' : 'auto',
+          'width' : 'auto',
+          'white-space' : 'nowrap'
         }
       });
-      parent.grab(element);
-      tmp = element.clone();
+
+      parent.grab(tmp);
     }
 
     var pos = {
@@ -344,7 +349,7 @@ LEEWGL.DOM.Element.prototype = {
     }
 
     if (inserted === false)
-      element.remove(parent);
+      tmp.remove(parent);
 
     return pos;
   },

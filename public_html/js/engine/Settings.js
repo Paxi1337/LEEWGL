@@ -37,10 +37,7 @@ LEEWGL.Settings = function(options) {
       'b': 0.7,
       'a': 1.0
     },
-    'depth-buffer': {
-      'active': true,
-      'values': [true, false]
-    },
+    'depth-buffer': true,
     'viewport': {
       'x': 0,
       'y': 0,
@@ -53,37 +50,75 @@ LEEWGL.Settings = function(options) {
   extend(LEEWGL.Settings.prototype, LEEWGL.Options.prototype);
   this.setOptions(options);
 
+  /** @inner {number} */
+  this.displayPrecision = this.options['display-precision'];
+  /** @inner {vec3} */
+  this.translationSpeed = this.options['translation-speed'];
+  /** @inner {vec2} */
+  this.rotationSpeed = this.options['rotation-speed'];
+  /** @inner {vec4} */
+  this.backgroundColor = this.options['background-color'];
+  /** @inner {bool} */
+  this.depthBuffer = this.options['depth-buffer'];
   /** @inner {object} */
-  this.additionalInfo = {
-    'display-precision': {
-      'type' : 'input',
-      'alias' : 'Display Precision'
-    },
-    'translation-speed': {
-      'type' : 'table',
-      'alias' : 'Translation Speed'
-    },
-    'rotation-speed': {
-      'type' : 'table',
-      'alias' : 'Rotation Speed'
-    },
-    'background-color': {
-      'type' : 'table',
-      'alias' : 'Background Color'
-    },
-    'depth-buffer': {
-      'type' : 'select',
-      'alias' : 'Depth Buffer'
-    },
-    'viewport': {
-      'type' : 'table',
-      'alias' : 'Viewport'
-    },
-    'fps': {
-      'type' : 'input',
-      'alias' : 'Frames Per Second'
-    }
+  this.viewport = this.options['viewport'];
+  /** @inner {number} */
+  this.fps = this.options['fps'];
+  /** @inner {object} */
+  this.editables = {};
+
+  /**
+   * Initializes this.editables
+   */
+  this.setEditables = function() {
+    var editables = {
+      'displayPrecision': {
+        'name': 'Display Precision',
+        'type': 'number',
+        'value': this.displayPrecision
+      },
+      'translationSpeed': {
+        'name': 'Translation Speed',
+        'table-titles': ['x', 'y', 'z'],
+        'type': 'vector',
+        'value': this.translationSpeed
+      },
+      'rotationSpeed': {
+        'name': 'Rotation Speed',
+        'table-titles': ['x', 'y'],
+        'type': 'vector',
+        'value': this.rotationSpeed
+      },
+      'backgroundColor': {
+        'name': 'Background Color',
+        'table-titles': ['r', 'g', 'b', 'a'],
+        'type': 'vector',
+        'value': this.backgroundColor
+      },
+      'depthBuffer': {
+        'name': 'Depth Buffer',
+        'type': 'array',
+        'values' : [true, false],
+        'value': this.depthBuffer
+      },
+      'viewport': {
+        'name': 'Viewport',
+        'table-titles': ['x', 'y', 'w', 'h'],
+        'type': 'vector',
+        'value': this.viewport
+      },
+      'fps': {
+        'name': 'FPS',
+        'type': 'number',
+        'value': this.fps
+      }
+    };
+    addToJSON(this.editables, editables);
+    addPropertyToAllJSON(this.editables, 'alias');
+    addSetMethodToJSON(this.editables);
   };
+
+  this.setEditables();
 
   /**
    * Get a setting per name
@@ -91,7 +126,7 @@ LEEWGL.Settings = function(options) {
    * @return {mixed}
    */
   this.get = function(name) {
-    return this.options[name];
+    return this.editables[name].value;
   };
 
   /**
@@ -100,10 +135,7 @@ LEEWGL.Settings = function(options) {
    * @param  {mixed} value
    */
   this.set = function(name, value) {
-    if (typeof this.options[name].active !== 'undefined')
-      this.options[name]['active'] = value;
-    else
-      this.options[name] = value;
+      this.editables.set(this, name, value);
   };
 
   /**
@@ -116,10 +148,13 @@ LEEWGL.Settings = function(options) {
       'class': 'component-container'
     });
 
-    var keydownTable = (function(event, td, vector) {
+    var keydownTable = (function(event, td, table, vector) {
       var id = td.get('identifier');
       var num = td.get('num');
       var value = parseFloat(td.get('text'));
+
+      var size = table.size(false);
+      table.setStyle('width', size.width + 'px');
 
       if (event.keyCode === LEEWGL.KEYS.ENTER) {
         vector[num] = value;
@@ -157,34 +192,36 @@ LEEWGL.Settings = function(options) {
       event.preventDefault();
     }.bind(this));
 
-    for (var prop in this.options) {
-      if (this.additionalInfo[prop]['type'] === 'input') {
+    for (var e in this.editables) {
+      var editable = this.editables[e];
+      if (editable.type === 'string' || editable.type === 'number') {
         container.grab(HTMLHELPER.createContainerDetailInput({
-          'id' : prop,
-          'container-class' : 'component-detail-container',
-          'headline-class' : 'component-detail-headline',
-          'headline-type' : 'h4'
-        }, this.additionalInfo[prop]['alias'], this.options[prop], keydownInput));
-      } else if (this.additionalInfo[prop]['type'] === 'table') {
+          'id': e,
+          'container-class': 'component-detail-container',
+          'headline-class': 'component-detail-headline',
+          'headline-type': 'h4'
+        }, editable.name, editable.value, keydownInput));
+      } else if (editable.type === 'vector') {
         container.grab(HTMLHELPER.createTableAsDiv({
-          'id' : prop,
-          'container-class' : 'component-detail-container',
-          'table-class' : 'w100percent m0auto',
-          'headline-class' : 'component-detail-headline',
-          'headline-type' : 'h4',
-          'title-class' : 'table-title',
-          'content-class' : 'editable table-content'
-        }, Object.keys(this.options[prop]), this.options[prop], this.additionalInfo[prop]['alias'], keydownTable));
-      } else if (this.additionalInfo[prop]['type'] === 'select') {
-        var content = JSON.parse(JSON.stringify(this.options[prop]['values']));
-        content.splice(this.options[prop]['values'].indexOf(this.options[prop]['active']), 1);
+          'id': e,
+          'container-class': 'component-detail-container',
+          'table-class': 'm0auto dark-primary-color p5 max-width-280 fsize16',
+          'table-width': 'fit',
+          'headline-class': 'component-detail-headline',
+          'headline-type': 'h4',
+          'title-class': 'table-title',
+          'content-class': 'editable table-content'
+        }, editable['table-titles'], editable.value, editable.name, keydownTable));
+      } else if (editable.type === 'array') {
+        var content = JSON.parse(JSON.stringify(editable['values']));
+        content.splice(editable.values.indexOf(editable.value), 1);
         container.grab(HTMLHELPER.createDropdown({
-          'id' : prop,
-          'container-class' : 'component-detail-container',
-          'headline-class' : 'component-detail-headline',
-          'headline-type' : 'h4',
-          'input-class' : 'settings-dropdown'
-        }, this.additionalInfo[prop]['alias'], content, change, this.options[prop]['active']));
+          'id': e,
+          'container-class': 'component-detail-container',
+          'headline-class': 'component-detail-headline',
+          'headline-type': 'h4',
+          'input-class': 'settings-dropdown'
+        }, editable.name, content, change, editable.value));
       }
     }
 
@@ -198,18 +235,19 @@ LEEWGL.Settings = function(options) {
    */
   this.updateFromHTML = function() {
     var element = null;
-    for (var prop in this.options) {
-      if (this.additionalInfo[prop]['type'] === 'input') {
-        element = new LEEWGL.DOM.Element(document.querySelector('input[identifier="' + prop + '"]'));
-        this.set(prop, element.e.value);
-      } else if (this.additionalInfo[prop]['type'] === 'table') {
-        var elements = document.querySelectorAll('div[identifier="' + prop + '"]');
+    for (var e in this.editables) {
+      var editable = this.editables[e];
+      if (editable.type === 'string' || editable.type === 'number') {
+        element = new LEEWGL.DOM.Element(document.querySelector('input[identifier="' + e + '"]'));
+        this.set(e, element.e.value);
+      } else if (editable.type === 'vector') {
+        var elements = document.querySelectorAll('div[identifier="' + e + '"]');
         var arr = {};
         for (var i = 0; i < elements.length; ++i) {
           element = new LEEWGL.DOM.Element(elements[i]);
           arr[element.get('num')] = parseFloat(element.get('text'));
         }
-        this.set(prop, arr);
+        this.set(e, arr);
       }
     }
     UI.displaySettings();

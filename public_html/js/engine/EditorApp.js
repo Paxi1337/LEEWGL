@@ -327,8 +327,8 @@ LEEWGL.EditorApp.prototype.onMouseMove = function(event) {
   var rad = LEEWGL.Math.degToRad(10);
 
   if (event.which === 3 || button === LEEWGL.MOUSE.RIGHT) {
-    movement.x = (SETTINGS.get('rotation-speed').x * movement.x);
-    movement.y = (SETTINGS.get('rotation-speed').y * movement.y);
+    movement.x = (SETTINGS.get('rotationSpeed').x * movement.x);
+    movement.y = (SETTINGS.get('rotationSpeed').y * movement.y);
     camera.offsetOrientation(movement.y, movement.x);
   } else if ((event.which === 1 || button === LEEWGL.MOUSE.LEFT) && this.activeElement !== null) {
     var forward = camera.forward();
@@ -442,21 +442,21 @@ LEEWGL.EditorApp.prototype.handleKeyInput = function() {
   var camera = (this.playing === true) ? this.scenePlay.getObjectByTagname('GameCamera') : this.scene.getObjectByTagname('EditorCamera');
 
   if (this.activeKeys[LEEWGL.KEYS.PAGE_UP]) {
-    camera.transform.offsetPosition(vec3.negate(vec3.create(), vec3.scale(vec3.create(), camera.down(), SETTINGS.get('translation-speed').y)));
+    camera.transform.offsetPosition(vec3.negate(vec3.create(), vec3.scale(vec3.create(), camera.down(), SETTINGS.get('translationSpeed').y)));
   } else if (this.activeKeys[LEEWGL.KEYS.PAGE_DOWN]) {
-    camera.transform.offsetPosition(vec3.scale(vec3.create(), camera.down(), SETTINGS.get('translation-speed').y));
+    camera.transform.offsetPosition(vec3.scale(vec3.create(), camera.down(), SETTINGS.get('translationSpeed').y));
   }
 
   if (this.activeKeys[LEEWGL.KEYS.LEFT_CURSOR]) {
     camera.transform.offsetPosition(vec3.negate(vec3.create(), vec3.scale(vec3.create(), camera.right(), SETTINGS.get('translation-speed').x)));
   } else if (this.activeKeys[LEEWGL.KEYS.RIGHT_CURSOR]) {
-    camera.transform.offsetPosition(vec3.scale(vec3.create(), camera.right(), SETTINGS.get('translation-speed').x));
+    camera.transform.offsetPosition(vec3.scale(vec3.create(), camera.right(), SETTINGS.get('translationSpeed').x));
   }
 
   if (this.activeKeys[LEEWGL.KEYS.UP_CURSOR]) {
-    camera.transform.offsetPosition(vec3.scale(vec3.create(), camera.forward(), SETTINGS.get('translation-speed').z));
+    camera.transform.offsetPosition(vec3.scale(vec3.create(), camera.forward(), SETTINGS.get('translationSpeed').z));
   } else if (this.activeKeys[LEEWGL.KEYS.DOWN_CURSOR]) {
-    camera.transform.offsetPosition(vec3.negate(vec3.create(), vec3.scale(vec3.create(), camera.forward(), SETTINGS.get('translation-speed').z)));
+    camera.transform.offsetPosition(vec3.negate(vec3.create(), vec3.scale(vec3.create(), camera.forward(), SETTINGS.get('translationSpeed').z)));
   }
 };
 
