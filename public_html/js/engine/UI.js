@@ -415,6 +415,7 @@ LEEWGL.UI = function(options) {
    * @return {LEEWGL.DOM.Element}
    */
   this.removeComponentButton = function(element, component) {
+    var that = this;
     var removeComponentContainer = new LEEWGL.DOM.Element('div', {
       'class': 'icon-container-small fright'
     });
@@ -493,7 +494,7 @@ LEEWGL.UI = function(options) {
       'id': 'transform-position',
       'container-class': 'component-detail-container',
       'table-class': 'm0auto dark-primary-color p5 max-width-280',
-      'table-width' : 'fit',
+      'table-width': 'fit',
       'headline-class': 'component-detail-headline',
       'headline-type': 'h4',
       'title-class': 'table-title',
@@ -504,7 +505,7 @@ LEEWGL.UI = function(options) {
       'id': 'transform-translation',
       'container-class': 'component-detail-container',
       'table-class': 'm0auto dark-primary-color p5 max-width-280',
-      'table-width' : 'fit',
+      'table-width': 'fit',
       'headline-class': 'component-detail-headline',
       'headline-type': 'h4',
       'title-class': 'table-title',
@@ -516,7 +517,7 @@ LEEWGL.UI = function(options) {
       'id': 'transform-rotation',
       'container-class': 'component-detail-container',
       'table-class': 'm0auto dark-primary-color p5 max-width-280',
-      'table-width' : 'fit',
+      'table-width': 'fit',
       'headline-class': 'component-detail-headline',
       'headline-type': 'h4',
       'title-class': 'table-title',
@@ -527,7 +528,7 @@ LEEWGL.UI = function(options) {
       'id': 'transform-scale',
       'container-class': 'component-detail-container',
       'table-class': 'm0auto dark-primary-color p5 max-width-280',
-      'table-width' : 'fit',
+      'table-width': 'fit',
       'headline-class': 'component-detail-headline',
       'headline-type': 'h4',
       'title-class': 'table-title',
@@ -1290,7 +1291,8 @@ LEEWGL.UI = function(options) {
   this.tooltipEvent = function(classname) {
     var elements = document.querySelectorAll(classname);
     var tooltipPopup = new LEEWGL.UI.BasicPopup({
-      'wrapper-width': 250,
+      'wrapper-width': 'fit',
+      'wrapper-height': 'auto',
       'wrapper-class': 'popup-tooltip',
       'content-class': 'popup-content fcenter',
       'title-enabled': false,
@@ -1298,13 +1300,14 @@ LEEWGL.UI = function(options) {
     tooltipPopup.create();
 
     var showTooltipID;
-
+    var that = this;
     var showTooltip = function(element) {
       element.addEvent('mouseenter', function(event) {
         showTooltipID = window.setTimeout(function() {
           tooltipPopup.empty();
           tooltipPopup.addText(element.get('data-tooltip'));
-          var position = element.position(true);
+          tooltipPopup.setDimensions();
+          var position = element.position();
           var size = tooltipPopup.getSize();
           tooltipPopup.setPosition({
             'x': position.x - (size.width / 2),
@@ -1961,9 +1964,12 @@ LEEWGL.UI = function(options) {
  * @constructor
  * @param {string} options.wrapper-class
  * @param {string} options.title-class
+ * @param {number} options.title-fontsize
  * @param {string} options.content-class
- * @param {number|string} options.wrapper-width
- * @param {number|string} options.wrapper-height
+ * @param {number|string} options.wrapper-width - can be '250px' | 250 or 'fit' to fit to content
+ * @param {number} options.wrapper-padding - only gets used if wrapper-width is set to 'fit'
+ * @param {number|string} options.wrapper-height - can be '250px' | 250 or 'fit' to fit to content
+ * @param {number} options.wrapper-height-padding - only gets used if wrapper-height is set to 'fit'
  * @param {DOMElement} options.parent
  * @param {number} options.position.x
  * @param {number} options.position.y
@@ -1977,7 +1983,9 @@ LEEWGL.UI.BasicPopup = function(options) {
     'title-fontsize': 23,
     'content-class': 'popup-content',
     'wrapper-width': 350,
+    'wrapper-width-padding': 0,
     'wrapper-height': 'auto',
+    'wrapper-height-padding': 0,
     'parent': document.body,
     'position': {
       'x': 0,
@@ -2050,8 +2058,15 @@ LEEWGL.UI.BasicPopup.prototype = {
    * Sets width and height of the container as given in options and positions the popup
    */
   setDimensions: function() {
-    this.wrapper.setStyle('width', (typeof this.options['wrapper-width'] === 'number') ? this.options['wrapper-width'] + 'px' : this.options['wrapper-width']);
-    this.wrapper.setStyle('height', (typeof this.options['wrapper-height'] === 'number') ? this.options['wrapper-height'] + 'px' : this.options['wrapper-height']);
+    var size = this.getSize();
+    if (this.options['wrapper-width'] === 'fit')
+      this.wrapper.setStyle('width', size.width + this.options['wrapper-width-padding'] + 'px');
+    else
+      this.wrapper.setStyle('width', (typeof this.options['wrapper-width'] === 'number') ? this.options['wrapper-width'] + 'px' : this.options['wrapper-width']);
+    if (this.options['wrapper-height'] === 'fit')
+      this.wrapper.setStyle('height', size.height + this.options['wrapper-height-padding'] + 'px');
+    else
+      this.wrapper.setStyle('height', (typeof this.options['wrapper-height'] === 'number') ? this.options['wrapper-height'] + 'px' : this.options['wrapper-height']);
   },
   /**
    * Sets top and left style of this.wrapper

@@ -47,6 +47,7 @@ LEEWGL.DOM.Element.prototype = {
 
   addClass: function(classname) {
     this.e.className += ' ' + classname;
+    return this;
   },
 
   hasClass: function(classname) {
@@ -247,8 +248,8 @@ LEEWGL.DOM.Element.prototype = {
   grab: function(element, where) {
     where = (typeof where !== 'undefined') ? where : 'bottom';
 
-    if(element instanceof Array) {
-      for(var i = 0; i < element.length; ++i) {
+    if (element instanceof Array) {
+      for (var i = 0; i < element.length; ++i) {
         this.grab(element[i], where);
       }
       return;
@@ -256,12 +257,14 @@ LEEWGL.DOM.Element.prototype = {
 
     var el = (element instanceof LEEWGL.DOM.Element) ? element.e : element;
     this.insert(this.e, el, where);
+    return new LEEWGL.DOM.Element(el);
   },
 
   inject: function(parent, where) {
     where = (typeof where !== 'undefined') ? where : 'bottom';
     var p = (parent instanceof LEEWGL.DOM.Element) ? parent.e : parent;
     this.insert(p, this.e, where);
+    return this;
   },
 
   remove: function(parent) {
@@ -270,12 +273,12 @@ LEEWGL.DOM.Element.prototype = {
       parent = parent.e;
 
     parent.removeChild(this.e);
-    return this.e;
+    return this;
   },
 
   replace: function(element) {
     this.e.parentNode.replaceChild(element.e);
-    return this.e;
+    return this;
   },
 
   empty: function() {
@@ -286,20 +289,14 @@ LEEWGL.DOM.Element.prototype = {
     inserted = (typeof inserted !== 'undefined') ? inserted : true;
     parent = (typeof parent !== 'undefined') ? parent : new LEEWGL.DOM.Element(document.body);
 
-    var tmp = this.clone();
-    if (inserted === false) {
-      tmp = new LEEWGL.DOM.Element(tmp.e.cloneNode(true), {
-        'styles': {
-          'position' : 'absolute',
-          'visibility' : 'hidden',
-          'height' : 'auto',
-          'width' : 'auto',
-          'white-space' : 'nowrap'
-        }
-      });
+    var tmp = this;
 
+    if (inserted === false) {
+      tmp = this.clone();
+      tmp.addClass('get-size');
       parent.grab(tmp);
     }
+
     var isBody = (tmp.e === document.body);
 
     var size = {
@@ -317,24 +314,17 @@ LEEWGL.DOM.Element.prototype = {
     return size;
   },
 
-  position: function(inserted, parent) {
+  position: function(inserted) {
     inserted = (typeof inserted !== 'undefined') ? inserted : true;
-    parent = (typeof parent !== 'undefined') ? parent : new LEEWGL.DOM.Element(document.body);
+    parent = (this.e.offsetParent !== null) ? new LEEWGL.DOM.Element(this.e.offsetParent) : new LEEWGL.DOM.Element(document.body);
 
-    var tmp = this.clone();
+    var tmp = new LEEWGL.DOM.Element(this.e);
+    var first = null;
 
+    /// FIXME: not tested
     if (inserted === false) {
-      tmp = new LEEWGL.DOM.Element(tmp.e.cloneNode(true), {
-        'styles': {
-          'position' : 'absolute',
-          'visibility' : 'hidden',
-          'height' : 'auto',
-          'width' : 'auto',
-          'white-space' : 'nowrap'
-        }
-      });
-
-      parent.grab(tmp);
+      tmp = this.clone();
+      first = parent.grab(tmp);
     }
 
     var pos = {
@@ -349,15 +339,15 @@ LEEWGL.DOM.Element.prototype = {
     }
 
     if (inserted === false)
-      tmp.remove(parent);
+      first.remove(parent);
 
     return pos;
   },
 
   getScroll: function() {
     return {
-      'x' : (window.pageXOffset || this.e.scrollLeft) - (this.e.clientLeft || 0),
-      'y' : (window.pageYOffset || this.e.scrollTop) - (this.e.clientTop || 0)
+      'x': (window.pageXOffset || this.e.scrollLeft) - (this.e.clientLeft || 0),
+      'y': (window.pageYOffset || this.e.scrollTop) - (this.e.clientTop || 0)
     };
   },
 
@@ -377,9 +367,7 @@ LEEWGL.DOM.Element.prototype = {
 
   clone: function(element) {
     if (typeof element === 'undefined')
-      element = new LEEWGL.DOM.Element(this.e);
-
-    element.e = this.e;
+      element = new LEEWGL.DOM.Element(this.e.cloneNode(true));
     return element;
   }
 };

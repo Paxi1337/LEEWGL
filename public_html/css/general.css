@@ -173,3 +173,11 @@ a:hover {
 .fcenter {
   text-align: center;
 }
+.get-size {
+  position: absolute !important;
+  visibility: hidden !important;
+  height: auto !important;
+  width: auto !important;
+  white-space: nowrap !important;
+  display: block !important;
+}

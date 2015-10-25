@@ -129,7 +129,7 @@ LEEWGL.Lightbox = function(options) {
     this.lightbox.wrapper = new LEEWGL.DOM.Element('div', {
       'id': 'lb-' + this.id,
       'class': 'lb',
-      'tabindex' : -1,
+      'tabindex': -1,
       'styles': {
         'display': 'none'
       }
@@ -231,7 +231,6 @@ LEEWGL.Lightbox = function(options) {
           for (var i = 0; i < children.length; ++i) {
             getImage(children[i]);
           }
-          return null;
         } else {
           that.thumbnails.push(new LEEWGL.DOM.Element('img', {
             'src': anchor.getChildren('img')[0].get('src')
@@ -248,7 +247,6 @@ LEEWGL.Lightbox = function(options) {
           for (var i = 0; i < children.length; ++i) {
             getImage(children[i]);
           }
-          return null;
         } else {
           that.images.push(new LEEWGL.DOM.Element('img', {
             'src': anchor.get('src'),
@@ -257,9 +255,12 @@ LEEWGL.Lightbox = function(options) {
           return anchor;
         }
       }
+      return null;
     };
 
     var registerEvent = function(handler, image) {
+      if (image === null)
+        return;
       handler.addEvent('click', function(e) {
         var anchor = e.target;
         that.imageTitle.text = image.get('title');
@@ -303,7 +304,6 @@ LEEWGL.Lightbox = function(options) {
    */
   this.changeImage = function(imageID) {
     var that = this;
-
     this.lightbox.wrapper.e.focus();
 
     if (this.gallery.container !== null) {
