@@ -448,7 +448,7 @@ LEEWGL.EditorApp.prototype.handleKeyInput = function() {
   }
 
   if (this.activeKeys[LEEWGL.KEYS.LEFT_CURSOR]) {
-    camera.transform.offsetPosition(vec3.negate(vec3.create(), vec3.scale(vec3.create(), camera.right(), SETTINGS.get('translation-speed').x)));
+    camera.transform.offsetPosition(vec3.negate(vec3.create(), vec3.scale(vec3.create(), camera.right(), SETTINGS.get('translationSpeed').x)));
   } else if (this.activeKeys[LEEWGL.KEYS.RIGHT_CURSOR]) {
     camera.transform.offsetPosition(vec3.scale(vec3.create(), camera.right(), SETTINGS.get('translationSpeed').x));
   }
