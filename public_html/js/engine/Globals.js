@@ -79,6 +79,24 @@ function addToJSON(destination, source) {
     destination[attribute] = source[attribute];
     destination[attribute]['alias'] = attribute;
   }
+  return destination;
+}
+
+function mergeJSONArrays() {
+  var ar = [];
+
+  return ar.concat.apply(ar, arguments).sort(function(a, b) {
+    console.log(a);
+    console.log(b);
+    var aName = a.NAME;
+    var bName = b.NAME;
+    if (aName < bName)
+      return -1;
+    else if (aName === bName)
+      return 0;
+    else
+      return 1;
+  });
 }
 
 /**

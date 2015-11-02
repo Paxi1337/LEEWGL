@@ -30,6 +30,16 @@ LEEWGL.Geometry = function(options) {
       enumerable: true,
       writable: true
     },
+    'vectors': {
+      value: {
+        'position': [],
+        'normal': [],
+        'color': [],
+        'uv': []
+      },
+      enumerable: true,
+      writable: true
+    },
     'indices': {
       value: [],
       enumerable: true,
@@ -44,7 +54,19 @@ LEEWGL.Geometry = function(options) {
         'indices': new LEEWGL.IndexBuffer(),
         'color': new LEEWGL.Buffer(),
         'texture': new LEEWGL.Buffer(),
+        'tangent': new LEEWGL.Buffer(),
+        'bitangent': new LEEWGL.Buffer()
       },
+      enumerable: false,
+      writable: true
+    },
+    'tangents': {
+      value: [],
+      enumerable: false,
+      writable: true
+    },
+    'bitangents': {
+      value: [],
       enumerable: false,
       writable: true
     }
@@ -54,7 +76,6 @@ LEEWGL.Geometry = function(options) {
 
   this.facesNum = 1;
   this.faces = [];
-  this.vectors = [];
 
   this.usesTexture = false;
 };
@@ -109,15 +130,6 @@ LEEWGL.Geometry.prototype.setColor = function(gl, color) {
   }
   this.setColorBuffer(gl);
 };
-
-/**
- * Calculates tangents and saves them in this.tangents
- */
-LEEWGL.Geometry.prototype.calculateTangents = function() {
-  for (var i = 0; i < this.vertices.position.length; ++i) {
-    this.tangents[i] = 0.0;
-  }
-};
 /**
  * Returns geometry render data as json array
  * @return {object}
@@ -132,6 +144,9 @@ LEEWGL.Geometry.prototype.renderData = function() {
   var attributes = {
     'aVertexPosition': this.buffers.position,
     'aVertexNormal': this.buffers.normal,
+    'aNormalCoord': this.buffers.texture,
+    'aTangent': this.buffers.tangent,
+    'aBitangent': this.buffers.bitangent
   };
 
   var uniforms = {
@@ -148,6 +163,17 @@ LEEWGL.Geometry.prototype.renderData = function() {
 
   if (this.picking === true)
     uniforms['uColorMapColor'] = new Float32Array(this.buffers.position.colorMapColor);
+
+  var components = this.components;
+
+  for (var name in components) {
+    var comp = components[name];
+    if (typeof comp.renderData === 'undefined')
+      continue;
+    var data = comp.renderData();
+    addToJSON(attributes, data.attributes);
+    addToJSON(uniforms, data.uniforms);
+  }
 
   return {
     'attributes': attributes,
@@ -202,6 +228,7 @@ LEEWGL.Geometry.prototype.clone = function(geometry, cloneID, recursive, addToAl
   var normal = this.vertices.normal;
   var color = this.vertices.color;
   var uv = this.vertices.uv;
+  var vectors = this.vectors;
   var faces = this.faces;
 
   geometry.facesNum = this.facesNum;
@@ -235,6 +262,8 @@ LEEWGL.Geometry.prototype.clone = function(geometry, cloneID, recursive, addToAl
   LEEWGL.Buffer.prototype.clone.call(this.buffers.indices, geometry.buffers.indices);
   LEEWGL.Buffer.prototype.clone.call(this.buffers.color, geometry.buffers.color);
   LEEWGL.Buffer.prototype.clone.call(this.buffers.texture, geometry.buffers.texture);
+  LEEWGL.Buffer.prototype.clone.call(this.buffers.tangent, geometry.buffers.tangent);
+  LEEWGL.Buffer.prototype.clone.call(this.buffers.bitangent, geometry.buffers.bitangent);
 
   return geometry;
 };
@@ -254,36 +283,79 @@ LEEWGL.Geometry3D = function(options) {
 LEEWGL.Geometry3D.prototype = Object.create(LEEWGL.Geometry.prototype);
 
 /**
+ * Calculates tangents and saves them in this.tangents
+ */
+LEEWGL.Geometry.prototype.calculateTangents = function() {
+
+  console.log(this.faces.length);
+  console.log(this);
+  for (var i = 0; i < this.vectors.position.length; i += 3) {
+    var v0 = this.vectors.position[i + 0];
+    var v1 = this.vectors.position[i + 1];
+    var v2 = this.vectors.position[i + 2];
+
+    var uv0 = this.vectors.uv[i + 0];
+    var uv1 = this.vectors.uv[i + 1];
+    var uv2 = this.vectors.uv[i + 2];
+
+    var deltaPos0 = vec3.subtract(vec3.create(), v1, v0);
+    var deltaPos1 = vec3.subtract(vec3.create(), v2, v0);
+
+    // console.log(uv0);
+    // console.log(uv1);
+    // console.log(uv2);
+
+    var deltaUV0 = vec2.subtract(vec2.create(), uv1, uv0);
+    var deltaUV1 = vec2.subtract(vec2.create(), uv2, uv0);
+
+    var r = 1.0 / (deltaUV0[0] * deltaUV1[1] - deltaUV0[1] * deltaUV1[0]);
+
+    var tangent = (vec3.subtract(vec3.create(), vec3.scale(vec3.create(), deltaPos0, deltaUV1[1]), vec3.scale(vec3.create(), deltaPos1, deltaUV0[1])));
+    var bitangent = (vec3.subtract(vec3.create(), vec3.scale(vec3.create(), deltaPos1, deltaUV0[0]), vec3.scale(vec3.create(), deltaPos0, deltaUV1[0])));
+
+    this.tangents.push(tangent);
+    this.tangents.push(tangent);
+    this.tangents.push(tangent);
+
+    this.bitangents.push(bitangent);
+    this.bitangents.push(bitangent);
+    this.bitangents.push(bitangent);
+  }
+};
+/**
  * Calculates faces and saves them in this.faces
  * Gets called in constructor of derived classes of Geometry
  */
 LEEWGL.Geometry3D.prototype.calculateFaces = function() {
-  this.vectors = [];
-
   var i = 0;
 
-  /// this.vectors saves vector representation of this.vertices.position
+  var position = [];
+  var uv = [];
+
   for (i = 0; i < this.vertices.position.length; i += 3) {
-    var x = this.vertices.position[i];
+    var x = this.vertices.position[i + 0];
     var y = this.vertices.position[i + 1];
     var z = this.vertices.position[i + 2];
 
-    this.vectors.push([x, y, z]);
+    position.push([x, y, z]);
   }
 
-  for (i = 0; i < this.indices.length; i += 3) {
-    var i0 = this.indices[i];
-    var i1 = this.indices[i + 1];
-    var i2 = this.indices[i + 2];
+  for (i = 0; i < this.vertices.uv.length; i += 2) {
+    var u = this.vertices.uv[i + 0];
+    var v = this.vertices.uv[i + 1];
 
-    var c0 = this.vectors[i0];
-    var c1 = this.vectors[i1];
-    var c2 = this.vectors[i2];
-
-    this.faces.push([c0, c1, c2]);
+    uv.push([u, v]);
   }
 
-  this.facesNum = this.faces.length;
+  for (i = 0; i < this.indices.length; ++i) {
+    var cnt = this.indices[i];
+    var vectorPos = position[cnt];
+    var vectorUV = uv[cnt];
+    this.vectors.position.push(vectorPos);
+    this.vectors.uv.push(vectorUV);
+  }
+
+  this.facesNum = this.indices.length / 3;
 };
 
 /**
@@ -363,6 +435,8 @@ LEEWGL.Geometry3D.prototype.setBuffer = function(gl, type) {
     this.buffers.position.setData(gl, this.vertices.position, new LEEWGL.BufferInformation.VertexTypePos3());
     this.buffers.normal.setData(gl, this.vertices.normal, new LEEWGL.BufferInformation.VertexTypePos3());
     this.buffers.texture.setData(gl, this.vertices.uv, new LEEWGL.BufferInformation.VertexTypePos2());
+    this.buffers.tangent.setData(gl, this.tangents, new LEEWGL.BufferInformation.VertexTypePos3());
+    this.buffers.bitangent.setData(gl, this.bitangents, new LEEWGL.BufferInformation.VertexTypePos3());
     this.buffers.indices.setData(gl, this.indices);
   }
 };
@@ -421,6 +495,11 @@ LEEWGL.Geometry3D.Grid = function(options) {
   this.dimension = this.options['dimension'];
 
   this.generate();
+  this.calculateNormals();
+  this.calculateFaces();
+
+  this.tangents = [];
+  this.bitangents = [];
 };
 
 LEEWGL.Geometry3D.Grid.prototype = Object.create(LEEWGL.Geometry3D.prototype);
@@ -456,8 +535,6 @@ LEEWGL.Geometry3D.Grid.prototype.generate = function() {
     this.indices[2 * (this.lines + 1) + 2 * i + 1] = 2 * (this.lines + 1) + 2 * i + 1;
   }
 
-  this.calculateFaces();
-  this.calculateNormals();
 };
 /**
  * Derived from LEEWGL.Geometry3D
@@ -488,6 +565,7 @@ LEEWGL.Geometry3D.Triangle = function(options) {
 
   this.type = 'Geometry3D.Triangle';
 
+  /// FIXME: one position
   var position = [
     // front face
     0.0, 1.0, 0.0, //
@@ -549,6 +627,7 @@ LEEWGL.Geometry3D.Triangle = function(options) {
 
   this.calculateFaces();
   this.calculateNormals();
+  this.calculateTangents();
 };
 
 LEEWGL.Geometry3D.Triangle.prototype = Object.create(LEEWGL.Geometry3D.prototype);
@@ -696,6 +775,7 @@ LEEWGL.Geometry3D.Cube = function(options) {
 
   this.calculateFaces();
   this.calculateNormals();
+  this.calculateTangents();
 };
 
 LEEWGL.Geometry3D.Cube.prototype = Object.create(LEEWGL.Geometry3D.prototype);
@@ -724,7 +804,6 @@ LEEWGL.Geometry3D.Cube.prototype.clone = function(cube, cloneID, recursive, addT
 LEEWGL.Geometry3D.Sphere = function(options) {
   LEEWGL.Geometry3D.call(this, options);
 
-
   var ext_options = {
     'latitude': 10,
     'longitude': 10,
@@ -741,6 +820,7 @@ LEEWGL.Geometry3D.Sphere = function(options) {
 
   this.generate();
   this.calculateFaces();
+  this.calculateTangents();
 };
 
 LEEWGL.Geometry3D.Sphere.prototype = Object.create(LEEWGL.Geometry3D.prototype);
@@ -748,12 +828,12 @@ LEEWGL.Geometry3D.Sphere.prototype = Object.create(LEEWGL.Geometry3D.prototype);
 LEEWGL.Geometry3D.Sphere.prototype.generate = function() {
   var latNumber, longNumber = 0;
 
-  for (latNumber = 0; latNumber <= this.latitude; latNumber++) {
+  for (latNumber = 0; latNumber <= this.latitude; ++latNumber) {
     var theta = latNumber * Math.PI / this.latitude;
     var sinTheta = Math.sin(theta);
     var cosTheta = Math.cos(theta);
 
-    for (longNumber = 0; longNumber <= this.longitude; longNumber++) {
+    for (longNumber = 0; longNumber <= this.longitude; ++longNumber) {
       var phi = longNumber * 2 * Math.PI / this.longitude;
       var sinPhi = Math.sin(phi);
       var cosPhi = Math.cos(phi);
@@ -775,8 +855,8 @@ LEEWGL.Geometry3D.Sphere.prototype.generate = function() {
     }
   }
 
-  for (latNumber = 0; latNumber < this.latitude; latNumber++) {
-    for (longNumber = 0; longNumber < this.longitude; longNumber++) {
+  for (latNumber = 0; latNumber < this.latitude; ++latNumber) {
+    for (longNumber = 0; longNumber < this.longitude; ++longNumber) {
       var first = (latNumber * (this.longitude + 1)) + longNumber;
       var second = first + this.longitude + 1;
 

@@ -46,7 +46,7 @@ LEEWGL.Component.prototype = {
 };
 
 /** @global */
-LEEWGL.Component.Components = ['Transform', 'CustomScript', 'Texture', 'Collider', 'Billboard', 'Renderer'];
+LEEWGL.Component.Components = ['Transform', 'CustomScript', 'Texture', 'BumpMap', 'Collider', 'Billboard', 'Renderer'];
 LEEWGL.EventDispatcher.prototype.apply(LEEWGL.Component.prototype);
 
 /**
@@ -241,6 +241,23 @@ LEEWGL.Component.Transform.prototype.matrix = function() {
   this.mat = mat;
   return mat;
 };
+LEEWGL.Component.Transform.prototype.renderData = function() {
+  var attributes = {
+    'Test': 'this.buffers.position',
+    'Test2': 'this.buffers.normal',
+    'Irgendwas': 'this.buffers.texture',
+  };
+
+  var uniforms = {
+    'uModel1': 'this.transform.matrix()',
+    'uNormalMatri1': 'normalMatrix'
+  };
+
+  return {
+    'attributes': attributes,
+    'uniforms': uniforms
+  };
+};
 /**
  * Creates deep copy of this
  * @param  {LEEWGL.Component.Transform} transform
@@ -387,6 +404,39 @@ LEEWGL.Component.Texture.prototype.clone = function(texture) {
   texture.texture = LEEWGL.Texture.prototype.clone.call(this.texture);
   texture.src = this.src;
   return texture;
+};
+/**
+ * @constructor
+ * @augments LEEWGL.Component
+ */
+LEEWGL.Component.BumpMap = function(options) {
+  LEEWGL.Component.call(this, options);
+
+  var ext_options = {};
+
+  /** @inner {string} */
+  this.type = 'Component.BumpMap';
+
+  this.addOptions(ext_options);
+  this.setOptions(options);
+
+  /** @inner {LEEWGL.Texture} */
+  this.normalMap = new LEEWGL.Texture();
+};
+
+LEEWGL.Component.BumpMap.prototype = Object.create(LEEWGL.Component.prototype);
+
+/**
+ * Creates deep copy of this
+ * @param  {LEEWGL.Component.BumpMap} bumpMap
+ * @return {LEEWGL.Component.BumpMap} bumpMap
+ */
+LEEWGL.Component.BumpMap.prototype.clone = function(bumpMap) {
+  if (typeof bumpMap === 'undefined')
+    bumpMap = new LEEWGL.Component.BumpMap(this.options);
+
+  LEEWGL.Component.prototype.clone.call(this, bumpMap);
+  return bumpMap;
 };
 
 /**

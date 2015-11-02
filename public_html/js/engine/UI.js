@@ -1,39 +1,59 @@
 LEEWGL.REQUIRES.push('UI');
 
 /**
+ * Class to handle the editor environment
  * @constructor
  * @param {object} options
  */
 LEEWGL.UI = function(options) {
+  /** @inner {LEEWGL.DOM.Element} */
   this.inspector = undefined;
+  /** @inner {LEEWGL.DOM.Element} */
   this.statusBar = undefined;
 
+  /** @inner {object} */
   this.outline = {};
+  /** @inner {LEEWGL.GameObject} */
   this.activeOutline = null;
 
+  /** @inner {bool} */
   this.updateOutline = false;
 
+  /** @inner {LEEWGL.GameObject} */
   this.activeElement = null;
+  /** @inner {LEEWGL.LocalStorage} */
   this.storage = new LEEWGL.LocalStorage();
+  /** @inner {bool} */
   this.playing = false;
+  /** @inner {bool} */
   this.paused = false;
 
+  /** @inner {glContext} */
   this.gl = undefined;
+  /** @inner {LEEWGL.Scene} */
   this.scene = undefined;
 
+  /** @inner {number} */
   this.activeIndex = undefined;
+  /** @inner {bool} */
   this.settingsDisplayed = false;
 
+  /** @inner {number} */
   this.importedScripts = 0;
+  /** @inner {number} */
   this.appliedScripts = 0;
 
+  /** @inner {LEEWGL.DragDrop} */
   this.drag = new LEEWGL.DragDrop();
 
+  /** @inner {string} */
   this.transformationMode = LEEWGL.EDITOR.TRANSFORMATION.TRANSLATE;
 
+  /** @inner {LEEWGL.UI.Popup} */
   this.popup = new LEEWGL.UI.Popup({});
   this.popup.create();
 
+  /** @inner {LEEWGL.UI.Popup} */
   this.contextMenu = new LEEWGL.UI.Popup({
     'movable': false,
     'close-icon-enabled': false,
@@ -42,6 +62,7 @@ LEEWGL.UI = function(options) {
   });
   this.contextMenu.create();
 
+  /** @inner {LEEWGL.UI.Popup} */
   this.updatePopup = new LEEWGL.UI.Popup({
     'movable': false,
     'close-icon-enabled': true,
@@ -74,6 +95,7 @@ LEEWGL.UI = function(options) {
     }
   }.bind(this)));
 
+  /** @inner {LEEWGL.UI.Sidebar} */
   this.sidebar = new LEEWGL.UI.Sidebar({
     'position': {
       'x': -350,
@@ -83,20 +105,27 @@ LEEWGL.UI = function(options) {
   this.sidebar.create();
   this.sidebar.setPosition();
 
+  /** @inner {Array} */
   this.importedScripts = [];
+  /** @inner {Array} */
   this.objectScripts = [];
 
+  /** @inner {LEEWGL.GameObject} */
   this.clipBoard = null;
 
   /** @inner {LEEWGL.AsynchRequest} */
   this.ajax = new LEEWGL.AsynchRequest();
 
+  /** @inner {object} */
   this.saved = {};
 
+  /** @inner {LEEWGL.Importer} */
   this.importer = new LEEWGL.Importer();
 
+  /** @inner {LEEWGL.DOM.Element} */
   this.body = new LEEWGL.DOM.Element(document.body);
 
+  /** @inner {LEEWGL.Lightbox} */
   this.lightbox = new window.LEEWGL.Lightbox({
     'anchor': 'a.lb-image',
     'link': true,
@@ -365,10 +394,13 @@ LEEWGL.UI = function(options) {
   };
 
   this.dispatchTypes = function(element, vector, type, num) {
+    var vec = vec3.create();
+    vec[num] = vector[num];
+
     var checkNaN = function(vector) {
       for (var i = 0; i < vector.length; ++i) {
         if (isNaN(vector[i]))
-          return false
+          return false;
       }
       return true;
     };
@@ -399,9 +431,9 @@ LEEWGL.UI = function(options) {
     };
 
     if (type === 'transform-position') {
-      element.traverse(pos, [vector]);
+      element.traverse(pos, [vec]);
     } else if (type === 'transform-translation') {
-      element.traverse(trans, [vector]);
+      element.traverse(trans, [vec]);
     } else if (type === 'transform-rotation') {
       element.traverse(rot, [vector, num]);
     } else if (type === 'transform-scale') {
