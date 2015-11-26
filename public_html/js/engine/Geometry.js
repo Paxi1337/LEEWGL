@@ -74,10 +74,14 @@ LEEWGL.Geometry = function(options) {
 
   this.addComponent(new LEEWGL.Component.Renderer());
 
+  /** @inner {number} */
   this.facesNum = 1;
+  /** @inner {array} */
   this.faces = [];
-
+  /** @inner {bool} */
   this.usesTexture = false;
+  /** @inner {bool} */
+  this.usesBumpMap = false;
 };
 
 LEEWGL.Geometry.prototype = Object.create(LEEWGL.GameObject.prototype);
@@ -136,6 +140,7 @@ LEEWGL.Geometry.prototype.setColor = function(gl, color) {
  */
 LEEWGL.Geometry.prototype.renderData = function() {
   var texture = (this.usesTexture === true) ? this.components['Texture'].texture : false;
+  var bumpMap = (this.usesBumpMap === true) ? this.components['BumpMap'].bumpMap : false;
 
   var normalMatrix = mat4.create();
   mat4.invert(normalMatrix, this.transform.matrix());
@@ -143,10 +148,7 @@ LEEWGL.Geometry.prototype.renderData = function() {
 
   var attributes = {
     'aVertexPosition': this.buffers.position,
-    'aVertexNormal': this.buffers.normal,
-    'aNormalCoord': this.buffers.texture,
-    'aTangent': this.buffers.tangent,
-    'aBitangent': this.buffers.bitangent
+    'aVertexNormal': this.buffers.normal
   };
 
   var uniforms = {
@@ -161,19 +163,14 @@ LEEWGL.Geometry.prototype.renderData = function() {
     uniforms['uSampler'] = texture.id;
   }
 
+  if (bumpMap !== false) {
+    attributes['aTangent'] = this.buffers.tangent;
+    attributes['aBitangent'] = this.buffers.bitangent;
+    uniforms['uNormalSampler'] = bumpMap.id;
+  }
+
   if (this.picking === true)
     uniforms['uColorMapColor'] = new Float32Array(this.buffers.position.colorMapColor);
-
-  var components = this.components;
-
-  for (var name in components) {
-    var comp = components[name];
-    if (typeof comp.renderData === 'undefined')
-      continue;
-    var data = comp.renderData();
-    addToJSON(attributes, data.attributes);
-    addToJSON(uniforms, data.uniforms);
-  }
 
   return {
     'attributes': attributes,
@@ -197,6 +194,11 @@ LEEWGL.Geometry.prototype.draw = function(gl, drawMode) {
   if (this.usesTexture === true) {
     this.components['Texture'].texture.setActive(gl);
     this.components['Texture'].texture.bind(gl);
+
+    if (this.usesBumpMap === true) {
+      this.components['BumpMap'].bumpMap.setActive(gl);
+      this.components['BumpMap'].bumpMap.bind(gl);
+    }
   }
 
   if (indices === true) {
@@ -206,8 +208,12 @@ LEEWGL.Geometry.prototype.draw = function(gl, drawMode) {
     gl.drawArrays(draw, 0, this.vertices.position.length);
   }
 
-  if (this.usesTexture === true)
+  if (this.usesTexture === true) {
     this.components['Texture'].texture.unbind(gl);
+
+    if (this.usesBumpMap === true)
+      this.components['BumpMap'].bumpMap.unbind(gl);
+  }
 };
 
 /**
@@ -233,6 +239,7 @@ LEEWGL.Geometry.prototype.clone = function(geometry, cloneID, recursive, addToAl
 
   geometry.facesNum = this.facesNum;
   geometry.usesTexture = this.usesTexture;
+  geometry.usesBumpMap = this.usesBumpMap;
 
   geometry.vertices.position = [];
   geometry.vertices.normal = [];
@@ -285,41 +292,28 @@ LEEWGL.Geometry3D.prototype = Object.create(LEEWGL.Geometry.prototype);
 /**
  * Calculates tangents and saves them in this.tangents
  */
-LEEWGL.Geometry.prototype.calculateTangents = function() {
+LEEWGL.Geometry3D.prototype.calculateTangents = function() {
+  var normals = this.vertices.normal;
+  for (var i = 0; i < this.vertices.position.length; i += 3) {
+    var w = vec3.fromValues(normals[i + 0], normals[i + 1], normals[i + 2]);
+    vec3.normalize(w, w);
 
-  console.log(this.faces.length);
-  console.log(this);
-  for (var i = 0; i < this.vectors.position.length; i += 3) {
-    var v0 = this.vectors.position[i + 0];
-    var v1 = this.vectors.position[i + 1];
-    var v2 = this.vectors.position[i + 2];
+    var b = vec3.fromValues(0.0, 30.0, 1.0);
+    vec3.normalize(b, b);
 
-    var uv0 = this.vectors.uv[i + 0];
-    var uv1 = this.vectors.uv[i + 1];
-    var uv2 = this.vectors.uv[i + 2];
+    var u = vec3.cross(vec3.create(), w, b);
+    vec3.normalize(u, u);
 
-    var deltaPos0 = vec3.subtract(vec3.create(), v1, v0);
-    var deltaPos1 = vec3.subtract(vec3.create(), v2, v0);
+    var v = vec3.cross(vec3.create(), u, w);
+    vec3.normalize(v, v);
 
-    // console.log(uv0);
-    // console.log(uv1);
-    // console.log(uv2);
+    this.tangents[i + 0] = u[0];
+    this.tangents[i + 1] = u[1];
+    this.tangents[i + 2] = u[2];
 
-    var deltaUV0 = vec2.subtract(vec2.create(), uv1, uv0);
-    var deltaUV1 = vec2.subtract(vec2.create(), uv2, uv0);
-
-    var r = 1.0 / (deltaUV0[0] * deltaUV1[1] - deltaUV0[1] * deltaUV1[0]);
-
-    var tangent = (vec3.subtract(vec3.create(), vec3.scale(vec3.create(), deltaPos0, deltaUV1[1]), vec3.scale(vec3.create(), deltaPos1, deltaUV0[1])));
-    var bitangent = (vec3.subtract(vec3.create(), vec3.scale(vec3.create(), deltaPos1, deltaUV0[0]), vec3.scale(vec3.create(), deltaPos0, deltaUV1[0])));
-
-    this.tangents.push(tangent);
-    this.tangents.push(tangent);
-    this.tangents.push(tangent);
-
-    this.bitangents.push(bitangent);
-    this.bitangents.push(bitangent);
-    this.bitangents.push(bitangent);
+    this.bitangents[i + 0] = v[0];
+    this.bitangents[i + 1] = v[1];
+    this.bitangents[i + 2] = v[2];
   }
 };
 /**

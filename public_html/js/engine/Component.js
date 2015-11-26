@@ -241,23 +241,6 @@ LEEWGL.Component.Transform.prototype.matrix = function() {
   this.mat = mat;
   return mat;
 };
-LEEWGL.Component.Transform.prototype.renderData = function() {
-  var attributes = {
-    'Test': 'this.buffers.position',
-    'Test2': 'this.buffers.normal',
-    'Irgendwas': 'this.buffers.texture',
-  };
-
-  var uniforms = {
-    'uModel1': 'this.transform.matrix()',
-    'uNormalMatri1': 'normalMatrix'
-  };
-
-  return {
-    'attributes': attributes,
-    'uniforms': uniforms
-  };
-};
 /**
  * Creates deep copy of this
  * @param  {LEEWGL.Component.Transform} transform
@@ -412,7 +395,9 @@ LEEWGL.Component.Texture.prototype.clone = function(texture) {
 LEEWGL.Component.BumpMap = function(options) {
   LEEWGL.Component.call(this, options);
 
-  var ext_options = {};
+  var ext_options = {
+    'src': '',
+  };
 
   /** @inner {string} */
   this.type = 'Component.BumpMap';
@@ -421,11 +406,33 @@ LEEWGL.Component.BumpMap = function(options) {
   this.setOptions(options);
 
   /** @inner {LEEWGL.Texture} */
-  this.normalMap = new LEEWGL.Texture();
+  this.bumpMap = new LEEWGL.Texture();
+  /** @inner {string} */
+  this.src = '';
 };
 
 LEEWGL.Component.BumpMap.prototype = Object.create(LEEWGL.Component.prototype);
+/**
+ * Creates normalmap and sets its image
+ * @param  {webGLContext} gl
+ * @param  {string} src
+ */
+LEEWGL.Component.BumpMap.prototype.init = function(gl, src) {
+  src = (typeof src !== 'undefined') ? src : this.options['src'];
+  var that = this;
+  this.src = src;
 
+  this.bumpMap.create(gl);
+  this.bumpMap.setTextureImage(gl, this.src);
+  this.initialized = true;
+};
+/**
+ * Return src of this.normalMap
+ * @return {string} src
+ */
+LEEWGL.Component.BumpMap.prototype.getSource = function() {
+  return this.src;
+};
 /**
  * Creates deep copy of this
  * @param  {LEEWGL.Component.BumpMap} bumpMap
@@ -436,6 +443,7 @@ LEEWGL.Component.BumpMap.prototype.clone = function(bumpMap) {
     bumpMap = new LEEWGL.Component.BumpMap(this.options);
 
   LEEWGL.Component.prototype.clone.call(this, bumpMap);
+  bumpMap.bumpMap = LEEWGL.Texture.prototype.clone.call(this.bumpMap);
   return bumpMap;
 };
 
@@ -513,6 +521,7 @@ LEEWGL.Component.Billboard = function(options) {
 
   /** @inner {LEEWGL.Billboard} */
   this.billboard = new LEEWGL.Billboard(options);
+  this.renderer = this.billboard.components['Renderer'];
 };
 
 LEEWGL.Component.Billboard.prototype = Object.create(LEEWGL.Component.prototype);
@@ -543,13 +552,18 @@ LEEWGL.Component.Billboard.prototype.update = function(obj) {
   this.billboard.transform = obj.transform;
 };
 /**
+ * Calls renderData method of LEEWGL.Billboard
+ * @return  {object}
+ */
+LEEWGL.Component.Billboard.prototype.renderData = function() {
+  return this.billboard.renderData();
+};
+/**
  * Calls draw method of LEEWGL.Billboard
  * @param  {webGLContext} gl
- * @param  {LEEWGL.Shader} shader
- * @param  {LEEWGL.Camera} camera
  */
-LEEWGL.Component.Billboard.prototype.draw = function(gl, shader, camera) {
-  this.billboard.draw(gl, shader, camera);
+LEEWGL.Component.Billboard.prototype.draw = function(gl) {
+  this.billboard.draw(gl);
 };
 /**
  * Creates deep copy of this
@@ -624,7 +638,7 @@ LEEWGL.Component.Renderer.prototype.set = function(data) {
 LEEWGL.Component.Renderer.prototype.draw = function(gl, shader) {
   shader.use(gl);
 
-  // if(typeof this.shader.uniforms['uSampler'] !== 'undefined') {
+  // if(typeof this.shader.uniforms['uNormalSampler'] !== 'undefined') {
   //   console.log(this.shader.uniforms);
   //   console.log(this.uniforms);
   //   console.log(this.shader.attributes);
@@ -643,8 +657,7 @@ LEEWGL.Component.Renderer.prototype.draw = function(gl, shader) {
 /**
  * @param  {LEEWGL.GameObject} obj
  */
-LEEWGL.Component.Renderer.prototype.update = function(obj) {
-};
+LEEWGL.Component.Renderer.prototype.update = function(obj) {};
 /**
  * Creates deep copy of this
  * @param  {LEEWGL.Component.Billboard} bill

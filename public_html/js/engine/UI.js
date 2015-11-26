@@ -394,8 +394,7 @@ LEEWGL.UI = function(options) {
   };
 
   this.dispatchTypes = function(element, vector, type, num) {
-    var vec = vec3.create();
-    vec[num] = vector[num];
+    var vec = vec3.clone(vector);
 
     var checkNaN = function(vector) {
       for (var i = 0; i < vector.length; ++i) {
@@ -961,7 +960,81 @@ LEEWGL.UI = function(options) {
 
     return container;
   };
+  /**
+   * Returns a HTML-form of the bumpMap component of given element
+   * @param  {LEEWGL.GameObject} element
+   * @return {LEEWGL.DOM.Element} container
+   */
+  this.bumpMapToHTML = function(element) {
+    var bumpMap = element.components['BumpMap'];
+    var container = new LEEWGL.DOM.Element('div', {
+      'class': 'component-container',
+      'id': 'bumpmap-component-container'
+    });
+    var title = new LEEWGL.DOM.Element('h3', {
+      'class': 'component-headline',
+      'html': 'BumpMap'
+    });
+    container.grab(title);
 
+    var removeComponentContainer = this.removeComponentButton(element, bumpMap);
+
+    var fileName = new LEEWGL.DOM.Element('h4', {
+      'class': 'component-sub-headline'
+    });
+    var fileInput = new LEEWGL.DOM.Element('input', {
+      'type': 'file'
+    });
+    var imageContainer = new LEEWGL.DOM.Element('div', {
+      'id': 'billboard-preview-container',
+      'class': 'image-preview-container'
+    });
+    var imageAnchor = new LEEWGL.DOM.Element('a', {
+      'class': 'lb-image'
+    });
+    var image = new LEEWGL.DOM.Element('img');
+    imageAnchor.grab(image);
+    imageContainer.grab(imageAnchor);
+
+    // if (typeof this.saved['object-' + element.id + '-texture-path'] !== 'undefined') {
+    //   image.set('src', this.saved['object-' + element.id + '-texture-path']);
+    //   fileInput.set('value', this.saved['object-' + element.id + '-texture-path']);
+    //   fileName.set('text', this.saved['object-' + element.id + '-texture-path']);
+    // } else {
+    //   fileName.set('text', 'No Texture');
+    // }
+
+    var that = this;
+
+    var path = LEEWGL.ROOT + 'texture/';
+    var name = '';
+    if (bumpMap.initialized === true) {
+      name = bumpMap.getSource();
+      imageAnchor.set('href', name);
+      image.set('src', name);
+      fileName.set('text', name);
+    }
+
+    fileInput.addEvent('change', function(event) {
+      name = this.value.substr(this.value.lastIndexOf('\\') + 1, this.value.length);
+      bumpMap.init(that.gl, path + name);
+      element.usesBumpMap = true;
+
+      that.saved['object-' + element.id + '-bumpMap-path'] = path + name;
+      fileName.set('text', path + name);
+
+      imageAnchor.set('href', path + name);
+      image.set('src', path + name);
+      that.lightbox.update();
+    });
+
+    container.grab(fileName);
+    container.grab(fileInput);
+    container.grab(imageContainer);
+    container.grab(removeComponentContainer, 'top');
+
+    return container;
+  };
   /**
    * Returns a HTML-form of the collider component of given element
    * @param  {LEEWGL.GameObject} element
@@ -1013,6 +1086,8 @@ LEEWGL.UI = function(options) {
         container.grab(this.colliderToHTML(element));
       else if (component instanceof LEEWGL.Component.Billboard)
         container.grab(this.billboardToHTML(element));
+      else if (component instanceof LEEWGL.Component.BumpMap)
+        container.grab(this.bumpMapToHTML(element));
     }
     return container;
   };
@@ -1057,9 +1132,17 @@ LEEWGL.UI = function(options) {
         keyFunction(element, vector);
       });
 
-      var keydown = (function(event, element, table, vector) {
+      var keydownTable = (function(event, element, table, vector) {
         var size = table.size(false);
         table.setStyle('width', size.width + 'px');
+        if (event.keyCode === LEEWGL.KEYS.ENTER) {
+          keyFunction(element, vector);
+          that.updateOutline = true;
+          that.setInspectorElement(obj.id);
+        }
+      });
+
+      var keydownInput = (function(event, element, vector) {
         if (event.keyCode === LEEWGL.KEYS.ENTER) {
           keyFunction(element, vector);
           that.updateOutline = true;
@@ -1111,14 +1194,14 @@ LEEWGL.UI = function(options) {
             'headline-type': 'h4',
             'title-class': 'table-title',
             'content-class': 'editable table-content'
-          }, editable['table-titles'], editable.value, editable.name, keydown, keyup));
+          }, editable['table-titles'], editable.value, editable.name, keydownTable, keyup));
         } else if (editable.type === 'string' || editable.type === 'number') {
           container.grab(HTMLHELPER.createContainerDetailInput({
             'id': e,
             'container-class': 'component-detail-container',
             'headline-class': 'component-detail-headline',
             'headline-type': 'h4'
-          }, editable.name, editable.value, keydown, keyup));
+          }, editable.name, editable.value, keydownInput, keyup));
         } else if (editable.type === 'array') {
           if (obj instanceof LEEWGL.Light) {
             var light = this.scene.getObjectByType('Light');
@@ -1203,11 +1286,11 @@ LEEWGL.UI = function(options) {
 
     this.inspector.grab(name);
 
+    var values = this.valuesToHTML(activeElement);
     var components = this.componentsToHTML(activeElement);
     var componentsButton = this.componentsButton();
-    var values = this.valuesToHTML(activeElement);
 
-    this.inspector.grab([components, componentsButton, values]);
+    this.inspector.grab([values, components, componentsButton]);
 
     this.editableDOM();
 

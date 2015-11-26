@@ -87,13 +87,14 @@ LEEWGL.HTMLHelper = function() {
     });
 
     var i = 0;
+    var tr, td;
     if (typeof content.length === 'undefined') {
       for (var prop in content) {
-        var tr = new LEEWGL.DOM.Element('div', {
+        tr = new LEEWGL.DOM.Element('div', {
           'class': (typeof options['title-class'] !== 'undefined') ? options['title-class'] : '',
           'html': header[i]
         });
-        var td = fillTable(prop, content);
+        td = fillTable(prop, content);
         table.grab(tr);
         table.grab(td);
 
@@ -103,11 +104,11 @@ LEEWGL.HTMLHelper = function() {
       }
     } else {
       for (i = 0; i < content.length; ++i) {
-        var tr = new LEEWGL.DOM.Element('div', {
+        tr = new LEEWGL.DOM.Element('div', {
           'class': (typeof options['title-class'] !== 'undefined') ? options['title-class'] : '',
           'html': header[i]
         });
-        var td = fillTable(i, content);
+        td = fillTable(i, content);
         table.grab(tr);
         table.grab(td);
         if ((header.length % (i + 1)) === 0)
@@ -226,13 +227,13 @@ LEEWGL.HTMLHelper = function() {
     tr = new LEEWGL.DOM.Element('tr');
     if (typeof content.length === 'undefined') {
       for (var prop in content) {
-        var td = fillTable(prop, content);
+        td = fillTable(prop, content);
         tr.grab(td);
         tbody.grab(tr);
       }
     } else {
       for (i = 0; i < content.length; ++i) {
-        var td = fillTable(i, content);
+        td = fillTable(i, content);
         tr.grab(td);
         tbody.grab(tr);
       }

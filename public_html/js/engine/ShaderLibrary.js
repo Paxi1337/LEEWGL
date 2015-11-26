@@ -30,8 +30,6 @@ LEEWGL.ShaderLibrary = function() {
     };
 
     this.chunks[LEEWGL.ShaderLibrary.DEFAULT] = {
-      attributes: ['aVertexPosition'],
-      uniforms: ['uVP', 'uModel'],
       vertex: {
         parameters: [
           LEEWGL.ShaderChunk['vertex_default_para'],
@@ -47,8 +45,6 @@ LEEWGL.ShaderLibrary = function() {
     };
 
     this.chunks[LEEWGL.ShaderLibrary.COLOR] = {
-      attributes: ['aVertexColor'],
-      uniforms: [],
       vertex: {
         parameters: [
           LEEWGL.ShaderChunk['vertex_color_para']
@@ -68,8 +64,6 @@ LEEWGL.ShaderLibrary = function() {
     };
 
     this.chunks[LEEWGL.ShaderLibrary.TEXTURE] = {
-      attributes: ['aTextureCoord'],
-      uniforms: ['uSampler'],
       vertex: {
         parameters: [
           LEEWGL.ShaderChunk['vertex_texture_para']
@@ -91,7 +85,6 @@ LEEWGL.ShaderLibrary = function() {
 
     this.chunks[LEEWGL.ShaderLibrary.PICKING] = {
       attributes: [],
-      uniforms: ['uOffscreen', 'uColorMapColor'],
       vertex: {
         parameters: [],
         main: []
@@ -111,7 +104,6 @@ LEEWGL.ShaderLibrary = function() {
 
     this.chunks[LEEWGL.ShaderLibrary.AMBIENT] = {
       attributes: [],
-      uniforms: ['uOffscreen', 'uColorMapColor'],
       vertex: {
         parameters: [],
         main: []
@@ -264,6 +256,25 @@ LEEWGL.ShaderLibrary = function() {
         ]
       }
     };
+
+    this.chunks[LEEWGL.ShaderLibrary.BUMPMAP] = {
+      vertex: {
+        parameters: [
+          LEEWGL.ShaderChunk['vertex_normal_mapping_para'],
+        ],
+        main: [
+          LEEWGL.ShaderChunk['vertex_normal_mapping'],
+        ]
+      },
+      fragment: {
+        parameters: [
+          LEEWGL.ShaderChunk['fragment_normal_mapping_para']
+        ],
+        main: [
+          LEEWGL.ShaderChunk['fragment_normal_mapping']
+        ]
+      }
+    };
   };
 
   this.addParameterChunk = function(type) {
@@ -329,6 +340,7 @@ LEEWGL.ShaderLibrary.POINT = 8;
 LEEWGL.ShaderLibrary.SHADOW_MAPPING_POSITIONAL_LIGHT = 9;
 LEEWGL.ShaderLibrary.BILLBOARD = 10;
 LEEWGL.ShaderLibrary.BILLBOARD_FIXED = 11;
+LEEWGL.ShaderLibrary.BUMPMAP = 12;
 
 /**
  * window load event to set global

@@ -69,7 +69,6 @@ LEEWGL.Picker = function() {
     this.frameBuffer.unbind(gl);
 
     var color = this.getColorMapColor(x, y);
-
     var index = color[0] * 65536 + color[1] * 256 + color[2];
 
     if (this.objList[index]) {

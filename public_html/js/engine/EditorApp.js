@@ -133,9 +133,11 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   this.scene.setShader('color', shader.color);
   this.scene.setShader('texture', shader.texture);
   this.scene.setShader('billboard', shader.billboard);
+  this.scene.setShader('bumpMap', shader.bumpMap);
   this.scenePlay.setShader('color', shader.color);
   this.scenePlay.setShader('texture', shader.texture);
   this.scenePlay.setShader('billboard', shader.billboard);
+  this.scenePlay.setShader('bumpMap', shader.bumpMap);
 
   this.cameraGizmo.setBuffer(this.gl);
   this.cameraGizmo.addColor(this.gl, ColorHelper.getUniqueColor());
@@ -225,6 +227,7 @@ LEEWGL.EditorApp.prototype.initShaders = function(lightType) {
 
   var colorShader = new LEEWGL.Shader();
   var textureShader = new LEEWGL.Shader();
+  var bumpMapShader = new LEEWGL.Shader();
   var shadowShader = new LEEWGL.Shader();
   var shadowTextureShader = new LEEWGL.Shader();
 
@@ -237,10 +240,14 @@ LEEWGL.EditorApp.prototype.initShaders = function(lightType) {
   colorShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, SHADER_LIBRARY.out(LEEWGL.Shader.VERTEX));
   colorShader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, SHADER_LIBRARY.out(LEEWGL.Shader.FRAGMENT));
   SHADER_LIBRARY.removeParameterChunk(LEEWGL.ShaderLibrary.COLOR);
-  SHADER_LIBRARY.addParameterChunk(LEEWGL.ShaderLibrary.TEXTURE);
 
+  SHADER_LIBRARY.addParameterChunk(LEEWGL.ShaderLibrary.TEXTURE);
   textureShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, SHADER_LIBRARY.out(LEEWGL.Shader.VERTEX));
   textureShader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, SHADER_LIBRARY.out(LEEWGL.Shader.FRAGMENT));
+
+  SHADER_LIBRARY.addParameterChunk(LEEWGL.ShaderLibrary.BUMPMAP);
+  bumpMapShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, SHADER_LIBRARY.out(LEEWGL.Shader.VERTEX));
+  bumpMapShader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, SHADER_LIBRARY.out(LEEWGL.Shader.FRAGMENT));
 
   colorShader.linkShader(this.gl);
   colorShader.use(this.gl);
@@ -254,9 +261,16 @@ LEEWGL.EditorApp.prototype.initShaders = function(lightType) {
   textureShader.createUniformSetters(this.gl);
   textureShader.createAttributeSetters(this.gl);
 
+  bumpMapShader.linkShader(this.gl);
+  bumpMapShader.use(this.gl);
+
+  bumpMapShader.createUniformSetters(this.gl);
+  bumpMapShader.createAttributeSetters(this.gl);
+
   return {
     'color': colorShader,
     'texture': textureShader,
+    'bumpMap': bumpMapShader,
     'billboard': billboardShader
   };
 };
@@ -269,9 +283,11 @@ LEEWGL.EditorApp.prototype.onShaderChange = function(typeChange, typeShaderlib) 
     var shader = this.initShaders(typeShaderlib);
     this.scene.setShader('color', shader.color);
     this.scene.setShader('texture', shader.texture);
+    this.scene.setShader('bumpMap', shader.bumpMap);
     this.scene.setShader('billboard', shader.billboard);
     this.scenePlay.setShader('color', shader.color);
     this.scenePlay.setShader('texture', shader.texture);
+    this.scenePlay.setShader('bumpMap', shader.bumpMap);
     this.scenePlay.setShader('billboard', shader.billboard);
 
     this.scene.setActiveShader('color');
@@ -408,36 +424,6 @@ LEEWGL.EditorApp.prototype.onKeyDown = function(event) {
   event.stopPropagation();
 };
 
-LEEWGL.EditorApp.prototype.onUpdate = function() {
-  var camera = (this.playing === true) ? this.scenePlay.getObjectByTagname('GameCamera') : this.scene.getObjectByTagname('EditorCamera');
-  camera.update();
-  this.handleKeyInput();
-
-  this.core.setViewport(SETTINGS.get('viewport').x, SETTINGS.get('viewport').y, SETTINGS.get('viewport').width, SETTINGS.get('viewport').height);
-  this.core.setSize(SETTINGS.get('viewport').width, SETTINGS.get('viewport').height);
-
-  var scene = this.scene;
-
-  var updateComponents = function() {
-
-  };
-
-  if (this.playing === true) {
-    scene = this.scenePlay;
-    for (var i = 0; i < scene.children.length; ++i) {
-      scene.children[i].traverse(scene.children[i].onUpdate, scene);
-      scene.children[i].traverse(updateComponents);
-    }
-  }
-
-  if (scene.needsUpdate === true) {
-    this.updatePickingList(scene);
-    scene.needsUpdate = false;
-  }
-
-  UI.outlineToHTML('#dynamic-outline');
-};
-
 LEEWGL.EditorApp.prototype.handleKeyInput = function() {
   var camera = (this.playing === true) ? this.scenePlay.getObjectByTagname('GameCamera') : this.scene.getObjectByTagname('EditorCamera');
 
@@ -458,6 +444,40 @@ LEEWGL.EditorApp.prototype.handleKeyInput = function() {
   } else if (this.activeKeys[LEEWGL.KEYS.DOWN_CURSOR]) {
     camera.transform.offsetPosition(vec3.negate(vec3.create(), vec3.scale(vec3.create(), camera.forward(), SETTINGS.get('translationSpeed').z)));
   }
+};
+
+LEEWGL.EditorApp.prototype.onUpdate = function() {
+  var camera = (this.playing === true) ? this.scenePlay.getObjectByTagname('GameCamera') : this.scene.getObjectByTagname('EditorCamera');
+  camera.update();
+  this.handleKeyInput();
+
+  this.core.setViewport(SETTINGS.get('viewport').x, SETTINGS.get('viewport').y, SETTINGS.get('viewport').width, SETTINGS.get('viewport').height);
+  this.core.setSize(SETTINGS.get('viewport').width, SETTINGS.get('viewport').height);
+
+  var scene = (this.playing === true) ? this.scenePlay : this.scene;
+
+  var updateComponents = function() {
+    for (var comp in this.components) {
+      var component = this.components[comp];
+      if (typeof component.update === 'undefined')
+        continue;
+      component.update(this);
+    }
+  };
+
+  for (var i = 0; i < scene.children.length; ++i) {
+    element = scene.children[i];
+    if (this.playing === true)
+      element.traverse(element.onUpdate, scene);
+    element.traverse(updateComponents);
+  }
+
+  if (scene.needsUpdate === true) {
+    this.updatePickingList(scene);
+    scene.needsUpdate = false;
+  }
+
+  UI.outlineToHTML('#dynamic-outline');
 };
 
 LEEWGL.EditorApp.prototype.onRender = function() {
@@ -485,6 +505,11 @@ LEEWGL.EditorApp.prototype.onRender = function() {
     if (el.usesTexture === true) {
       activeShader = scene.shaders['texture'];
       scene.setActiveShader('texture');
+
+      if (el.usesBumpMap === true) {
+        activeShader = scene.shaders['bumpMap'];
+        scene.setActiveShader('bumpMap');
+      }
     } else {
       activeShader = scene.shaders['color'];
       scene.setActiveShader('color');
@@ -501,11 +526,10 @@ LEEWGL.EditorApp.prototype.onRender = function() {
       view = that.light.getView([0.0, 0.0, 0.0]);
     }
 
-    var mat = mat4.multiply(mat4.create(), proj, view);
-
     renderer.set({
       'uniforms': {
-        'uVP': mat
+        'uView': view,
+        'uProjection': proj
       }
     });
     that.draw(el, activeShader, camera, true);
@@ -527,17 +551,18 @@ LEEWGL.EditorApp.prototype.onRender = function() {
       if (el.usesTexture === true) {
         activeShader = scene.shaders['texture'];
         scene.setActiveShader('texture');
+
+        if (el.usesBumpMap === true) {
+          activeShader = scene.shaders['bumpMap'];
+          scene.setActiveShader('bumpMap');
+        }
       } else {
         activeShader = scene.shaders['color'];
         scene.setActiveShader('color');
       }
     }
 
-    renderer.set({
-      'uniforms': {
-        'uVP': camera.viewProjMatrix
-      }
-    });
+    renderer.set(camera.renderData());
 
     if (that.picking === true && renderer.options['picking'] === true) {
       that.picker.bind(that.gl);
@@ -559,11 +584,28 @@ LEEWGL.EditorApp.prototype.onRender = function() {
   };
 
   var renderComponents = function() {
+    for (var comp in this.components) {
+      var component = this.components[comp];
+      var renderer = component.renderer;
+      if (typeof renderer === 'undefined')
+        continue;
+      if (component instanceof LEEWGL.Component.Billboard) {
+        activeShader = scene.shaders['billboard'];
+        scene.setActiveShader('billboard');
+      }
+      renderer.setShader(activeShader);
+      renderer.set(component.renderData());
+      renderer.set(camera.renderData());
+      renderer.draw(that.gl, activeShader);
+      component.draw(that.gl);
+    }
+
     var billboard = this.components['Billboard'];
+
     if (typeof billboard !== 'undefined') {
       activeShader = scene.shaders['billboard'];
       scene.setActiveShader('billboard');
-      billboard.draw(that.gl, activeShader, camera);
+      billboard.draw(that.gl, activeShader);
     }
   };
 
@@ -584,7 +626,7 @@ LEEWGL.EditorApp.prototype.onRender = function() {
   for (i = 0; i < scene.children.length; ++i) {
     element = scene.children[i];
     element.traverse(render);
-    // element.traverse(renderComponents);
+    element.traverse(renderComponents);
   }
 };
 

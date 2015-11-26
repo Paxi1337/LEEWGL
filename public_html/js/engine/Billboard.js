@@ -65,7 +65,8 @@ LEEWGL.Billboard.prototype.renderData = function() {
   };
   var uniforms = {
     'uModel': this.transform.matrix(),
-    'uSampler': this.texture.texture.id
+    'uSampler': this.texture.texture.id,
+    'uBillboardPosition': [0.0, 0.0, 0.0]
   };
 
   if (this.billboardType === 'normal') {
@@ -83,27 +84,12 @@ LEEWGL.Billboard.prototype.renderData = function() {
   };
 };
 /**
- * Sets geometry own shader attributes and uniforms and renders the billboard
+ * Renders the billboard
  * @param  {webGLContext} gl
- * @param  {LEEWGL.Shader} shader
- * @param  {LEEWGL.Camera} camera
  */
-LEEWGL.Billboard.prototype.draw = function(gl, shader, camera) {
-  shader.use(gl);
-  shader.attributes['aVertexPosition'](this.buffers.position);
-  shader.uniforms['uVP'](camera.viewProjMatrix);
-  shader.uniforms['uModel'](this.transform.matrix());
-
-  if (this.billboardType === 'normal') {
-    shader.uniforms['uCameraRight'](camera.right());
-    shader.uniforms['uCameraUp'](camera.upVec());
-    shader.uniforms['uBillboardSize']([2.0, 2.0]);
-  }
-  shader.uniforms['uColorMapColor'](new Float32Array(this.buffers.position.colorMapColor));
-  shader.uniforms['uBillboardPosition']([0.0, 0.0, 0.0]);
+LEEWGL.Billboard.prototype.draw = function(gl) {
   this.texture.texture.setActive(gl);
   this.texture.texture.bind(gl);
-  shader.uniforms['uSampler'](this.texture.texture.id);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   this.texture.texture.unbind(gl);
 };

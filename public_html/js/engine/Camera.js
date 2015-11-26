@@ -80,6 +80,20 @@ LEEWGL.Camera.prototype.setEditables = function() {
   addToJSON(this.editables, editables);
 };
 /**
+ * Returns camera render data as json array
+ * @return {object}
+ */
+LEEWGL.Camera.prototype.renderData = function() {
+  var uniforms = {
+    'uView': this.viewMatrix,
+    'uProjection': this.projMatrix
+  };
+
+  return {
+    'uniforms': uniforms
+  };
+};
+/**
  * Creates a deep copy of this object
  * @param  {LEEWGL.Camera} camera
  * @param  {bool} cloneID
