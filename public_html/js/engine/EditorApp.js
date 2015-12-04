@@ -112,7 +112,7 @@ LEEWGL.EditorApp = function(options) {
     }
   });
   /** @inner {bool} */
-  this.useShadows = false;
+  this.useShadows = true;
 };
 
 LEEWGL.EditorApp.prototype = Object.create(LEEWGL.App.prototype);
@@ -155,13 +155,12 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   this.cube.transform.setPosition([5, 0, 0]);
 
   this.cube.addComponent(new LEEWGL.Component.CustomScript());
-  this.cube.addComponent(new LEEWGL.Component.Texture());
 
+  this.cube.addComponent(new LEEWGL.Component.Texture());
   this.cube.components['Texture'].init(this.gl, LEEWGL.ROOT + 'texture/masonry-wall-texture.jpg');
-  this.cube.usesTexture = true;
+
   this.cube.addComponent(new LEEWGL.Component.BumpMap());
   this.cube.components['BumpMap'].init(this.gl, LEEWGL.ROOT + 'texture/masonry-wall-normal-map.jpg');
-  this.cube.usesBumpMap = true;
 
   this.grid.setBuffer(this.gl);
   this.grid.addColor(this.gl, ColorHelper.getUniqueColor());
@@ -679,6 +678,9 @@ LEEWGL.EditorApp.prototype.onPlay = function() {
   var that = this;
 
   var onInit = function() {
+    if(typeof this.components['CustomScript'] === 'undefined')
+      return;
+
     var scripts = this.components['CustomScript'].applied;
     for (var scriptID in scripts) {
       this.addEventListener(scriptID, function() {

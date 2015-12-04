@@ -162,8 +162,9 @@ LEEWGL.PerspectiveCamera.prototype.upVec = function() {
  * @return {LEEWGL.GameObject}
  */
 LEEWGL.PerspectiveCamera.prototype.clone = function(camera, cloneID, recursive, addToAlias) {
-  if (camera === undefined)
+  if (typeof camera === 'undefined' || camera === null)
     camera = new LEEWGL.PerspectiveCamera(this.options);
+
   LEEWGL.Camera.prototype.clone.call(this, camera, cloneID, recursive, addToAlias);
 
   camera.fov = this.fov;

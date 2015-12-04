@@ -1,5 +1,4 @@
 uniform vec3 uLightDirection;
-uniform mat4 uLightView;
 
 varying vec3 vLightToPoint;
 varying vec3 vEyeToPoint;

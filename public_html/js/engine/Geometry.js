@@ -25,7 +25,8 @@ LEEWGL.Geometry = function(options) {
         'position': [],
         'normal': [],
         'color': [],
-        'uv': []
+        'uv': [],
+        'tangent': []
       },
       enumerable: true,
       writable: true
@@ -55,18 +56,7 @@ LEEWGL.Geometry = function(options) {
         'color': new LEEWGL.Buffer(),
         'texture': new LEEWGL.Buffer(),
         'tangent': new LEEWGL.Buffer(),
-        'bitangent': new LEEWGL.Buffer()
       },
-      enumerable: false,
-      writable: true
-    },
-    'tangents': {
-      value: [],
-      enumerable: false,
-      writable: true
-    },
-    'bitangents': {
-      value: [],
       enumerable: false,
       writable: true
     }
@@ -142,8 +132,24 @@ LEEWGL.Geometry.prototype.setColor = function(gl, color) {
  * @return {object}
  */
 LEEWGL.Geometry.prototype.renderData = function() {
-  var texture = (this.usesTexture === true) ? this.components['Texture'].texture : false;
-  var bumpMap = (this.usesBumpMap === true) ? this.components['BumpMap'].bumpMap : false;
+  var texture = false;
+  var bumpMap = false;
+
+  this.usesTexture = false;
+  this.usesBumpMap = false;
+
+  if (typeof this.components['Texture'] !== 'undefined') {
+    if (this.components['Texture'].initialized === true) {
+      texture = this.components['Texture'].texture;
+      this.usesTexture = true;
+    }
+  }
+  if (typeof this.components['BumpMap'] !== 'undefined') {
+    if (this.components['BumpMap'].initialized === true) {
+      bumpMap = this.components['BumpMap'].bumpMap;
+      this.usesBumpMap = true;
+    }
+  }
 
   var normalMatrix = mat4.create();
   mat4.invert(normalMatrix, this.transform.matrix());
@@ -168,7 +174,6 @@ LEEWGL.Geometry.prototype.renderData = function() {
 
   if (bumpMap !== false) {
     attributes['aTangent'] = this.buffers.tangent;
-    attributes['aBitangent'] = this.buffers.bitangent;
     uniforms['uNormalSampler'] = bumpMap.id;
   }
 
@@ -239,6 +244,7 @@ LEEWGL.Geometry.prototype.clone = function(geometry, cloneID, recursive, addToAl
   var normal = this.vertices.normal;
   var color = this.vertices.color;
   var uv = this.vertices.uv;
+  var tangent = this.vertices.tangent;
   var vectors = this.vectors;
   var faces = this.faces;
 
@@ -250,6 +256,7 @@ LEEWGL.Geometry.prototype.clone = function(geometry, cloneID, recursive, addToAl
   geometry.vertices.normal = [];
   geometry.vertices.color = [];
   geometry.vertices.uv = [];
+  geometry.vertices.tangent = [];
   geometry.faces = [];
 
   var i = 0;
@@ -264,6 +271,9 @@ LEEWGL.Geometry.prototype.clone = function(geometry, cloneID, recursive, addToAl
   }
   for (i = 0; i < uv.length; ++i) {
     geometry.vertices.uv.push(uv[i]);
+  }
+  for (i = 0; i < tangent.length; ++i) {
+    geometry.vertices.tangent.push(tangent[i]);
   }
   for (i = 0; i < this.facesNum; ++i) {
     geometry.faces.push(faces[i]);
@@ -314,19 +324,11 @@ LEEWGL.Geometry3D.prototype.calculateTangents = function() {
     var u = vec3.cross(vec3.create(), w, b);
     vec3.normalize(u, u);
 
-    var v = vec3.cross(vec3.create(), u, w);
-    vec3.normalize(v, v);
-
     var tangent = [u[0], u[1], u[2]];
-    var bitangent = [v[0], v[1], v[2]];
 
-    this.tangents[i + 0] = u[0];
-    this.tangents[i + 1] = u[1];
-    this.tangents[i + 2] = u[2];
-
-    this.bitangents[i + 0] = v[0];
-    this.bitangents[i + 1] = v[1];
-    this.bitangents[i + 2] = v[2];
+    this.vertices.tangent.push(u[0]);
+    this.vertices.tangent.push(u[1]);
+    this.vertices.tangent.push(u[2]);
   }
 };
 /**
@@ -453,8 +455,7 @@ LEEWGL.Geometry3D.prototype.setBuffer = function(gl, type) {
     this.buffers.position.setData(gl, this.vertices.position, new LEEWGL.BufferInformation.VertexTypePos3());
     this.buffers.normal.setData(gl, this.vertices.normal, new LEEWGL.BufferInformation.VertexTypePos3());
     this.buffers.texture.setData(gl, this.vertices.uv, new LEEWGL.BufferInformation.VertexTypePos2());
-    this.buffers.tangent.setData(gl, this.tangents, new LEEWGL.BufferInformation.VertexTypePos3());
-    this.buffers.bitangent.setData(gl, this.bitangents, new LEEWGL.BufferInformation.VertexTypePos3());
+    this.buffers.tangent.setData(gl, this.vertices.tangent, new LEEWGL.BufferInformation.VertexTypePos3());
     this.buffers.indices.setData(gl, this.indices);
   }
 };

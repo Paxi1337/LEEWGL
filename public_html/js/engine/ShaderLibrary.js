@@ -337,10 +337,10 @@ LEEWGL.ShaderLibrary.AMBIENT = 5;
 LEEWGL.ShaderLibrary.DIRECTIONAL = 6;
 LEEWGL.ShaderLibrary.SPOT = 7;
 LEEWGL.ShaderLibrary.POINT = 8;
-LEEWGL.ShaderLibrary.SHADOW_MAPPING_POSITIONAL_LIGHT = 9;
-LEEWGL.ShaderLibrary.BILLBOARD = 10;
-LEEWGL.ShaderLibrary.BILLBOARD_FIXED = 11;
-LEEWGL.ShaderLibrary.BUMPMAP = 12;
+LEEWGL.ShaderLibrary.BUMPMAP = 9;
+LEEWGL.ShaderLibrary.SHADOW_MAPPING_POSITIONAL_LIGHT = 10;
+LEEWGL.ShaderLibrary.BILLBOARD = 11;
+LEEWGL.ShaderLibrary.BILLBOARD_FIXED = 12;
 
 /**
  * window load event to set global

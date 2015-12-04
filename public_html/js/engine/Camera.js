@@ -105,7 +105,7 @@ LEEWGL.Camera.prototype.renderData = function() {
  * @return {LEEWGL.GameObject}
  */
 LEEWGL.Camera.prototype.clone = function(camera, cloneID, recursive, addToAlias) {
-  if (camera === undefined)
+  if (typeof camera === 'undefined' || camera === null)
     camera = new LEEWGL.Camera(this.options);
 
   LEEWGL.GameObject.prototype.clone.call(this, camera, cloneID, recursive, addToAlias);

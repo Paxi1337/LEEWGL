@@ -869,7 +869,6 @@ LEEWGL.UI = function(options) {
       name = this.value.substr(this.value.lastIndexOf('\\') + 1, this.value.length);
       path = LEEWGL.ROOT + 'texture/';
       texture.init(that.gl, path + name);
-      element.usesTexture = true;
 
       that.saved['object-' + element.id + '-texture-path'] = path + name;
       fileName.set('text', path + name);
@@ -1018,7 +1017,6 @@ LEEWGL.UI = function(options) {
     fileInput.addEvent('change', function(event) {
       name = this.value.substr(this.value.lastIndexOf('\\') + 1, this.value.length);
       bumpMap.init(that.gl, path + name);
-      element.usesBumpMap = true;
 
       that.saved['object-' + element.id + '-bumpMap-path'] = path + name;
       fileName.set('text', path + name);

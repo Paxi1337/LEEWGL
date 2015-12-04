@@ -21,15 +21,15 @@ LEEWGL.Component.prototype = {
   /**
    * Function which needs to get called in the update loop of the application
    */
-  update: function() {
-
-  },
+  update: function() {},
   /**
    * Function which needs to get called in the render loop of the application
    */
-  draw: function() {
-
-  },
+  draw: function() {},
+  /**
+   * Function which gets called when component is removed from game object
+   */
+  remove: function() {},
   /**
    * Creates deep copy of this
    * @param  {LEEWGL.Component} component
@@ -384,7 +384,7 @@ LEEWGL.Component.Texture.prototype.clone = function(texture) {
     texture = new LEEWGL.Component.Texture(this.options);
 
   LEEWGL.Component.prototype.clone.call(this, texture);
-  texture.texture = LEEWGL.Texture.prototype.clone.call(this.texture);
+  texture.texture = LEEWGL.Texture.prototype.clone.call(this.texture, texture.texture);
   texture.src = this.src;
   return texture;
 };
@@ -443,7 +443,7 @@ LEEWGL.Component.BumpMap.prototype.clone = function(bumpMap) {
     bumpMap = new LEEWGL.Component.BumpMap(this.options);
 
   LEEWGL.Component.prototype.clone.call(this, bumpMap);
-  bumpMap.bumpMap = LEEWGL.Texture.prototype.clone.call(this.bumpMap);
+  bumpMap.bumpMap = LEEWGL.Texture.prototype.clone.call(this.bumpMap, bumpMap.bumpMap);
   return bumpMap;
 };
 
@@ -498,7 +498,7 @@ LEEWGL.Component.Collider.prototype.clone = function(coll) {
     coll = new LEEWGL.Component.Collider(this.options);
 
   LEEWGL.Component.prototype.clone.call(this, coll);
-  coll.bounding = LEEWGL.Collider.Sphere.prototype.clone.call(this, this.bounding);
+  coll.bounding = LEEWGL.Collider.Sphere.prototype.clone.call(this.bounding, coll.bounding);
   return coll;
 };
 
@@ -575,7 +575,7 @@ LEEWGL.Component.Billboard.prototype.clone = function(bill) {
     bill = new LEEWGL.Component.Billboard(this.options);
 
   LEEWGL.Component.prototype.clone.call(this, bill);
-  coll.billboard = LEEWGL.Billboard.prototype.clone.call(this, this.billboard);
+  bill.billboard = LEEWGL.Billboard.prototype.clone.call(this.billboard, bill.billboard);
   return bill;
 };
 
@@ -638,13 +638,6 @@ LEEWGL.Component.Renderer.prototype.set = function(data) {
 LEEWGL.Component.Renderer.prototype.draw = function(gl, shader) {
   shader.use(gl);
 
-  // if(typeof this.shader.uniforms['uNormalSampler'] !== 'undefined') {
-  //   console.log(this.shader.uniforms);
-  //   console.log(this.uniforms);
-  //   console.log(this.shader.attributes);
-  //   console.log(this.attributes);
-  // }
-
   for (var att in this.attributes) {
     if (shader.attributes.hasOwnProperty(att))
       shader.attributes[att](this.attributes[att]);
@@ -663,9 +656,10 @@ LEEWGL.Component.Renderer.prototype.update = function(obj) {};
  * @param  {LEEWGL.Component.Billboard} bill
  * @return {LEEWGL.Component.Billboard} bill
  */
-LEEWGL.Component.Renderer.prototype.clone = function(bill) {
-  if (typeof bill === 'undefined')
-    bill = new LEEWGL.Component.Billboard(this.options);
+LEEWGL.Component.Renderer.prototype.clone = function(renderer) {
+  if (typeof renderer === 'undefined')
+    renderer = new LEEWGL.Component.Renderer(this.options);
 
-  return bill;
+  LEEWGL.Component.prototype.clone.call(this, renderer);
+  return renderer;
 };

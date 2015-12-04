@@ -2,7 +2,6 @@
  * @constructor
  * @augments LEEWGL.Geometry3D
  * @param {string} options.type
- * @param {LEEWGL.Camera} options.camera
  * @param {number} options.size.x
  * @param {number} options.size.y
  */
@@ -12,7 +11,6 @@ LEEWGL.Billboard = function(options) {
 
   var ext_options = {
     'type': 'normal',
-    'camera': null,
     'size': {
       'x': 2,
       'y': 2
@@ -29,7 +27,7 @@ LEEWGL.Billboard = function(options) {
   /** @inner {LEEWGL.Component.Texture} */
   this.texture = this.components['Texture'];
   /** @inner {LEEWGL.Camera} */
-  this.camera = this.options['camera'];
+  this.camera = null;
   /** @inner {object} */
   this.size = this.options['size'];
 
@@ -105,9 +103,10 @@ LEEWGL.Billboard.prototype.clone = function(billboard, cloneID, recursive, addTo
   if (typeof billboard === 'undefined')
     billboard = new LEEWGL.Billboard(this.options);
   LEEWGL.Geometry3D.prototype.clone.call(this, billboard, cloneID, recursive, addToAlias);
-  billboard.texture = LEEWGL.Component.Texture.prototype.clone.call(billboard.texture, this.texture);
+
+  billboard.texture = LEEWGL.Component.Texture.prototype.clone.call(this.texture, billboard.texture);
   billboard.billboardType = this.billboardType;
-  billboard.camera = LEEWGL.Camera.prototype.clone.call(billboard.camera, this.camera);
+  billboard.camera = LEEWGL.PerspectiveCamera.prototype.clone.call(this.camera, billboard.camera);
   billboard.size = this.size;
   return billboard;
 };

@@ -417,11 +417,13 @@ LEEWGL.GameObject.prototype = {
     object.alias = alias;
     object.tagname = this.tagname;
 
+
     if (typeof this.parent !== 'undefined')
       object.parent = this.parent.clone(object.parent, cloneID, false, addToAlias);
 
     if (cloneID === true)
       object.id = this.id;
+
 
     object.transform = LEEWGL.Component.Transform.prototype.clone.call(this.transform, object.transform);
     for (var component in this.components) {
