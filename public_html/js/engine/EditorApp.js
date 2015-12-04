@@ -51,9 +51,11 @@ LEEWGL.EditorApp = function(options) {
     'wireframe': true
   });
   /** @inner {LEEWGL.Light} */
-  this.light = new LEEWGL.Light.SpotLight({
+  this.light = new LEEWGL.Light.PointLight({
     'alias': 'Light',
-    'tagname': 'Light'
+    'tagname': 'Light',
+    'ambient' : [1.0, 1.0, 1.0],
+    'specular' : 10
   });
 
   this.billboard = new LEEWGL.Billboard({
@@ -71,6 +73,8 @@ LEEWGL.EditorApp = function(options) {
 
   /** @inner {array} */
   this.activeKeys = [];
+  /** @inner {vec2} */
+  this.resolution = vec2.fromValues(512, 512);
 
   /** @inner {bool} */
   this.picking = (typeof options !== 'undefined' && typeof options.picking !== 'undefined') ? options.picking : true;
@@ -108,7 +112,7 @@ LEEWGL.EditorApp = function(options) {
     }
   });
   /** @inner {bool} */
-  this.useShadows = true;
+  this.useShadows = false;
 };
 
 LEEWGL.EditorApp.prototype = Object.create(LEEWGL.App.prototype);
@@ -126,9 +130,9 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   this.gameCamera.add(this.cameraGizmo);
   this.cameraGizmo.transform.setPosition([10.0, 0.0, 10.0]);
 
-  this.light.transform.setPosition([0.0, 10.0, 10.0]);
+  this.light.transform.setPosition([0.0, 5.0, 1.0]);
 
-  var shader = this.initShaders(LEEWGL.ShaderLibrary.SPOT);
+  var shader = this.initShaders(this.light.shaderType);
 
   this.scene.setShader('color', shader.color);
   this.scene.setShader('texture', shader.texture);
@@ -151,6 +155,13 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   this.cube.transform.setPosition([5, 0, 0]);
 
   this.cube.addComponent(new LEEWGL.Component.CustomScript());
+  this.cube.addComponent(new LEEWGL.Component.Texture());
+
+  this.cube.components['Texture'].init(this.gl, LEEWGL.ROOT + 'texture/masonry-wall-texture.jpg');
+  this.cube.usesTexture = true;
+  this.cube.addComponent(new LEEWGL.Component.BumpMap());
+  this.cube.components['BumpMap'].init(this.gl, LEEWGL.ROOT + 'texture/masonry-wall-normal-map.jpg');
+  this.cube.usesBumpMap = true;
 
   this.grid.setBuffer(this.gl);
   this.grid.addColor(this.gl, ColorHelper.getUniqueColor());
@@ -165,8 +176,6 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   this.billboard.setBuffer(this.gl);
   // this.light.add(this.billboard);
   this.cube.add(this.cameraGizmo);
-
-  console.log(this.light);
 
   this.billboard.transform.translate([0.0, 10.0, 10.0]);
   // this.gameCamera.add(this.billboard);
@@ -237,6 +246,7 @@ LEEWGL.EditorApp.prototype.initShaders = function(lightType) {
   }
 
   SHADER_LIBRARY.addParameterChunks([LEEWGL.ShaderLibrary.INIT, LEEWGL.ShaderLibrary.DEFAULT, LEEWGL.ShaderLibrary.PICKING, LEEWGL.ShaderLibrary.COLOR, LEEWGL.ShaderLibrary.AMBIENT, lightType]);
+
   colorShader.createShaderFromCode(this.gl, LEEWGL.Shader.VERTEX, SHADER_LIBRARY.out(LEEWGL.Shader.VERTEX));
   colorShader.createShaderFromCode(this.gl, LEEWGL.Shader.FRAGMENT, SHADER_LIBRARY.out(LEEWGL.Shader.FRAGMENT));
   SHADER_LIBRARY.removeParameterChunk(LEEWGL.ShaderLibrary.COLOR);
@@ -313,21 +323,23 @@ LEEWGL.EditorApp.prototype.updatePickingList = function(scene) {
 };
 
 LEEWGL.EditorApp.prototype.onMouseDown = function(event) {
+  var button = getMouseInformation(event).button;
   var mouseCords = UI.getRelativeMouseCoordinates(event, this.canvas);
-
   event.target.focus();
 
   var obj = null;
 
-  if (this.picking === true) {
-    obj = this.picker.pick(this.gl, mouseCords.x, mouseCords.y);
-    if (obj !== null) {
-      this.activeElement = obj;
-      this.movement.x = 0;
-      this.movement.y = 0;
-      UI.setInspectorElement(obj.id);
-    } else {
-      UI.setInspectorElement(-1);
+  if (event.which !== 3 && button !== LEEWGL.MOUSE.RIGHT) {
+    if (this.picking === true) {
+      obj = this.picker.pick(this.gl, mouseCords.x, mouseCords.y);
+      if (obj !== null) {
+        this.activeElement = obj;
+        this.movement.x = 0;
+        this.movement.y = 0;
+        UI.setInspectorElement(obj.id);
+      } else {
+        UI.setInspectorElement(-1);
+      }
     }
   }
   event.preventDefault();
@@ -529,7 +541,8 @@ LEEWGL.EditorApp.prototype.onRender = function() {
     renderer.set({
       'uniforms': {
         'uView': view,
-        'uProjection': proj
+        'uProjection': proj,
+        'uResolution': that.resolution
       }
     });
     that.draw(el, activeShader, camera, true);
@@ -563,6 +576,12 @@ LEEWGL.EditorApp.prototype.onRender = function() {
     }
 
     renderer.set(camera.renderData());
+    renderer.set({
+      'unforms': {
+        'uResolution': that.resolution
+      }
+    });
+
 
     if (that.picking === true && renderer.options['picking'] === true) {
       that.picker.bind(that.gl);

@@ -84,9 +84,13 @@ LEEWGL.Camera.prototype.setEditables = function() {
  * @return {object}
  */
 LEEWGL.Camera.prototype.renderData = function() {
+  var world = mat4.identity(mat4.create());
   var uniforms = {
+    'uWorld': world,
+    'uWorldIT': mat4.transpose(mat4.create(), mat4.invert(mat4.create(), world)),
     'uView': this.viewMatrix,
-    'uProjection': this.projMatrix
+    'uProjection': this.projMatrix,
+    'uEyePosition' : this.transform.position
   };
 
   return {

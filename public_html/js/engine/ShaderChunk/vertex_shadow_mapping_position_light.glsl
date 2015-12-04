@@ -1,1 +1,1 @@
-initShadow(positionWorld);
+initShadow(positionWorldSpace);

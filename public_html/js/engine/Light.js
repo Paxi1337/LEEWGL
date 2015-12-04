@@ -71,7 +71,8 @@ LEEWGL.Light.prototype.renderData = function() {
     'uniforms': {
       'uAmbient': this.ambient,
       'uSpecular': this.specular,
-      'uLightColor': this.color
+      'uLightColor': this.color,
+      'uShininess' : 8.0
     }
   };
 };
@@ -111,6 +112,7 @@ LEEWGL.Light.DirectionalLight = function(options) {
   this.setOptions(options);
 
   this.lightType = 'Directional';
+  this.shaderType = LEEWGL.ShaderLibrary.DIRECTIONAL;
   this.direction = vec3.clone(this.options['direction']);
 
   this.setEditables();
@@ -205,6 +207,8 @@ LEEWGL.Light.SpotLight = function(options) {
   this.setOptions(options);
 
   this.lightType = 'Spot';
+  this.shaderType = LEEWGL.ShaderLibrary.SPOT;
+
   this.spotDirection = vec3.clone(this.options['spot-direction']);
   this.radius = this.options.radius;
   this.innerAngle = this.options['inner-angle'];
@@ -288,6 +292,8 @@ LEEWGL.Light.SpotLight.prototype.renderData = function() {
   data.uniforms['uSpotInnerAngle'] = this.innerAngle;
   data.uniforms['uSpotOuterAngle'] = this.outerAngle;
   data.uniforms['uLightRadius'] = this.radius;
+  data.uniforms['uLightView'] = this.getView([0, 0, 0]);
+  data.uniforms['uLightModel'] = this.transform.matrix();
   return data;
 };
 /**
@@ -326,6 +332,7 @@ LEEWGL.Light.PointLight = function(options) {
   this.setOptions(options);
 
   this.lightType = 'Point';
+  this.shaderType = LEEWGL.ShaderLibrary.POINT;
   this.radius = this.options.radius;
 
   this.setEditables();
@@ -388,6 +395,9 @@ LEEWGL.Light.PointLight.prototype.renderData = function() {
   var data = LEEWGL.Light.prototype.renderData.call(this);
   data.uniforms['uLightPosition'] = this.transform.position;
   data.uniforms['uLightRadius'] = this.radius;
+  data.uniforms['uLightView'] = this.getView([0, 0, 0]);
+  data.uniforms['uLightModel'] = this.transform.matrix();
+  data.uniforms['uLightViewModel'] = mat4.multiply(mat4.create(), this.getView([0, 0, 0]), this.transform.matrix());
   return data;
 };
 /**
@@ -404,4 +414,31 @@ LEEWGL.Light.PointLight.prototype.clone = function(pointLight, cloneID, recursiv
   LEEWGL.Light.prototype.clone.call(this, pointLight, cloneID, recursive, addToAlias);
   pointLight.radius = this.radius;
   return pointLight;
+};
+
+/**
+ * @constructor
+ * @param  {vec3} options.ambient
+ * @param  {vec3} options.diffuse
+ * @param  {vec3} options.specular
+ */
+LEEWGL.Material = function(options) {
+  this.options = {
+    'ambient': [0.5, 0.5, 0.5],
+    'diffuse': [1.0, 1.0, 1.0],
+    'specular': [0.3, 0.3, 0.3]
+  };
+
+  extend(LEEWGL.Material.prototype, LEEWGL.Options.prototype);
+  this.setOptions(options);
+
+  this.renderData = function() {
+    return {
+      'uniforms': {
+        'uMaterialAmbientColor': this.options.ambient,
+        'uMaterialDiffuseColor': this.options.diffuse,
+        'uMaterialSpecularColor': this.options.specular
+      }
+    };
+  };
 };

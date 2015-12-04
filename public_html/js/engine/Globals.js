@@ -66,10 +66,10 @@ function addSetMethodToJSON(arr) {
   arr.set = function(that, key, value, index) {
     if (typeof index !== 'undefined') {
       this[key].value[index] = value;
-      that[this[key]['alias']][index] = value;
+      that[key][index] = value;
     } else {
       this[key].value = value;
-      that[this[key]['alias']] = value;
+      that[key] = value;
     }
   };
 }
@@ -77,26 +77,8 @@ function addSetMethodToJSON(arr) {
 function addToJSON(destination, source) {
   for (var attribute in source) {
     destination[attribute] = source[attribute];
-    destination[attribute]['alias'] = attribute;
   }
   return destination;
-}
-
-function mergeJSONArrays() {
-  var ar = [];
-
-  return ar.concat.apply(ar, arguments).sort(function(a, b) {
-    console.log(a);
-    console.log(b);
-    var aName = a.NAME;
-    var bName = b.NAME;
-    if (aName < bName)
-      return -1;
-    else if (aName === bName)
-      return 0;
-    else
-      return 1;
-  });
 }
 
 /**

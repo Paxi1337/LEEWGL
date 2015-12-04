@@ -59,7 +59,6 @@ LEEWGL.Shader.prototype = {
     gl.shaderSource(_shader, code);
     gl.compileShader(_shader);
     if (!gl.getShaderParameter(_shader, gl.COMPILE_STATUS)) {
-      console.log(_shader);
       console.error('LEEWGL.Shader.compile(): compile error: ' + gl.getShaderInfoLog(_shader));
       return null;
     }
