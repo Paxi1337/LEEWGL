@@ -118,6 +118,15 @@ LEEWGL.Texture.prototype = {
     };
   },
 
+  setTextureCanvas: function(gl, canvas) {
+    this.bind(gl);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    this.unbind(gl);
+  },
+
   isPowerOfTwo: function(value) {
     return (value & (value - 1)) === 0;
   },

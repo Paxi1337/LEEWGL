@@ -54,13 +54,17 @@ LEEWGL.EditorApp = function(options) {
   this.light = new LEEWGL.Light.PointLight({
     'alias': 'Light',
     'tagname': 'Light',
-    'ambient' : [1.0, 1.0, 1.0],
-    'specular' : 10
+    'ambient': [1.0, 1.0, 1.0],
+    'specular': 10
   });
 
   this.billboard = new LEEWGL.Billboard({
     'alias': 'Billboard',
     'tagname': 'Billboard'
+  });
+
+  this.text = new LEEWGL.Text({
+    'canvas': document.querySelector('#text-canvas')
   });
 
   /** @inner {LEEWGL.Picker} */
@@ -159,8 +163,8 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   this.cube.addComponent(new LEEWGL.Component.Texture());
   this.cube.components['Texture'].init(this.gl, LEEWGL.ROOT + 'texture/masonry-wall-texture.jpg');
 
-  this.cube.addComponent(new LEEWGL.Component.BumpMap());
-  this.cube.components['BumpMap'].init(this.gl, LEEWGL.ROOT + 'texture/masonry-wall-normal-map.jpg');
+  // this.cube.addComponent(new LEEWGL.Component.BumpMap());
+  // this.cube.components['BumpMap'].init(this.gl, LEEWGL.ROOT + 'texture/masonry-wall-normal-map.jpg');
 
   this.grid.setBuffer(this.gl);
   this.grid.addColor(this.gl, ColorHelper.getUniqueColor());
@@ -205,6 +209,11 @@ LEEWGL.EditorApp.prototype.onCreate = function() {
   UI.setScene(this.scene);
   UI.addObjToOutline(this.scene.children);
   UI.setTransformationMode('translation');
+
+  this.text.draw('Hello World!', 300);
+  this.text.createTexture(this.gl);
+
+  this.cube.components['Texture'].texture = this.text.texture;
 
   // console.log(encodeURI(test));
 
@@ -678,7 +687,7 @@ LEEWGL.EditorApp.prototype.onPlay = function() {
   var that = this;
 
   var onInit = function() {
-    if(typeof this.components['CustomScript'] === 'undefined')
+    if (typeof this.components['CustomScript'] === 'undefined')
       return;
 
     var scripts = this.components['CustomScript'].applied;

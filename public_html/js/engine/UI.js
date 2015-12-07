@@ -95,6 +95,16 @@ LEEWGL.UI = function(options) {
     }
   }.bind(this)));
 
+  /** @inner {LEEWGL.UI.BasicPopup} */
+  this.tooltipPopup = new LEEWGL.UI.BasicPopup({
+    'wrapper-width': 'fit',
+    'wrapper-height': 'auto',
+    'wrapper-class': 'popup-tooltip',
+    'content-class': 'popup-content fcenter',
+    'title-enabled': false,
+  });
+  this.tooltipPopup.create();
+
   /** @inner {LEEWGL.UI.Sidebar} */
   this.sidebar = new LEEWGL.UI.Sidebar({
     'position': {
@@ -382,6 +392,44 @@ LEEWGL.UI = function(options) {
         level += 10;
         constructOutline(outlineObj.children[i]);
       }
+      /**
+       * tooltip
+       */
+      var showTooltipID;
+      var showTooltip = function(element) {
+        var data = new LEEWGL.DOM.Element('ul');
+        var tagName = new LEEWGL.DOM.Element('li', {
+          'text' : 'Tagname: ' + obj.tagname
+        });
+        data.grab(tagName);
+
+        element.addEvent('mouseenter', function(event) {
+          showTooltipID = window.setTimeout(function() {
+            that.tooltipPopup.empty();
+            that.tooltipPopup.addCustomElementToContent(data);
+            that.tooltipPopup.setDimensions();
+            var positionY = element.position().y;
+            var positionX = that.inspector.position().x;
+
+            var size = that.tooltipPopup.getSize();
+            that.tooltipPopup.setPosition({
+              'x': positionX,
+              'y': positionY
+            });
+            that.tooltipPopup.show();
+          }, 1000);
+        });
+      };
+
+      var hideTooltip = function(element) {
+        element.addEvent('mouseout', function(event) {
+          window.clearTimeout(showTooltipID);
+          that.tooltipPopup.hide();
+        });
+      };
+
+      showTooltip(item);
+      hideTooltip(item);
     };
 
     for (var i in this.outline) {
@@ -1403,30 +1451,22 @@ LEEWGL.UI = function(options) {
 
   this.tooltipEvent = function(classname) {
     var elements = document.querySelectorAll(classname);
-    var tooltipPopup = new LEEWGL.UI.BasicPopup({
-      'wrapper-width': 'fit',
-      'wrapper-height': 'auto',
-      'wrapper-class': 'popup-tooltip',
-      'content-class': 'popup-content fcenter',
-      'title-enabled': false,
-    });
-    tooltipPopup.create();
 
     var showTooltipID;
     var that = this;
     var showTooltip = function(element) {
       element.addEvent('mouseenter', function(event) {
         showTooltipID = window.setTimeout(function() {
-          tooltipPopup.empty();
-          tooltipPopup.addText(element.get('data-tooltip'));
-          tooltipPopup.setDimensions();
+          that.tooltipPopup.empty();
+          that.tooltipPopup.addText(element.get('data-tooltip'));
+          that.tooltipPopup.setDimensions();
           var position = element.position();
-          var size = tooltipPopup.getSize();
-          tooltipPopup.setPosition({
+          var size = that.tooltipPopup.getSize();
+          that.tooltipPopup.setPosition({
             'x': position.x - (size.width / 2),
             'y': position.y - (size.height + 10)
           });
-          tooltipPopup.show();
+          that.tooltipPopup.show();
         }, 1000);
       });
     };
@@ -1434,7 +1474,7 @@ LEEWGL.UI = function(options) {
     var hideTooltip = function() {
       element.addEvent('mouseout', function(event) {
         window.clearTimeout(showTooltipID);
-        tooltipPopup.hide();
+        that.tooltipPopup.hide();
       });
     };
 

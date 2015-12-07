@@ -94,3 +94,11 @@ function numDigits(x, integer) {
 
   return Math.max(Math.floor(Math.log10(Math.abs(x))), 0) + 1;
 }
+
+function getPowerOfTwo(value, pow) {
+  pow = (typeof pow !== 'undefined') ? pow : 1;
+  while (pow < value) {
+    pow *= 2;
+  }
+  return pow;
+}

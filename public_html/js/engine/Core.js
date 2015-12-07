@@ -186,7 +186,6 @@ LEEWGL.Core = function(options) {
   var _context = this.options.context;
   var _app = null;
 
-  // public properties
   this.canvas = _canvas;
   this.context = null;
   this.timer = new LEEWGL.Timer();
@@ -204,10 +203,8 @@ LEEWGL.Core = function(options) {
     _viewportHeight = _canvas.height,
     _quit = false;
 
-  // initialize webGL
   var _gl = null;
 
-  // execution block
   try {
     _gl = _context || _canvas.getContext('webgl') || _canvas.getContext('experimental-webgl');
     if (_gl === null) {
