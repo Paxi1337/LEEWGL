@@ -584,7 +584,7 @@ LEEWGL.Geometry3D.Triangle = function(options) {
 
   this.type = 'Geometry3D.Triangle';
 
-  /// FIXME: one position
+  /// FIXME:40 one position
   var position = [
     // front face
     0.0, 1.0, 0.0, //

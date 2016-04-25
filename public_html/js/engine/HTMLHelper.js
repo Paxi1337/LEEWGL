@@ -382,13 +382,16 @@ LEEWGL.HTMLHelper = function() {
     var container = new LEEWGL.DOM.Element('div', {
       'class': (typeof options['container-class'] !== 'undefined') ? options['container-class'] : ''
     });
-    var headlineContainer = new LEEWGL.DOM.Element('div');
-    var h = new LEEWGL.DOM.Element((typeof options['headline-type'] !== 'undefined') ? options['headline-type'] : 'h1', {
-      'class': (typeof options['headline-class'] !== 'undefined') ? options['headline-class'] : '',
-      'html': headline
-    });
-    headlineContainer.grab(h);
-    container.grab(headlineContainer);
+
+    if (headline !== null) {
+      var headlineContainer = new LEEWGL.DOM.Element('div');
+      var h = new LEEWGL.DOM.Element((typeof options['headline-type'] !== 'undefined') ? options['headline-type'] : 'h1', {
+        'class': (typeof options['headline-class'] !== 'undefined') ? options['headline-class'] : '',
+        'html': headline
+      });
+      headlineContainer.grab(h);
+      container.grab(headlineContainer);
+    }
 
     var checkboxesContainer = new LEEWGL.DOM.Element('div', {
       'class': 'checkbox-container'
@@ -400,9 +403,12 @@ LEEWGL.HTMLHelper = function() {
       });
       var checkbox = new LEEWGL.DOM.Element('input', {
         'type': 'checkbox',
-        'value': 'none',
-        'checked': checked
+        'value': 'none'
       });
+
+      if(checked === true)
+        checkbox.setAttribute('checked');
+
       if (i !== null) {
         checkbox.setAttribute('identifier', i);
         checkbox.setAttribute('id', i);
@@ -423,7 +429,7 @@ LEEWGL.HTMLHelper = function() {
     };
 
     var element = null;
-    if (typeof content.length !== 'undefined') {
+    if (content instanceof Array) {
       for (var i = 0; i < content.length; ++i) {
         element = create(id[i], content[i], checked[i]);
         checkboxesContainer.grab(element);

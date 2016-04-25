@@ -341,10 +341,12 @@ LEEWGL.EditorApp.prototype.onMouseDown = function(event) {
     if (this.picking === true) {
       obj = this.picker.pick(this.gl, mouseCords.x, mouseCords.y);
       if (obj !== null) {
-        this.activeElement = obj;
-        this.movement.x = 0;
-        this.movement.y = 0;
-        UI.setInspectorElement(obj.id);
+        if (obj.editables.picking.value) {
+          this.activeElement = obj;
+          this.movement.x = 0;
+          this.movement.y = 0;
+          UI.setInspectorElement(obj.id);
+        }
       } else {
         UI.setInspectorElement(-1);
       }
@@ -559,7 +561,9 @@ LEEWGL.EditorApp.prototype.onRender = function() {
   var render = function() {
     var el = this;
     var renderer = el.components['Renderer'];
-    if (typeof renderer === 'undefined')
+    var renderEnabled = el.editables.render.value;
+
+    if (typeof renderer === 'undefined' || !renderEnabled)
       return;
 
     if (that.playing === true)
@@ -668,6 +672,7 @@ LEEWGL.EditorApp.prototype.draw = function(element, shader, camera) {
   var lightRenderData = this.light.renderData();
   renderer.set(renderData);
   renderer.set(lightRenderData);
+
   renderer.draw(this.gl, shader);
 
   if (element instanceof LEEWGL.Billboard) {

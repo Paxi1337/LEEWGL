@@ -68,10 +68,14 @@ hr {
 }
 .main-wrapper {
   background-color: #e2e2e2;
+  height: 100%;
 }
 .main-content {
   position: relative;
-  margin: 15px auto;
+  margin-top: 15px;
+  margin-bottom: 55px;
+  margin-left: auto;
+  margin-right: auto;
   min-height: 1000px;
   width: 1200px;
 }
@@ -222,6 +226,8 @@ hr {
   top: 0;
 }
 .status-bar-overall {
+  position: fixed;
+  bottom: 0;
   width: 100%;
   text-align: center;
 }

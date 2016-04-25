@@ -399,7 +399,7 @@ LEEWGL.UI = function(options) {
       var showTooltip = function(element) {
         var data = new LEEWGL.DOM.Element('ul');
         var tagName = new LEEWGL.DOM.Element('li', {
-          'text' : 'Tagname: ' + obj.tagname
+          'text': 'Tagname: ' + obj.tagname
         });
         data.grab(tagName);
 
@@ -1196,7 +1196,7 @@ LEEWGL.UI = function(options) {
         }
       });
 
-      /// FIXME: can be called in play mode and doesnt work as expected
+      /// FIXME:10 can be called in play mode and doesnt work as expected
       var changeLight = (function(event, element, content) {
         var old = that.scene.getObjectByType('Light');
         var newType = element.e.value;
@@ -1220,17 +1220,14 @@ LEEWGL.UI = function(options) {
         that.app.onShaderChange('light', typeShader);
       });
 
-      var changeRenderProperties = (function(event, element, vector) {
+      var changeRenderProperties = (function(event, element) {
         var id = element.get('identifier');
-        // obj.editables.set(obj, '')
-        console.log(obj.editables);
-        console.log(element.e.checked);
+        obj.editables.set(obj, id, element.e.checked);
       });
 
       for (var e in obj.editables) {
         var editable = obj.editables[e];
         if (editable.type === 'vector') {
-          console.log(editable);
           container.grab(HTMLHELPER.createTableAsDiv({
             'id': e,
             'container-class': 'component-detail-container',
@@ -1264,6 +1261,13 @@ LEEWGL.UI = function(options) {
             }, editable.name, content, changeLight, light.lightType));
           }
         } else if (editable.type === 'checkbox') {
+          container.grab(HTMLHELPER.createCheckbox({
+            'container-class': 'component-detail-container',
+            'headline-class': 'component-detail-headline',
+            'headline-type': 'h4',
+            'input-class': 'settings-checkbox fleft'
+          }, editable.name.toLowerCase(), null, editable.name, changeRenderProperties, editable.value));
+        } else if (editable.type === 'checkbox-group') {
           var ids = [];
           var c = [];
           var d = [];

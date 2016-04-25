@@ -67,12 +67,23 @@ LEEWGL.Light.prototype.setEditables = function() {
  * @returns  {object} data
  */
 LEEWGL.Light.prototype.renderData = function() {
+  if (this.editables.render.value === false) {
+    return {
+      'uniforms': {
+        'uAmbient': vec3.fromValues(0, 0, 0),
+        'uSpecular': 0,
+        'uLightColor': vec3.fromValues(0, 0, 0),
+        'uShininess': 0
+      }
+    }
+  }
+
   return {
     'uniforms': {
       'uAmbient': this.ambient,
       'uSpecular': this.specular,
       'uLightColor': this.color,
-      'uShininess' : 8.0
+      'uShininess': 8.0
     }
   };
 };
