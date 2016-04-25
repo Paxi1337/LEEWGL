@@ -142,17 +142,15 @@ LEEWGL.GameObject.prototype = {
         'type': 'string',
         'value': this.tagname
       },
-      'renderProperties': {
-        'picking': {
-          'name': 'Picking',
-          'value': this.picking
-        },
-        'render': {
-          'name': 'Render',
-          'value': this.render
-        },
-        'name' : 'RenderProperties',
-        'type': 'checkbox'
+      'picking': {
+        'name': 'Picking',
+        'type': 'checkbox',
+        'value': this.picking
+      },
+      'render': {
+        'name': 'Render',
+        'type': 'checkbox',
+        'value': this.render
       }
     };
 

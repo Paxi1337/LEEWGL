@@ -77,7 +77,7 @@ LEEWGL.PerspectiveCamera.prototype.offsetOrientation = function(up, right) {
  * Set orientation to look at given vector
  * @param  {vec3} lookAt
  */
-/// FIXME: use mat4.lookAt
+/// FIXME:60 use mat4.lookAt
 LEEWGL.PerspectiveCamera.prototype.setLookAt = function(lookAt) {
   var direction = vec3.normalize(vec3.create(), vec3.subtract(vec3.create(), lookAt, this.transform.position));
   this.verticalAngle = Math.asin(-direction[1]);
